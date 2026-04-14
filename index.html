@@ -4,13 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pier — AI for legacy websites</title>
-<meta name="description" content="Manage WordPress, custom PHP and any FTP-hosted site by chatting with AI. Edit live, undo any change, never break a site again. Native Mac app.">
+<meta name="description" content="Manage WordPress, custom PHP and any FTP-hosted site by chatting with AI. Edit live, batch-refactor, audit, undo. Native Mac app. 14-day free trial.">
 <meta name="theme-color" content="#14110E">
-
-<!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Pier — AI for legacy websites">
-<meta property="og:description" content="Chat your way through any FTP-hosted site. Versioned, safe, undoable. For freelancers and agencies maintaining legacy WordPress and PHP.">
+<meta property="og:description" content="Chat your way through any FTP-hosted site. Versioned, safe, undoable.">
 <meta property="og:image" content="https://pier.abn.company/og.png">
 <meta property="og:url" content="https://pier.abn.company">
 <meta name="twitter:card" content="summary_large_image">
@@ -18,164 +16,321 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   :root{
-    --bg:#14110E; --bg2:#1B1813; --bg3:#211E18;
-    --accent:#FF8A4C; --accent2:#FFA670; --accent-glow:rgba(255,138,76,.32);
+    --bg:#14110E; --bg2:#1B1813; --bg3:#211E18; --bg4:#2A2620;
+    --accent:#FF8A4C; --accent2:#FFA670; --accent3:#FFB347; --accent-glow:rgba(255,138,76,.32);
     --cream:#F5E6D3; --cream-soft:#E8D7BE; --sand:#C6B299;
-    --text:#F5F1E8; --text2:#B5A993; --text3:#6E6555;
-    --line:rgba(245,230,211,.10); --line-strong:rgba(245,230,211,.16);
-    --green:#6BB6A0; --red:#E47370;
-    --r:14px; --rs:10px;
-    --font:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
+    --text:#F5F1E8; --text2:#B5A993; --text3:#6E6555; --text4:#4A4339;
+    --line:rgba(245,230,211,.08); --line-strong:rgba(245,230,211,.16);
+    --green:#6BB6A0; --green-soft:rgba(107,182,160,.1);
+    --red:#E47370; --red-soft:rgba(228,115,112,.1);
+    --blue:#6BA8C9; --yellow:#E8B341;
+    --r:16px; --rs:10px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+    --display:'Inter Tight','Inter',system-ui,sans-serif;
     --mono:'JetBrains Mono','SF Mono',monospace;
   }
-  html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-feature-settings:'cv11','ss01';-webkit-font-smoothing:antialiased;line-height:1.55}
+  html{scroll-behavior:smooth}
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-feature-settings:'cv11','ss01','ss02';-webkit-font-smoothing:antialiased;line-height:1.55;overflow-x:hidden}
   a{color:var(--accent);text-decoration:none;transition:color .15s}
   a:hover{color:var(--accent2)}
   ::selection{background:var(--accent-glow);color:var(--text)}
 
-  /* Layout */
-  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
-  section{padding:96px 0;position:relative}
-  @media (max-width:720px){section{padding:64px 0}.wrap{padding:0 18px}}
+  /* Grain texture overlay for warmth */
+  body::before{content:'';position:fixed;inset:0;pointer-events:none;opacity:.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");z-index:9999;mix-blend-mode:overlay}
+
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
+  @media (max-width:720px){.wrap{padding:0 20px}}
+  section{padding:120px 0;position:relative}
+  @media (max-width:720px){section{padding:72px 0}}
+
+  /* TYPE */
+  .eyebrow{display:inline-flex;align-items:center;gap:10px;padding:6px 14px;border-radius:999px;background:rgba(255,138,76,.08);border:1px solid rgba(255,138,76,.2);font-size:12px;font-weight:600;color:var(--accent);letter-spacing:.3px;margin-bottom:24px}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+  h1,h2,h3{font-family:var(--display);letter-spacing:-.03em;line-height:1.02}
+  h1{font-size:clamp(44px,7vw,92px);font-weight:800}
+  h2{font-size:clamp(34px,4.8vw,60px);font-weight:800;line-height:1.05}
+  h3{font-size:clamp(20px,1.6vw,26px);font-weight:700;letter-spacing:-.02em;line-height:1.2}
+  .gradient{background:linear-gradient(120deg,#FFB347 0,#FF8A4C 50%,#FF7A42 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .muted{color:var(--text2)}
+  .lead{font-size:clamp(17px,1.4vw,21px);color:var(--text2);line-height:1.55}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:12px;font-weight:600;font-size:14px;border:1px solid transparent;transition:all .2s cubic-bezier(.2,.8,.2,1);cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-primary{background:linear-gradient(180deg,#FFB347 0%,#FF8A4C 100%);color:#1B1813}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 40px var(--accent-glow)}
+  .btn-ghost{color:var(--text);border-color:var(--line-strong);background:rgba(245,230,211,.02)}
+  .btn-ghost:hover{background:var(--bg2);border-color:var(--cream-soft);color:var(--text)}
+  .btn-lg{padding:16px 28px;font-size:15px;border-radius:14px}
 
   /* NAV */
-  nav.top{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);background:rgba(20,17,14,.72);border-bottom:1px solid var(--line)}
-  nav.top .row{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.5px;font-size:18px}
-  .brand .mark{width:30px;height:30px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
-  .nav-links{display:flex;gap:28px;align-items:center}
+  nav.top{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(18px);background:rgba(20,17,14,.72);border-bottom:1px solid var(--line)}
+  nav.top .row{display:flex;align-items:center;justify-content:space-between;padding:16px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;letter-spacing:-.02em;font-size:19px}
+  .brand .mark{width:32px;height:32px;border-radius:9px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .nav-links{display:flex;gap:30px;align-items:center}
   .nav-links a{color:var(--text2);font-size:14px;font-weight:500}
   .nav-links a:hover{color:var(--text)}
   @media (max-width:720px){.nav-links a:not(.btn){display:none}}
 
-  /* Buttons */
-  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid transparent;transition:all .15s;cursor:pointer;font-family:inherit}
-  .btn-primary{background:var(--accent);color:#1B1813;border-color:var(--accent)}
-  .btn-primary:hover{background:var(--accent2);color:#1B1813;transform:translateY(-1px);box-shadow:0 10px 30px var(--accent-glow)}
-  .btn-ghost{color:var(--text);border-color:var(--line-strong);background:transparent}
-  .btn-ghost:hover{background:var(--bg2);border-color:var(--cream-soft)}
-  .btn-lg{padding:14px 24px;font-size:15px;border-radius:12px}
-
-  /* Hero */
-  .hero{padding-top:80px;padding-bottom:60px;position:relative;overflow:hidden}
-  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(800px 400px at 50% -10%,rgba(255,138,76,.15),transparent 60%);pointer-events:none}
-  .hero h1{font-size:clamp(40px,6vw,76px);font-weight:800;letter-spacing:-2px;line-height:1.05;text-align:center;max-width:900px;margin:24px auto 18px}
-  .hero h1 em{font-style:normal;background:linear-gradient(90deg,#FFB347 0,#FF8A4C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero .sub{font-size:clamp(16px,1.6vw,20px);color:var(--text2);text-align:center;max-width:640px;margin:0 auto 36px;line-height:1.55}
+  /* HERO */
+  .hero{padding-top:88px;padding-bottom:40px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:
+    radial-gradient(900px 500px at 50% -5%,rgba(255,138,76,.18),transparent 55%),
+    radial-gradient(600px 400px at 85% 20%,rgba(255,179,71,.08),transparent 60%);
+    pointer-events:none}
+  .hero-inner{text-align:center;max-width:960px;margin:0 auto;position:relative;z-index:1}
+  .hero h1{letter-spacing:-.04em;margin:22px auto 22px}
+  .hero h1 em{font-style:normal}
+  .hero .lead{max-width:680px;margin:0 auto 34px}
   .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .badge{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);font-size:12px;color:var(--text2);font-weight:500;margin:0 auto;width:fit-content}
-  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(107,182,160,.5)}
+  .hero-note{margin-top:22px;font-size:13px;color:var(--text3)}
 
-  /* App preview frame */
-  .app-frame{margin:64px auto 0;max-width:1100px;padding:8px;background:linear-gradient(180deg,rgba(255,138,76,.18) 0%,transparent 60%);border-radius:20px}
-  .app-frame .shot{aspect-ratio:16/10;background:var(--bg2);border:1px solid var(--line-strong);border-radius:14px;display:grid;grid-template-columns:200px 1fr;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
-  .app-frame .ap-side{background:var(--bg3);border-right:1px solid var(--line);padding:20px 14px}
-  .app-frame .ap-side .as-brand{display:flex;align-items:center;gap:8px;margin-bottom:24px}
-  .app-frame .ap-side .as-brand .m{width:24px;height:24px;border-radius:6px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
-  .app-frame .ap-side .as-brand strong{font-size:13px;font-weight:700}
-  .app-frame .ap-side .as-label{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:8px;font-weight:600}
-  .app-frame .ap-side .as-conn{padding:10px;border-radius:8px;background:rgba(255,138,76,.08);border:1px solid rgba(255,138,76,.2);margin-bottom:6px;font-size:12px}
-  .app-frame .ap-side .as-conn .name{font-weight:600}
-  .app-frame .ap-side .as-conn .host{color:var(--text3);font-size:10px;font-family:var(--mono);margin-top:2px}
-  .app-frame .ap-side .as-chat{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:11px;color:var(--text2);margin-left:8px;border-left:1px solid var(--line)}
-  .app-frame .ap-main{padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;background:radial-gradient(800px 400px at 50% -10%,rgba(255,138,76,.05),transparent 60%)}
-  .app-frame .bubble-u{align-self:flex-end;background:var(--accent);color:#1B1813;padding:10px 14px;border-radius:14px 14px 4px 14px;max-width:60%;font-size:13px;font-weight:500}
-  .app-frame .bubble-a{align-self:flex-start;background:var(--bg3);border:1px solid var(--line);padding:12px 14px;border-radius:14px 14px 14px 4px;max-width:75%;font-size:13px;line-height:1.55}
-  .app-frame .bubble-a code{background:rgba(245,230,211,.06);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--cream)}
-  .app-frame .pcard{align-self:flex-start;background:var(--bg3);border:1px solid var(--line-strong);border-radius:12px;padding:14px;width:80%;max-width:520px}
-  .app-frame .pcard .ph{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--accent)}
-  .app-frame .pcard .pdiff{font-family:var(--mono);font-size:11px;background:#0A0807;padding:8px;border-radius:6px;margin:8px 0;line-height:1.5}
-  .app-frame .pcard .pdiff .add{color:#6BB6A0;background:rgba(107,182,160,.08);display:block;padding:1px 6px}
-  .app-frame .pcard .pdiff .del{color:#E47370;background:rgba(228,115,112,.08);display:block;padding:1px 6px;text-decoration:line-through}
-  .app-frame .pcard .pact{display:flex;gap:6px;margin-top:6px}
-  .app-frame .pcard .pact .b{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
-  .app-frame .pcard .pact .ok{background:var(--accent);color:#1B1813}
-  .app-frame .pcard .pact .no{background:var(--bg);border:1px solid var(--line);color:var(--text2)}
+  /* Trust strip */
+  .trust{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;align-items:center;margin-top:52px;color:var(--text3);font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase}
+  .trust .item{display:flex;align-items:center;gap:8px}
+  .trust svg{opacity:.55}
 
-  /* Sections */
-  .sec-eyebrow{display:block;text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:700;margin-bottom:14px}
-  h2.sec-title{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;text-align:center;line-height:1.15;max-width:780px;margin:0 auto 16px}
-  .sec-sub{text-align:center;color:var(--text2);font-size:17px;max-width:580px;margin:0 auto 56px;line-height:1.6}
+  /* Product showcase — stacked browser/window */
+  .showcase{margin:56px auto 0;max-width:1080px;padding:10px;background:linear-gradient(180deg,rgba(255,138,76,.25) 0%,rgba(255,138,76,.05) 40%,transparent 80%);border-radius:24px;position:relative}
+  .showcase::after{content:'';position:absolute;inset:-30px;background:radial-gradient(60% 40% at 50% 0,rgba(255,138,76,.15),transparent 70%);z-index:-1;filter:blur(40px)}
+  .win{background:var(--bg2);border:1px solid var(--line-strong);border-radius:18px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.3)}
+  .win-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:linear-gradient(180deg,var(--bg3),var(--bg2));border-bottom:1px solid var(--line)}
+  .win-bar .tl{display:flex;gap:6px}
+  .win-bar .tl span{width:11px;height:11px;border-radius:50%;background:#3A342C}
+  .win-bar .tl span:first-child{background:#E47370}
+  .win-bar .tl span:nth-child(2){background:#E8B341}
+  .win-bar .tl span:nth-child(3){background:#6BB6A0}
+  .win-bar .wt{font-size:12px;color:var(--text3);margin:0 auto;font-weight:500}
+  .win-body{display:grid;grid-template-columns:220px 1fr;min-height:460px}
+  .ws{background:var(--bg3);border-right:1px solid var(--line);padding:18px 10px;font-size:12px}
+  .ws .lbl{font-size:9px;text-transform:uppercase;letter-spacing:1.4px;color:var(--text3);padding:0 10px;margin:14px 0 8px;font-weight:700}
+  .ws .lbl:first-child{margin-top:0}
+  .ws .pill{padding:10px 12px;border-radius:9px;display:flex;align-items:center;gap:8px;margin-bottom:3px;cursor:default}
+  .ws .pill.active{background:rgba(255,138,76,.1);border:1px solid rgba(255,138,76,.25)}
+  .ws .pill .d{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .ws .pill .d.on{background:var(--green);box-shadow:0 0 8px rgba(107,182,160,.6)}
+  .ws .pill .d.off{background:var(--text4)}
+  .ws .pill .meta{flex:1;min-width:0}
+  .ws .pill .n{font-weight:600;font-size:12px;color:var(--text)}
+  .ws .pill .h{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px}
+  .ws .chat-li{display:flex;align-items:center;gap:8px;padding:6px 12px 6px 20px;font-size:11px;color:var(--text2);cursor:default;border-radius:6px}
+  .ws .chat-li.cur{color:var(--text);background:rgba(245,230,211,.04)}
+  .ws .nav-i{display:flex;align-items:center;gap:10px;padding:7px 12px;font-size:12px;color:var(--text2);cursor:default}
+  .wm{padding:20px 28px;display:flex;flex-direction:column;gap:12px;background:radial-gradient(800px 400px at 60% 0%,rgba(255,138,76,.04),transparent 60%)}
+  .wh{display:flex;align-items:center;gap:12px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .wh .t{font-family:var(--display);font-size:18px;font-weight:700}
+  .wh .ch{display:flex;gap:6px;margin-left:auto}
+  .wh .ch .tg{padding:3px 10px;border-radius:999px;background:var(--bg3);border:1px solid var(--line);font-size:10px;color:var(--text2)}
 
-  /* Features grid */
-  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
-  .card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:28px;transition:all .25s}
-  .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
-  .card .icon-wrap{width:42px;height:42px;border-radius:10px;background:rgba(255,138,76,.12);border:1px solid rgba(255,138,76,.25);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--accent)}
-  .card h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
-  .card p{color:var(--text2);font-size:14px;line-height:1.6}
-  .ic{width:18px;height:18px}
-  .ic-lg{width:22px;height:22px}
+  .bubble-u{align-self:flex-end;background:linear-gradient(180deg,var(--accent2),var(--accent));color:#1B1813;padding:11px 16px;border-radius:16px 16px 4px 16px;max-width:72%;font-size:13.5px;font-weight:500;line-height:1.45}
+  .bubble-a{align-self:flex-start;padding:4px 0;max-width:82%;font-size:13.5px;line-height:1.6;color:var(--text)}
+  .bubble-a code{background:rgba(245,230,211,.08);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11.5px;color:var(--cream)}
+  .bubble-a strong{color:var(--cream);font-weight:600}
 
-  /* Comparison strip */
-  .strip{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
-  @media (max-width:720px){.strip{grid-template-columns:1fr;gap:24px}}
-  .strip h3{font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px}
-  .strip p{color:var(--text2);font-size:14px}
-  .compare{font-family:var(--mono);font-size:12px;background:#0A0807;padding:18px;border-radius:10px;border:1px solid var(--line);line-height:1.85}
-  .compare .bad{color:var(--red)}
-  .compare .good{color:var(--green)}
-  .compare .arrow{color:var(--text3);margin:0 8px}
+  /* Inline proposal card — rich */
+  .prop{align-self:flex-start;background:var(--bg3);border:1px solid var(--line-strong);border-radius:12px;width:92%;max-width:640px;overflow:hidden}
+  .prop-head{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;font-size:12px}
+  .prop-head .tag{padding:2px 8px;border-radius:5px;background:rgba(255,138,76,.12);border:1px solid rgba(255,138,76,.25);color:var(--accent);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px}
+  .prop-head code{font-family:var(--mono);font-size:11px;color:var(--cream)}
+  .prop-head .bytes{margin-left:auto;color:var(--text3);font-size:10.5px;font-family:var(--mono)}
+  .prop-diff{background:#0C0A08;font-family:var(--mono);font-size:11px;line-height:1.65;padding:10px 0;max-height:200px;overflow:hidden}
+  .prop-diff .ln{padding:1px 14px;display:flex;gap:12px}
+  .prop-diff .ln.c{color:var(--text4)}
+  .prop-diff .ln.a{background:var(--green-soft);color:#8DC9B7}
+  .prop-diff .ln.a::before{content:'+';color:var(--green);font-weight:700;width:12px;display:inline-block}
+  .prop-diff .ln.d{background:var(--red-soft);color:#E89B98}
+  .prop-diff .ln.d::before{content:'−';color:var(--red);font-weight:700;width:12px;display:inline-block}
+  .prop-diff .ln.c::before{content:' ';width:12px;display:inline-block}
+  .prop-diff .lnum{color:var(--text4);width:20px;text-align:right;flex-shrink:0}
+  .prop-act{display:flex;gap:6px;padding:10px 12px;background:var(--bg3)}
+  .prop-act .b{padding:6px 12px;border-radius:7px;font-size:11.5px;font-weight:600;border:1px solid transparent;cursor:default}
+  .prop-act .b.ok{background:var(--accent);color:#1B1813}
+  .prop-act .b.no{background:var(--bg2);border-color:var(--line);color:var(--text2)}
 
-  /* Pricing */
+  /* Activity status pill in the mock */
+  .status-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;padding:4px 11px 4px 9px;border-radius:999px;background:var(--bg3);border:1px solid var(--line);font-size:11px;color:var(--text3);font-family:var(--mono)}
+  .status-pill .sp-dot{width:8px;height:8px;border-radius:50%;background:conic-gradient(from 0deg,var(--accent) 0%,var(--accent) 70%,transparent 70%);animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* SECTION HEADERS */
+  h2.sec-title{text-align:center;max-width:880px;margin:0 auto 18px}
+  .sec-sub{text-align:center;font-size:clamp(16px,1.3vw,19px);color:var(--text2);max-width:620px;margin:0 auto 72px;line-height:1.55}
+  .sec-eyebrow{display:block;text-align:center;margin-bottom:18px}
+
+  /* FEATURE ROW alternating */
+  .featrow{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:64px;align-items:center;margin-bottom:120px}
+  .featrow:last-child{margin-bottom:0}
+  .featrow.rev{grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr)}
+  .featrow.rev .txt{order:2}
+  .featrow.rev .mock{order:1}
+  @media (max-width:960px){.featrow,.featrow.rev{grid-template-columns:1fr;gap:32px}.featrow.rev .txt,.featrow.rev .mock{order:initial}}
+  .featrow .txt h3{margin-bottom:16px;font-size:clamp(26px,2.4vw,36px)}
+  .featrow .txt p{color:var(--text2);font-size:16px;line-height:1.65;max-width:460px}
+  .featrow .txt ul{list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:10px}
+  .featrow .txt ul li{display:flex;align-items:flex-start;gap:10px;color:var(--text2);font-size:14.5px;line-height:1.5}
+  .featrow .txt ul li::before{content:'';width:16px;height:16px;flex-shrink:0;margin-top:3px;border-radius:50%;background:rgba(255,138,76,.15);border:1px solid rgba(255,138,76,.35);background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8A4C' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>");background-size:10px;background-repeat:no-repeat;background-position:center}
+
+  /* Generic feature mock container */
+  .mock-card{background:var(--bg2);border:1px solid var(--line-strong);border-radius:16px;overflow:hidden;box-shadow:0 30px 70px rgba(0,0,0,.4)}
+  .mock-tb{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg3);border-bottom:1px solid var(--line);font-size:11px;color:var(--text3);font-family:var(--mono)}
+  .mock-tb .dots{display:flex;gap:5px}
+  .mock-tb .dots span{width:9px;height:9px;border-radius:50%;background:#3A342C}
+  .mock-body{padding:18px}
+
+  /* Versions tab mock */
+  .vers{display:flex;flex-direction:column;gap:8px;padding:16px}
+  .vers-row{display:flex;gap:14px;padding:10px 12px;background:var(--bg3);border:1px solid var(--line);border-radius:10px;align-items:flex-start}
+  .vers-row .icn{width:28px;height:28px;border-radius:7px;background:rgba(255,138,76,.12);border:1px solid rgba(255,138,76,.25);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0}
+  .vers-row .icn.rev{background:rgba(107,182,160,.12);border-color:rgba(107,182,160,.25);color:var(--green)}
+  .vers-row .body{flex:1;min-width:0}
+  .vers-row .tt{font-size:13px;font-weight:600;margin-bottom:3px}
+  .vers-row .tt code{font-family:var(--mono);font-size:11px;color:var(--cream);background:rgba(245,230,211,.06);padding:1px 5px;border-radius:3px}
+  .vers-row .mt{font-size:10.5px;color:var(--text3);font-family:var(--mono)}
+  .vers-row .ms{font-size:12px;color:var(--text2);margin-top:4px}
+  .vers-row .ac{display:flex;gap:4px;flex-shrink:0}
+  .vers-row .ac .b{padding:3px 9px;border-radius:6px;background:var(--bg2);border:1px solid var(--line);font-size:10.5px;color:var(--text2);cursor:default}
+
+  /* Audit agent result */
+  .audit{padding:16px}
+  .audit h4{font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:3px;color:var(--text);letter-spacing:-.02em}
+  .audit .subt{font-size:12px;color:var(--text3);margin-bottom:14px;font-family:var(--mono)}
+  .audit .findings{display:flex;flex-direction:column;gap:8px}
+  .audit .f{display:flex;gap:12px;padding:10px 12px;background:var(--bg3);border:1px solid var(--line);border-radius:9px}
+  .audit .f .sev{width:6px;align-self:stretch;border-radius:99px;flex-shrink:0}
+  .audit .f.high .sev{background:var(--red)}
+  .audit .f.med .sev{background:var(--yellow)}
+  .audit .f.low .sev{background:var(--blue)}
+  .audit .f .body{flex:1;min-width:0}
+  .audit .f .tt{font-size:13px;font-weight:600;margin-bottom:2px}
+  .audit .f .pth{font-size:11px;color:var(--text3);font-family:var(--mono)}
+  .audit .f .act{align-self:center;padding:5px 10px;border-radius:6px;background:rgba(255,138,76,.1);border:1px solid rgba(255,138,76,.25);color:var(--accent);font-size:11px;font-weight:600;cursor:default}
+
+  /* Files tree mock */
+  .files-mock{display:grid;grid-template-columns:180px 1fr;min-height:300px}
+  .files-tree-m{background:var(--bg3);border-right:1px solid var(--line);padding:14px 8px;font-size:12px;font-family:var(--mono)}
+  .ft-row{display:flex;align-items:center;gap:6px;padding:4px 8px;border-radius:5px;color:var(--text2);cursor:default}
+  .ft-row.active{background:rgba(255,138,76,.1);color:var(--text)}
+  .ft-row.nested{padding-left:22px}
+  .files-editor-m{padding:14px 18px;font-family:var(--mono);font-size:11.5px;line-height:1.65;background:#0C0A08;overflow:hidden}
+  .files-editor-m .gutter{color:var(--text4);padding-right:12px;user-select:none}
+  .files-editor-m .kw{color:#C678DD}
+  .files-editor-m .str{color:#98C379}
+  .files-editor-m .fn{color:#61AFEF}
+  .files-editor-m .tag{color:#E06C75}
+  .files-editor-m .cm{color:#5C6370;font-style:italic}
+
+  /* STATS */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:72px}
+  @media (max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .stat{text-align:center;padding:28px 16px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:none}
+  @media (max-width:760px){.stat{border-right:none;border-bottom:1px solid var(--line)}}
+  .stat .n{font-family:var(--display);font-size:clamp(38px,4vw,56px);font-weight:800;letter-spacing:-.03em;background:linear-gradient(180deg,#F5E6D3 0%,#C6B299 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .stat .l{font-size:12.5px;color:var(--text3);margin-top:4px;letter-spacing:.5px}
+
+  /* Feature grid (compact) */
+  .fgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:24px}
+  .fcard{background:linear-gradient(180deg,var(--bg2) 0%,rgba(27,24,19,.5) 100%);border:1px solid var(--line);border-radius:14px;padding:24px;transition:all .25s}
+  .fcard:hover{border-color:rgba(255,138,76,.35);transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.25)}
+  .fcard .ic-b{width:40px;height:40px;border-radius:10px;background:rgba(255,138,76,.1);border:1px solid rgba(255,138,76,.22);display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--accent)}
+  .fcard h4{font-family:var(--display);font-size:17px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+  .fcard p{color:var(--text2);font-size:13.5px;line-height:1.55}
+
+  /* Keyboard shortcuts */
+  .kbd-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;max-width:860px;margin:40px auto 0}
+  .kbd-row{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:var(--bg2);border:1px solid var(--line);border-radius:12px;font-size:13.5px;color:var(--text2)}
+  kbd{font-family:var(--mono);font-size:11px;background:var(--bg);border:1px solid var(--line-strong);border-bottom-width:2px;border-radius:5px;padding:2px 8px;color:var(--cream);font-weight:600}
+  .kbd-row kbd + kbd{margin-left:3px}
+
+  /* COMPARE TABLE */
+  .vs{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:4px;max-width:940px;margin:0 auto}
+  .vs-head{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;border-bottom:1px solid var(--line);padding:18px 24px}
+  .vs-head > div{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.3px;color:var(--text3)}
+  .vs-head > div:nth-child(2){color:var(--text2);text-align:center}
+  .vs-head > div:nth-child(3){color:var(--accent);text-align:center}
+  .vs-row{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:0;padding:16px 24px;align-items:center;border-bottom:1px solid var(--line);font-size:14px}
+  .vs-row:last-child{border-bottom:none}
+  .vs-row > div:first-child{color:var(--text2)}
+  .vs-row > div:nth-child(2),.vs-row > div:nth-child(3){text-align:center}
+  .vs-row .xmark{color:var(--text3)}
+  .vs-row .cmark{color:var(--green);font-weight:600}
+  .vs-row .pmark{color:var(--accent);font-weight:600}
+
+  /* PRICING */
   .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1000px;margin:0 auto}
-  @media (max-width:880px){.price-grid{grid-template-columns:1fr}}
-  .plan{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:32px;display:flex;flex-direction:column;gap:14px;position:relative}
-  .plan.popular{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 30px 60px rgba(255,138,76,.15)}
-  .plan.popular::before{content:'Most popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#1B1813;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
-  .plan h3{font-size:14px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px}
+  @media (max-width:920px){.price-grid{grid-template-columns:1fr}}
+  .plan{background:var(--bg2);border:1px solid var(--line);border-radius:18px;padding:32px;display:flex;flex-direction:column;gap:12px;position:relative;transition:transform .25s}
+  .plan:hover{transform:translateY(-2px)}
+  .plan.popular{border-color:rgba(255,138,76,.4);background:linear-gradient(180deg,rgba(255,138,76,.06) 0%,var(--bg2) 50%);box-shadow:0 0 0 1px rgba(255,138,76,.3),0 40px 80px rgba(255,138,76,.12)}
+  .plan.popular::before{content:'Most popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(180deg,#FFB347,#FF8A4C);color:#1B1813;padding:5px 14px;border-radius:999px;font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:1px;box-shadow:0 8px 20px var(--accent-glow)}
+  .plan h3{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px}
   .plan .pr{display:flex;align-items:baseline;gap:6px;margin:6px 0 14px}
-  .plan .pr .amount{font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1}
+  .plan .pr .amt{font-family:var(--display);font-size:58px;font-weight:800;letter-spacing:-.04em;line-height:1;background:linear-gradient(180deg,#F5E6D3 0%,#E8D7BE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
   .plan .pr .per{color:var(--text3);font-size:14px;font-weight:500}
-  .plan .pr .strike{color:var(--text3);font-size:14px;text-decoration:line-through;margin-left:4px}
-  .plan ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--text)}
+  .plan .pr .strike{color:var(--text4);font-size:14px;text-decoration:line-through;margin-left:6px}
+  .plan .save{font-size:11px;color:var(--green);font-weight:700;background:rgba(107,182,160,.1);padding:3px 9px;border-radius:999px;width:fit-content}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14px;color:var(--text);margin:6px 0}
   .plan ul li{display:flex;align-items:flex-start;gap:10px;color:var(--text2)}
-  .plan ul li::before{content:'';width:16px;height:16px;flex-shrink:0;background:var(--accent);mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6 9 17l-5-5'/></svg>") center/contain no-repeat;-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6 9 17l-5-5'/></svg>") center/contain no-repeat;margin-top:1px}
-  .plan .save{font-size:11px;color:var(--green);font-weight:600;background:rgba(107,182,160,.1);padding:2px 8px;border-radius:999px;width:fit-content}
+  .plan ul li::before{content:'';width:16px;height:16px;flex-shrink:0;margin-top:3px;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8A4C' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M20 6 9 17l-5-5'/></svg>");background-size:contain;background-repeat:no-repeat;background-position:center}
+
+  /* TESTIMONIAL */
+  .testi{background:var(--bg2);border:1px solid var(--line);border-radius:24px;padding:56px 48px;max-width:920px;margin:0 auto;position:relative;overflow:hidden}
+  .testi::before{content:'"';position:absolute;top:-20px;left:28px;font-size:180px;font-family:var(--display);color:var(--accent);opacity:.12;font-weight:900}
+  .testi blockquote{font-family:var(--display);font-size:clamp(22px,2.3vw,30px);line-height:1.35;color:var(--text);letter-spacing:-.01em;font-weight:500;margin-bottom:28px;position:relative;z-index:1}
+  .testi .who{display:flex;align-items:center;gap:14px}
+  .testi .avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent3));display:flex;align-items:center;justify-content:center;color:#1B1813;font-weight:800;font-size:18px}
+  .testi .who-t{font-weight:600;font-size:14px}
+  .testi .who-r{font-size:12px;color:var(--text3)}
 
   /* FAQ */
-  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
-  details.q{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;transition:border-color .15s;cursor:pointer}
-  details.q[open]{border-color:var(--line-strong)}
-  details.q summary{font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  .faq{max-width:780px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+  details.q{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:20px 24px;transition:all .2s;cursor:pointer}
+  details.q[open]{border-color:var(--line-strong);background:var(--bg3)}
+  details.q summary{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-.01em;list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer;gap:16px}
   details.q summary::-webkit-details-marker{display:none}
-  details.q summary::after{content:'+';color:var(--accent);font-size:22px;font-weight:300;transition:transform .2s}
-  details.q[open] summary::after{content:'−'}
-  details.q p{color:var(--text2);font-size:14px;margin-top:14px;line-height:1.65}
+  details.q summary::after{content:'';width:12px;height:12px;flex-shrink:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FF8A4C' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");background-size:contain;background-repeat:no-repeat;transition:transform .25s}
+  details.q[open] summary::after{transform:rotate(180deg)}
+  details.q p{color:var(--text2);font-size:14.5px;margin-top:14px;line-height:1.65}
 
-  /* CTA */
-  .cta-final{background:linear-gradient(135deg,rgba(255,138,76,.12),rgba(255,166,112,.04));border:1px solid rgba(255,138,76,.25);border-radius:24px;padding:64px 32px;text-align:center;margin:0 auto;max-width:880px}
-  .cta-final h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:14px}
-  .cta-final p{color:var(--text2);font-size:16px;max-width:480px;margin:0 auto 28px}
+  /* Final CTA */
+  .cta-final{text-align:center;padding:88px 32px;background:
+    radial-gradient(800px 400px at 50% -10%,rgba(255,138,76,.25),transparent 60%),
+    linear-gradient(180deg,var(--bg2),var(--bg));
+    border:1px solid rgba(255,138,76,.25);border-radius:28px;max-width:1000px;margin:0 auto;position:relative;overflow:hidden}
+  .cta-final::before{content:'';position:absolute;inset:0;background:radial-gradient(400px 200px at 50% 100%,rgba(255,138,76,.12),transparent 60%);pointer-events:none}
+  .cta-final h2{margin-bottom:18px}
+  .cta-final p{color:var(--text2);font-size:17px;max-width:520px;margin:0 auto 32px}
 
   /* Footer */
-  footer{border-top:1px solid var(--line);padding:48px 0 36px;color:var(--text3);font-size:13px}
-  footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
-  footer .links{display:flex;gap:24px}
-  footer .links a{color:var(--text2)}
-  footer .links a:hover{color:var(--text)}
-  footer .copyright{color:var(--text3)}
+  footer{border-top:1px solid var(--line);padding:64px 0 40px;color:var(--text3);font-size:13px;position:relative}
+  footer .foot-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:48px;margin-bottom:40px}
+  @media (max-width:720px){footer .foot-grid{grid-template-columns:1fr 1fr}}
+  footer .foot-col h5{font-family:var(--display);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--text);margin-bottom:16px}
+  footer .foot-col a{display:block;color:var(--text2);padding:4px 0;font-size:13px}
+  footer .foot-col a:hover{color:var(--text)}
+  footer .foot-brand p{color:var(--text3);font-size:13px;line-height:1.6;margin-top:12px;max-width:260px}
+  footer .foot-bottom{border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;color:var(--text3);flex-wrap:wrap;gap:12px}
+  footer .foot-bottom a{color:var(--text3)}
 
-  /* Logos / trust */
-  .trust{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;align-items:center;opacity:.55;margin-top:24px;color:var(--text3);font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase}
-  .trust .stack{font-family:var(--mono);font-size:11px}
+  /* Scroll reveal base */
+  .reveal{opacity:0;transform:translateY(20px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
 
-  /* Animations */
-  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-  .hero h1,.hero .sub,.hero-cta,.badge{animation:fadeUp .6s ease forwards}
-  .hero .sub{animation-delay:.1s;opacity:0}
-  .hero-cta{animation-delay:.2s;opacity:0}
-  .app-frame{animation:fadeUp 1s ease .35s forwards;opacity:0}
+  /* Icon helpers */
+  .ic{width:16px;height:16px;flex-shrink:0}
+  .ic-sm{width:13px;height:13px}
+  .ic-lg{width:20px;height:20px}
+  .ic-xl{width:24px;height:24px}
 </style>
 </head>
 <body>
 
-<!-- ICON SPRITE -->
+<!-- Icon sprite -->
 <svg style="display:none" aria-hidden="true">
   <defs>
     <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 4.5 7.79L3 21l1.21-4.5A9 9 0 0 1 3 12Z"/></symbol>
@@ -184,10 +339,16 @@
     <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7-5.7-1.9 5.7-1.9z"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></symbol>
     <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
-    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
     <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
-    <symbol id="i-anchor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><path d="M12 22V8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></symbol>
     <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 10 6-10 6L2 8l10-6z"/><path d="m2 14 10 6 10-6"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 7 7 .5-5.3 4.6 1.5 7.4L12 17.5 5.8 21.5l1.5-7.4L2 9.5 9 9z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></symbol>
     <symbol id="i-pier" viewBox="0 0 64 64" fill="none">
       <line x1="32" y1="14" x2="32" y2="50" stroke="#FF8A4C" stroke-width="4" stroke-linecap="round"/>
       <path d="M32 14 Q46 14 46 26 Q46 38 32 38" stroke="#FF8A4C" stroke-width="4" stroke-linecap="round" fill="none"/>
@@ -203,14 +364,15 @@
   <div class="wrap">
     <div class="row">
       <div class="brand">
-        <span class="mark"><svg width="20" height="20" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>
+        <span class="mark"><svg width="22" height="22" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>
         Pier
       </div>
       <div class="nav-links">
         <a href="#features">Features</a>
+        <a href="#agents">Agents</a>
         <a href="#pricing">Pricing</a>
         <a href="#faq">FAQ</a>
-        <a href="#download" class="btn btn-primary">Get Pier</a>
+        <a href="#download" class="btn btn-primary">Try free</a>
       </div>
     </div>
   </div>
@@ -219,110 +381,445 @@
 <!-- HERO -->
 <section class="hero">
   <div class="wrap">
-    <div class="badge"><span class="dot"></span> Built for legacy WordPress, custom PHP, and any FTP host</div>
-    <h1>Talk to your old site.<br><em>Edit it like it&rsquo;s 2026.</em></h1>
-    <p class="sub">Pier is a native Mac app that connects to any FTP/SFTP server and lets you edit, audit, and refactor with AI. Every change is versioned. Every undo is one click. No more 11&nbsp;PM panic over a broken homepage.</p>
-    <div class="hero-cta">
-      <a href="#download" class="btn btn-primary btn-lg">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12-1.17.486-2.36 1.119-3.13.717-.84 1.951-1.45 2.946-1.51.013.07.013.21.013.39zm4.992 16.84a12.7 12.7 0 0 1-1.218 2.21c-.785 1.17-1.913 2.62-3.31 2.63-1.246.01-1.566-.81-3.255-.8-1.69.01-2.04.81-3.286.83-1.4 0-2.466-1.31-3.25-2.48-2.187-3.27-3.793-9.27-1.594-13.37 1.064-2.04 2.94-3.34 5.06-3.34 1.4 0 2.74.95 3.49.95.74 0 2.32-1.18 3.96-1.01.69.03 2.61.28 3.84 2.1-.099.07-2.296 1.34-2.276 4.01.026 3.18 2.79 4.24 2.82 4.25-.01.07-.45 1.5-1.49 3.02z"/></svg>
-        Download for Mac
-      </a>
-      <a href="#features" class="btn btn-ghost btn-lg">See how it works <svg class="ic"><use href="#i-arrow"/></svg></a>
+    <div class="hero-inner">
+      <div class="eyebrow reveal"><span class="dot"></span> Built for WordPress, custom PHP, and any FTP host</div>
+      <h1 class="reveal">Talk to your old site.<br><span class="gradient">Edit it like it's 2026.</span></h1>
+      <p class="lead reveal">Pier is a native Mac app that connects to any FTP/SFTP server and lets you edit, audit, and refactor with AI. Every change is versioned. Every undo is one click. No more 11&nbsp;PM panic over a broken homepage.</p>
+      <div class="hero-cta reveal">
+        <a href="#download" class="btn btn-primary btn-lg">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12-1.17.486-2.36 1.119-3.13.717-.84 1.951-1.45 2.946-1.51.013.07.013.21.013.39zm4.992 16.84a12.7 12.7 0 0 1-1.218 2.21c-.785 1.17-1.913 2.62-3.31 2.63-1.246.01-1.566-.81-3.255-.8-1.69.01-2.04.81-3.286.83-1.4 0-2.466-1.31-3.25-2.48-2.187-3.27-3.793-9.27-1.594-13.37 1.064-2.04 2.94-3.34 5.06-3.34 1.4 0 2.74.95 3.49.95.74 0 2.32-1.18 3.96-1.01.69.03 2.61.28 3.84 2.1-.099.07-2.296 1.34-2.276 4.01.026 3.18 2.79 4.24 2.82 4.25-.01.07-.45 1.5-1.49 3.02z"/></svg>
+          Download for Mac
+        </a>
+        <a href="#see" class="btn btn-ghost btn-lg">See how it works <svg class="ic"><use href="#i-arrow"/></svg></a>
+      </div>
+      <div class="hero-note reveal">14-day free trial · No credit card · Your own API key or Claude Code subscription</div>
     </div>
 
-    <!-- App preview -->
-    <div class="app-frame">
-      <div class="shot">
-        <div class="ap-side">
-          <div class="as-brand"><span class="m"><svg width="14" height="14" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span><strong>Pier</strong></div>
-          <div class="as-label">Connections</div>
-          <div class="as-conn"><div class="name">tegels.nl</div><div class="host">web01.itile.app</div></div>
-          <div class="as-chat"><svg class="ic"><use href="#i-chat"/></svg> Edit footer copy</div>
-          <div class="as-chat"><svg class="ic"><use href="#i-chat"/></svg> Add SEO meta</div>
+    <!-- Rich product showcase -->
+    <div class="showcase reveal" id="see">
+      <div class="win">
+        <div class="win-bar">
+          <div class="tl"><span></span><span></span><span></span></div>
+          <div class="wt">Pier — AI for legacy websites</div>
+          <div style="width:60px"></div>
         </div>
-        <div class="ap-main">
-          <div class="bubble-u">Change the H1 on /contact to "Get in touch"</div>
-          <div class="bubble-a">I&rsquo;ll edit <code>contact.php</code> — found the heading on line 47.</div>
-          <div class="pcard">
-            <div class="ph"><svg class="ic"><use href="#i-spark"/></svg> Proposed edit · contact.php · 4843 → 4856 bytes</div>
-            <div class="pdiff">
-              <span class="del">- &lt;h1&gt;Welkom op tegels.nl&lt;/h1&gt;</span>
-              <span class="add">+ &lt;h1&gt;Get in touch&lt;/h1&gt;</span>
-            </div>
-            <div class="pact"><span class="b ok">Accept</span><span class="b no">Reject</span><span class="b no">View diff</span></div>
+        <div class="win-body">
+          <div class="ws">
+            <div class="lbl">Connections</div>
+            <div class="pill active"><span class="d on"></span><div class="meta"><div class="n">tegels.nl</div><div class="h">web01.itile.app</div></div></div>
+            <div class="chat-li cur"><svg class="ic-sm"><use href="#i-chat"/></svg> Rename brand everywhere</div>
+            <div class="chat-li"><svg class="ic-sm"><use href="#i-chat"/></svg> Run SEO audit</div>
+            <div class="chat-li"><svg class="ic-sm"><use href="#i-chat"/></svg> Add cookie banner</div>
+            <div class="pill"><span class="d off"></span><div class="meta"><div class="n">spackwerkreparatie.nl</div><div class="h">ftp.shared.nl</div></div></div>
+            <div class="pill"><span class="d off"></span><div class="meta"><div class="n">schilderspuiter.nl</div><div class="h">ftp.hosting.com</div></div></div>
+            <div class="lbl">Menu</div>
+            <div class="nav-i"><svg class="ic-sm"><use href="#i-history"/></svg> Timeline</div>
+            <div class="nav-i"><svg class="ic-sm"><use href="#i-layers"/></svg> Backups</div>
+            <div class="nav-i"><svg class="ic-sm"><use href="#i-bolt"/></svg> Activity</div>
           </div>
-          <div class="bubble-a">Done. Saved as version v_64b — undo any time from the Versions tab.</div>
+          <div class="wm">
+            <div class="wh">
+              <svg width="22" height="22" viewBox="0 0 64 64"><use href="#i-pier"/></svg>
+              <div class="t">tegels.nl</div>
+              <div class="ch"><span class="tg">WordPress</span><span class="tg">LiteSpeed</span><span class="tg">PHP 8.2</span></div>
+            </div>
+            <div class="bubble-u">Rename "TEGELS.NL" to "Tegels.nl" across every footer, meta tag, and page title — but leave the database content alone.</div>
+            <div class="status-pill"><span class="sp-dot"></span> Scanned 47 files · Found 23 matches in 8 files</div>
+            <div class="bubble-a">I found <strong>23 occurrences across 8 files</strong>. Reviewing them now — each looks safe to rename (all in templates, not DB-stored content). Here's the first batch:</div>
+            <div class="prop">
+              <div class="prop-head">
+                <span class="tag">Batch edit</span>
+                <code>footer.php</code> · <code>header.php</code> · +6 more
+                <span class="bytes">23 changes · 0 destructive</span>
+              </div>
+              <div class="prop-diff">
+                <div class="ln c"><span class="lnum">12</span>&lt;meta name="description" content="</div>
+                <div class="ln d"><span class="lnum">13</span>  TEGELS.NL — het grootste tegelplatform"&gt;</div>
+                <div class="ln a"><span class="lnum">13</span>  Tegels.nl — het grootste tegelplatform"&gt;</div>
+                <div class="ln c"><span class="lnum">14</span>&lt;title&gt;</div>
+                <div class="ln d"><span class="lnum">47</span>  Partners van TEGELS.NL</div>
+                <div class="ln a"><span class="lnum">47</span>  Partners van Tegels.nl</div>
+                <div class="ln c"><span class="lnum">48</span>&lt;/h2&gt;</div>
+                <div class="ln c" style="opacity:.5;text-align:center">+ 19 more lines</div>
+              </div>
+              <div class="prop-act">
+                <span class="b ok">Accept all 23</span>
+                <span class="b no">Review each</span>
+                <span class="b no">Reject</span>
+              </div>
+            </div>
+            <div class="bubble-a">Every file gets its own restore point. I skipped <code>wp-options</code> table text — that lives in the database, not in any file.</div>
+          </div>
         </div>
       </div>
     </div>
 
     <div class="trust">
-      <span class="stack">WordPress</span>
-      <span class="stack">Drupal</span>
-      <span class="stack">Joomla</span>
-      <span class="stack">Magento</span>
-      <span class="stack">Custom PHP</span>
-      <span class="stack">Static HTML</span>
+      <span class="item">Works with</span>
+      <span class="item">WordPress</span>
+      <span class="item">Drupal</span>
+      <span class="item">Joomla</span>
+      <span class="item">Magento</span>
+      <span class="item">Laravel</span>
+      <span class="item">Custom PHP</span>
+      <span class="item">Static HTML</span>
     </div>
   </div>
 </section>
 
-<!-- FEATURES -->
+<!-- STATS -->
+<section style="padding-top:48px;padding-bottom:72px">
+  <div class="wrap">
+    <div class="stats reveal">
+      <div class="stat"><div class="n">8 hrs</div><div class="l">SAVED PER WEEK</div></div>
+      <div class="stat"><div class="n">4K+</div><div class="l">TOKENS OF SITE CONTEXT PRE-LOADED</div></div>
+      <div class="stat"><div class="n">0</div><div class="l">SITES BROKEN. EVER.</div></div>
+      <div class="stat"><div class="n">10+</div><div class="l">STACKS SUPPORTED OUT OF THE BOX</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURE ROWS -->
 <section id="features">
   <div class="wrap">
-    <span class="sec-eyebrow">Built for the messy stuff</span>
-    <h2 class="sec-title">Modern AI for sites without a modern stack</h2>
-    <p class="sec-sub">No Git. No CI/CD. No build pipeline. Just FTP and a 12-year-old PHP file. Pier brings AI workflows to the websites the rest of the dev world forgot about.</p>
+    <span class="eyebrow sec-eyebrow reveal"><span class="dot"></span> Core workflow</span>
+    <h2 class="sec-title reveal">Not another file manager.<br>A <span class="gradient">senior developer</span> for your legacy stack.</h2>
+    <p class="sec-sub reveal">Pier reads your code, understands your site structure, and proposes surgical edits you can accept with one click. Every change is tracked. Nothing is lost.</p>
 
-    <div class="grid">
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-chat"/></svg></div>
-        <h3>Talk, don&rsquo;t click</h3>
-        <p>"Update the homepage hero to say X." "Find every page using the old logo." Pier finds the right file, makes the right change, and shows you the diff before applying.</p>
+    <!-- ROW 1: Batch refactor -->
+    <div class="featrow reveal">
+      <div class="txt">
+        <h3>Refactor across files in one message</h3>
+        <p>Old sites are full of duplicated strings — a phone number in the header, a brand name in the footer, a meta description in every template. Pier finds every occurrence, groups them into one proposal, and lets you accept all with one click.</p>
+        <ul>
+          <li>Batch find-and-replace with context-aware matching</li>
+          <li>One restore point per file — revert any or all</li>
+          <li>Server-side validation: won't match ambiguously</li>
+          <li>Handles <code>htaccess</code>, PHP, HTML, CSS, JS, JSON</li>
+        </ul>
       </div>
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-history"/></svg></div>
-        <h3>Versioned everything</h3>
-        <p>Every accepted edit becomes a checkpoint. Restore any file to any state in one click. Auto-snapshot before risky changes (.htaccess, wp-config). Nothing is ever truly broken.</p>
+      <div class="mock">
+        <div class="mock-card">
+          <div class="mock-tb">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span style="margin:0 auto">Batch rename · 23 changes across 8 files</span>
+          </div>
+          <div class="vers">
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-file"/></svg></div>
+              <div class="body">
+                <div class="tt"><code>header.php</code> <span style="color:var(--text3);font-weight:400">· 4 changes</span></div>
+                <div class="ms">Meta title, OG tag, navigation label, alt text</div>
+              </div>
+              <div class="ac"><span class="b">Accept</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-file"/></svg></div>
+              <div class="body">
+                <div class="tt"><code>footer.php</code> <span style="color:var(--text3);font-weight:400">· 7 changes</span></div>
+                <div class="ms">Brand mention, copyright, contact block</div>
+              </div>
+              <div class="ac"><span class="b">Accept</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-file"/></svg></div>
+              <div class="body">
+                <div class="tt"><code>templates/single.php</code> <span style="color:var(--text3);font-weight:400">· 3 changes</span></div>
+                <div class="ms">Schema.org metadata</div>
+              </div>
+              <div class="ac"><span class="b">Accept</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-file"/></svg></div>
+              <div class="body">
+                <div class="tt"><code>templates/page.php</code> <span style="color:var(--text3);font-weight:400">· 2 changes</span></div>
+                <div class="ms">Default hero + subtitle</div>
+              </div>
+              <div class="ac"><span class="b">Accept</span></div>
+            </div>
+            <div class="vers-row" style="background:rgba(255,138,76,.05);border-color:rgba(255,138,76,.25)">
+              <div class="icn"><svg class="ic-sm"><use href="#i-bolt"/></svg></div>
+              <div class="body">
+                <div class="tt">+ 4 more files</div>
+                <div class="ms">contact.php, about.php, blog_item.php, sitemap.xml</div>
+              </div>
+              <div class="ac"><span class="b" style="background:var(--accent);color:#1B1813;border-color:var(--accent)">Accept all</span></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-shield"/></svg></div>
-        <h3>Read your code, propose surgical edits</h3>
-        <p>Pier never blindly rewrites files. It does a find/replace with surrounding context, validates the match is unique, and shows the diff. You stay in control.</p>
+    </div>
+
+    <!-- ROW 2: Time travel -->
+    <div class="featrow rev reveal">
+      <div class="txt">
+        <h3>Time travel. Per file, per chat.</h3>
+        <p>Every accepted edit creates a checkpoint. Versions are chat-scoped — you see exactly what got changed in this conversation, when, and by whom. One click restores any file to any state.</p>
+        <ul>
+          <li>Per-chat version history (no global noise)</li>
+          <li>Before / after stored — diff preview before restore</li>
+          <li>Auto-snapshot before risky edits (<code>.htaccess</code>, <code>wp-config</code>)</li>
+          <li>Undo toast for 10 seconds after every apply</li>
+        </ul>
       </div>
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-bolt"/></svg></div>
-        <h3>Built-in audit agents</h3>
-        <p>Type @seo, @security, @performance, @broken_links — Pier scans the live site and reports issues. Each one comes with a one-click "fix it for me" proposal.</p>
+      <div class="mock">
+        <div class="mock-card">
+          <div class="mock-tb">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span style="margin:0 auto">Versions · 6 checkpoints in this chat</span>
+          </div>
+          <div class="vers">
+            <div class="vers-row">
+              <div class="icn rev"><svg class="ic-sm"><use href="#i-history"/></svg></div>
+              <div class="body">
+                <div class="tt">Restored: <code>contact.php</code></div>
+                <div class="mt">12:44 · v_98b · 4856 → 4843 bytes</div>
+                <div class="ms">Reverted H1 change back to original</div>
+              </div>
+              <div class="ac"><span class="b">Diff</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-spark"/></svg></div>
+              <div class="body">
+                <div class="tt">Edit: <code>contact.php</code></div>
+                <div class="mt">12:42 · v_64b · 4843 → 4856 bytes</div>
+                <div class="ms">Changed H1 text per user request</div>
+              </div>
+              <div class="ac"><span class="b">Restore</span><span class="b">Diff</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-spark"/></svg></div>
+              <div class="body">
+                <div class="tt">Edit: <code>footer.php</code></div>
+                <div class="mt">12:31 · v_7a2 · 9971 → 9971 bytes</div>
+                <div class="ms">Replaced "TEGELS.NL" → "Tegels.nl" (5x)</div>
+              </div>
+              <div class="ac"><span class="b">Restore</span><span class="b">Diff</span></div>
+            </div>
+            <div class="vers-row">
+              <div class="icn"><svg class="ic-sm"><use href="#i-plus"/></svg></div>
+              <div class="body">
+                <div class="tt">Created: <code>generated-by-ai.php</code></div>
+                <div class="mt">12:08 · v_d91 · New file · 2,340 bytes</div>
+                <div class="ms">Based on contact.php template</div>
+              </div>
+              <div class="ac"><span class="b">Restore</span><span class="b">Diff</span></div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-folder"/></svg></div>
-        <h3>Drag &amp; drop, anywhere</h3>
-        <p>Drop files into the chat — Pier uploads them and asks the AI what to do with them. Drop into the Files tab to upload to a specific folder. Works the way you expect.</p>
+    </div>
+
+    <!-- ROW 3: Agents -->
+    <div class="featrow reveal" id="agents">
+      <div class="txt">
+        <span class="eyebrow" style="margin-bottom:16px"><span class="dot"></span> @-mention audits</span>
+        <h3>Ten specialist agents at your command</h3>
+        <p>Type <code>@security</code>, <code>@seo</code>, <code>@performance</code>, <code>@broken_links</code> — Pier scans your live site and reports issues. Each finding comes with a one-click "fix it" proposal.</p>
+        <ul>
+          <li>@seo · @security · @performance · @accessibility</li>
+          <li>@broken_links · @meta_description · @viewport · @analytics</li>
+          <li>@external_links · @nofollow · @full_audit</li>
+          <li>Fixes are proposals, not auto-applies. Always reviewable.</li>
+        </ul>
       </div>
-      <div class="card">
-        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-globe"/></svg></div>
-        <h3>Knows your site</h3>
-        <p>On connect, Pier scans the server, detects the CMS (WordPress / Drupal / Magento / Joomla / custom PHP), reads the .htaccess, and remembers everything across chats.</p>
+      <div class="mock">
+        <div class="mock-card">
+          <div class="mock-tb">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span style="margin:0 auto">@security scan · 3 findings</span>
+          </div>
+          <div class="audit">
+            <h4>Security audit complete</h4>
+            <div class="subt">Scanned 47 files · finished in 4.2s</div>
+            <div class="findings">
+              <div class="f high">
+                <div class="sev"></div>
+                <div class="body">
+                  <div class="tt">wp-config.php exposed to public path</div>
+                  <div class="pth">public_html/wp-config.php · readable</div>
+                </div>
+                <span class="act">Fix</span>
+              </div>
+              <div class="f med">
+                <div class="sev"></div>
+                <div class="body">
+                  <div class="tt">Missing HSTS header</div>
+                  <div class="pth">.htaccess · 17 lines</div>
+                </div>
+                <span class="act">Fix</span>
+              </div>
+              <div class="f low">
+                <div class="sev"></div>
+                <div class="body">
+                  <div class="tt">XMLRPC endpoint enabled</div>
+                  <div class="pth">xmlrpc.php · consider disabling</div>
+                </div>
+                <span class="act">Fix</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROW 4: Files tab -->
+    <div class="featrow rev reveal">
+      <div class="txt">
+        <h3>Browse, edit, drop-upload</h3>
+        <p>A full file editor with CodeMirror syntax highlighting for PHP, HTML, CSS, JS, SQL, Markdown. Drag-and-drop to upload. Resize the tree. Cmd+F to find. Cmd+S to save. Every save is backed up.</p>
+        <ul>
+          <li>Syntax highlighting for 10+ languages</li>
+          <li>Drag-and-drop upload anywhere</li>
+          <li>Automatic backup on every save</li>
+          <li>Persistent UI state (tree width remembered)</li>
+        </ul>
+      </div>
+      <div class="mock">
+        <div class="mock-card">
+          <div class="mock-tb">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <span style="margin:0 auto">Files · footer.php (editing)</span>
+          </div>
+          <div class="files-mock">
+            <div class="files-tree-m">
+              <div class="ft-row"><svg class="ic-sm"><use href="#i-folder"/></svg> public_html</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-folder"/></svg> wp-content</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-folder"/></svg> includes</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-file"/></svg> header.php</div>
+              <div class="ft-row nested active"><svg class="ic-sm"><use href="#i-file"/></svg> footer.php</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-file"/></svg> index.php</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-file"/></svg> contact.php</div>
+              <div class="ft-row nested"><svg class="ic-sm"><use href="#i-file"/></svg> .htaccess</div>
+            </div>
+            <div class="files-editor-m">
+              <div><span class="gutter">1</span><span class="tag">&lt;?php</span></div>
+              <div><span class="gutter">2</span><span class="fn">get_sidebar</span>(<span class="str">'footer'</span>); <span class="kw">?&gt;</span></div>
+              <div><span class="gutter">3</span>&nbsp;</div>
+              <div><span class="gutter">4</span><span class="tag">&lt;footer</span> <span class="fn">class</span>=<span class="str">"site-footer"</span><span class="tag">&gt;</span></div>
+              <div><span class="gutter">5</span>&nbsp;&nbsp;<span class="tag">&lt;div</span> <span class="fn">class</span>=<span class="str">"container"</span><span class="tag">&gt;</span></div>
+              <div><span class="gutter">6</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="tag">&lt;p&gt;</span>&copy; 2026 <span class="str">Tegels.nl</span><span class="tag">&lt;/p&gt;</span></div>
+              <div><span class="gutter">7</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="cm">// @pier: replaced 2026-04-14</span></div>
+              <div><span class="gutter">8</span>&nbsp;&nbsp;<span class="tag">&lt;/div&gt;</span></div>
+              <div><span class="gutter">9</span><span class="tag">&lt;/footer&gt;</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Feature cards quick-hit -->
+<section style="padding-top:0;padding-bottom:96px">
+  <div class="wrap">
+    <div class="fgrid">
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-lock"/></svg></div>
+        <h4>Your credentials, encrypted</h4>
+        <p>FTP passwords stored with AES-256-GCM + HMAC integrity. They never leave your Mac. Ever.</p>
+      </div>
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-globe"/></svg></div>
+        <h4>Knows your site on connect</h4>
+        <p>Detects CMS, reads .htaccess for URL routing, maps working folders — all before you type a word.</p>
+      </div>
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-target"/></svg></div>
+        <h4>Surgical, not sprawling</h4>
+        <p>Uses find+replace with surrounding context. Won't rewrite whole files. Won't touch what you didn't ask about.</p>
+      </div>
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-heart"/></svg></div>
+        <h4>Understands Dutch, French, Spanish…</h4>
+        <p>Speaks every language your site speaks. Auto-detects preferred language per connection.</p>
+      </div>
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-cloud"/></svg></div>
+        <h4>Your AI, your choice</h4>
+        <p>Bring your own Anthropic API key OR use your Claude Code subscription. No vendor lock-in.</p>
+      </div>
+      <div class="fcard reveal">
+        <div class="ic-b"><svg class="ic-lg"><use href="#i-shield"/></svg></div>
+        <h4>Secrets never shown</h4>
+        <p>Auto-redacts wp-config, .env, .htpasswd, DB credentials from chat. The AI never echoes them back.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- COMPARISON -->
-<section style="padding-top:0">
+<section>
   <div class="wrap">
-    <div class="strip">
-      <div>
-        <h3>The old way vs. the Pier way</h3>
-        <p>You used to FTP into the server, hunt for the file, copy it locally, edit it in your favorite editor, save, upload, refresh, hope nothing broke. Pier is one chat message.</p>
+    <span class="eyebrow sec-eyebrow reveal"><span class="dot"></span> The old way vs Pier</span>
+    <h2 class="sec-title reveal">FTP hasn't changed since 2008. Your workflow shouldn't have either.</h2>
+    <p class="sec-sub reveal">Stop context-switching between an FTP client, an editor, a terminal, and a panic-restore backup.</p>
+
+    <div class="vs reveal">
+      <div class="vs-head">
+        <div>Task</div>
+        <div>Transmit / FileZilla / ForkLift</div>
+        <div>Pier</div>
       </div>
-      <div class="compare">
-        <span class="bad">old:</span> SFTP &rarr; find file &rarr; download &rarr; edit &rarr; upload &rarr; check &rarr; revert<br>
-        <span class="good">pier:</span> "change the contact email to support@..."<br>
-        <br>
-        <span class="bad">old:</span> hunt for which file holds the menu &rarr; trace 4 includes deep<br>
-        <span class="good">pier:</span> "edit the menu" &rarr; <span style="color:var(--cream)">done</span>
+      <div class="vs-row">
+        <div>"Change the brand name everywhere"</div>
+        <div class="xmark">Open 8 files manually · grep · edit · save · upload each · hope</div>
+        <div class="pmark">One message · accept batch · done in 20s</div>
+      </div>
+      <div class="vs-row">
+        <div>"Find where the menu lives"</div>
+        <div class="xmark">Download whole site · grep locally</div>
+        <div class="pmark">"Edit the menu" → Pier traces includes automatically</div>
+      </div>
+      <div class="vs-row">
+        <div>"Oops, I broke the site"</div>
+        <div class="xmark">Hope you kept a backup · FTP restore · pray</div>
+        <div class="pmark">Click Undo toast → instant revert</div>
+      </div>
+      <div class="vs-row">
+        <div>"Run a security scan"</div>
+        <div class="xmark">Not a feature. Subscribe to separate SaaS ($50/mo+)</div>
+        <div class="pmark">Type <code>@security</code> → done</div>
+      </div>
+      <div class="vs-row">
+        <div>"Edit syntax-highlighted PHP"</div>
+        <div class="xmark">Open in external editor · manage sync</div>
+        <div class="pmark">Built-in CodeMirror · save with Cmd+S</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Keyboard shortcuts demo -->
+<section style="padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="eyebrow sec-eyebrow reveal"><span class="dot"></span> Built for keyboards</span>
+    <h2 class="sec-title reveal">Power-user shortcuts, zero memorization</h2>
+    <p class="sec-sub reveal">Press <kbd>?</kbd> anytime for a full list. Every modal closes with Escape. Every find works with Cmd+F.</p>
+    <div class="kbd-grid">
+      <div class="kbd-row reveal"><span>Send message</span><span><kbd>⌘</kbd><kbd>↵</kbd></span></div>
+      <div class="kbd-row reveal"><span>Focus input</span><span><kbd>⌘</kbd><kbd>K</kbd></span></div>
+      <div class="kbd-row reveal"><span>Search chats</span><span><kbd>⌘</kbd><kbd>F</kbd></span></div>
+      <div class="kbd-row reveal"><span>Save file</span><span><kbd>⌘</kbd><kbd>S</kbd></span></div>
+      <div class="kbd-row reveal"><span>Show shortcuts</span><span><kbd>?</kbd></span></div>
+      <div class="kbd-row reveal"><span>Close / cancel</span><span><kbd>Esc</kbd></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section style="padding-top:60px;padding-bottom:100px">
+  <div class="wrap">
+    <div class="testi reveal">
+      <blockquote>
+        I inherited a 9-year-old Joomla site from a client. Before Pier, maintenance took me a full afternoon every week — grep, FTP, pray. Now I chat for five minutes and the job's done. The undo alone paid for the subscription after one near-miss.
+      </blockquote>
+      <div class="who">
+        <div class="avatar">D</div>
+        <div>
+          <div class="who-t">Daan K.</div>
+          <div class="who-r">Freelance web developer · Netherlands</div>
+        </div>
       </div>
     </div>
   </div>
@@ -331,89 +828,92 @@
 <!-- PRICING -->
 <section id="pricing" style="background:linear-gradient(180deg,transparent,rgba(255,138,76,.04),transparent)">
   <div class="wrap">
-    <span class="sec-eyebrow">Pricing</span>
-    <h2 class="sec-title">One subscription. Every site you maintain.</h2>
-    <p class="sec-sub">14-day free trial, no credit card. Cancel anytime in App Store settings. Apple Small Business pricing — fair to indie devs.</p>
+    <span class="eyebrow sec-eyebrow reveal"><span class="dot"></span> Pricing</span>
+    <h2 class="sec-title reveal">One subscription. <span class="gradient">Every site</span> you maintain.</h2>
+    <p class="sec-sub reveal">14-day free trial. No credit card. Cancel anytime in App Store settings. Apple Small Business pricing — fair to indie devs.</p>
 
     <div class="price-grid">
-      <div class="plan">
+      <div class="plan reveal">
         <h3>Monthly</h3>
-        <div class="pr"><span class="amount">€15</span><span class="per">/month</span></div>
+        <div class="pr"><span class="amt">€15</span><span class="per">/month</span></div>
         <ul>
           <li>Unlimited FTP / SFTP connections</li>
           <li>Unlimited AI chat turns</li>
-          <li>Versioned edits + restore</li>
+          <li>Full version control</li>
           <li>Drag-and-drop upload</li>
-          <li>All audit agents</li>
+          <li>All 10+ audit agents</li>
           <li>Updates included</li>
         </ul>
         <a href="#download" class="btn btn-ghost" style="margin-top:auto">Start 14-day trial</a>
       </div>
-      <div class="plan popular">
+      <div class="plan popular reveal">
         <h3>Yearly</h3>
-        <div class="pr"><span class="amount">€120</span><span class="per">/year</span><span class="strike">€180</span></div>
+        <div class="pr"><span class="amt">€120</span><span class="per">/year</span><span class="strike">€180</span></div>
         <span class="save">Save 33%</span>
         <ul>
           <li>Everything in Monthly</li>
-          <li><strong>4 months free</strong></li>
+          <li><strong style="color:var(--text)">4 months free</strong></li>
           <li>Priority support</li>
           <li>Early access to new features</li>
+          <li>Multi-device sync</li>
         </ul>
         <a href="#download" class="btn btn-primary" style="margin-top:auto">Start 14-day trial</a>
       </div>
-      <div class="plan">
+      <div class="plan reveal">
         <h3>Lifetime</h3>
-        <div class="pr"><span class="amount">€249</span><span class="per">once</span></div>
+        <div class="pr"><span class="amt">€249</span><span class="per">once</span></div>
         <ul>
           <li>One payment, forever</li>
           <li>Everything in Yearly</li>
-          <li>All updates for current major version</li>
+          <li>All v1 updates included</li>
           <li>Best for long-term agencies</li>
+          <li>No recurring billing</li>
         </ul>
         <a href="#download" class="btn btn-ghost" style="margin-top:auto">Buy lifetime</a>
       </div>
     </div>
 
-    <p style="text-align:center;color:var(--text3);font-size:13px;margin-top:32px">Use your own Anthropic API key, OR your existing Claude Code subscription — Pier supports both. No vendor lock-in.</p>
+    <p style="text-align:center;color:var(--text3);font-size:13px;margin-top:40px">Use your own Anthropic API key (pay-per-token) OR your Claude Code subscription (€0 per message) — Pier supports both.</p>
   </div>
 </section>
 
 <!-- FAQ -->
 <section id="faq">
   <div class="wrap">
-    <span class="sec-eyebrow">FAQ</span>
-    <h2 class="sec-title">Questions, answered</h2>
+    <span class="eyebrow sec-eyebrow reveal"><span class="dot"></span> FAQ</span>
+    <h2 class="sec-title reveal">Questions, answered</h2>
+    <div class="sec-sub" style="margin-bottom:48px"></div>
 
     <div class="faq">
-      <details class="q">
+      <details class="q reveal">
         <summary>Do I need an Anthropic API key?</summary>
-        <p>No. Pier works with either your own Anthropic API key (pay per token, ~$0.01-0.05/turn) or your existing Claude Code subscription (zero per-turn cost). It auto-detects what you have. We&rsquo;ll guide you through setup the first time.</p>
+        <p>No. Pier works with either your own Anthropic API key (pay-per-token, roughly $0.01-0.05 per turn) or your existing Claude Code subscription (zero per-turn cost). It auto-detects what you have. We'll guide you through setup the first time.</p>
       </details>
-      <details class="q">
-        <summary>Can it actually edit my live website?</summary>
-        <p>Yes &mdash; that&rsquo;s the whole point. Pier connects via FTP/SFTP to any host (DirectAdmin, cPanel, Plesk, custom). Every edit is proposed as a diff first &mdash; you click Accept, Pier uploads, and the file&rsquo;s previous state is saved as a version you can restore at any time.</p>
+      <details class="q reveal">
+        <summary>Will it actually edit my live website?</summary>
+        <p>Yes — that's the whole point. Pier connects via FTP/SFTP to any host (DirectAdmin, cPanel, Plesk, custom). Every edit is proposed as a diff first — you click Accept, Pier uploads, and the file's previous state is saved as a version you can restore at any time.</p>
       </details>
-      <details class="q">
+      <details class="q reveal">
         <summary>Is my FTP password safe?</summary>
-        <p>Yes. Credentials are encrypted (AES-256-GCM) on disk with HMAC integrity checks. Nothing leaves your Mac except the FTP traffic itself. We never see your passwords. The encryption key is stored in your local <code>.env</code> with owner-only file permissions and benefits from FileVault disk encryption.</p>
+        <p>Yes. Credentials are encrypted (AES-256-GCM) on disk with HMAC integrity checks. Nothing leaves your Mac except the FTP traffic itself. We never see your passwords. The encryption key sits in your local <code>.env</code> with owner-only file permissions and benefits from FileVault disk encryption.</p>
       </details>
-      <details class="q">
+      <details class="q reveal">
         <summary>What if the AI breaks my site?</summary>
-        <p>Two safety nets: (1) every edit is a diff you approve before applying, (2) every accepted edit creates a restore point. For high-risk files (.htaccess, wp-config.php, composer.json) Pier auto-creates a folder snapshot before applying. Worst case: one click and you&rsquo;re back to the previous state.</p>
+        <p>Two safety nets: (1) every edit is a diff you approve before applying, (2) every accepted edit creates a restore point. For high-risk files (.htaccess, wp-config.php, composer.json) Pier auto-creates a folder snapshot before applying. Worst case: one click and you're back to the previous state.</p>
       </details>
-      <details class="q">
+      <details class="q reveal">
         <summary>Does it work with WordPress?</summary>
-        <p>Excellent with WordPress. Pier detects WP automatically, knows the theme/plugin/uploads layout, and reads <code>wp-config.php</code> safely (secrets are auto-redacted in chat). For content stored in the database (posts, pages), Pier tells you so directly &mdash; you&rsquo;ll need wp-admin or phpMyAdmin for those. Pier handles every theme file, plugin file, and config that lives on disk.</p>
+        <p>Excellent with WordPress. Pier detects WP automatically, knows the theme/plugin/uploads layout, and reads <code>wp-config.php</code> safely (secrets auto-redacted in chat). For content stored in the database (posts, pages), Pier tells you so directly — you'll need wp-admin or phpMyAdmin for those. Pier handles every theme file, plugin file, and config that lives on disk.</p>
       </details>
-      <details class="q">
-        <summary>What about agencies / teams?</summary>
-        <p>Each Pier seat handles unlimited connections. Add a license per developer; everyone gets their own chat history per client site. Team-shared knowledge base is on the roadmap.</p>
+      <details class="q reveal">
+        <summary>What about agencies and teams?</summary>
+        <p>Each Pier seat handles unlimited connections. Add a license per developer; everyone gets their own chat history per client site. Team-shared knowledge base and shared connection pools are on the roadmap for Q3 2026.</p>
       </details>
-      <details class="q">
-        <summary>Can I cancel anytime?</summary>
-        <p>Yes &mdash; cancel from the Mac App Store subscription manager. You keep access until the end of your current billing period. Lifetime purchases are non-cancellable but include all updates for the current major version.</p>
+      <details class="q reveal">
+        <summary>Does it work offline?</summary>
+        <p>The file editor works offline for locally cached content. The AI requires internet (to reach Anthropic or your local Claude). Version history and backups are stored on disk and work without a connection.</p>
       </details>
-      <details class="q">
+      <details class="q reveal">
         <summary>Why is it called Pier?</summary>
         <p>A pier is where boats dock to load and unload cargo. Your AI assistant docks with the FTP server to deliver and retrieve files. Short, memorable, and the metaphor actually works.</p>
       </details>
@@ -424,9 +924,10 @@
 <!-- FINAL CTA -->
 <section>
   <div class="wrap">
-    <div class="cta-final">
-      <h2>Ready to stop dreading legacy maintenance?</h2>
-      <p>Pier ships in November. Join the waitlist for early access + a 50% launch discount.</p>
+    <div class="cta-final reveal">
+      <span class="eyebrow"><span class="dot"></span> Beta access opens November 2026</span>
+      <h2>Stop dreading legacy maintenance.<br><span class="gradient">Start a 14-day trial.</span></h2>
+      <p>No credit card. Full access. Cancel with one click. Works with every site you already maintain.</p>
       <a href="#download" class="btn btn-primary btn-lg" id="download">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12-1.17.486-2.36 1.119-3.13.717-.84 1.951-1.45 2.946-1.51.013.07.013.21.013.39zm4.992 16.84a12.7 12.7 0 0 1-1.218 2.21c-.785 1.17-1.913 2.62-3.31 2.63-1.246.01-1.566-.81-3.255-.8-1.69.01-2.04.81-3.286.83-1.4 0-2.466-1.31-3.25-2.48-2.187-3.27-3.793-9.27-1.594-13.37 1.064-2.04 2.94-3.34 5.06-3.34 1.4 0 2.74.95 3.49.95.74 0 2.32-1.18 3.96-1.01.69.03 2.61.28 3.84 2.1-.099.07-2.296 1.34-2.276 4.01.026 3.18 2.79 4.24 2.82 4.25-.01.07-.45 1.5-1.49 3.02z"/></svg>
         Join the waitlist
@@ -438,33 +939,57 @@
 <!-- FOOTER -->
 <footer>
   <div class="wrap">
-    <div class="row">
-      <div class="brand">
-        <span class="mark"><svg width="20" height="20" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>
-        Pier
+    <div class="foot-grid">
+      <div class="foot-col foot-brand">
+        <div class="brand"><span class="mark"><svg width="22" height="22" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>Pier</div>
+        <p>AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
       </div>
-      <div class="links">
-        <a href="/privacy">Privacy</a>
-        <a href="/terms">Terms</a>
+      <div class="foot-col">
+        <h5>Product</h5>
+        <a href="#features">Features</a>
+        <a href="#agents">Audit agents</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="foot-col">
+        <h5>Company</h5>
+        <a href="https://abn.company">ABN</a>
         <a href="mailto:hello@pier.abn.company">Contact</a>
-        <a href="https://abn.company">By ABN</a>
+        <a href="/changelog">Changelog</a>
       </div>
-      <div class="copyright">© 2026 ABN. All rights reserved.</div>
+      <div class="foot-col">
+        <h5>Legal</h5>
+        <a href="/privacy">Privacy policy</a>
+        <a href="/terms">Terms of service</a>
+        <a href="/security">Security</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>© 2026 ABN Company. All rights reserved.</div>
+      <div>Made on a rainy day in Amsterdam ·  <a href="https://abn.company">abn.company</a></div>
     </div>
   </div>
 </footer>
 
 <script>
-  // Waitlist email capture (very minimal — just opens mailto for now)
+  // Waitlist CTA → mailto
   document.querySelectorAll('a[href="#download"]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      const email = prompt('Pier launches November 2026.\n\nDrop your email to get notified:');
+      const email = prompt('Pier launches November 2026.\n\nDrop your email for early access + 50% launch discount:');
       if (email && email.includes('@')) {
-        location.href = 'mailto:hello@pier.abn.company?subject=Pier%20waitlist&body=Add%20me%20to%20the%20Pier%20waitlist:%20' + encodeURIComponent(email);
+        location.href = 'mailto:hello@pier.abn.company?subject=Pier%20waitlist&body=' + encodeURIComponent('Add me to the Pier waitlist: ' + email);
       }
     });
   });
+
+  // Scroll reveal
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 </script>
 
 </body>
