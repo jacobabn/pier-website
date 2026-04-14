@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pier — AI for legacy websites</title>
+<meta name="description" content="Manage WordPress, custom PHP and any FTP-hosted site by chatting with AI. Edit live, undo any change, never break a site again. Native Mac app.">
+<meta name="theme-color" content="#14110E">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pier — AI for legacy websites">
+<meta property="og:description" content="Chat your way through any FTP-hosted site. Versioned, safe, undoable. For freelancers and agencies maintaining legacy WordPress and PHP.">
+<meta property="og:image" content="https://pier.abn.company/og.png">
+<meta property="og:url" content="https://pier.abn.company">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#14110E; --bg2:#1B1813; --bg3:#211E18;
+    --accent:#FF8A4C; --accent2:#FFA670; --accent-glow:rgba(255,138,76,.32);
+    --cream:#F5E6D3; --cream-soft:#E8D7BE; --sand:#C6B299;
+    --text:#F5F1E8; --text2:#B5A993; --text3:#6E6555;
+    --line:rgba(245,230,211,.10); --line-strong:rgba(245,230,211,.16);
+    --green:#6BB6A0; --red:#E47370;
+    --r:14px; --rs:10px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
+    --mono:'JetBrains Mono','SF Mono',monospace;
+  }
+  html,body{background:var(--bg);color:var(--text);font-family:var(--font);font-feature-settings:'cv11','ss01';-webkit-font-smoothing:antialiased;line-height:1.55}
+  a{color:var(--accent);text-decoration:none;transition:color .15s}
+  a:hover{color:var(--accent2)}
+  ::selection{background:var(--accent-glow);color:var(--text)}
+
+  /* Layout */
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  section{padding:96px 0;position:relative}
+  @media (max-width:720px){section{padding:64px 0}.wrap{padding:0 18px}}
+
+  /* NAV */
+  nav.top{position:sticky;top:0;z-index:50;backdrop-filter:saturate(140%) blur(14px);background:rgba(20,17,14,.72);border-bottom:1px solid var(--line)}
+  nav.top .row{display:flex;align-items:center;justify-content:space-between;padding:14px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.5px;font-size:18px}
+  .brand .mark{width:30px;height:30px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .nav-links{display:flex;gap:28px;align-items:center}
+  .nav-links a{color:var(--text2);font-size:14px;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  @media (max-width:720px){.nav-links a:not(.btn){display:none}}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:10px;font-weight:600;font-size:14px;border:1px solid transparent;transition:all .15s;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--accent);color:#1B1813;border-color:var(--accent)}
+  .btn-primary:hover{background:var(--accent2);color:#1B1813;transform:translateY(-1px);box-shadow:0 10px 30px var(--accent-glow)}
+  .btn-ghost{color:var(--text);border-color:var(--line-strong);background:transparent}
+  .btn-ghost:hover{background:var(--bg2);border-color:var(--cream-soft)}
+  .btn-lg{padding:14px 24px;font-size:15px;border-radius:12px}
+
+  /* Hero */
+  .hero{padding-top:80px;padding-bottom:60px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(800px 400px at 50% -10%,rgba(255,138,76,.15),transparent 60%);pointer-events:none}
+  .hero h1{font-size:clamp(40px,6vw,76px);font-weight:800;letter-spacing:-2px;line-height:1.05;text-align:center;max-width:900px;margin:24px auto 18px}
+  .hero h1 em{font-style:normal;background:linear-gradient(90deg,#FFB347 0,#FF8A4C 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{font-size:clamp(16px,1.6vw,20px);color:var(--text2);text-align:center;max-width:640px;margin:0 auto 36px;line-height:1.55}
+  .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--bg2);border:1px solid var(--line);font-size:12px;color:var(--text2);font-weight:500;margin:0 auto;width:fit-content}
+  .badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(107,182,160,.5)}
+
+  /* App preview frame */
+  .app-frame{margin:64px auto 0;max-width:1100px;padding:8px;background:linear-gradient(180deg,rgba(255,138,76,.18) 0%,transparent 60%);border-radius:20px}
+  .app-frame .shot{aspect-ratio:16/10;background:var(--bg2);border:1px solid var(--line-strong);border-radius:14px;display:grid;grid-template-columns:200px 1fr;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+  .app-frame .ap-side{background:var(--bg3);border-right:1px solid var(--line);padding:20px 14px}
+  .app-frame .ap-side .as-brand{display:flex;align-items:center;gap:8px;margin-bottom:24px}
+  .app-frame .ap-side .as-brand .m{width:24px;height:24px;border-radius:6px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center}
+  .app-frame .ap-side .as-brand strong{font-size:13px;font-weight:700}
+  .app-frame .ap-side .as-label{font-size:9px;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);margin-bottom:8px;font-weight:600}
+  .app-frame .ap-side .as-conn{padding:10px;border-radius:8px;background:rgba(255,138,76,.08);border:1px solid rgba(255,138,76,.2);margin-bottom:6px;font-size:12px}
+  .app-frame .ap-side .as-conn .name{font-weight:600}
+  .app-frame .ap-side .as-conn .host{color:var(--text3);font-size:10px;font-family:var(--mono);margin-top:2px}
+  .app-frame .ap-side .as-chat{display:flex;align-items:center;gap:8px;padding:6px 10px;font-size:11px;color:var(--text2);margin-left:8px;border-left:1px solid var(--line)}
+  .app-frame .ap-main{padding:24px;display:flex;flex-direction:column;justify-content:flex-end;gap:14px;background:radial-gradient(800px 400px at 50% -10%,rgba(255,138,76,.05),transparent 60%)}
+  .app-frame .bubble-u{align-self:flex-end;background:var(--accent);color:#1B1813;padding:10px 14px;border-radius:14px 14px 4px 14px;max-width:60%;font-size:13px;font-weight:500}
+  .app-frame .bubble-a{align-self:flex-start;background:var(--bg3);border:1px solid var(--line);padding:12px 14px;border-radius:14px 14px 14px 4px;max-width:75%;font-size:13px;line-height:1.55}
+  .app-frame .bubble-a code{background:rgba(245,230,211,.06);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--cream)}
+  .app-frame .pcard{align-self:flex-start;background:var(--bg3);border:1px solid var(--line-strong);border-radius:12px;padding:14px;width:80%;max-width:520px}
+  .app-frame .pcard .ph{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px;font-weight:600;color:var(--accent)}
+  .app-frame .pcard .pdiff{font-family:var(--mono);font-size:11px;background:#0A0807;padding:8px;border-radius:6px;margin:8px 0;line-height:1.5}
+  .app-frame .pcard .pdiff .add{color:#6BB6A0;background:rgba(107,182,160,.08);display:block;padding:1px 6px}
+  .app-frame .pcard .pdiff .del{color:#E47370;background:rgba(228,115,112,.08);display:block;padding:1px 6px;text-decoration:line-through}
+  .app-frame .pcard .pact{display:flex;gap:6px;margin-top:6px}
+  .app-frame .pcard .pact .b{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600}
+  .app-frame .pcard .pact .ok{background:var(--accent);color:#1B1813}
+  .app-frame .pcard .pact .no{background:var(--bg);border:1px solid var(--line);color:var(--text2)}
+
+  /* Sections */
+  .sec-eyebrow{display:block;text-align:center;font-size:12px;text-transform:uppercase;letter-spacing:2px;color:var(--accent);font-weight:700;margin-bottom:14px}
+  h2.sec-title{font-size:clamp(28px,4vw,46px);font-weight:800;letter-spacing:-1px;text-align:center;line-height:1.15;max-width:780px;margin:0 auto 16px}
+  .sec-sub{text-align:center;color:var(--text2);font-size:17px;max-width:580px;margin:0 auto 56px;line-height:1.6}
+
+  /* Features grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:28px;transition:all .25s}
+  .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+  .card .icon-wrap{width:42px;height:42px;border-radius:10px;background:rgba(255,138,76,.12);border:1px solid rgba(255,138,76,.25);display:flex;align-items:center;justify-content:center;margin-bottom:18px;color:var(--accent)}
+  .card h3{font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
+  .card p{color:var(--text2);font-size:14px;line-height:1.6}
+  .ic{width:18px;height:18px}
+  .ic-lg{width:22px;height:22px}
+
+  /* Comparison strip */
+  .strip{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:32px;display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center}
+  @media (max-width:720px){.strip{grid-template-columns:1fr;gap:24px}}
+  .strip h3{font-size:24px;font-weight:700;letter-spacing:-.4px;margin-bottom:8px}
+  .strip p{color:var(--text2);font-size:14px}
+  .compare{font-family:var(--mono);font-size:12px;background:#0A0807;padding:18px;border-radius:10px;border:1px solid var(--line);line-height:1.85}
+  .compare .bad{color:var(--red)}
+  .compare .good{color:var(--green)}
+  .compare .arrow{color:var(--text3);margin:0 8px}
+
+  /* Pricing */
+  .price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;max-width:1000px;margin:0 auto}
+  @media (max-width:880px){.price-grid{grid-template-columns:1fr}}
+  .plan{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:32px;display:flex;flex-direction:column;gap:14px;position:relative}
+  .plan.popular{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 30px 60px rgba(255,138,76,.15)}
+  .plan.popular::before{content:'Most popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#1B1813;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+  .plan h3{font-size:14px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px}
+  .plan .pr{display:flex;align-items:baseline;gap:6px;margin:6px 0 14px}
+  .plan .pr .amount{font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1}
+  .plan .pr .per{color:var(--text3);font-size:14px;font-weight:500}
+  .plan .pr .strike{color:var(--text3);font-size:14px;text-decoration:line-through;margin-left:4px}
+  .plan ul{list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;color:var(--text)}
+  .plan ul li{display:flex;align-items:flex-start;gap:10px;color:var(--text2)}
+  .plan ul li::before{content:'';width:16px;height:16px;flex-shrink:0;background:var(--accent);mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6 9 17l-5-5'/></svg>") center/contain no-repeat;-webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='none' stroke='black' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' d='M20 6 9 17l-5-5'/></svg>") center/contain no-repeat;margin-top:1px}
+  .plan .save{font-size:11px;color:var(--green);font-weight:600;background:rgba(107,182,160,.1);padding:2px 8px;border-radius:999px;width:fit-content}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+  details.q{background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;transition:border-color .15s;cursor:pointer}
+  details.q[open]{border-color:var(--line-strong)}
+  details.q summary{font-weight:600;font-size:15px;list-style:none;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+  details.q summary::-webkit-details-marker{display:none}
+  details.q summary::after{content:'+';color:var(--accent);font-size:22px;font-weight:300;transition:transform .2s}
+  details.q[open] summary::after{content:'−'}
+  details.q p{color:var(--text2);font-size:14px;margin-top:14px;line-height:1.65}
+
+  /* CTA */
+  .cta-final{background:linear-gradient(135deg,rgba(255,138,76,.12),rgba(255,166,112,.04));border:1px solid rgba(255,138,76,.25);border-radius:24px;padding:64px 32px;text-align:center;margin:0 auto;max-width:880px}
+  .cta-final h2{font-size:clamp(28px,4vw,40px);font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:14px}
+  .cta-final p{color:var(--text2);font-size:16px;max-width:480px;margin:0 auto 28px}
+
+  /* Footer */
+  footer{border-top:1px solid var(--line);padding:48px 0 36px;color:var(--text3);font-size:13px}
+  footer .row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:24px;align-items:center}
+  footer .links{display:flex;gap:24px}
+  footer .links a{color:var(--text2)}
+  footer .links a:hover{color:var(--text)}
+  footer .copyright{color:var(--text3)}
+
+  /* Logos / trust */
+  .trust{display:flex;justify-content:center;gap:48px;flex-wrap:wrap;align-items:center;opacity:.55;margin-top:24px;color:var(--text3);font-size:12px;font-weight:500;letter-spacing:1px;text-transform:uppercase}
+  .trust .stack{font-family:var(--mono);font-size:11px}
+
+  /* Animations */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .hero h1,.hero .sub,.hero-cta,.badge{animation:fadeUp .6s ease forwards}
+  .hero .sub{animation-delay:.1s;opacity:0}
+  .hero-cta{animation-delay:.2s;opacity:0}
+  .app-frame{animation:fadeUp 1s ease .35s forwards;opacity:0}
+</style>
+</head>
+<body>
+
+<!-- ICON SPRITE -->
+<svg style="display:none" aria-hidden="true">
+  <defs>
+    <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 1 4.5 7.79L3 21l1.21-4.5A9 9 0 0 1 3 12Z"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.7 5.7 1.9-5.7 1.9L12 18.2l-1.9-5.7-5.7-1.9 5.7-1.9z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 4 10 15 15 0 0 1-4 10 15 15 0 0 1-4-10 15 15 0 0 1 4-10z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-anchor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><path d="M12 22V8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+    <symbol id="i-pier" viewBox="0 0 64 64" fill="none">
+      <line x1="32" y1="14" x2="32" y2="50" stroke="#FF8A4C" stroke-width="4" stroke-linecap="round"/>
+      <path d="M32 14 Q46 14 46 26 Q46 38 32 38" stroke="#FF8A4C" stroke-width="4" stroke-linecap="round" fill="none"/>
+      <line x1="20" y1="50" x2="44" y2="50" stroke="#FFB347" stroke-width="3" stroke-linecap="round"/>
+      <line x1="24" y1="50" x2="22" y2="56" stroke="#FFB347" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+      <line x1="40" y1="50" x2="42" y2="56" stroke="#FFB347" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- NAV -->
+<nav class="top">
+  <div class="wrap">
+    <div class="row">
+      <div class="brand">
+        <span class="mark"><svg width="20" height="20" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>
+        Pier
+      </div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download" class="btn btn-primary">Get Pier</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><span class="dot"></span> Built for legacy WordPress, custom PHP, and any FTP host</div>
+    <h1>Talk to your old site.<br><em>Edit it like it&rsquo;s 2026.</em></h1>
+    <p class="sub">Pier is a native Mac app that connects to any FTP/SFTP server and lets you edit, audit, and refactor with AI. Every change is versioned. Every undo is one click. No more 11&nbsp;PM panic over a broken homepage.</p>
+    <div class="hero-cta">
+      <a href="#download" class="btn btn-primary btn-lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12-1.17.486-2.36 1.119-3.13.717-.84 1.951-1.45 2.946-1.51.013.07.013.21.013.39zm4.992 16.84a12.7 12.7 0 0 1-1.218 2.21c-.785 1.17-1.913 2.62-3.31 2.63-1.246.01-1.566-.81-3.255-.8-1.69.01-2.04.81-3.286.83-1.4 0-2.466-1.31-3.25-2.48-2.187-3.27-3.793-9.27-1.594-13.37 1.064-2.04 2.94-3.34 5.06-3.34 1.4 0 2.74.95 3.49.95.74 0 2.32-1.18 3.96-1.01.69.03 2.61.28 3.84 2.1-.099.07-2.296 1.34-2.276 4.01.026 3.18 2.79 4.24 2.82 4.25-.01.07-.45 1.5-1.49 3.02z"/></svg>
+        Download for Mac
+      </a>
+      <a href="#features" class="btn btn-ghost btn-lg">See how it works <svg class="ic"><use href="#i-arrow"/></svg></a>
+    </div>
+
+    <!-- App preview -->
+    <div class="app-frame">
+      <div class="shot">
+        <div class="ap-side">
+          <div class="as-brand"><span class="m"><svg width="14" height="14" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span><strong>Pier</strong></div>
+          <div class="as-label">Connections</div>
+          <div class="as-conn"><div class="name">tegels.nl</div><div class="host">web01.itile.app</div></div>
+          <div class="as-chat"><svg class="ic"><use href="#i-chat"/></svg> Edit footer copy</div>
+          <div class="as-chat"><svg class="ic"><use href="#i-chat"/></svg> Add SEO meta</div>
+        </div>
+        <div class="ap-main">
+          <div class="bubble-u">Change the H1 on /contact to "Get in touch"</div>
+          <div class="bubble-a">I&rsquo;ll edit <code>contact.php</code> — found the heading on line 47.</div>
+          <div class="pcard">
+            <div class="ph"><svg class="ic"><use href="#i-spark"/></svg> Proposed edit · contact.php · 4843 → 4856 bytes</div>
+            <div class="pdiff">
+              <span class="del">- &lt;h1&gt;Welkom op tegels.nl&lt;/h1&gt;</span>
+              <span class="add">+ &lt;h1&gt;Get in touch&lt;/h1&gt;</span>
+            </div>
+            <div class="pact"><span class="b ok">Accept</span><span class="b no">Reject</span><span class="b no">View diff</span></div>
+          </div>
+          <div class="bubble-a">Done. Saved as version v_64b — undo any time from the Versions tab.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="trust">
+      <span class="stack">WordPress</span>
+      <span class="stack">Drupal</span>
+      <span class="stack">Joomla</span>
+      <span class="stack">Magento</span>
+      <span class="stack">Custom PHP</span>
+      <span class="stack">Static HTML</span>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="wrap">
+    <span class="sec-eyebrow">Built for the messy stuff</span>
+    <h2 class="sec-title">Modern AI for sites without a modern stack</h2>
+    <p class="sec-sub">No Git. No CI/CD. No build pipeline. Just FTP and a 12-year-old PHP file. Pier brings AI workflows to the websites the rest of the dev world forgot about.</p>
+
+    <div class="grid">
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-chat"/></svg></div>
+        <h3>Talk, don&rsquo;t click</h3>
+        <p>"Update the homepage hero to say X." "Find every page using the old logo." Pier finds the right file, makes the right change, and shows you the diff before applying.</p>
+      </div>
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-history"/></svg></div>
+        <h3>Versioned everything</h3>
+        <p>Every accepted edit becomes a checkpoint. Restore any file to any state in one click. Auto-snapshot before risky changes (.htaccess, wp-config). Nothing is ever truly broken.</p>
+      </div>
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-shield"/></svg></div>
+        <h3>Read your code, propose surgical edits</h3>
+        <p>Pier never blindly rewrites files. It does a find/replace with surrounding context, validates the match is unique, and shows the diff. You stay in control.</p>
+      </div>
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-bolt"/></svg></div>
+        <h3>Built-in audit agents</h3>
+        <p>Type @seo, @security, @performance, @broken_links — Pier scans the live site and reports issues. Each one comes with a one-click "fix it for me" proposal.</p>
+      </div>
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-folder"/></svg></div>
+        <h3>Drag &amp; drop, anywhere</h3>
+        <p>Drop files into the chat — Pier uploads them and asks the AI what to do with them. Drop into the Files tab to upload to a specific folder. Works the way you expect.</p>
+      </div>
+      <div class="card">
+        <div class="icon-wrap"><svg class="ic-lg"><use href="#i-globe"/></svg></div>
+        <h3>Knows your site</h3>
+        <p>On connect, Pier scans the server, detects the CMS (WordPress / Drupal / Magento / Joomla / custom PHP), reads the .htaccess, and remembers everything across chats.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="strip">
+      <div>
+        <h3>The old way vs. the Pier way</h3>
+        <p>You used to FTP into the server, hunt for the file, copy it locally, edit it in your favorite editor, save, upload, refresh, hope nothing broke. Pier is one chat message.</p>
+      </div>
+      <div class="compare">
+        <span class="bad">old:</span> SFTP &rarr; find file &rarr; download &rarr; edit &rarr; upload &rarr; check &rarr; revert<br>
+        <span class="good">pier:</span> "change the contact email to support@..."<br>
+        <br>
+        <span class="bad">old:</span> hunt for which file holds the menu &rarr; trace 4 includes deep<br>
+        <span class="good">pier:</span> "edit the menu" &rarr; <span style="color:var(--cream)">done</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:linear-gradient(180deg,transparent,rgba(255,138,76,.04),transparent)">
+  <div class="wrap">
+    <span class="sec-eyebrow">Pricing</span>
+    <h2 class="sec-title">One subscription. Every site you maintain.</h2>
+    <p class="sec-sub">14-day free trial, no credit card. Cancel anytime in App Store settings. Apple Small Business pricing — fair to indie devs.</p>
+
+    <div class="price-grid">
+      <div class="plan">
+        <h3>Monthly</h3>
+        <div class="pr"><span class="amount">€15</span><span class="per">/month</span></div>
+        <ul>
+          <li>Unlimited FTP / SFTP connections</li>
+          <li>Unlimited AI chat turns</li>
+          <li>Versioned edits + restore</li>
+          <li>Drag-and-drop upload</li>
+          <li>All audit agents</li>
+          <li>Updates included</li>
+        </ul>
+        <a href="#download" class="btn btn-ghost" style="margin-top:auto">Start 14-day trial</a>
+      </div>
+      <div class="plan popular">
+        <h3>Yearly</h3>
+        <div class="pr"><span class="amount">€120</span><span class="per">/year</span><span class="strike">€180</span></div>
+        <span class="save">Save 33%</span>
+        <ul>
+          <li>Everything in Monthly</li>
+          <li><strong>4 months free</strong></li>
+          <li>Priority support</li>
+          <li>Early access to new features</li>
+        </ul>
+        <a href="#download" class="btn btn-primary" style="margin-top:auto">Start 14-day trial</a>
+      </div>
+      <div class="plan">
+        <h3>Lifetime</h3>
+        <div class="pr"><span class="amount">€249</span><span class="per">once</span></div>
+        <ul>
+          <li>One payment, forever</li>
+          <li>Everything in Yearly</li>
+          <li>All updates for current major version</li>
+          <li>Best for long-term agencies</li>
+        </ul>
+        <a href="#download" class="btn btn-ghost" style="margin-top:auto">Buy lifetime</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;color:var(--text3);font-size:13px;margin-top:32px">Use your own Anthropic API key, OR your existing Claude Code subscription — Pier supports both. No vendor lock-in.</p>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <span class="sec-eyebrow">FAQ</span>
+    <h2 class="sec-title">Questions, answered</h2>
+
+    <div class="faq">
+      <details class="q">
+        <summary>Do I need an Anthropic API key?</summary>
+        <p>No. Pier works with either your own Anthropic API key (pay per token, ~$0.01-0.05/turn) or your existing Claude Code subscription (zero per-turn cost). It auto-detects what you have. We&rsquo;ll guide you through setup the first time.</p>
+      </details>
+      <details class="q">
+        <summary>Can it actually edit my live website?</summary>
+        <p>Yes &mdash; that&rsquo;s the whole point. Pier connects via FTP/SFTP to any host (DirectAdmin, cPanel, Plesk, custom). Every edit is proposed as a diff first &mdash; you click Accept, Pier uploads, and the file&rsquo;s previous state is saved as a version you can restore at any time.</p>
+      </details>
+      <details class="q">
+        <summary>Is my FTP password safe?</summary>
+        <p>Yes. Credentials are encrypted (AES-256-GCM) on disk with HMAC integrity checks. Nothing leaves your Mac except the FTP traffic itself. We never see your passwords. The encryption key is stored in your local <code>.env</code> with owner-only file permissions and benefits from FileVault disk encryption.</p>
+      </details>
+      <details class="q">
+        <summary>What if the AI breaks my site?</summary>
+        <p>Two safety nets: (1) every edit is a diff you approve before applying, (2) every accepted edit creates a restore point. For high-risk files (.htaccess, wp-config.php, composer.json) Pier auto-creates a folder snapshot before applying. Worst case: one click and you&rsquo;re back to the previous state.</p>
+      </details>
+      <details class="q">
+        <summary>Does it work with WordPress?</summary>
+        <p>Excellent with WordPress. Pier detects WP automatically, knows the theme/plugin/uploads layout, and reads <code>wp-config.php</code> safely (secrets are auto-redacted in chat). For content stored in the database (posts, pages), Pier tells you so directly &mdash; you&rsquo;ll need wp-admin or phpMyAdmin for those. Pier handles every theme file, plugin file, and config that lives on disk.</p>
+      </details>
+      <details class="q">
+        <summary>What about agencies / teams?</summary>
+        <p>Each Pier seat handles unlimited connections. Add a license per developer; everyone gets their own chat history per client site. Team-shared knowledge base is on the roadmap.</p>
+      </details>
+      <details class="q">
+        <summary>Can I cancel anytime?</summary>
+        <p>Yes &mdash; cancel from the Mac App Store subscription manager. You keep access until the end of your current billing period. Lifetime purchases are non-cancellable but include all updates for the current major version.</p>
+      </details>
+      <details class="q">
+        <summary>Why is it called Pier?</summary>
+        <p>A pier is where boats dock to load and unload cargo. Your AI assistant docks with the FTP server to deliver and retrieve files. Short, memorable, and the metaphor actually works.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section>
+  <div class="wrap">
+    <div class="cta-final">
+      <h2>Ready to stop dreading legacy maintenance?</h2>
+      <p>Pier ships in November. Join the waitlist for early access + a 50% launch discount.</p>
+      <a href="#download" class="btn btn-primary btn-lg" id="download">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12-1.17.486-2.36 1.119-3.13.717-.84 1.951-1.45 2.946-1.51.013.07.013.21.013.39zm4.992 16.84a12.7 12.7 0 0 1-1.218 2.21c-.785 1.17-1.913 2.62-3.31 2.63-1.246.01-1.566-.81-3.255-.8-1.69.01-2.04.81-3.286.83-1.4 0-2.466-1.31-3.25-2.48-2.187-3.27-3.793-9.27-1.594-13.37 1.064-2.04 2.94-3.34 5.06-3.34 1.4 0 2.74.95 3.49.95.74 0 2.32-1.18 3.96-1.01.69.03 2.61.28 3.84 2.1-.099.07-2.296 1.34-2.276 4.01.026 3.18 2.79 4.24 2.82 4.25-.01.07-.45 1.5-1.49 3.02z"/></svg>
+        Join the waitlist
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="row">
+      <div class="brand">
+        <span class="mark"><svg width="20" height="20" viewBox="0 0 64 64"><use href="#i-pier"/></svg></span>
+        Pier
+      </div>
+      <div class="links">
+        <a href="/privacy">Privacy</a>
+        <a href="/terms">Terms</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://abn.company">By ABN</a>
+      </div>
+      <div class="copyright">© 2026 ABN. All rights reserved.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Waitlist email capture (very minimal — just opens mailto for now)
+  document.querySelectorAll('a[href="#download"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const email = prompt('Pier launches November 2026.\n\nDrop your email to get notified:');
+      if (email && email.includes('@')) {
+        location.href = 'mailto:hello@pier.abn.company?subject=Pier%20waitlist&body=Add%20me%20to%20the%20Pier%20waitlist:%20' + encodeURIComponent(email);
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
