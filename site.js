@@ -29,3 +29,12 @@
     });
   }, { threshold: 0.08, rootMargin: '0px 0px -60px 0px' });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // Playbook tabs
+  document.querySelectorAll('.tabs .tab').forEach(t => {
+    t.addEventListener('click', () => {
+      const name = t.dataset.t;
+      document.querySelectorAll('.tabs .tab').forEach(x => x.classList.toggle('active', x === t));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.dataset.p === name));
+    });
+  });
