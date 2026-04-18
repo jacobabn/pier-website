@@ -63,6 +63,27 @@
     });
   });
 
+  /* ---------- Scroll reveal ----------
+   * Tag any element with class="reveal"; it fades up once it enters
+   * the viewport. Uses IntersectionObserver, respects reduced-motion. */
+  const rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!rm && 'IntersectionObserver' in window) {
+    const auto = document.querySelectorAll(
+      '.grid-3 > .cell, .shortcut, .agents-row, .cmp-row, .finding, .pb-change, .faq-item, .db-list li'
+    );
+    auto.forEach((el) => el.classList.add('reveal'));
+
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+  }
+
   /* ---------- Smooth anchor focus (accessibility) ---------- */
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[href^="#"]');

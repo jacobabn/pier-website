@@ -14,17 +14,19 @@
      still uses style="background:var(--bg2)" etc., and @layer
      components also references them as var() in a few places. */
   :root {
-    --bg:        #eeece6;
-    --bg2:       #e4e1d8;
-    --card:      #f6f4ec;
-    --ink:       #0d0d0d;
-    --ink2:      #2a2a2a;
-    --muted:     #6b6a63;
-    --line:      #cfccc2;
-    --line2:     #b5b2a6;
-    --accent:    #c23d1f;
-    --highlight: #e8a23a;
-    --ok:        #3a9d5a;
+    --bg:           #eeece6;
+    --bg2:          #e4e1d8;
+    --card:         #f6f4ec;
+    --ink:          #0d0d0d;
+    --ink2:         #2a2a2a;
+    --muted:        #6b6a63;
+    --line:         #cfccc2;
+    --line2:        #b5b2a6;
+    --accent:       #c23d1f;
+    --accent-warm:  #e0632a;
+    --accent-glow:  rgba(224, 99, 42, 0.28);
+    --highlight:    #e8a23a;
+    --ok:           #3a9d5a;
   }
   html { scroll-behavior: smooth; background: var(--bg); }
   body {
@@ -47,6 +49,127 @@
 }
 
 @layer components {
+  /* ---------- Micro-interactions ----------
+     Keep them small and professional — the Drydock brief rejects
+     "glowing orbs / sparkles". Breathing pulses for live-status
+     dots, a one-time fade-up on the hero, hairline underline on nav. */
+
+  /* Slow pulse rings on status dots */
+  .hero-meta .dot,
+  .pulse-ok { animation: pulse-ok 2.4s cubic-bezier(.4,0,.6,1) infinite; }
+  .manifest-f .dock-dot,
+  .db-mock-foot .dot,
+  .pulse-accent { animation: pulse-dot 2.4s cubic-bezier(.4,0,.6,1) infinite; }
+
+  /* Hero entry animation — staggered fade-up */
+  .hero h1,
+  .hero .lede,
+  .hero-ctas,
+  .hero .eyebrow {
+    animation: fade-up 0.6s cubic-bezier(.2,.8,.2,1) both;
+  }
+  .hero .eyebrow  { animation-delay: 0.05s; }
+  .hero h1        { animation-delay: 0.10s; }
+  .hero .lede     { animation-delay: 0.22s; }
+  .hero-ctas      { animation-delay: 0.32s; }
+  .manifest       { animation: fade-up 0.6s cubic-bezier(.2,.8,.2,1) 0.18s both; }
+
+  /* Card hover-lift — subtle, 1-2px */
+  .grid-3 > .cell,
+  .shortcut,
+  .pb-change {
+    transition: transform .25s cubic-bezier(.2,.8,.2,1),
+                box-shadow .25s cubic-bezier(.2,.8,.2,1),
+                border-color .2s ease;
+  }
+  .grid-3 > .cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1px 0 var(--line), 0 18px 36px -22px rgba(0,0,0,0.12);
+    border-color: var(--line2);
+  }
+  .shortcut:hover {
+    transform: translateY(-1px);
+    border-color: var(--ink);
+  }
+  .pb-change:hover {
+    transform: translateX(2px);
+    border-color: var(--line2);
+  }
+
+  /* Nav link: animated hairline underline on hover */
+  .nav-links a {
+    position: relative;
+    padding: 4px 0;
+    transition: color .15s ease;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -2px;
+    height: 1.5px;
+    background: var(--accent-warm);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .28s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-links a:hover { color: var(--ink); opacity: 1; }
+  .nav-links a:hover::after { transform: scaleX(1); }
+
+  /* Accent eyebrow numbers: warm tone, not pure clay */
+  .eyebrow .n { color: var(--accent-warm); }
+
+  /* Stamp.accent: slightly warmer, with gentle hover shimmer */
+  .stamp.accent {
+    background: var(--accent);
+    position: relative;
+    overflow: hidden;
+    transition: background .2s ease, box-shadow .25s ease;
+  }
+  .stamp.accent:hover {
+    background: var(--accent-warm);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  /* Primary buttons: add warm glow on hover */
+  .btn:not(.ghost):not(.accent):hover {
+    box-shadow: 0 6px 18px -6px var(--accent-glow);
+  }
+  .btn.accent:hover, .price-cta:hover {
+    background: var(--accent-warm);
+    border-color: var(--accent-warm);
+    box-shadow: 0 10px 28px -10px var(--accent-glow);
+    transform: translateY(-1px);
+  }
+  .price-cta { transition: transform .2s ease, background .2s ease, box-shadow .25s ease; }
+
+  /* Ticker items: accent dot gets the warm tone */
+  .ticker-item::before { background: var(--accent-warm); }
+
+  /* Scroll-reveal (opt-in via .reveal). Initial state hidden,
+     animated in when .in is toggled by IntersectionObserver in site.js */
+  .reveal  { opacity: 0; transform: translateY(14px); transition: opacity .6s cubic-bezier(.2,.8,.2,1), transform .6s cubic-bezier(.2,.8,.2,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero h1, .hero .lede, .hero-ctas, .hero .eyebrow, .manifest { animation: none !important; }
+    .hero-meta .dot, .manifest-f .dock-dot, .db-mock-foot .dot { animation: none !important; }
+  }
+
+  /* ---------- Skip link (a11y) ---------- */
+  .skip-link {
+    @apply fixed left-3 top-3 px-3 py-2 bg-ink text-bg font-mono text-mono-sm tracking-[0.08em] uppercase no-underline z-50;
+    transform: translateY(-150%);
+    transition: transform .15s ease;
+  }
+  .skip-link:focus { transform: translateY(0); outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- Focus visibility (keyboard users) ---------- */
+  *:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .btn:focus-visible { outline-offset: 3px; }
+
   /* ---------- Shell ---------- */
   .shell {
     @apply mx-auto w-full max-w-shell px-5 sm:px-8 lg:px-12;

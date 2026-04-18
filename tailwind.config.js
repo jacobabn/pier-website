@@ -12,9 +12,11 @@ module.exports = {
         muted:     '#6b6a63',
         line:      '#cfccc2',
         line2:     '#b5b2a6',
-        accent:    '#c23d1f',
-        highlight: '#e8a23a',
-        ok:        '#3a9d5a',
+        accent:      '#c23d1f',
+        'accent-warm':'#e0632a',
+        'accent-glow':'rgba(224, 99, 42, 0.28)',
+        highlight:   '#e8a23a',
+        ok:          '#3a9d5a',
       },
       fontFamily: {
         display: ['Geist', 'Söhne', 'Inter', 'system-ui', 'sans-serif'],
@@ -41,9 +43,31 @@ module.exports = {
           from: { transform: 'translateX(0)' },
           to:   { transform: 'translateX(-100%)' },
         },
+        'fade-up': {
+          '0%':   { opacity: '0', transform: 'translateY(12px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'pulse-dot': {
+          '0%, 100%': { boxShadow: '0 0 0 0 var(--accent-glow)', transform: 'scale(1)' },
+          '50%':      { boxShadow: '0 0 0 6px rgba(224,99,42,0)',  transform: 'scale(1.12)' },
+        },
+        'pulse-ok': {
+          '0%, 100%': { boxShadow: '0 0 0 0 rgba(58,157,90,.45)', transform: 'scale(1)' },
+          '50%':      { boxShadow: '0 0 0 5px rgba(58,157,90,0)',  transform: 'scale(1.1)' },
+        },
+        'underline': {
+          '0%':   { transform: 'scaleX(0)', transformOrigin: 'left' },
+          '100%': { transform: 'scaleX(1)', transformOrigin: 'left' },
+        },
       },
       animation: {
-        ticker: 'ticker 60s linear infinite',
+        ticker:     'ticker 60s linear infinite',
+        'fade-up':  'fade-up 0.6s cubic-bezier(.2,.8,.2,1) both',
+        'pulse-dot':'pulse-dot 2.4s cubic-bezier(.4,0,.6,1) infinite',
+        'pulse-ok': 'pulse-ok 2.4s cubic-bezier(.4,0,.6,1) infinite',
+      },
+      transitionTimingFunction: {
+        'soft': 'cubic-bezier(.2,.8,.2,1)',
       },
     },
   },
