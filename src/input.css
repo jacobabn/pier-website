@@ -49,6 +49,47 @@
 }
 
 @layer components {
+  /* ---------- Blinking terminal carets ----------
+     A Drydock-friendly "alive" signal: hard-blink block cursor at
+     certain text endings (hero headline, mock input, console).
+     Uses steps() so it snaps between on/off states (telegraph feel)
+     rather than fading like a pulse. */
+  @keyframes caret-blink {
+    0%, 49%   { opacity: 1; }
+    50%, 100% { opacity: 0; }
+  }
+  @keyframes led-flash {
+    0%, 96%   { background: var(--ok); box-shadow: 0 0 0 0 rgba(58,157,90,0.55); }
+    97%       { background: #7be0a0; box-shadow: 0 0 0 4px rgba(58,157,90,0.25); }
+    100%      { background: var(--ok); box-shadow: 0 0 0 0 rgba(58,157,90,0); }
+  }
+  .caret {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.92em;
+    margin-left: 0.12em;
+    background: var(--accent);
+    vertical-align: -0.12em;
+    animation: caret-blink 1.05s steps(2, start) infinite;
+  }
+  .caret-mono {
+    display: inline-block;
+    width: 7px;
+    height: 14px;
+    margin-left: 2px;
+    background: var(--ink);
+    vertical-align: -2px;
+    animation: caret-blink 1.05s steps(2, start) infinite;
+  }
+  /* Double-blink LED — the standard hero "shipping now" dot gets a
+     fast flash every 3s on top of the slow pulse so it reads as a
+     live connection indicator, not just decor. */
+  .led-live {
+    animation:
+      pulse-ok 2.4s cubic-bezier(.4,0,.6,1) infinite,
+      led-flash 3.2s linear infinite;
+  }
+
   /* ---------- Micro-interactions ----------
      Keep them small and professional — the Drydock brief rejects
      "glowing orbs / sparkles". Breathing pulses for live-status
@@ -493,8 +534,42 @@
   .pb-pane > .col { @apply p-8; }
   .pb-pane > .col:first-child { @apply border-r border-line; }
   .pb-pane > .col.proposes { @apply bg-card; }
+
+  /* "You say" as a receipt-like message card */
+  .pb-msg {
+    @apply bg-card border border-line2 p-7;
+    box-shadow: 0 1px 0 var(--line), 0 20px 40px -24px rgba(0,0,0,0.08);
+  }
+  .pb-msg-h,
+  .pb-msg-f {
+    @apply flex items-center gap-2.5 flex-wrap;
+  }
+  .pb-msg-h {
+    @apply pb-3.5 mb-5 border-b border-dashed border-line2
+           font-mono text-mono-xs tracking-[0.14em] uppercase text-muted;
+  }
+  .pb-msg-h .who { @apply text-accent font-medium; }
+  .pb-msg-h .sp  { flex: 1; }
+  .pb-msg-h .tick {
+    @apply inline-flex items-center gap-1.5 text-muted;
+  }
+  .pb-msg-h .tick .dot {
+    width: 6px; height: 6px; background: var(--ok); border-radius: 9999px;
+    animation: pulse-ok 2.4s cubic-bezier(.4,0,.6,1) infinite;
+  }
+  .pb-msg-f {
+    @apply pt-4 mt-6 border-t border-dashed border-line2
+           font-mono text-[11px] tracking-[0.02em] text-muted;
+  }
+  .pb-msg-f .spacer { flex: 1; }
+  .pb-msg-f .chip {
+    @apply inline-flex items-center gap-1.5 px-2 py-[3px] bg-bg border border-line text-ink2;
+    letter-spacing: 0.02em;
+  }
+  .pb-msg-f .chip .n { @apply text-accent-warm font-mono; }
+
   .pb-quote {
-    @apply font-display font-semibold leading-[1.2] tracking-display text-ink text-balance m-0 mb-6;
+    @apply font-display font-semibold leading-[1.2] tracking-display text-ink text-balance m-0;
     font-size: clamp(22px, 2.2vw, 28px);
   }
   .pb-change {
