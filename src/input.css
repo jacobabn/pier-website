@@ -889,4 +889,253 @@
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; scroll-behavior: auto; }
   }
+
+  /* =============================================================
+     BLOG · post + index
+     Drydock-style article layout. Reuses .shell, .eyebrow, .rule,
+     .stamp, .btn, .lede everywhere; only adds prose + post-card +
+     hero-figure rules below.
+     ============================================================= */
+
+  /* ---------- Blog index grid ---------- */
+  .blog-grid {
+    @apply list-none p-0 grid gap-7;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    margin: 24px 0 96px;
+  }
+  .post-card {
+    @apply block bg-card border border-line2 no-underline overflow-hidden;
+    transition: transform .25s cubic-bezier(.2,.8,.2,1),
+                box-shadow .25s cubic-bezier(.2,.8,.2,1),
+                border-color .2s ease;
+  }
+  .post-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--ink);
+    box-shadow: 0 1px 0 var(--line), 0 18px 36px -22px rgba(0,0,0,0.14);
+    opacity: 1;
+  }
+  .post-card .pc-img {
+    @apply block w-full bg-bg2 overflow-hidden;
+    aspect-ratio: 3 / 2;
+  }
+  .post-card .pc-img img {
+    @apply w-full h-full;
+    object-fit: cover;
+    transition: transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .post-card:hover .pc-img img { transform: scale(1.02); }
+  .post-card .pc-body {
+    @apply p-5 flex flex-col gap-3;
+  }
+  .post-card .pc-meta {
+    @apply flex items-center gap-3 font-mono text-mono-xs tracking-[0.1em] uppercase text-muted;
+  }
+  .post-card .pc-cat { color: var(--accent); }
+  .post-card h3 {
+    @apply m-0 text-[20px] leading-[1.2] text-ink font-medium;
+    letter-spacing: -0.01em;
+  }
+  .post-card .pc-lede {
+    @apply text-ink2 text-[14px] leading-[1.5] m-0;
+  }
+
+  /* ---------- Single post ---------- */
+  .post                { padding-top: 88px; }
+  .post .post-head     { padding-bottom: 28px; }
+  .post .post-head .rule { margin-bottom: 18px; }
+  .post .post-title    { @apply mt-2 mb-4; max-width: 920px; }
+  .post .post-lede     { max-width: 720px; }
+  .post .post-meta     {
+    @apply flex flex-wrap items-center gap-2 mt-6 font-mono text-mono-sm tracking-[0.1em] uppercase text-muted;
+  }
+  .post .post-meta .dotsep { @apply text-line2; }
+
+  .post-hero {
+    @apply m-0 mt-2 mb-12 border-y border-line2 bg-bg2 overflow-hidden;
+  }
+  .post-hero img {
+    @apply w-full h-auto;
+    display: block;
+    object-fit: cover;
+    aspect-ratio: 3 / 2;
+    max-height: 640px;
+  }
+  .post-hero .hero-cap {
+    @apply flex justify-between items-center px-5 py-2 border-t border-dashed border-line2
+           font-mono text-mono-xs tracking-[0.14em] uppercase text-muted bg-card;
+  }
+
+  .post-body-wrap { padding-bottom: 96px; }
+  .post-body {
+    max-width: 720px;
+    margin: 0 auto;
+    color: var(--ink2);
+    font-size: 17px;
+    line-height: 1.7;
+    text-wrap: pretty;
+  }
+  .post-body > * + * { margin-top: 1.1em; }
+  .post-body h2 {
+    @apply font-display font-semibold text-ink m-0;
+    font-size: 28px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin-top: 2.2em;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .post-body h3 {
+    @apply font-display font-semibold text-ink m-0;
+    font-size: 21px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin-top: 1.8em;
+  }
+  .post-body p   { margin: 0; }
+  .post-body a   { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+  .post-body a:hover { color: var(--accent-warm); opacity: 1; }
+  .post-body strong { color: var(--ink); font-weight: 600; }
+  .post-body em  { font-style: italic; }
+  .post-body ul, .post-body ol { padding-left: 1.5em; margin: 0; }
+  .post-body li { margin: 0.4em 0; }
+  .post-body blockquote {
+    @apply border-l-4 pl-5 my-7 italic text-ink2;
+    border-color: var(--accent);
+  }
+  .post-body code {
+    @apply font-mono text-[14px] bg-card border border-line px-1 py-[1px];
+    color: var(--ink);
+  }
+  .post-body pre {
+    @apply font-mono text-[13px] leading-[1.65] my-7 p-5 overflow-x-auto;
+    background: #14110e;
+    color: #e0e6ed;
+    border: 1px solid #2a2620;
+  }
+  .post-body pre code {
+    @apply bg-transparent border-0 p-0;
+    color: inherit;
+    font-size: inherit;
+  }
+  .post-body figure  { margin: 28px 0; }
+  .post-body figure img { @apply w-full h-auto border border-line2; display: block; }
+  .post-body figcaption {
+    @apply mt-2 font-mono text-mono-sm text-muted text-center;
+  }
+  .post-body table {
+    @apply w-full border-collapse border-y border-line2 my-7 font-mono text-[14px];
+  }
+  .post-body th, .post-body td {
+    @apply border-b border-line py-2 px-3 text-left;
+  }
+  .post-body th { @apply text-ink font-medium bg-card; }
+
+  .post-body aside.callout {
+    @apply my-8 p-5 border-l-4 bg-card text-ink2;
+    border-color: var(--highlight);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .post-body aside.callout::before {
+    content: '⚠ HEADS-UP';
+    @apply block font-mono text-mono-xs tracking-[0.14em] uppercase mb-2;
+    color: var(--highlight);
+  }
+
+  /* ---------- Pull-quote (key takeaway) ---------- */
+  .pullquote {
+    max-width: 720px;
+    margin: 56px auto;
+    padding: 28px 32px;
+    background: var(--card);
+    border: 1px solid var(--line2);
+    border-left: 4px solid var(--accent);
+    font-family: theme('fontFamily.display');
+    font-size: 22px;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+  .pullquote::before {
+    content: '— TAKEAWAY —';
+    @apply block font-mono text-mono-xs tracking-[0.14em] uppercase mb-3;
+    color: var(--muted);
+  }
+
+  /* ---------- FAQ block in post ---------- */
+  .post-faq {
+    max-width: 720px;
+    margin: 64px auto 0;
+  }
+  .post-faq .rule { margin-bottom: 8px; }
+  .post-faq .faq-item {
+    @apply border-b border-line py-5;
+  }
+  .post-faq .faq-q {
+    @apply m-0 text-[18px] text-ink font-medium;
+    letter-spacing: -0.005em;
+  }
+  .post-faq .faq-a {
+    @apply mt-2 text-ink2 leading-[1.6];
+    font-size: 15px;
+  }
+
+  /* ---------- Pier promo card ---------- */
+  .pier-card {
+    max-width: 720px;
+    margin: 72px auto 32px;
+    padding: 32px;
+    background: var(--ink);
+    color: var(--bg);
+    border: 1px solid var(--ink);
+  }
+  .pier-card h3 { color: var(--bg); margin-top: 14px; }
+  .pier-card .lede { color: color-mix(in srgb, #eeece6 80%, transparent); max-width: none; }
+  .pier-card .pier-card-ctas {
+    @apply flex gap-3 flex-wrap mt-6;
+  }
+  .pier-card .btn { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  .pier-card .btn:hover { background: var(--accent-warm); border-color: var(--accent-warm); }
+  .pier-card .btn.ghost { background: transparent; color: var(--bg); border-color: color-mix(in srgb, #eeece6 30%, transparent); }
+  .pier-card .btn.ghost:hover { border-color: var(--bg); }
+
+  /* ---------- Post tags ---------- */
+  .post-tags {
+    max-width: 720px;
+    margin: 56px auto 0;
+  }
+  .post-tags ul {
+    @apply list-none p-0 mt-4 flex flex-wrap gap-2;
+  }
+  .post-tags li a {
+    @apply inline-flex items-center font-mono text-mono-xs tracking-[0.1em] uppercase
+           px-2.5 py-1 border border-line2 text-muted no-underline;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .post-tags li a:hover { color: var(--ink); border-color: var(--ink); opacity: 1; }
+
+  /* ---------- Related posts row ---------- */
+  .post-related {
+    max-width: 720px;
+    margin: 56px auto 0;
+  }
+  .post-related .related-grid {
+    @apply grid gap-5 mt-4;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 720px) {
+    .post-related .related-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 720px) {
+    .post                { padding-top: 64px; }
+    .post-body           { font-size: 16px; }
+    .post-body h2        { font-size: 24px; }
+    .post-body h3        { font-size: 19px; }
+    .post-body pre       { padding: 16px; font-size: 12px; }
+    .pullquote           { padding: 22px 20px; font-size: 19px; margin: 40px auto; }
+    .pier-card           { padding: 24px 20px; margin-top: 48px; }
+    .post-hero img       { max-height: 360px; }
+  }
 }
