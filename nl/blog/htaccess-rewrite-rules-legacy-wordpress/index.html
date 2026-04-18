@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy WordPress .htaccess: de regels die 80% oplossen · Pier — Blog</title>
+<meta name="description" content="De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy WordPress .htaccess: de regels die 80% oplossen">
+<meta property="og:description" content="De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg">
+<meta property="og:image:width" content="2688">
+<meta property="og:image:height" content="1792">
+<meta property="og:image:alt" content="Close-up van een terminalvenster met een .htaccess-bestand geopend in vim, waarin RewriteRule-directives zijn gemarkeerd.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-04-18T13:23:48.584Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Legacy WordPress .htaccess: de regels die 80% oplossen">
+<meta name="twitter:description" content="De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg">
+<meta name="twitter:image:alt" content="Close-up van een terminalvenster met een .htaccess-bestand geopend in vim, waarin RewriteRule-directives zijn gemarkeerd.">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/#post",
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/"},
+  "headline":"Legacy WordPress .htaccess: de regels die 80% oplossen",
+  "description":"De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg",
+    "width":2688,
+    "height":1792
+  },
+  "datePublished":"2026-04-18T13:23:48.584Z",
+  "dateModified":"2026-04-18T13:23:48.584Z",
+  "author":{"@type":"Organization","name":"Pier-redactie","url":"https://abn.company/"},
+  "publisher":{
+    "@type":"Organization","name":"A Brand New Company B.V.",
+    "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg"}
+  },
+  "inLanguage":"nl",
+  "keywords":"wordpress, htaccess, php, security, operations",
+  "wordCount":934,
+  "articleSection":"WordPress"
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy WordPress .htaccess: de regels die 80% oplossen","item":"https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waar horen deze regels precies in .htaccess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Binnen het <IfModule mod_rewrite.c>-blok, boven het door WordPress gegenereerde stanza dat begint bij de # BEGIN WordPress-comment. Apache verwerkt van boven naar beneden en stopt bij de eerste match."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Werken deze regels ook op Nginx?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Nginx negeert .htaccess volledig. De equivalenten horen in je server block als return 301- en location-directives. De logica vertaalt, de syntax niet."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom X-Forwarded-Proto gebruiken in plaats van alleen HTTPS off?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Achter een reverse proxy die TLS termineert ziet de origin server bij elke request HTTP. Alleen op HTTPS off checken levert een oneindige redirect loop op. De forwarded header weerspiegelt het werkelijke client-protocol."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://pier.lemonsqueezy.com/buy/5fd15e9c-b5a2-4b0d-8322-244b01e0c92e?embed=1" class="lemonsqueezy-button btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 001</span>
+      </div>
+      <p class="eyebrow"><span class="n">001 —</span>WordPress</p>
+      <h1 class="display-l post-title">Legacy WordPress .htaccess: de regels die 80% oplossen</h1>
+      <p class="lede post-lede">De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.</p>
+      <div class="post-meta">
+        <time datetime="2026-04-18T13:23:48.584Z">18 april 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <img src="hero.jpg" alt="Close-up van een terminalvenster met een .htaccess-bestand geopend in vim, waarin RewriteRule-directives zijn gemarkeerd." width="2688" height="1792" loading="eager" fetchpriority="high">
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 001</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Je hebt een WordPress-installatie uit 2017 overgenomen. De vorige developer is onbereikbaar, de staging-URL lekt nog steeds door in canonical tags, en de helft van de uploads geeft 403 terug achter Cloudflare. Voordat je PHP aanraakt: open <code>.htaccess</code>. Negen van de tien keer zit de fix daar.</p>
+
+<p>Wat volgt is het korte lijstje waar we als eerste naar grijpen bij een audit van een <a href="/">legacy site</a>. Elke regel is copy-paste-klaar. Zet ze binnen het <code>&lt;IfModule mod_rewrite.c&gt;</code>-blok, boven het standaard WordPress-rewrite-stanza — Apache leest van boven naar beneden en stopt bij de eerste match, dus volgorde is bepalend.</p>
+
+<h2>Forceer HTTPS zonder loop achter een proxy</h2>
+
+<p>De klassieke <code>RewriteCond %{HTTPS} off</code> werkt op een kale server. Zet de site achter Cloudflare, een load balancer of een andere reverse proxy die TLS termineert, en de server ziet eeuwig platte HTTP. Je krijgt een redirect loop en rond lunchtijd een supportticket.</p>
+
+<p>Controleer in plaats daarvan de forwarded header:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]</code></pre>
+
+<p>Beide condities moeten falen voordat we redirecten, dus een proxy die <code>X-Forwarded-Proto: https</code> zet wordt vertrouwd en de loop sterft. Houd de <code>HTTPS off</code>-check erbij voor het geval de site direct op poort 80 wordt benaderd.</p>
+
+<h2>Canoniseer de host</h2>
+
+<p>Legacy sites stapelen aliassen op: <code>www</code> en niet-<code>www</code>, de oude staging-hostname, soms het rauwe IP van de server. Google indexeert wat hij als eerste tegenkomt. Kies er één en 301 de rest.</p>
+
+<pre><code class="lang-apache">RewriteCond %{HTTP_HOST} !^example\.com$ [NC]
+RewriteRule ^ https://example.com%{REQUEST_URI} [R=301,L]</code></pre>
+
+<p>Vervang <code>example.com</code> door je canonieke host. Deze ene regel doodt en passant ook het "onze staging staat in Google"-probleem, omdat de staging-hostname nu naar productie redirect — ervan uitgaande dat staging dezelfde <code>.htaccess</code> gebruikt, wat meestal het geval is als iemand twee jaar geleden de bestanden heeft gersynced en het verder vergeten is.</p>
+
+<aside class="callout"><strong>Let op:</strong> als staging en productie inderdaad dezelfde htaccess delen en je wilt staging bereikbaar houden, wikkel deze regel dan in een <code>RewriteCond %{HTTP_HOST} !staging\.example\.com</code>. Anders redirect je staging-omgeving naar productie zodra je deployt en ben je twintig minuten kwijt aan de vraag waarom.</aside>
+
+<h2>Sluit xmlrpc.php af</h2>
+
+<p>Strikt genomen geen rewrite, maar hij hoort in hetzelfde bestand. <code>xmlrpc.php</code> is het meest misbruikte endpoint op legacy WordPress — pingback-amplification, brute-force login via <code>system.multicall</code>. Als je de Jetpack-app of de WordPress-mobiele app niet gebruikt, sluit hem af.</p>
+
+<pre><code class="lang-apache">&lt;Files xmlrpc.php&gt;
+    Require all denied
+&lt;/Files&gt;</code></pre>
+
+<p>Houd eerst een dag je access logs in de gaten. Als er iets legitiems op binnenkomt, whitelist dat IP dan met <code>Require ip 203.0.113.0/24</code> in plaats van de deur open te laten.</p>
+
+<h2>Repareer pretty permalinks na een padwijziging</h2>
+
+<p>Verplaats WordPress naar een subdirectory, of juist eruit, en pretty permalinks breken op een manier die lastig te diagnosticeren is omdat de homepage nog gewoon werkt. Het symptoom: <code>/</code> laadt, <code>/about/</code> geeft 404 van Apache, niet van WordPress. De fix is de <code>RewriteBase</code>-directive en de fallback naar <code>index.php</code>.</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]</code></pre>
+
+<p>Als WordPress in <code>/blog/</code> staat, zet dan <code>RewriteBase /blog/</code> en schrijf om naar <code>/blog/index.php</code>. De twee <code>RewriteCond</code>-regels zijn de hele truc: stuur de request alleen naar <code>index.php</code> als het geen echt bestand of directory is. Laat ze weg en je gaat PHP serveren voor elke image request, waar niemand vrolijk van wordt.</p>
+
+<h2>Redirect oude permalink-structuren zonder plugin</h2>
+
+<p>Overgenomen sites dragen vaak twee generaties permalink-structuur met zich mee. De versie uit 2014 gebruikte <code>/?p=123</code>, de redesign uit 2018 ging naar <code>/%postname%/</code>, en de redirect plugin die de brug sloeg werd tijdens een security-audit in 2021 gedeactiveerd. Nu geeft de helft van je backlinks 404.</p>
+
+<p>Voor de veelvoorkomende migratie van datum-gebaseerd naar postname:</p>
+
+<pre><code class="lang-apache">RewriteRule ^([0-9]{4})/([0-9]{2})/([0-9]{2})/([^/]+)/?$ /$4/ [R=301,L]</code></pre>
+
+<p>Voor URL's met een category-prefix waar dat category-segment nu weg is:</p>
+
+<pre><code class="lang-apache">RewriteRule ^category/(news|blog|press)/(.+)$ /$2 [R=301,L]</code></pre>
+
+<p>Test met <code>curl -I</code> voordat je commit. De regex-engine van Apache is greedy, en het verkeerde anchor-teken redirect je admin-URL's het niets in.</p>
+
+<pre><code class="lang-bash">curl -I https://example.com/2019/03/14/some-post/
+# HTTP/2 301
+# location: https://example.com/some-post/</code></pre>
+
+<h2>Bescherm wp-config.php en de uploads-directory</h2>
+
+<p>Nog twee regels die hun plek verdienen. De eerste weigert directe toegang tot <code>wp-config.php</code>, die Apache gewoon serveert als PHP-processing ooit verkeerd staat ingesteld — en op shared hosting staat dat regelmatig verkeerd. De tweede blokkeert PHP-executie binnen <code>wp-content/uploads</code>, de standaardroute voor exfiltratie bij plugin-kwetsbaarheden.</p>
+
+<pre><code class="lang-apache">&lt;Files wp-config.php&gt;
+    Require all denied
+&lt;/Files&gt;
+
+# In wp-content/uploads/.htaccess
+&lt;FilesMatch "\.(php|phtml|phar|php7|php8)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<p>De uploads-regel komt in een aparte <code>.htaccess</code> binnen <code>wp-content/uploads/</code>, niet in de root. Apache voegt directory-level configs tijdens de request samen; houd de scope strak zodat je niet per ongeluk een legitiem endpoint elders sloopt.</p>
+
+<h2>Deployen zonder kopzorgen</h2>
+
+<p>Rewrites werken perfect in je editor en breken productie op een manier die het admin-paneel meeneemt. Houd vóór elke edit een back-up met timestamp aan (<code>cp .htaccess .htaccess.$(date +%s)</code>). Valideer syntax met <code>apachectl configtest</code> als je shell-toegang hebt, of <code>httpd -t</code> op sommige distributies. En test één regel tegelijk — als er drie tegelijk ingaan en de site 500't, zit je om 23:00 handmatig te bisectioneren.</p>
+
+<p>Toen we <a href="/">Pier</a> bouwden, liepen we telkens tegen ditzelfde patroon aan — één aanpassing in <code>.htaccess</code>, site plat, geen makkelijke rollback over SFTP. We losten het uiteindelijk op met een volledige <a href="/#features">version history</a> van elk bestand dat via de app wordt aangeraakt, zodat een slechte rewrite terugdraaien één toetsaanslag is in plaats van een zoektocht door back-ups.</p>
+
+<p>Als je vandaag één ding doet: open je productie-<code>.htaccess</code>, kijk of de HTTPS-redirect <code>X-Forwarded-Proto</code> gebruikt, en zo niet, fix dat voordat de volgende TLS-terminerende proxy voor je site komt te staan.</p>
+    </div>
+
+    <aside class="pullquote">De meeste problemen op legacy WordPress — redirect loops, 404&#39;s op pretty permalinks, gelekte staging-URL&#39;s — zijn een .htaccess-probleem, geen PHP-probleem.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waar horen deze regels precies in .htaccess?</p>
+      <p class="faq-a">Binnen het &lt;IfModule mod_rewrite.c&gt;-blok, boven het door WordPress gegenereerde stanza dat begint bij de # BEGIN WordPress-comment. Apache verwerkt van boven naar beneden en stopt bij de eerste match.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Werken deze regels ook op Nginx?</p>
+      <p class="faq-a">Nee. Nginx negeert .htaccess volledig. De equivalenten horen in je server block als return 301- en location-directives. De logica vertaalt, de syntax niet.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom X-Forwarded-Proto gebruiken in plaats van alleen HTTPS off?</p>
+      <p class="faq-a">Achter een reverse proxy die TLS termineert ziet de origin server bij elke request HTTP. Alleen op HTTPS off checken levert een oneindige redirect loop op. De forwarded header weerspiegelt het werkelijke client-protocol.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://pier.lemonsqueezy.com/buy/5fd15e9c-b5a2-4b0d-8322-244b01e0c92e?embed=1" class="lemonsqueezy-button btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy WordPress .htaccess: the rules that fix 80% · Pier — Blog</title>
+<meta name="description" content="The .htaccess rules that quietly resolve most of the redirect loops, mixed content and broken pretty-permalinks on inherited WordPress sites.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+
+<link rel="canonical" href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy WordPress .htaccess: the rules that fix 80%">
+<meta property="og:description" content="The .htaccess rules that quietly resolve most of the redirect loops, mixed content and broken pretty-permalinks on inherited WordPress sites.">
+<meta property="og:url" content="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/">
+<meta property="og:image" content="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg">
+<meta property="og:image:width" content="2688">
+<meta property="og:image:height" content="1792">
+<meta property="og:image:alt" content="Close-up of a terminal window showing an .htaccess file open in vim, with RewriteRule directives highlighted.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-04-18T13:23:48.584Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Legacy WordPress .htaccess: the rules that fix 80%">
+<meta name="twitter:description" content="The .htaccess rules that quietly resolve most of the redirect loops, mixed content and broken pretty-permalinks on inherited WordPress sites.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg">
+<meta name="twitter:image:alt" content="Close-up of a terminal window showing an .htaccess file open in vim, with RewriteRule directives highlighted.">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/#post",
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/"},
+  "headline":"Legacy WordPress .htaccess: the rules that fix 80%",
+  "description":"The .htaccess rules that quietly resolve most of the redirect loops, mixed content and broken pretty-permalinks on inherited WordPress sites.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg",
+    "width":2688,
+    "height":1792
+  },
+  "datePublished":"2026-04-18T13:23:48.584Z",
+  "dateModified":"2026-04-18T13:23:48.584Z",
+  "author":{"@type":"Organization","name":"Pier editorial","url":"https://abn.company/"},
+  "publisher":{
+    "@type":"Organization","name":"A Brand New Company B.V.",
+    "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg"}
+  },
+  "inLanguage":"en",
+  "keywords":"wordpress, htaccess, php, security, operations",
+  "wordCount":910,
+  "articleSection":"WordPress"
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy WordPress .htaccess: the rules that fix 80%","item":"https://pier.abn.company/blog/htaccess-rewrite-rules-legacy-wordpress/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where exactly do these rules go in .htaccess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Inside the <IfModule mod_rewrite.c> block, above the WordPress-generated stanza marked by the # BEGIN WordPress comment. Apache processes top-down and stops at the first match."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will these rules work on Nginx?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Nginx ignores .htaccess entirely. The equivalents belong in your server block as return 301 and location directives. The logic translates, the syntax does not."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why use X-Forwarded-Proto instead of just HTTPS off?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Behind a reverse proxy that terminates TLS, the origin server sees HTTP on every request. Checking only HTTPS off creates an infinite redirect loop. The forwarded header reflects the real client protocol."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is disabling xmlrpc.php safe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Safe for most sites. It breaks the WordPress mobile app, Jetpack's remote features, and some trackback functionality. Check access logs for a day before denying it outright."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I test a rewrite rule without breaking production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Copy the rule to a staging site first, then use curl -I to inspect the response headers. Never paste untested rewrites into a live .htaccess — a bad anchor can take the admin panel offline."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://pier.lemonsqueezy.com/buy/5fd15e9c-b5a2-4b0d-8322-244b01e0c92e?embed=1" class="lemonsqueezy-button btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 001</span>
+      </div>
+      <p class="eyebrow"><span class="n">001 —</span>WordPress</p>
+      <h1 class="display-l post-title">Legacy WordPress .htaccess: the rules that fix 80%</h1>
+      <p class="lede post-lede">The .htaccess rules that quietly resolve most of the redirect loops, mixed content and broken pretty-permalinks on inherited WordPress sites.</p>
+      <div class="post-meta">
+        <time datetime="2026-04-18T13:23:48.584Z">18 April 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <img src="hero.jpg" alt="Close-up of a terminal window showing an .htaccess file open in vim, with RewriteRule directives highlighted." width="2688" height="1792" loading="eager" fetchpriority="high">
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 001</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>You've inherited a WordPress install from 2017. The previous developer is unreachable, the staging URL still leaks into canonical tags, and half the uploads return 403 behind Cloudflare. Before touching PHP, open <code>.htaccess</code>. Nine times out of ten the fix lives there.</p>
+
+<p>What follows is the short list we reach for first on a <a href="/">legacy site</a> audit. Each rule is copy-paste ready. Drop them inside the <code>&lt;IfModule mod_rewrite.c&gt;</code> block, above the stock WordPress rewrite stanza — Apache reads top to bottom and stops at the first match, so ordering matters.</p>
+
+<h2>Force HTTPS without looping behind a proxy</h2>
+
+<p>The classic <code>RewriteCond %{HTTPS} off</code> works on a bare server. Put the site behind Cloudflare, a load balancer or any reverse proxy that terminates TLS, and the server sees plain HTTP forever. You get a redirect loop and a support ticket by lunch.</p>
+
+<p>Check the forwarded header instead:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]</code></pre>
+
+<p>Both conditions must fail before we redirect, so a proxy that sets <code>X-Forwarded-Proto: https</code> is trusted and the loop dies. Keep the <code>HTTPS off</code> check for the case where the site is accessed directly on port 80.</p>
+
+<h2>Canonicalise the host</h2>
+
+<p>Legacy sites accumulate aliases: <code>www</code> and non-<code>www</code>, the old staging hostname, sometimes the server's raw IP. Google indexes whichever it finds first. Pick one and 301 the rest.</p>
+
+<pre><code class="lang-apache">RewriteCond %{HTTP_HOST} !^example\.com$ [NC]
+RewriteRule ^ https://example.com%{REQUEST_URI} [R=301,L]</code></pre>
+
+<p>Replace <code>example.com</code> with your canonical host. This single rule also quietly kills the "our staging site is in Google" problem, because the staging hostname now redirects to production — assuming staging shares the same <code>.htaccess</code>, which it usually does when someone rsync'd the files two years ago and forgot.</p>
+
+<aside class="callout"><strong>Gotcha:</strong> if staging and production do share htaccess and you want staging reachable, wrap this rule in a <code>RewriteCond %{HTTP_HOST} !staging\.example\.com</code>. Otherwise your staging environment will redirect to production the moment you deploy and you'll spend twenty minutes wondering why.</aside>
+
+<h2>Close xmlrpc.php</h2>
+
+<p>Not a rewrite strictly, but it belongs in the same file. <code>xmlrpc.php</code> is the single most-abused endpoint on legacy WordPress — pingback amplification, brute-force login via <code>system.multicall</code>. If you don't use the Jetpack app or the WordPress mobile app, close it.</p>
+
+<pre><code class="lang-apache">&lt;Files xmlrpc.php&gt;
+    Require all denied
+&lt;/Files&gt;</code></pre>
+
+<p>Watch your access logs for a day first. If something legitimate is hitting it, whitelist that IP with <code>Require ip 203.0.113.0/24</code> instead of leaving the door open.</p>
+
+<h2>Fix pretty permalinks after a path change</h2>
+
+<p>Move WordPress into a subdirectory, or out of one, and pretty permalinks break in a way that's hard to diagnose because the homepage still works. The symptom: <code>/</code> loads, <code>/about/</code> returns 404 from Apache, not WordPress. The fix is the <code>RewriteBase</code> directive and the fallback to <code>index.php</code>.</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]</code></pre>
+
+<p>If WordPress lives in <code>/blog/</code>, set <code>RewriteBase /blog/</code> and rewrite to <code>/blog/index.php</code>. The two <code>RewriteCond</code> lines are the whole trick: send the request to <code>index.php</code> only if it isn't a real file or directory. Skip them and you'll start serving PHP for every image request, which is fun for nobody.</p>
+
+<h2>Redirect old permalink structures without a plugin</h2>
+
+<p>Inherited sites frequently carry two generations of permalink structure. The 2014 version used <code>/?p=123</code>, the 2018 redesign moved to <code>/%postname%/</code>, and the redirect plugin that bridged them was deactivated during a security audit in 2021. Now half your backlinks 404.</p>
+
+<p>For the common date-based to postname migration:</p>
+
+<pre><code class="lang-apache">RewriteRule ^([0-9]{4})/([0-9]{2})/([0-9]{2})/([^/]+)/?$ /$4/ [R=301,L]</code></pre>
+
+<p>For category-prefixed URLs where the category segment is now gone:</p>
+
+<pre><code class="lang-apache">RewriteRule ^category/(news|blog|press)/(.+)$ /$2 [R=301,L]</code></pre>
+
+<p>Test with <code>curl -I</code> before you commit. Apache's regex engine is greedy, and the wrong anchor character will redirect your admin URLs into the void.</p>
+
+<pre><code class="lang-bash">curl -I https://example.com/2019/03/14/some-post/
+# HTTP/2 301
+# location: https://example.com/some-post/</code></pre>
+
+<h2>Protect wp-config.php and the uploads directory</h2>
+
+<p>Two last rules that earn their keep. The first denies direct access to <code>wp-config.php</code>, which Apache serves fine if PHP processing is ever misconfigured — and on shared hosting, it gets misconfigured. The second blocks PHP execution inside <code>wp-content/uploads</code>, which is the standard exfiltration route for plugin vulnerabilities.</p>
+
+<pre><code class="lang-apache">&lt;Files wp-config.php&gt;
+    Require all denied
+&lt;/Files&gt;
+
+# In wp-content/uploads/.htaccess
+&lt;FilesMatch "\.(php|phtml|phar|php7|php8)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<p>The uploads rule goes in a separate <code>.htaccess</code> inside <code>wp-content/uploads/</code>, not the root. Apache merges directory-level configs at request time; keep the scope tight so you don't accidentally break a legitimate endpoint somewhere else.</p>
+
+<h2>Deploying without fear</h2>
+
+<p>Rewrites work perfectly in your editor and break production in a way that takes the admin panel with them. Keep a timestamped backup before every edit (<code>cp .htaccess .htaccess.$(date +%s)</code>). Validate syntax with <code>apachectl configtest</code> if you have shell access, or <code>httpd -t</code> on some distributions. And test one rule at a time — if three go in together and the site 500s, you're bisecting by hand at 11pm.</p>
+
+<p>When we built <a href="/">Pier</a> we kept running into the same pattern — one edit to <code>.htaccess</code>, site down, no easy rollback over SFTP. The way we ended up handling it was a full <a href="/#features">version history</a> of every file touched through the app, so reverting a bad rewrite is one keystroke rather than a scramble through backups.</p>
+
+<p>If you do one thing today: open your production <code>.htaccess</code>, check whether the HTTPS redirect uses <code>X-Forwarded-Proto</code>, and if it doesn't, fix it before the next TLS-terminating proxy goes in front of your site.</p>
+    </div>
+
+    <aside class="pullquote">Most legacy WordPress breakage — redirect loops, 404s on pretty permalinks, leaked staging URLs — is an .htaccess problem, not a PHP problem.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Where exactly do these rules go in .htaccess?</p>
+      <p class="faq-a">Inside the &lt;IfModule mod_rewrite.c&gt; block, above the WordPress-generated stanza marked by the # BEGIN WordPress comment. Apache processes top-down and stops at the first match.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will these rules work on Nginx?</p>
+      <p class="faq-a">No. Nginx ignores .htaccess entirely. The equivalents belong in your server block as return 301 and location directives. The logic translates, the syntax does not.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why use X-Forwarded-Proto instead of just HTTPS off?</p>
+      <p class="faq-a">Behind a reverse proxy that terminates TLS, the origin server sees HTTP on every request. Checking only HTTPS off creates an infinite redirect loop. The forwarded header reflects the real client protocol.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is disabling xmlrpc.php safe?</p>
+      <p class="faq-a">Safe for most sites. It breaks the WordPress mobile app, Jetpack&#39;s remote features, and some trackback functionality. Check access logs for a day before denying it outright.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I test a rewrite rule without breaking production?</p>
+      <p class="faq-a">Copy the rule to a staging site first, then use curl -I to inspect the response headers. Never paste untested rewrites into a live .htaccess — a bad anchor can take the admin panel offline.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://pier.lemonsqueezy.com/buy/5fd15e9c-b5a2-4b0d-8322-244b01e0c92e?embed=1" class="lemonsqueezy-button btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+<script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
+</body>
+</html>
