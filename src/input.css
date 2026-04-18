@@ -454,14 +454,36 @@
   }
   .pb-tabs::-webkit-scrollbar { display: none; }
   .pb-tab {
-    @apply flex-1 min-w-[160px] px-5 py-4 text-left bg-transparent text-ink border-0
-           border-r border-line font-body text-[13px] font-normal cursor-pointer
-           flex items-center gap-2.5 whitespace-nowrap;
+    @apply flex-1 min-w-[180px] px-5 py-3.5 text-left bg-transparent text-ink border-0
+           border-r border-line font-body cursor-pointer
+           flex items-start gap-2.5 whitespace-nowrap relative;
     letter-spacing: -0.005em;
+    transition: background .25s cubic-bezier(.2,.8,.2,1), color .15s ease;
   }
   .pb-tab:last-child { border-right: none; }
-  .pb-tab[aria-selected="true"] { @apply bg-ink text-bg font-medium; }
-  .pb-tab .n { @apply font-mono text-mono-xs opacity-60; }
+  .pb-tab .n        { @apply font-mono text-mono-xs opacity-50 pt-[3px]; }
+  .pb-tab .lbl      { @apply flex flex-col gap-[3px] leading-[1.25]; }
+  .pb-tab .t        { @apply text-[13px] font-normal; }
+  .pb-tab .sub      {
+    @apply font-mono text-mono-xs opacity-55 lowercase;
+    letter-spacing: 0.04em;
+  }
+  .pb-tab:hover:not([aria-selected="true"]) {
+    background: color-mix(in srgb, var(--ink) 4%, transparent);
+  }
+  .pb-tab[aria-selected="true"] { @apply bg-ink text-bg; }
+  .pb-tab[aria-selected="true"] .n   { @apply opacity-60 text-bg; }
+  .pb-tab[aria-selected="true"] .t   { @apply font-medium; }
+  .pb-tab[aria-selected="true"] .sub { @apply text-bg opacity-50; }
+  /* Bottom indicator bar that slides under the active tab */
+  .pb-tab[aria-selected="true"]::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 2px;
+    background: var(--accent-warm);
+    animation: fade-up .35s cubic-bezier(.2,.8,.2,1) both;
+  }
 
   .pb-pane[hidden] { display: none !important; }
   .pb-pane {
