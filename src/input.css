@@ -19,14 +19,17 @@
     --card:         #f6f4ec;
     --ink:          #0d0d0d;
     --ink2:         #2a2a2a;
-    --muted:        #6b6a63;
+    /* --muted is the workhorse low-contrast text token. Verified ≥4.6:1 against
+       --bg, --bg2, and --card so it passes WCAG AA at 12px on every section
+       background the site uses. */
+    --muted:        #5b5a51;
     --line:         #cfccc2;
     --line2:        #b5b2a6;
-    --accent:       #c23d1f;
-    --accent-warm:  #e0632a;
-    --accent-glow:  rgba(224, 99, 42, 0.28);
-    --highlight:    #e8a23a;
-    --ok:           #3a9d5a;
+    --accent:       #a73118;
+    --accent-warm:  #c4541e;
+    --accent-glow:  rgba(196, 84, 30, 0.28);
+    --highlight:    #c47a18;
+    --ok:           #2f7d48;
   }
   html { scroll-behavior: smooth; background: var(--bg); }
   body {
@@ -450,7 +453,9 @@
   }
   .input .prompt { @apply font-mono text-accent; }
   .input .ph { @apply text-[13px] text-muted flex-1; }
-  .input .ph .at { opacity: 0.6; }
+  /* No opacity reduction on .at — opacity:0.6 dropped placeholder @-mentions
+     below 4.5:1. The visual differentiation comes from accent colour instead. */
+  .input .ph .at { color: var(--accent); }
   .input .k { @apply font-mono text-mono-xs text-muted; }
 
   .version { @apply flex gap-2.5 py-2.5 border-b border-dashed border-line; }
@@ -502,20 +507,20 @@
     transition: background .25s cubic-bezier(.2,.8,.2,1), color .15s ease;
   }
   .pb-tab:last-child { border-right: none; }
-  .pb-tab .n        { @apply font-mono text-mono-xs opacity-50 pt-[3px]; }
+  .pb-tab .n        { @apply font-mono text-mono-xs text-muted pt-[3px]; }
   .pb-tab .lbl      { @apply flex flex-col gap-[3px] leading-[1.25]; }
   .pb-tab .t        { @apply text-[13px] font-normal; }
   .pb-tab .sub      {
-    @apply font-mono text-mono-xs opacity-55 lowercase;
+    @apply font-mono text-mono-xs text-muted lowercase;
     letter-spacing: 0.04em;
   }
   .pb-tab:hover:not([aria-selected="true"]) {
     background: color-mix(in srgb, var(--ink) 4%, transparent);
   }
   .pb-tab[aria-selected="true"] { @apply bg-ink text-bg; }
-  .pb-tab[aria-selected="true"] .n   { @apply opacity-60 text-bg; }
+  .pb-tab[aria-selected="true"] .n   { @apply text-bg; opacity: 0.85; }
   .pb-tab[aria-selected="true"] .t   { @apply font-medium; }
-  .pb-tab[aria-selected="true"] .sub { @apply text-bg opacity-50; }
+  .pb-tab[aria-selected="true"] .sub { @apply text-bg; opacity: 0.8; }
   /* Bottom indicator bar that slides under the active tab */
   .pb-tab[aria-selected="true"]::after {
     content: '';
@@ -566,7 +571,7 @@
     @apply inline-flex items-center gap-1.5 px-2 py-[3px] bg-bg border border-line text-ink2;
     letter-spacing: 0.02em;
   }
-  .pb-msg-f .chip .n { @apply text-accent-warm font-mono; }
+  .pb-msg-f .chip .n { @apply text-accent font-mono; }
 
   .pb-quote {
     @apply font-display font-semibold leading-[1.2] tracking-display text-ink text-balance m-0;
@@ -753,6 +758,9 @@
   .incl-row:last-child { border-bottom: none; }
   .incl-row .plus { @apply text-accent; }
   .notes { @apply flex flex-col gap-6; }
+  /* h4 selector kept for backwards-compat, but live HTML now uses h3 to keep
+     the heading hierarchy sequential. Both are styled identically. */
+  .notes h3,
   .notes h4 {
     color: color-mix(in srgb, theme('colors.bg') 55%, transparent);
     @apply font-mono text-mono-sm tracking-[0.1em] uppercase m-0 mb-2 font-normal;
@@ -805,6 +813,9 @@
     @apply grid gap-12 mb-14;
     grid-template-columns: 2fr 1fr 1fr 1fr;
   }
+  /* Footer column headings: h3 in markup (sequential heading order) but the
+     visual treatment is the small mono-uppercase label, not a real h3. */
+  .footer h3,
   .footer h4 {
     @apply font-mono text-mono-sm tracking-[0.1em] uppercase text-muted m-0 mb-3.5 font-normal;
   }
