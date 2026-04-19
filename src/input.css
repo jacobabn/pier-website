@@ -105,18 +105,22 @@
   .db-mock-foot .dot,
   .pulse-accent { animation: pulse-dot 2.4s cubic-bezier(.4,0,.6,1) infinite; }
 
-  /* Hero entry animation — staggered fade-up */
+  /* Hero entry animation — staggered fade-up.
+     will-change pre-promotes each animated element to its own compositor
+     layer so the staggered animation runs paint-only, not layout. */
   .hero h1,
   .hero .lede,
   .hero-ctas,
-  .hero .eyebrow {
+  .hero .eyebrow,
+  .manifest {
     animation: fade-up 0.6s cubic-bezier(.2,.8,.2,1) both;
+    will-change: opacity, transform;
   }
   .hero .eyebrow  { animation-delay: 0.05s; }
   .hero h1        { animation-delay: 0.10s; }
   .hero .lede     { animation-delay: 0.22s; }
   .hero-ctas      { animation-delay: 0.32s; }
-  .manifest       { animation: fade-up 0.6s cubic-bezier(.2,.8,.2,1) 0.18s both; }
+  .manifest       { animation-delay: 0.18s; }
 
   /* Card hover-lift — subtle, 1-2px */
   .grid-3 > .cell,
@@ -314,10 +318,12 @@
 
   /* ---------- Nav ---------- */
   .nav {
-    @apply sticky top-0 z-50 border-b border-line;
-    background: color-mix(in srgb, #eeece6 88%, transparent);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    @apply sticky top-0 z-50 border-b border-line bg-bg;
+    /* No backdrop-filter: blur — every scroll frame on mobile required the
+       browser to read + blur + composite the underlying section, which was
+       the dominant source of "[unattributed]" forced reflow on a static
+       site with no other JS. Solid bone background reads identically over
+       light sections and acceptably over the dark pricing section. */
   }
   .nav-inner {
     @apply max-w-shell mx-auto flex items-center gap-8 px-5 sm:px-8 lg:px-12 py-3.5;
