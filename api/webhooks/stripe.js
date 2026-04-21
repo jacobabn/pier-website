@@ -27,6 +27,7 @@ const crypto = require('crypto');
 const { Resend } = require('resend');
 const { query } = require('../_lib/db');
 const { mint, keyHash, keyDisplay } = require('../_lib/license');
+const { renderPurchaseEmail } = require('../_lib/email-template');
 
 // Disable Vercel's default JSON body parser — Stripe's signature
 // verification requires the EXACT raw bytes of the request body.
@@ -44,35 +45,7 @@ function readRawBody(req) {
 }
 
 // Signing is in api/_lib/license.js — imported as `mint`.
-
-function licenseEmailHtml(licenseString, email) {
-  return `<!DOCTYPE html>
-<html><body style="font-family:-apple-system,Segoe UI,sans-serif;line-height:1.55;color:#14110E;max-width:560px;margin:24px auto;padding:0 16px;">
-  <h1 style="font-size:22px;margin:0 0 16px;">Thanks for buying Pier.</h1>
-  <p>Hi,</p>
-  <p>Your license key is below. Paste it into Pier's <b>Settings → Activate</b>, and you're in. Works on 2 Macs.</p>
-  <pre style="background:#f5f2ea;border:1px solid #d9d0b8;border-radius:8px;padding:14px;white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Menlo,monospace;font-size:13px;">${licenseString}</pre>
-  <p>If you haven't yet, download Pier here: <a href="https://pier.abn.company/download">pier.abn.company/download</a>.</p>
-  <p>Keep this email safe — we can resend the key if you ever lose it, but you'll need it to activate on a new Mac.</p>
-  <p style="color:#596458;font-size:13px;margin-top:32px;">Bought as ${email}. Any questions, just reply to this email.<br>— Jacob @ A Brand New Company</p>
-</body></html>`;
-}
-
-function licenseEmailText(licenseString, email) {
-  return [
-    'Thanks for buying Pier.',
-    '',
-    'Your license key is below. Paste it into Pier\'s Settings → Activate.',
-    'Works on 2 Macs.',
-    '',
-    licenseString,
-    '',
-    'If you haven\'t yet, download Pier from https://pier.abn.company/download',
-    '',
-    `Bought as ${email}. Any questions, just reply.`,
-    '— Jacob @ A Brand New Company',
-  ].join('\n');
-}
+// Email rendering is in api/_lib/email-template.js — imported as `renderPurchaseEmail`.
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -176,18 +149,33 @@ module.exports = async function handler(req, res) {
     },
   });
 
+  // Fetch the auto-generated Stripe invoice so the email can include a
+  // proper tax receipt (PDF + hosted page). Best-effort — an older session
+  // without invoice_creation enabled will have session.invoice === null.
+  let invoice = null;
+  if (session.invoice) {
+    try { invoice = await stripe.invoices.retrieve(session.invoice); }
+    catch (e) { console.warn('[webhook] invoice retrieve failed:', e.message); }
+  }
+
   // Email — best effort. If Resend isn't configured yet we still return 200
   // (the license exists; Stripe retry would only cause a 4xx loop).
   let emailStatus = 'skipped';
   if (resendKey) {
     try {
+      const { subject, html, text } = renderPurchaseEmail({
+        licenseKey: minted.licenseString,
+        email,
+        invoice,
+        session,
+      });
       const resend = new Resend(resendKey);
       const { data, error } = await resend.emails.send({
         from: 'Pier <noreply@pier.abn.company>',
         to: email,
-        subject: 'Your Pier license key',
-        html: licenseEmailHtml(minted.licenseString, email),
-        text: licenseEmailText(minted.licenseString, email),
+        subject,
+        html,
+        text,
       });
       if (error) {
         emailStatus = `error: ${error.message || String(error)}`;

@@ -11,6 +11,8 @@
 const { query } = require('../_lib/db');
 const { mint, keyHash, keyDisplay } = require('../_lib/license');
 const { checkAdmin } = require('../_lib/admin-auth');
+const { renderPurchaseEmail } = require('../_lib/email-template');
+const Stripe = require('stripe');
 const { Resend } = require('resend');
 
 module.exports.config = { api: { bodyParser: false } };
@@ -27,22 +29,6 @@ function readJsonBody(req) {
   });
 }
 
-function licenseEmailHtml(licenseString, email) {
-  return `<!DOCTYPE html>
-<html><body style="font-family:-apple-system,Segoe UI,sans-serif;line-height:1.55;color:#14110E;max-width:560px;margin:24px auto;padding:0 16px;">
-  <h1 style="font-size:22px;margin:0 0 16px;">Your Pier license key</h1>
-  <p>Hi,</p>
-  <p>As requested, a fresh copy of your Pier license key. Paste it into Pier's <b>Settings → Activate</b>.</p>
-  <pre style="background:#f5f2ea;border:1px solid #d9d0b8;border-radius:8px;padding:14px;white-space:pre-wrap;word-break:break-all;font-family:ui-monospace,Menlo,monospace;font-size:13px;">${licenseString}</pre>
-  <p>Your previous key (if different) has been superseded. Existing activations on your Macs are not affected.</p>
-  <p style="color:#596458;font-size:13px;margin-top:32px;">Sent to ${email}. — Jacob @ A Brand New Company</p>
-</body></html>`;
-}
-
-function licenseEmailText(licenseString, email) {
-  return `Your Pier license key:\n\n${licenseString}\n\nPaste in Pier → Settings → Activate.\nExisting activations on your Macs are not affected.\n\nSent to ${email}. — Jacob @ ABN`;
-}
-
 module.exports = async function handler(req, res) {
   if (!checkAdmin(req, res)) return;
   if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); return res.status(405).json({ error: 'method not allowed' }); }
@@ -54,7 +40,10 @@ module.exports = async function handler(req, res) {
   if (!licenseId) return res.status(400).json({ error: 'license_id required' });
 
   try {
-    const { rows } = await query('SELECT id, email, seats, expires_at, revoked_at FROM licenses WHERE id = $1', [licenseId]);
+    const { rows } = await query(
+      'SELECT id, email, seats, expires_at, revoked_at, stripe_session_id FROM licenses WHERE id = $1',
+      [licenseId],
+    );
     if (rows.length === 0) return res.status(404).json({ error: 'license not found' });
     const lic = rows[0];
     if (lic.revoked_at) return res.status(400).json({ error: 'license is revoked — un-revoke first if re-issuing' });
@@ -83,16 +72,42 @@ module.exports = async function handler(req, res) {
       [lic.id, keyHash(licenseString), keyDisplay(licenseString)],
     );
 
+    // If this license came from Stripe, pull the invoice + session so the
+    // email renders the same way the post-purchase email does (with totals +
+    // PDF links). Licenses issued via /api/admin/licenses have no Stripe
+    // session, so the invoice/session stay null and the template renders
+    // with a default €199,00 total.
+    let invoice = null;
+    let session = null;
+    if (lic.stripe_session_id && process.env.STRIPE_SECRET_KEY) {
+      try {
+        const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2024-06-20' });
+        session = await stripe.checkout.sessions.retrieve(lic.stripe_session_id);
+        if (session.invoice) {
+          invoice = await stripe.invoices.retrieve(session.invoice);
+        }
+      } catch (e) {
+        console.warn('[resend-email] stripe fetch failed:', e.message);
+      }
+    }
+
     // Email via Resend.
     let emailStatus = 'skipped';
     if (process.env.RESEND_API_KEY) {
-      const resend = new Resend(process.env.RESEND_API_KEY);
-      const { data, error } = await resend.emails.send({
+      const { subject, html, text } = renderPurchaseEmail({
+        licenseKey: licenseString,
+        email: lic.email,
+        invoice,
+        session,
+        resend: true,
+      });
+      const r = new Resend(process.env.RESEND_API_KEY);
+      const { data, error } = await r.emails.send({
         from: 'Pier <noreply@pier.abn.company>',
         to: lic.email,
-        subject: 'Your Pier license key (resent)',
-        html: licenseEmailHtml(licenseString, lic.email),
-        text: licenseEmailText(licenseString, lic.email),
+        subject,
+        html,
+        text,
       });
       emailStatus = error ? `error: ${error.message}` : `sent (id=${data?.id})`;
     }
