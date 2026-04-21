@@ -462,9 +462,16 @@
           method: 'POST',
           body: JSON.stringify({ license_id: lastCreatedId }),
         });
+        // The endpoint re-mints the key (new signature, same lid) and updates
+        // the DB's key_hash. The previously-displayed key is now DEAD. Refresh
+        // the panel so the user sees (and copies) the still-valid key.
+        if (r.license_key) {
+          lastCreatedKey = r.license_key;
+          document.getElementById('created-key-value').textContent = r.license_key;
+        }
         status.textContent = r.email_status || 'sent';
         btn.textContent = '✉ Emailed ✓';
-        toast('Customer emailed');
+        toast('Customer emailed · key refreshed');
       } catch (e) {
         btn.disabled = false;
         btn.textContent = '✉ Retry send';
