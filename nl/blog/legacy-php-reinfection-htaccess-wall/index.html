@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy PHP herbesmetting: de .htaccess-muur die houdt · Pier — Blog</title>
+<meta name="description" content="De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, htaccess, security, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy PHP herbesmetting: de .htaccess-muur die houdt">
+<meta property="og:description" content="De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-04-21T10:02:21.205Z">
+<meta property="article:modified_time" content="2026-04-21T10:02:21.205Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Legacy PHP herbesmetting: de .htaccess-muur die houdt">
+<meta name="twitter:description" content="De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg">
+<meta name="twitter:image:alt" content="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/"},
+  "url":"https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/",
+  "headline":"Legacy PHP herbesmetting: de .htaccess-muur die houdt",
+  "description":"De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank."
+  },
+  "datePublished":"2026-04-21T10:02:21.205Z",
+  "dateModified":"2026-04-21T10:02:21.205Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, htaccess, security, operations",
+  "wordCount":1134,
+  "articleSection":"Security",
+  "articleBody":"De klant belde op dinsdag. Zijn WordPress was zondag opgeschoond — alle bestanden vervangen vanuit een schone tarball, admin-wachtwoorden geroteerd, wp-config salts opnieuw gegenereerd, het gebruikelijke werk. Dinsdagmiddag had Google Safe Browsing het domein alweer gemarkeerd. Dezelfde payload: een Japanse SEO-spaminjectie die wp_options.siteurl herschreef voor niet-ingelogde bezoekers met een specifieke User-Agent. Dit was de derde opschoning in twee weken. De eigenaar wilde weten of hij het hele ding maar niet opnieuw moest bouwen op een \"moderne stack\". Dat is bijna nooit het antwoord, en hier ook niet. Het antwoord was dat de opschoning symptomen aanpakte terwijl de voordeur open bleef staan. De herbesmettingsloop De meeste herbesmettingen op een verouderde site volgen hetzelfde patroon. Je ruimt de zichtbare rommel op — de geïnjecteerde header.php , de frauduleuze wp-includes/class-wp-xyz.php , de base64-blobs. Je mist één bestand. Dat bestand is een dropper: een kleine, onschuldig ogende uploader die een POST accepteert en schrijft wat hem wordt opgedragen. Een week later komt de aanvaller terug en bouwt de hele kit in veertig seconden weer op. In dit geval zat de dropper op wp-content/uploads/2021/08/.cache.php . 1,4 KB groot. Hij was acht maanden vóór de eerste zichtbare besmetting geüpload, via een kwetsbare versie van een contactformulier-plugin die de site niet meer gebruikte maar ook nooit had verwijderd. De map van de plugin stond nog op disk. Het kwetsbare endpoint was nog bereikbaar. Dit is de access log-regel die de besmetting op maandag 19:04 UTC opnieuw opbouwde: 203.0.113.88 - - [19/Apr/2026:19:04:11 +0000] \"POST /wp-content/uploads/2021/08/.cache.php HTTP/1.1\" 200 412 \"-\" \"Mozilla/5.0\" Een POST naar een PHP-bestand binnen uploads/ . Die request hoort niet te bestaan. Er is geen enkele legitieme reden waarom een bestand onder wp-content/uploads PHP zou moeten uitvoeren. Hetzelfde geldt voor wp-content/cache , het grootste deel van wp-includes als je thema geen rare dingen doet, en de volledige map van elke verlaten plugin. Elke dropper vinden voordat je de deur sluit Voordat je één regel Apache-config schrijft, moet je weten wat er werkelijk op disk staat. Opschonen wat je kunt zien is niet genoeg; je moet vinden wat je niet kunt zien. find wp-content/uploads -type f \\( -name \"*.php\" -o -name \"*.phtml\" -o -name \"*.php5\" -o -name \"*.phar\" \\) 2>/dev/null find wp-content/uploads -type f -name \"*.*.php*\" 2>/dev/null find . -type f -name \"*.php\" -newer wp-config.php -not -path \"./wp-content/plugins/*\" 2>/dev/null Het derde commando is het commando dat mensen overslaan. Het toont elk PHP-bestand dat nieuwer is dan wp-config.php , dat op de meeste sites al maanden niet is aangeraakt. Wat er verschijnt is ofwel een legitieme plugin-update die je tegen de repo kunt verifiëren, ofwel precies waar je naar zoekt. Op deze site gaf het eerste commando negen bestanden terug. Twee daarvan waren de dropper en een secundaire shell. Zeven waren oudere injecties die sinds de laatste opschoning sluimerend waren geweest omdat de aanvaller tussen ze rouleerde. De muur Zodra de boom schoon is, verhinder je dat PHP wordt uitgevoerd op plekken waar PHP niets te zoeken heeft. In Apache doe je dat met een kleine .htaccess die je in de uploads-map zelf plaatst: # wp-content/uploads/.htaccess # Block PHP execution in the uploads tree. <FilesMatch \"\\.(php|phtml|php3|php4|php5|php7|php8|phar|pht|inc)$\"> Require all denied </FilesMatch> # Also block handler-based execution (some hosts route via AddHandler). <IfModule mod_rewrite.c> RewriteEngine On RewriteRule \\.(php|phtml|phar|pht)$ - [F,L,NC] </IfModule> # Deny if someone tries a double extension like image.php.jpg. <FilesMatch \"\\.ph(p[3457]?|tml|ar|t)\\.\"> Require all denied </FilesMatch> Drie lagen, omdat hosts verschillen. FilesMatch met Require all denied is het primaire blok op moderne Apache (2.4+). De RewriteRule vangt handler-gebaseerde uitvoering op bij shared hosting waar AddHandler application/x-httpd-php hoger in de keten is gedeclareerd en een simpele Deny die niet onderbreekt. De dubbele-extensie-matcher handelt de klassieke payload.php.jpg -truc af, waarbij de server uitvoert op de eerste matchende extensie. Zet hetzelfde bestand in wp-content/cache/.htaccess , en in elke plugin-map die je hebt uitgeschakeld maar nog niet kunt verwijderen. Voor Drupal zijn de equivalente locaties sites/default/files/ en sites/*/files/ . Voor Magento 1 is dat media/ en var/ . Voor Joomla images/ en tmp/ . Controleer of de muur werkt voordat je het ticket sluit: echo '<?php echo \"executed\"; ?>' > wp-content/uploads/_test.php curl -i https://example.com/wp-content/uploads/_test.php # Expect: HTTP/1.1 403 Forbidden rm wp-content/uploads/_test.php Krijg je 200 OK met het woord executed , dan heeft je directive niet gewerkt. Controleer of AllowOverride in de vhost FileInfo en Limit toestaat, of zet het blok direct in de vhost met een <Directory> -stanza. Let op: sommige cachin",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy PHP herbesmetting: de .htaccess-muur die houdt","item":"https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Breekt het blokkeren van PHP in wp-content/uploads WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. WordPress core voert geen PHP uit vanuit de uploads-map. Het enige dat kapot kan gaan zijn verkeerd geconfigureerde caching-plugins of custom code die uitvoerbare PHP naar uploads schrijft, en dat laatste is op zichzelf al een rood vlaggetje."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Werkt dit op Nginx?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nginx negeert .htaccess. Het equivalent is een location-blok in je server-config: location ~* /wp-content/uploads/.*\\.php$ { deny all; } geplaatst binnen het server-blok, gevolgd door een reload."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als mijn host LiteSpeed gebruikt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "LiteSpeed respecteert .htaccess-directives die compatibel zijn met Apache, inclusief FilesMatch en Require all denied, dus hetzelfde bestand werkt. De RewriteRule-fallback wordt eveneens ondersteund."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 002</span>
+      </div>
+      <p class="eyebrow"><span class="n">002 —</span>Security</p>
+      <h1 class="display-l post-title">Legacy PHP herbesmetting: de .htaccess-muur die houdt</h1>
+      <p class="lede post-lede">De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.</p>
+      <div class="post-meta">
+        <time datetime="2026-04-21T10:02:21.205Z">21 april 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="hero.webp" type="image/webp">
+      <img src="hero.jpg" alt="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 002</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De klant belde op dinsdag. Zijn WordPress was zondag opgeschoond — alle bestanden vervangen vanuit een schone tarball, admin-wachtwoorden geroteerd, wp-config salts opnieuw gegenereerd, het gebruikelijke werk. Dinsdagmiddag had Google Safe Browsing het domein alweer gemarkeerd. Dezelfde payload: een Japanse SEO-spaminjectie die <code>wp_options.siteurl</code> herschreef voor niet-ingelogde bezoekers met een specifieke User-Agent.</p>
+
+<p>Dit was de derde opschoning in twee weken. De eigenaar wilde weten of hij het hele ding maar niet opnieuw moest bouwen op een "moderne stack". Dat is bijna nooit het antwoord, en hier ook niet. Het antwoord was dat de opschoning symptomen aanpakte terwijl de voordeur open bleef staan.</p>
+
+<h2>De herbesmettingsloop</h2>
+
+<p>De meeste herbesmettingen op een <a href="/">verouderde site</a> volgen hetzelfde patroon. Je ruimt de zichtbare rommel op — de geïnjecteerde <code>header.php</code>, de frauduleuze <code>wp-includes/class-wp-xyz.php</code>, de base64-blobs. Je mist één bestand. Dat bestand is een dropper: een kleine, onschuldig ogende uploader die een POST accepteert en schrijft wat hem wordt opgedragen. Een week later komt de aanvaller terug en bouwt de hele kit in veertig seconden weer op.</p>
+
+<p>In dit geval zat de dropper op <code>wp-content/uploads/2021/08/.cache.php</code>. 1,4 KB groot. Hij was acht maanden vóór de eerste zichtbare besmetting geüpload, via een kwetsbare versie van een contactformulier-plugin die de site niet meer gebruikte maar ook nooit had verwijderd. De map van de plugin stond nog op disk. Het kwetsbare endpoint was nog bereikbaar.</p>
+
+<p>Dit is de access log-regel die de besmetting op maandag 19:04 UTC opnieuw opbouwde:</p>
+
+<pre><code class="lang-text">203.0.113.88 - - [19/Apr/2026:19:04:11 +0000] "POST /wp-content/uploads/2021/08/.cache.php HTTP/1.1" 200 412 "-" "Mozilla/5.0"</code></pre>
+
+<p>Een POST naar een PHP-bestand binnen <code>uploads/</code>. Die request hoort niet te bestaan. Er is geen enkele legitieme reden waarom een bestand onder <code>wp-content/uploads</code> PHP zou moeten uitvoeren. Hetzelfde geldt voor <code>wp-content/cache</code>, het grootste deel van <code>wp-includes</code> als je thema geen rare dingen doet, en de volledige map van elke verlaten plugin.</p>
+
+<h2>Elke dropper vinden voordat je de deur sluit</h2>
+
+<p>Voordat je één regel Apache-config schrijft, moet je weten wat er werkelijk op disk staat. Opschonen wat je kunt zien is niet genoeg; je moet vinden wat je niet kunt zien.</p>
+
+<pre><code class="lang-bash">find wp-content/uploads -type f \( -name "*.php" -o -name "*.phtml" -o -name "*.php5" -o -name "*.phar" \) 2&gt;/dev/null
+find wp-content/uploads -type f -name "*.*.php*" 2&gt;/dev/null
+find . -type f -name "*.php" -newer wp-config.php -not -path "./wp-content/plugins/*" 2&gt;/dev/null</code></pre>
+
+<p>Het derde commando is het commando dat mensen overslaan. Het toont elk PHP-bestand dat nieuwer is dan <code>wp-config.php</code>, dat op de meeste sites al maanden niet is aangeraakt. Wat er verschijnt is ofwel een legitieme plugin-update die je tegen de repo kunt verifiëren, ofwel precies waar je naar zoekt.</p>
+
+<p>Op deze site gaf het eerste commando negen bestanden terug. Twee daarvan waren de dropper en een secundaire shell. Zeven waren oudere injecties die sinds de laatste opschoning sluimerend waren geweest omdat de aanvaller tussen ze rouleerde.</p>
+
+<h2>De muur</h2>
+
+<p>Zodra de boom schoon is, verhinder je dat PHP wordt uitgevoerd op plekken waar PHP niets te zoeken heeft. In Apache doe je dat met een kleine <code>.htaccess</code> die je in de uploads-map zelf plaatst:</p>
+
+<pre><code class="lang-apache"># wp-content/uploads/.htaccess
+# Block PHP execution in the uploads tree.
+
+&lt;FilesMatch "\.(php|phtml|php3|php4|php5|php7|php8|phar|pht|inc)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;
+
+# Also block handler-based execution (some hosts route via AddHandler).
+&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    RewriteRule \.(php|phtml|phar|pht)$ - [F,L,NC]
+&lt;/IfModule&gt;
+
+# Deny if someone tries a double extension like image.php.jpg.
+&lt;FilesMatch "\.ph(p[3457]?|tml|ar|t)\."&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<p>Drie lagen, omdat hosts verschillen. <code>FilesMatch</code> met <code>Require all denied</code> is het primaire blok op moderne Apache (2.4+). De <code>RewriteRule</code> vangt handler-gebaseerde uitvoering op bij shared hosting waar <code>AddHandler application/x-httpd-php</code> hoger in de keten is gedeclareerd en een simpele <code>Deny</code> die niet onderbreekt. De dubbele-extensie-matcher handelt de klassieke <code>payload.php.jpg</code>-truc af, waarbij de server uitvoert op de eerste matchende extensie.</p>
+
+<p>Zet hetzelfde bestand in <code>wp-content/cache/.htaccess</code>, en in elke plugin-map die je hebt uitgeschakeld maar nog niet kunt verwijderen. Voor Drupal zijn de equivalente locaties <code>sites/default/files/</code> en <code>sites/*/files/</code>. Voor Magento 1 is dat <code>media/</code> en <code>var/</code>. Voor Joomla <code>images/</code> en <code>tmp/</code>.</p>
+
+<p>Controleer of de muur werkt voordat je het ticket sluit:</p>
+
+<pre><code class="lang-bash">echo '&lt;?php echo "executed"; ?&gt;' &gt; wp-content/uploads/_test.php
+curl -i https://example.com/wp-content/uploads/_test.php
+# Expect: HTTP/1.1 403 Forbidden
+rm wp-content/uploads/_test.php</code></pre>
+
+<p>Krijg je <code>200 OK</code> met het woord <code>executed</code>, dan heeft je directive niet gewerkt. Controleer of <code>AllowOverride</code> in de vhost <code>FileInfo</code> en <code>Limit</code> toestaat, of zet het blok direct in de vhost met een <code>&lt;Directory&gt;</code>-stanza.</p>
+
+<aside class="callout"><strong>Let op:</strong> sommige caching-plugins schrijven gegenereerde PHP-bestanden naar <code>wp-content/cache</code> en verwachten dat die worden uitgevoerd. De "expert"-modus van WP Super Cache is de gebruikelijke boosdoener. Als je PHP blokkeert in <code>cache/</code>, controleer dan of de plugin op PHP-caching-uit staat of is overgezet op een statische HTML-strategie. Test na het toepassen van de muur een uitgelogde pageload; een wit scherm zonder error betekent dat je een cache-include hebt geblokkeerd.</aside>
+
+<h2>Wat de muur niet doet</h2>
+
+<p>Hij lost de kwetsbaarheid die de dropper binnenliet niet op. Hij maakt de dropper nutteloos, wat vaak voldoende is — aanvallers gaan door naar zachtere doelen zodra hun toolkit zichzelf niet meer kan reconstrueren. Maar het onderliggende gat zit er nog steeds tot je de verlaten plugin verwijdert, de levende plugins bijwerkt, en audit wat voor custom upload-handler de vorige ontwikkelaar van de site in 2017 heeft geschreven.</p>
+
+<p>Hij helpt ook niet tegen besmettingen die via de database binnenkomen — via SQL-injectie toegevoegde admin-gebruikers, herschrijvingen van <code>wp_options</code>, stored XSS in post-content. Die vragen om een andere ronde: audit <code>wp_users</code>, audit <code>wp_usermeta</code> op <code>wp_capabilities</code>-entries die je niet hebt aangemaakt, diff <code>wp_options.siteurl</code> en <code>wp_options.home</code> tegen wat ze zouden moeten zijn.</p>
+
+<h2>Na de muur</h2>
+
+<p>Op de site van deze klant ging de .htaccess er dinsdagavond in. De volgende reconstructiepoging kwam woensdag om 02:17 UTC. Het access log laat elf POST-requests naar vier verschillende dropper-paden zien, allemaal met 403. Vrijdag was de aanvaller ermee gestopt. De site is sindsdien schoon.</p>
+
+<p>De cleanup-playbook die we voor deze klant schreven werd het sjabloon dat we nu bij elke herbesmettingszaak gebruiken: zoek elk PHP-bestand onder door gebruikers schrijfbare paden, diff alles wat nieuwer is dan <code>wp-config.php</code>, plaats de muur, verifieer met curl, en ga vervolgens op je gemak de oorspronkelijke kwetsbaarheid jagen.</p>
+
+<p>Toen we Pier bouwden liepen we telkens aan tegen de wrijving van dit soort audits over SFTP in het ene venster, <code>find</code> over SSH in een ander, peuteren in de <a href="/#database">MySQL editor</a> in een derde, en het spoor bijster raken van wat we hadden aangepast als de klant terugbelde. Zoals we het uiteindelijk hebben opgelost: de bestandsboom, de database en een volledige <a href="/#features">versiegeschiedenis</a> van elke bewerking blijven in één venster, zodat een incident-walkthrough van vijf minuten ook een walkthrough van vijf minuten blijft.</p>
+
+<h2>Wat je vandaag kunt doen</h2>
+
+<p>Open een SSH- of SFTP-sessie naar je oudste klantsite. Draai het eerste <code>find</code>-commando hierboven tegen <code>wp-content/uploads</code>. Wat dat teruggeeft is het gesprek dat je hierna voert.</p>
+    </div>
+
+    <aside class="pullquote">Herbesmetting is vrijwel altijd een dropper die de opschoning heeft overleefd. Blokkeer PHP-uitvoering in elke door gebruikers schrijfbare map voordat je de kwetsbaarheid achtervolgt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Breekt het blokkeren van PHP in wp-content/uploads WordPress?</p>
+      <p class="faq-a">Nee. WordPress core voert geen PHP uit vanuit de uploads-map. Het enige dat kapot kan gaan zijn verkeerd geconfigureerde caching-plugins of custom code die uitvoerbare PHP naar uploads schrijft, en dat laatste is op zichzelf al een rood vlaggetje.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Werkt dit op Nginx?</p>
+      <p class="faq-a">Nginx negeert .htaccess. Het equivalent is een location-blok in je server-config: location ~* /wp-content/uploads/.*\.php$ { deny all; } geplaatst binnen het server-blok, gevolgd door een reload.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als mijn host LiteSpeed gebruikt?</p>
+      <p class="faq-a">LiteSpeed respecteert .htaccess-directives die compatibel zijn met Apache, inclusief FilesMatch en Require all denied, dus hetzelfde bestand werkt. De RewriteRule-fallback wordt eveneens ondersteund.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.webp" type="image/webp">
+        <img src="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg" alt="Een messing sleutel op ivoren papieren kaart naast kleirode lakzegel, leren regelboek en schuifmaat op bone werkblad." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>18 april 2026</span></span>
+      <h3>Legacy WordPress .htaccess: de regels die 80% oplossen</h3>
+      <span class="pc-lede">De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
