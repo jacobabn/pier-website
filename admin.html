@@ -196,9 +196,27 @@
         </div>
         <div class="form-row">
           <label>&nbsp;</label>
-          <button type="submit" class="primary">Create + email</button>
+          <button type="submit" class="primary">Generate license</button>
         </div>
       </form>
+
+      <!-- After-create key display — stays visible until dismissed so admin
+           can copy / verify / manually send the key. Populated by createLicense(). -->
+      <div id="created-key-panel" style="display:none;margin-top:18px;padding:16px;background:var(--panel2);border:1px solid var(--accent);border-radius:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:10px;">
+          <div>
+            <div style="font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);">Key created</div>
+            <div style="font-size:13px;color:var(--ink2);margin-top:2px;" id="created-key-meta"></div>
+          </div>
+          <button type="button" onclick="document.getElementById('created-key-panel').style.display='none';">Dismiss</button>
+        </div>
+        <pre id="created-key-value" style="background:var(--panel);color:var(--ink);padding:12px 14px;border-radius:6px;font-family:ui-monospace,Menlo,monospace;font-size:12px;line-height:1.6;word-break:break-all;white-space:pre-wrap;user-select:all;-webkit-user-select:all;margin:0;overflow-x:auto;max-height:200px;"></pre>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button type="button" onclick="copyCreatedKey()">📋 Copy key</button>
+          <button type="button" class="primary" id="created-key-email-btn" onclick="emailCreatedKey()">✉ Email to customer</button>
+          <span id="created-key-email-status" style="font-size:12px;color:var(--mute);align-self:center;"></span>
+        </div>
+      </div>
     </div>
 
     <div class="panel">
@@ -393,6 +411,9 @@
       }
     }
 
+    let lastCreatedKey = null;
+    let lastCreatedId = null;
+
     async function createLicense(ev) {
       ev.preventDefault();
       const email = document.getElementById('c-email').value.trim();
@@ -403,12 +424,53 @@
           method: 'POST',
           body: JSON.stringify({ email, seats, expires_at: expires }),
         });
-        toast(`Key created for ${email}. Copy: ${r.license_key.slice(0,20)}…`);
+        lastCreatedKey = r.license_key;
+        lastCreatedId = r.license_id;
+        // Show persistent key panel
+        document.getElementById('created-key-value').textContent = r.license_key;
+        document.getElementById('created-key-meta').textContent =
+          `For ${email} · ${seats} seat${seats === 1 ? '' : 's'}${expires ? ' · expires ' + expires : ' · no expiry'} · ID ${r.license_id.slice(0, 8)}…`;
+        document.getElementById('created-key-email-status').textContent = '';
+        document.getElementById('created-key-email-btn').disabled = false;
+        document.getElementById('created-key-email-btn').textContent = '✉ Email to customer';
+        document.getElementById('created-key-panel').style.display = 'block';
+        document.getElementById('created-key-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        // Auto-copy so admin can paste immediately if they want
         await navigator.clipboard.writeText(r.license_key).catch(() => {});
+        toast(`Key created for ${email} (auto-copied to clipboard)`);
         document.getElementById('c-email').value = '';
         document.getElementById('c-expires').value = '';
         await render();
       } catch (e) { toast(e.message, 'err'); }
+    }
+
+    async function copyCreatedKey() {
+      if (!lastCreatedKey) return;
+      await navigator.clipboard.writeText(lastCreatedKey).catch(() => {});
+      toast('Copied to clipboard');
+    }
+
+    async function emailCreatedKey() {
+      if (!lastCreatedId) return;
+      const btn = document.getElementById('created-key-email-btn');
+      const status = document.getElementById('created-key-email-status');
+      btn.disabled = true;
+      btn.textContent = 'Sending…';
+      status.textContent = '';
+      try {
+        const r = await api('/api/admin/resend-email', {
+          method: 'POST',
+          body: JSON.stringify({ license_id: lastCreatedId }),
+        });
+        status.textContent = r.email_status || 'sent';
+        btn.textContent = '✉ Emailed ✓';
+        toast('Customer emailed');
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = '✉ Retry send';
+        status.textContent = e.message;
+        toast(e.message, 'err');
+      }
     }
 
     async function revokeLicense(id) {
