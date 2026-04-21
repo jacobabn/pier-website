@@ -25,6 +25,8 @@
 const Stripe = require('stripe');
 const crypto = require('crypto');
 const { Resend } = require('resend');
+const { query } = require('../_lib/db');
+const { mint, keyHash, keyDisplay } = require('../_lib/license');
 
 // Disable Vercel's default JSON body parser — Stripe's signature
 // verification requires the EXACT raw bytes of the request body.
@@ -41,39 +43,7 @@ function readRawBody(req) {
   });
 }
 
-function base64url(buf) {
-  // Node 16+ supports Buffer.toString('base64url') directly. Stay compatible
-  // with older build environments by normalising manually.
-  return buf
-    .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=+$/, '');
-}
-
-function mintLicense({ email, seats = 2, privateKeyPem }) {
-  const privKey = crypto.createPrivateKey({ key: privateKeyPem, format: 'pem' });
-  if (privKey.asymmetricKeyType !== 'ed25519') {
-    throw new Error('PIER_LICENSE_PRIVATE_KEY_PEM is not an Ed25519 key');
-  }
-  const payload = {
-    v: 1,
-    lid: crypto.randomUUID(),
-    email,
-    seats,
-    iat: Math.floor(Date.now() / 1000),
-    prod: 'pier',
-    iss: 'pier.abn.company',
-  };
-  const payloadB64 = base64url(Buffer.from(JSON.stringify(payload), 'utf8'));
-  const signature = crypto.sign(null, Buffer.from(payloadB64, 'utf8'), privKey);
-  const sigB64 = base64url(signature);
-  return {
-    licenseString: `pier_${payloadB64}.${sigB64}`,
-    license_id: payload.lid,
-    payload,
-  };
-}
+// Signing is in api/_lib/license.js — imported as `mint`.
 
 function licenseEmailHtml(licenseString, email) {
   return `<!DOCTYPE html>
@@ -112,9 +82,8 @@ module.exports = async function handler(req, res) {
 
   const secret = process.env.STRIPE_SECRET_KEY;
   const whSecret = process.env.STRIPE_WEBHOOK_SECRET;
-  const privateKeyPem = process.env.PIER_LICENSE_PRIVATE_KEY_PEM;
   const resendKey = process.env.RESEND_API_KEY;
-  if (!secret || !whSecret || !privateKeyPem) {
+  if (!secret || !whSecret || !process.env.PIER_LICENSE_PRIVATE_KEY_PEM) {
     return res.status(500).json({ error: 'server not configured' });
   }
 
@@ -139,6 +108,9 @@ module.exports = async function handler(req, res) {
   const sessionId = event.data.object.id;
   const session = await stripe.checkout.sessions.retrieve(sessionId);
 
+  // Idempotency: if we already wrote a license for this Stripe session
+  // (either via Stripe metadata OR via the UNIQUE stripe_session_id in the
+  // DB), return the stored result.
   if (session.metadata && session.metadata.pier_license_id) {
     return res.status(200).json({
       received: true,
@@ -158,17 +130,47 @@ module.exports = async function handler(req, res) {
   // Mint + sign
   let minted;
   try {
-    minted = mintLicense({ email, seats: 2, privateKeyPem });
+    minted = mint({ email, seats: 2 });
   } catch (err) {
     return res.status(500).json({ error: `license signing failed: ${err.message}` });
   }
 
-  // Stamp into Stripe metadata FIRST so a retry after a crash still sees the
-  // license_id and no-ops correctly. (If the email later fails we can resend.)
+  // Persist to DB FIRST so admin UI + activate API can see it immediately.
+  // If stripe_session_id is already present (rare Stripe retry before our
+  // metadata update completed), we surface the existing row and email again.
+  try {
+    await query(
+      `INSERT INTO licenses (id, email, seats, key_hash, key_display, stripe_session_id, source, metadata)
+         VALUES ($1, $2, $3, $4, $5, $6, 'stripe', $7::jsonb)`,
+      [
+        minted.payload.lid,
+        email,
+        minted.payload.seats,
+        keyHash(minted.licenseString),
+        keyDisplay(minted.licenseString),
+        sessionId,
+        JSON.stringify({ stripe_customer_id: session.customer, amount_total: session.amount_total, currency: session.currency }),
+      ],
+    );
+  } catch (e) {
+    // Unique violation on stripe_session_id → earlier call already inserted.
+    // Look up the existing row and return idempotently.
+    if (/unique|duplicate/i.test(e.message)) {
+      const { rows } = await query('SELECT id FROM licenses WHERE stripe_session_id = $1', [sessionId]);
+      if (rows[0]) {
+        return res.status(200).json({ received: true, idempotent: true, license_id: rows[0].id });
+      }
+    }
+    console.error('[webhook] DB insert failed:', e.message);
+    return res.status(500).json({ error: `db insert failed: ${e.message}` });
+  }
+
+  // Stamp into Stripe metadata so a retry BEFORE the DB commit lands still
+  // no-ops on the fast path above.
   await stripe.checkout.sessions.update(sessionId, {
     metadata: {
       ...(session.metadata || {}),
-      pier_license_id: minted.license_id,
+      pier_license_id: minted.payload.lid,
       pier_email: email,
       pier_issued_at: String(minted.payload.iat),
     },
@@ -199,7 +201,7 @@ module.exports = async function handler(req, res) {
 
   return res.status(200).json({
     received: true,
-    license_id: minted.license_id,
+    license_id: minted.payload.lid,
     email,
     email_status: emailStatus,
   });

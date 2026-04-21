@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Pier · Admin</title>
+  <link rel="icon" href="/favicon.svg">
+  <style>
+    :root {
+      --bg:    #14110E;
+      --panel: #1b1813;
+      --panel2:#221e18;
+      --line:  #2d2720;
+      --ink:   #f6f1e6;
+      --ink2:  #c9bfa8;
+      --mute:  #7b7163;
+      --accent:#c6be92;
+      --green: #4aa45f;
+      --red:   #e06156;
+      --amber: #e0a245;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--ink);
+      font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+    a { color: inherit; text-decoration: none; border-bottom: 1px dotted var(--mute); }
+    button {
+      cursor: pointer;
+      background: var(--panel2);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font: inherit;
+      font-size: 12px;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    button:hover { background: var(--line); border-color: #3d362d; }
+    button.danger { color: var(--red); border-color: rgba(224, 97, 86, 0.3); }
+    button.danger:hover { background: rgba(224, 97, 86, 0.1); border-color: var(--red); }
+    button.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    button.primary:hover { background: #d4cca0; }
+    input, select {
+      background: var(--panel2);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 13px;
+    }
+    input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+    .app { max-width: 1400px; margin: 0 auto; padding: 24px 28px; }
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 24px;
+    }
+    .topbar h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+    .topbar .meta { font-size: 12px; color: var(--mute); }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .panel h2 {
+      font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--mute); font-weight: 600; margin-bottom: 14px;
+    }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .stat .label { font-size: 11px; text-transform: uppercase; color: var(--mute); letter-spacing: 0.08em; }
+    .stat .value { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    th {
+      font-weight: 600; color: var(--mute); font-size: 11px; text-transform: uppercase;
+      letter-spacing: 0.08em; background: var(--panel2);
+    }
+    tr.license-row:hover { background: var(--panel2); cursor: pointer; }
+    tr.detail-row td { background: var(--panel2); padding: 16px 24px; }
+    .pill {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 500;
+    }
+    .pill.active   { background: rgba(74, 164, 95, 0.15); color: var(--green); }
+    .pill.revoked  { background: rgba(224, 97, 86, 0.15); color: var(--red); }
+    .pill.expired  { background: rgba(123, 113, 99, 0.2); color: var(--mute); }
+    .pill.seats-ok { background: rgba(198, 190, 146, 0.15); color: var(--accent); }
+    .pill.seats-full { background: rgba(224, 162, 69, 0.15); color: var(--amber); }
+
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .create-form { display: grid; grid-template-columns: 1fr 100px 160px 120px; gap: 12px; align-items: end; }
+    .form-row label { display: block; font-size: 11px; color: var(--mute); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .form-row input { width: 100%; }
+
+    .device-list { margin-top: 8px; }
+    .device {
+      display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center;
+      padding: 10px 0; border-top: 1px solid var(--line);
+    }
+    .device:first-child { border-top: 0; }
+    .device .name { font-weight: 500; }
+    .device .uuid { font-size: 11px; color: var(--mute); font-family: ui-monospace, monospace; }
+    .device .meta { font-size: 11px; color: var(--mute); }
+
+    .toast {
+      position: fixed; bottom: 20px; right: 20px;
+      background: var(--panel); border: 1px solid var(--line); border-radius: 8px;
+      padding: 14px 18px; font-size: 13px; max-width: 420px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+      transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.hide { transform: translateY(8px); opacity: 0; }
+    .toast.ok { border-color: var(--green); }
+    .toast.err { border-color: var(--red); color: var(--red); }
+
+    .login {
+      display: flex; align-items: center; justify-content: center; height: 100vh;
+    }
+    .login-card {
+      background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+      padding: 32px; max-width: 360px; width: 100%;
+    }
+    .login-card h1 { font-size: 20px; margin-bottom: 6px; }
+    .login-card p { color: var(--mute); font-size: 13px; margin-bottom: 20px; }
+    .login-card input { width: 100%; margin-bottom: 12px; }
+    .login-card button { width: 100%; padding: 10px; font-size: 14px; }
+
+    .loading { color: var(--mute); padding: 40px; text-align: center; }
+    .key-display { font-family: ui-monospace, monospace; font-size: 12px; color: var(--ink2); }
+    .empty { padding: 40px; text-align: center; color: var(--mute); }
+
+    .revoked-row td { opacity: 0.5; }
+
+    @media (max-width: 900px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .create-form { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- LOGIN -->
+  <div id="login-screen" class="login">
+    <form class="login-card" onsubmit="doLogin(event)">
+      <h1>Pier · Admin</h1>
+      <p>Bearer token required. Token is the <code>ADMIN_TOKEN</code> env var.</p>
+      <input type="password" id="token-input" placeholder="Admin token" autocomplete="off" autofocus>
+      <button type="submit" class="primary">Sign in</button>
+    </form>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="app" style="display:none;">
+    <div class="topbar">
+      <div>
+        <h1>Pier · Admin</h1>
+        <div class="meta">License ledger · pier.abn.company</div>
+      </div>
+      <div>
+        <button onclick="signOut()">Sign out</button>
+      </div>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="panel">
+      <h2>Issue a license manually</h2>
+      <form class="create-form" onsubmit="createLicense(event)">
+        <div class="form-row">
+          <label>Customer email</label>
+          <input type="email" id="c-email" required placeholder="customer@example.com">
+        </div>
+        <div class="form-row">
+          <label>Seats</label>
+          <input type="number" id="c-seats" value="2" min="1" max="50">
+        </div>
+        <div class="form-row">
+          <label>Expires (optional)</label>
+          <input type="date" id="c-expires">
+        </div>
+        <div class="form-row">
+          <label>&nbsp;</label>
+          <button type="submit" class="primary">Create + email</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>Licenses</h2>
+      <div id="licenses"><div class="loading">Loading…</div></div>
+    </div>
+  </div>
+
+  <div class="toast hide" id="toast"></div>
+
+  <script>
+    const STORAGE_KEY = 'pier_admin_token';
+    let TOKEN = localStorage.getItem(STORAGE_KEY) || '';
+    let expandedId = null;
+
+    function show(el) { el.style.display = ''; }
+    function hide(el) { el.style.display = 'none'; }
+
+    async function api(path, opts = {}) {
+      const res = await fetch(path, {
+        ...opts,
+        headers: {
+          'Authorization': `Bearer ${TOKEN}`,
+          'Content-Type': 'application/json',
+          ...(opts.headers || {}),
+        },
+      });
+      if (res.status === 401) {
+        localStorage.removeItem(STORAGE_KEY);
+        TOKEN = '';
+        show(document.getElementById('login-screen'));
+        hide(document.getElementById('app'));
+        throw new Error('unauthorized');
+      }
+      const text = await res.text();
+      let json = {};
+      try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
+      if (!res.ok) throw new Error(json.error?.message || json.error || res.statusText);
+      return json;
+    }
+
+    function toast(msg, kind = 'ok') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast show ${kind}`;
+      setTimeout(() => { t.className = 'toast hide'; }, 3500);
+    }
+
+    async function doLogin(ev) {
+      ev.preventDefault();
+      const v = document.getElementById('token-input').value.trim();
+      if (!v) return;
+      TOKEN = v;
+      try {
+        await api('/api/admin/licenses'); // auth probe
+        localStorage.setItem(STORAGE_KEY, v);
+        hide(document.getElementById('login-screen'));
+        show(document.getElementById('app'));
+        await render();
+      } catch (e) {
+        TOKEN = '';
+        toast('Invalid token', 'err');
+      }
+    }
+
+    function signOut() {
+      localStorage.removeItem(STORAGE_KEY);
+      TOKEN = '';
+      hide(document.getElementById('app'));
+      show(document.getElementById('login-screen'));
+    }
+
+    async function render() {
+      const { licenses } = await api('/api/admin/licenses');
+      renderStats(licenses);
+      renderLicenses(licenses);
+    }
+
+    function renderStats(licenses) {
+      const total = licenses.length;
+      const active = licenses.filter(l => !l.revoked_at).length;
+      const seatsIssued = licenses.reduce((s,l) => s + l.seats, 0);
+      const seatsUsed = licenses.reduce((s,l) => s + (l.seats_used || 0), 0);
+      document.getElementById('stats').innerHTML = `
+        <div class="stat"><div class="label">Licenses</div><div class="value">${total}</div></div>
+        <div class="stat"><div class="label">Active</div><div class="value">${active}</div></div>
+        <div class="stat"><div class="label">Seats used</div><div class="value">${seatsUsed} <span style="font-size:14px;color:var(--mute);">/ ${seatsIssued}</span></div></div>
+        <div class="stat"><div class="label">Revenue est.</div><div class="value">€${active * 199}</div></div>
+      `;
+    }
+
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#x27;'}[c]));
+    }
+    function dt(s) {
+      if (!s) return '—';
+      return new Date(s).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' });
+    }
+    function statusPill(l) {
+      if (l.revoked_at) return `<span class="pill revoked">Revoked</span>`;
+      if (l.expires_at && new Date(l.expires_at) < new Date()) return `<span class="pill expired">Expired</span>`;
+      return `<span class="pill active">Active</span>`;
+    }
+    function seatsPill(l) {
+      const used = l.seats_used || 0;
+      const cls = used >= l.seats ? 'seats-full' : 'seats-ok';
+      return `<span class="pill ${cls}">${used}/${l.seats}</span>`;
+    }
+
+    function renderLicenses(licenses) {
+      const wrap = document.getElementById('licenses');
+      if (licenses.length === 0) {
+        wrap.innerHTML = `<div class="empty">No licenses yet. Create one above or wait for the first Stripe checkout.</div>`;
+        return;
+      }
+      wrap.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Key</th><th>Email</th><th>Seats</th><th>Status</th><th>Source</th><th>Issued</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            ${licenses.map(l => `
+              <tr class="license-row ${l.revoked_at ? 'revoked-row' : ''}" onclick="toggleDetail('${l.id}')">
+                <td class="mono key-display">${esc(l.key_display)}</td>
+                <td>${esc(l.email)}</td>
+                <td>${seatsPill(l)}</td>
+                <td>${statusPill(l)}</td>
+                <td><span class="pill" style="background:var(--panel2);color:var(--ink2);">${esc(l.source)}</span></td>
+                <td>${dt(l.issued_at)}</td>
+                <td style="text-align:right;color:var(--mute);font-size:11px;">${expandedId === l.id ? '▾' : '▸'}</td>
+              </tr>
+              ${expandedId === l.id ? `<tr class="detail-row"><td colspan="7"><div id="detail-${l.id}">Loading device list…</div></td></tr>` : ''}
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+      if (expandedId) loadDetail(expandedId);
+    }
+
+    async function toggleDetail(id) {
+      expandedId = expandedId === id ? null : id;
+      await render();
+    }
+
+    async function loadDetail(id) {
+      try {
+        const data = await api(`/api/admin/licenses?id=${encodeURIComponent(id)}`);
+        const l = data.license;
+        const acts = data.activations || [];
+        const el = document.getElementById(`detail-${id}`);
+        el.innerHTML = `
+          <div style="display:flex;gap:32px;flex-wrap:wrap;margin-bottom:16px;">
+            <div><div class="label" style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:0.06em;">License ID</div><div class="mono" style="font-size:12px;">${esc(l.id)}</div></div>
+            ${l.stripe_session_id ? `<div><div class="label" style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:0.06em;">Stripe Session</div><div class="mono" style="font-size:12px;">${esc(l.stripe_session_id)}</div></div>` : ''}
+            ${l.expires_at ? `<div><div class="label" style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:0.06em;">Expires</div><div>${dt(l.expires_at)}</div></div>` : ''}
+            ${l.revoke_reason ? `<div><div class="label" style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:0.06em;">Revoke reason</div><div>${esc(l.revoke_reason)}</div></div>` : ''}
+          </div>
+
+          <div class="device-list">
+            <div style="font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;">Devices</div>
+            ${acts.length === 0 ? '<div style="color:var(--mute);font-size:13px;padding:8px 0;">No activations yet — license is 0/' + l.seats + '.</div>' : ''}
+            ${acts.map(a => `
+              <div class="device">
+                <div>
+                  <div class="name">${esc(a.device_name || '(unnamed device)')} ${a.revoked_at ? '<span class="pill revoked" style="margin-left:8px;">Freed</span>' : ''}</div>
+                  <div class="uuid">${esc(a.device_uuid)}</div>
+                </div>
+                <div class="meta">
+                  First: ${dt(a.first_activated_at)}<br>
+                  Last:  ${dt(a.last_seen_at)}${a.last_ip ? ' · '+esc(a.last_ip) : ''}
+                </div>
+                <div>
+                  ${a.revoked_at
+                    ? `<button onclick="unrevokeDevice('${l.id}', ${a.id})">Unfree</button>`
+                    : `<button class="danger" onclick="revokeDevice('${l.id}', ${a.id})">Free seat</button>`}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="actions" style="margin-top:18px;">
+            <button onclick="resendEmail('${l.id}')">Re-issue + email</button>
+            ${l.revoked_at
+              ? `<button onclick="unrevokeLicense('${l.id}')">Un-revoke license</button>`
+              : `<button class="danger" onclick="revokeLicense('${l.id}')">Revoke license</button>`}
+          </div>
+        `;
+      } catch (e) {
+        document.getElementById(`detail-${id}`).innerHTML = `<div style="color:var(--red);">${esc(e.message)}</div>`;
+      }
+    }
+
+    async function createLicense(ev) {
+      ev.preventDefault();
+      const email = document.getElementById('c-email').value.trim();
+      const seats = Number(document.getElementById('c-seats').value) || 2;
+      const expires = document.getElementById('c-expires').value || null;
+      try {
+        const r = await api('/api/admin/licenses', {
+          method: 'POST',
+          body: JSON.stringify({ email, seats, expires_at: expires }),
+        });
+        toast(`Key created for ${email}. Copy: ${r.license_key.slice(0,20)}…`);
+        await navigator.clipboard.writeText(r.license_key).catch(() => {});
+        document.getElementById('c-email').value = '';
+        document.getElementById('c-expires').value = '';
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+
+    async function revokeLicense(id) {
+      const reason = prompt('Reason for revoking? (shown in admin only)');
+      if (reason === null) return;
+      try {
+        await api('/api/admin/revoke', { method: 'POST', body: JSON.stringify({ license_id: id, reason }) });
+        toast('License revoked.');
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+    async function unrevokeLicense(id) {
+      try {
+        await api('/api/admin/revoke', { method: 'POST', body: JSON.stringify({ license_id: id, unrevoke: true }) });
+        toast('License un-revoked.');
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+    async function revokeDevice(license_id, activation_id) {
+      if (!confirm('Free this seat? Customer will need to re-activate on that Mac.')) return;
+      try {
+        await api('/api/admin/revoke', { method: 'POST', body: JSON.stringify({ license_id, activation_id }) });
+        toast('Seat freed.');
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+    async function unrevokeDevice(license_id, activation_id) {
+      try {
+        await api('/api/admin/revoke', { method: 'POST', body: JSON.stringify({ license_id, activation_id, unrevoke: true }) });
+        toast('Seat restored.');
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+    async function resendEmail(id) {
+      if (!confirm('Re-issue and email a fresh license key? The previous key becomes invalid; existing activations are unaffected.')) return;
+      try {
+        const r = await api('/api/admin/resend-email', { method: 'POST', body: JSON.stringify({ license_id: id }) });
+        toast(`Emailed — ${r.email_status}`);
+        await navigator.clipboard.writeText(r.license_key).catch(() => {});
+        await render();
+      } catch (e) { toast(e.message, 'err'); }
+    }
+
+    // Bootstrap
+    (async () => {
+      if (TOKEN) {
+        try {
+          await api('/api/admin/licenses');
+          hide(document.getElementById('login-screen'));
+          show(document.getElementById('app'));
+          await render();
+        } catch {
+          // token invalid, show login
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
