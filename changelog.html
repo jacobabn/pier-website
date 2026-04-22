@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Changelog — Pier</title>
-<meta name="description" content="Every Pier release, with what changed and when. Auto-updates inside the app deliver each version the moment it's published.">
+<meta name="description" content="Every version of Pier, with what changed in plain words. Updates arrive on your Mac automatically — this is where you can read up on what's new.">
 <meta name="robots" content="index,follow">
 <link rel="canonical" href="https://pier.abn.company/changelog">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -39,24 +39,79 @@
   </div>
 </nav>
 
-<main id="main">
+<main id="main" class="changelog-with-rail">
 
-<header class="legal-hero">
+<!-- Floating right-rail version jumplist (desktop only) -->
+<aside class="changelog-rail" id="rail" aria-label="Jump to version">
+  <div class="rail-label">All versions</div>
+  <div id="rail-links"></div>
+</aside>
+
+<!-- ============ Hero ============ -->
+<header class="changelog-hero">
   <div class="shell">
-    <p class="eyebrow"><span class="n">— —</span>Release history</p>
-    <h1>Every version of Pier,<br><em>and what changed.</em></h1>
-    <p class="lede">Once you've installed Pier, every update arrives in the app automatically — you'll see a quiet "new version available" prompt the moment a release lands here. This page stays in sync with the appcast.xml the app reads; editing one updates both.</p>
-    <div class="meta" id="latest-meta">
-      <span id="latest-tag">Loading latest release…</span>
+    <p class="eyebrow"><span class="n">— —</span>Changelog</p>
+    <h1>What's new in Pier,<br>in <em>plain words.</em></h1>
+    <p class="lede" style="max-width:560px;margin-top:12px;">
+      Every version of Pier, with what changed and why it matters — written so a website owner can read it without needing a developer to translate.
+    </p>
+    <div class="stat-strip" id="stat-strip">
+      <span><span class="live-dot"></span><strong id="s-latest">v1.1.2</strong>latest</span>
+      <span><strong id="s-shipped">today</strong>last shipped</span>
+      <span><strong id="s-count">—</strong>releases total</span>
+      <span><strong>24 hours</strong>until installed Macs upgrade</span>
     </div>
   </div>
 </header>
 
-<section class="legal-body">
-  <div class="shell">
-    <div id="releases" class="mx-auto max-w-[920px]">
-      <p class="text-center text-muted font-mono text-mono-sm py-20" id="loading-msg">Loading release history…</p>
+<!-- ============ Spotlight: latest release ============ -->
+<section class="spotlight" id="latest">
+  <div class="shell spotlight-inner" id="latest-inner">
+    <p style="color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;">Loading the latest release…</p>
+  </div>
+</section>
+
+<!-- ============ How updates reach customers ============ -->
+<section class="auto-explainer">
+  <div class="shell auto-explainer-inner">
+    <p class="eyebrow" style="margin-bottom:12px;">— How this page reaches you —</p>
+    <h2>You don't have to do anything.</h2>
+    <p class="lede">
+      If Pier is already on your Mac, every new version lands there automatically — you'll see it the next time you quit and reopen the app. Here's what happens behind the scenes.
+    </p>
+    <div class="flow">
+      <div class="flow-step">
+        <span class="n">01</span>
+        <h4>We ship a new version here</h4>
+        <p>A new Pier release goes live on this page. That publishes a small file our app knows how to read.</p>
+      </div>
+      <div class="flow-step">
+        <span class="n">02</span>
+        <h4>Your Pier notices, once a day</h4>
+        <p>Next time you open Pier (or within 24 hours if it's already open), it quietly checks for new versions. No dialog, no prompt.</p>
+      </div>
+      <div class="flow-step">
+        <span class="n">03</span>
+        <h4>It downloads in the background</h4>
+        <p>Pier grabs the update while you're working, verifies it's genuinely from us, and files it away until you're done.</p>
+      </div>
+      <div class="flow-step">
+        <span class="n">04</span>
+        <h4>Next quit, you're on the new version</h4>
+        <p>When you close Pier, the new version takes over. Your connections, history, and licence stay intact.</p>
+      </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ Ledger: previous releases ============ -->
+<section class="shell ledger">
+  <div class="ledger-head">
+    <h2>Previous versions.</h2>
+    <span class="count" id="ledger-count">—</span>
+  </div>
+  <div class="ledger-list" id="ledger">
+    <p style="padding:2rem;color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;">Loading release history…</p>
   </div>
 </section>
 
@@ -122,58 +177,146 @@
 </footer>
 
 <script>
-// Live changelog loader. Fetches /download/versions.json, renders each
-// release as a .release-card. Adding a new release is a single JSON edit.
-(async function(){
-  const escape = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+(async function () {
+  const $ = sel => document.querySelector(sel);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // "22 Apr 2026" — keep date absolute; humans remember and cite dates better than "3 hours ago"
   const fmtDate = iso => {
     try {
-      return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', {year:'numeric', month:'long', day:'numeric'});
+      const d = new Date(iso + 'T00:00:00Z');
+      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
     } catch { return iso; }
   };
+
+  const relDate = iso => {
+    try {
+      const d = new Date(iso + 'T12:00:00Z');
+      const now = new Date();
+      const days = Math.floor((now - d) / 86400000);
+      if (days === 0) return 'today';
+      if (days === 1) return 'yesterday';
+      if (days < 7) return days + ' days ago';
+      if (days < 30) return Math.floor(days / 7) + ' weeks ago';
+      if (days < 365) return Math.floor(days / 30) + ' months ago';
+      return Math.floor(days / 365) + ' years ago';
+    } catch { return ''; }
+  };
+
+  const highlightCard = h => `
+    <div class="spotlight-hl">
+      <span class="tag-pill t-${esc(h.tag)}">${esc(h.tag)}</span>
+      <h3>${esc(h.title)}</h3>
+      <p>${esc(h.body)}</p>
+    </div>
+  `;
+
+  const verifyBlock = (r, isLatest) => `
+    <div class="verify-block">
+      <div class="verify-head">
+        <p class="h-label">${isLatest ? '<span class="live-dot"></span>Currently shipping' : 'Archive'} · Pier ${esc(r.version)}</p>
+        <a class="dl-btn" href="${esc(r.dmgUrl)}" download>Download for Mac ↓</a>
+      </div>
+      <div class="verify-body">
+        <div class="row"><span class="k">Version</span><span class="v">${esc(r.version)}</span></div>
+        <div class="row"><span class="k">Released</span><span class="v">${esc(fmtDate(r.date))} · ${esc(relDate(r.date))}</span></div>
+        <div class="row"><span class="k">File</span><span class="v">Pier-${esc(r.version)}.dmg · ${esc(r.dmgSize || '—')}</span></div>
+        ${r.sha256 ? `<div class="row"><span class="k">SHA-256</span><span class="v"><code>${esc(r.sha256)}</code></span></div>` : ''}
+        <div class="row"><span class="k">Requires</span><span class="v">macOS 13 or newer · Apple Silicon or Intel</span></div>
+        ${r.sha256 ? `
+          <div class="cmd">
+            <span style="color:var(--muted);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;">Verify your download is genuine (optional)</span>
+            <span class="cmd-line">shasum -a 256 ~/Downloads/Pier-${esc(r.version)}.dmg</span>
+            <span style="color:var(--muted);">→ Should match the SHA-256 above, character for character.</span>
+          </div>
+        ` : ''}
+      </div>
+    </div>
+  `;
+
   try {
-    const res = await fetch('/download/versions.json?t=' + Date.now(), {cache: 'no-store'});
+    const res = await fetch('/download/versions.json?t=' + Date.now(), { cache: 'no-store' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    const latest = data.releases[0];
+    const [latest, ...rest] = data.releases;
 
-    // hero meta line
-    document.getElementById('latest-meta').innerHTML =
-      `<span>Latest · v${escape(latest.version)}</span>` +
-      `<span>Shipped ${escape(fmtDate(latest.date))}</span>` +
-      `<span>${escape(data.releases.length)} release${data.releases.length === 1 ? '' : 's'} total</span>`;
+    // ── hero stat strip ──────────────────────────────────────────────
+    $('#s-latest').textContent = 'v' + latest.version;
+    $('#s-shipped').textContent = relDate(latest.date);
+    $('#s-count').textContent = data.releases.length;
 
-    // release list
-    const container = document.getElementById('releases');
-    container.innerHTML = data.releases.map((r, idx) => {
-      const isLatest = idx === 0;
-      return `
-        <article class="release-card">
-          <div class="release-head">
-            <h2 class="release-version">v${escape(r.version)}</h2>
-            <span class="release-date">${escape(fmtDate(r.date))}</span>
-            ${isLatest ? '<span class="release-latest-pill">Latest</span>' : ''}
+    // ── spotlight: latest release ───────────────────────────────────
+    $('#latest-inner').innerHTML = `
+      <div class="spotlight-kicker">Now shipping · Version ${esc(latest.version)}</div>
+      <h2 class="spotlight-version"><span class="vnum">${esc(latest.version)}</span></h2>
+      <div class="spotlight-meta">
+        <span class="date-iso">${esc(fmtDate(latest.date))}</span>
+        <span>·</span>
+        <span>Released ${esc(relDate(latest.date))}</span>
+      </div>
+      <p class="spotlight-title">${esc(latest.title)}</p>
+      <div class="spotlight-highlights">
+        ${(latest.highlights || []).map(highlightCard).join('')}
+      </div>
+      ${verifyBlock(latest, true)}
+    `;
+
+    // ── ledger: previous releases ───────────────────────────────────
+    $('#ledger-count').textContent = rest.length + ' earlier ' + (rest.length === 1 ? 'release' : 'releases');
+    $('#ledger').innerHTML = rest.map(r => `
+      <details class="ledger-row" id="v${esc(r.version)}">
+        <summary>
+          <span class="r-ver">${esc(r.version)}</span>
+          <span class="r-date">${esc(fmtDate(r.date))}</span>
+          <span class="r-title">${esc(r.title)}</span>
+          <span class="r-caret">›</span>
+        </summary>
+        <div class="ledger-detail">
+          <div class="ledger-detail-grid">
+            ${(r.highlights || []).map(highlightCard).join('')}
           </div>
-          <p class="release-title">${escape(r.title)}</p>
-          <div class="release-meta-line">
-            ${r.dmgUrl ? `<span>Download · <a href="${escape(r.dmgUrl)}">Pier-${escape(r.version)}.dmg</a> · ${escape(r.dmgSize || '')}</span>` : ''}
-            ${r.sha256 ? `<span>SHA-256 · <code style="font-family:var(--font-mono, monospace);font-size:10px;">${escape(r.sha256.slice(0,16))}…</code></span>` : ''}
-          </div>
-          <div class="release-highlights">
-            ${(r.highlights || []).map(h => `
-              <div class="highlight">
-                <span class="highlight-tag tag-${escape(h.tag || 'new')}">${escape(h.tag || 'new')}</span>
-                <h4>${escape(h.title)}</h4>
-                <p>${escape(h.body)}</p>
-              </div>
-            `).join('')}
-          </div>
-        </article>
-      `;
-    }).join('');
+          ${verifyBlock(r, false)}
+        </div>
+      </details>
+    `).join('');
+
+    // ── right-rail jumplist ────────────────────────────────────────
+    $('#rail-links').innerHTML = [latest, ...rest].map((r, idx) => `
+      <a href="#${idx === 0 ? 'latest' : 'v' + r.version}" data-v="${esc(r.version)}">${esc(r.version)}</a>
+    `).join('');
+
+    // Track scroll to highlight the active version in the rail
+    const sections = [
+      { el: document.getElementById('latest'), version: latest.version },
+      ...rest.map(r => ({ el: document.getElementById('v' + r.version), version: r.version })),
+    ].filter(s => s.el);
+
+    const railLinks = document.querySelectorAll('#rail-links a');
+    const setActive = ver => {
+      railLinks.forEach(a => a.classList.toggle('active', a.dataset.v === ver));
+    };
+    const onScroll = () => {
+      const y = window.scrollY + 200;
+      let current = latest.version;
+      for (const s of sections) {
+        if (s.el.offsetTop <= y) current = s.version;
+      }
+      setActive(current);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Clicking a rail link that's already-expanded section-row opens it
+    railLinks.forEach(a => a.addEventListener('click', e => {
+      const v = a.dataset.v;
+      const row = document.getElementById('v' + v);
+      if (row && !row.open) row.open = true;
+    }));
+
   } catch (err) {
-    document.getElementById('loading-msg').textContent =
-      'Could not load release history (' + err.message + '). Refresh to retry.';
+    $('#latest-inner').innerHTML =
+      '<p style="color:var(--muted);font-family:monospace;font-size:12px;">Could not load the release history (' +
+      esc(err.message) + '). Refresh to retry.</p>';
   }
 })();
 </script>

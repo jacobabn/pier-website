@@ -816,10 +816,269 @@
   .cta .lede { @apply mx-auto mb-10 max-w-[560px] text-[17px]; }
   .cta-btns { @apply flex gap-3 justify-center flex-wrap; }
 
-  /* ---------- Changelog ----------
-     "Latest updates" section + the full /changelog page. All data comes
-     from /download/versions.json at runtime, so new releases appear
-     automatically without a code change. */
+  /* ---------- Changelog v2 — "Ship Log" ----------
+     Editorial + terminal hybrid. Latest release gets a full-width spotlight
+     with a huge typographic version number, title, lede, and a highlight
+     grid. Older releases collapse into a compact mono-typed index below.
+     A right-rail sticky nav lists every version as a jumplist; the current
+     one has the red accent. Terminal-style verify block at the bottom for
+     anyone who wants to check their download by hand.
+     All data comes from /download/versions.json at runtime. */
+
+  /* Hero: the spine of the page */
+  .changelog-hero {
+    @apply pt-20 pb-12 border-b border-line;
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  }
+  .changelog-hero h1 {
+    @apply font-display font-medium leading-[0.96] tracking-display m-0 mb-3 text-ink;
+    font-size: clamp(44px, 6vw, 84px);
+    letter-spacing: -0.03em;
+  }
+  .changelog-hero h1 em { @apply not-italic text-accent; font-style: italic; }
+  .changelog-hero .stat-strip {
+    @apply mt-10 pt-6 border-t border-line flex flex-wrap gap-6
+           font-mono text-mono-sm tracking-[0.1em] uppercase text-muted;
+  }
+  .changelog-hero .stat-strip strong {
+    @apply text-ink font-semibold mr-1;
+  }
+  .changelog-hero .live-dot {
+    @apply inline-block w-1.5 h-1.5 rounded-full bg-accent mr-1.5 align-middle;
+    animation: led-flash 3.2s linear infinite;
+  }
+
+  /* Full-width spotlight for the latest release */
+  .spotlight {
+    @apply py-20 border-b border-line;
+  }
+  .spotlight-inner {
+    @apply max-w-[920px] mx-auto;
+  }
+  .spotlight-kicker {
+    @apply flex items-center gap-3 font-mono text-mono-sm tracking-[0.14em] uppercase text-accent mb-8;
+  }
+  .spotlight-kicker::before {
+    content: '';
+    width: 28px; height: 1.5px;
+    background: var(--accent);
+    display: inline-block;
+  }
+  .spotlight-version {
+    @apply font-display font-medium leading-[0.9] m-0 text-ink mb-4;
+    font-size: clamp(72px, 12vw, 160px);
+    letter-spacing: -0.045em;
+  }
+  .spotlight-version .vnum {
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .spotlight-meta {
+    @apply flex flex-wrap gap-5 mb-6 font-mono text-[12px] tracking-[0.1em] uppercase text-muted;
+  }
+  .spotlight-meta .date-iso { @apply text-ink; font-weight: 500; }
+  .spotlight-title {
+    @apply font-display text-[22px] leading-[1.35] text-ink2 max-w-prose-62 m-0 mb-10;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .spotlight-highlights {
+    @apply grid gap-5 mb-10;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  .spotlight-hl {
+    @apply border border-line bg-card rounded-[4px] p-6 transition-all duration-200;
+    box-shadow: 0 1px 0 var(--line);
+  }
+  .spotlight-hl:hover {
+    border-color: var(--line2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(13,13,13,0.06);
+  }
+  .spotlight-hl .tag-pill {
+    @apply inline-block font-mono text-[10px] tracking-[0.14em] uppercase
+           px-2 py-1 rounded-sm mb-3;
+  }
+  .spotlight-hl .tag-pill.t-new { @apply bg-accent text-bg; }
+  .spotlight-hl .tag-pill.t-fix { @apply border border-line2 text-ink2; }
+  .spotlight-hl .tag-pill.t-polish { @apply border border-line2 text-muted; }
+  .spotlight-hl .tag-pill.t-under-the-hood { @apply border border-line2 text-muted; }
+  .spotlight-hl h3 {
+    @apply font-display text-[16px] font-semibold leading-[1.3] m-0 mb-2 text-ink;
+    letter-spacing: -0.01em;
+  }
+  .spotlight-hl p {
+    @apply text-[14px] leading-[1.6] text-ink2 m-0;
+  }
+
+  /* Download + verify block — the "terminal" honesty moment */
+  .verify-block {
+    @apply mt-6 border border-line rounded-[4px] overflow-hidden bg-card;
+  }
+  .verify-head {
+    @apply flex items-center justify-between flex-wrap gap-4 px-6 py-4 bg-bg2 border-b border-line;
+  }
+  .verify-head .h-label {
+    @apply font-mono text-mono-sm tracking-[0.12em] uppercase text-muted m-0;
+  }
+  .verify-head .h-label .live-dot {
+    @apply inline-block w-1.5 h-1.5 rounded-full bg-ok mr-1.5 align-middle;
+    animation: led-flash 3.2s linear infinite;
+  }
+  .verify-head .dl-btn {
+    @apply inline-flex items-center gap-2 font-mono text-[12px] tracking-[0.08em] uppercase
+           bg-ink text-bg px-4 py-2 rounded-[3px] hover:bg-ink2;
+  }
+  .verify-body {
+    @apply p-6 font-mono text-[12px] leading-[1.7] text-ink2;
+    background: var(--card);
+  }
+  .verify-body .row {
+    @apply flex flex-wrap gap-3 items-baseline py-1.5 border-b border-line/50;
+  }
+  .verify-body .row:last-child { border-bottom: none; }
+  .verify-body .row .k {
+    @apply text-muted tracking-[0.08em] uppercase;
+    min-width: 110px;
+  }
+  .verify-body .row .v {
+    @apply text-ink break-all flex-1;
+  }
+  .verify-body .row .v code {
+    @apply bg-bg2 px-2 py-0.5 rounded-sm;
+  }
+  .verify-body .cmd {
+    @apply mt-5 pt-4 border-t border-line text-[12px] text-ink2;
+  }
+  .verify-body .cmd-line {
+    @apply block font-mono leading-[1.6];
+  }
+  .verify-body .cmd-line::before {
+    content: '$ ';
+    color: var(--accent);
+    margin-right: 2px;
+  }
+
+  /* Compact ledger for previous releases — mono, tabular, clickable rows */
+  .ledger {
+    @apply py-20;
+  }
+  .ledger-head {
+    @apply flex items-baseline gap-4 mb-10;
+  }
+  .ledger-head h2 {
+    @apply font-display text-[32px] font-medium tracking-display text-ink m-0;
+    letter-spacing: -0.02em;
+  }
+  .ledger-head .count {
+    @apply font-mono text-mono-sm tracking-[0.1em] uppercase text-muted;
+  }
+  .ledger-list {
+    @apply border-t border-line;
+  }
+  .ledger-row {
+    @apply block border-b border-line px-2 py-5 cursor-pointer transition-colors;
+  }
+  .ledger-row:hover {
+    background: color-mix(in srgb, var(--bg2) 60%, transparent);
+  }
+  .ledger-row summary {
+    @apply grid items-baseline gap-4 list-none select-none;
+    grid-template-columns: 110px 160px 1fr 24px;
+  }
+  .ledger-row summary::-webkit-details-marker { display: none; }
+  .ledger-row .r-ver {
+    @apply font-mono text-[18px] text-accent font-medium;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+  .ledger-row .r-date {
+    @apply font-mono text-[12px] text-muted tracking-[0.08em] uppercase;
+  }
+  .ledger-row .r-title {
+    @apply text-[15px] text-ink truncate;
+  }
+  .ledger-row .r-caret {
+    @apply font-mono text-muted text-[14px] text-right;
+    transition: transform 200ms;
+  }
+  .ledger-row[open] .r-caret { transform: rotate(90deg); color: var(--accent); }
+  .ledger-row[open] summary .r-title { white-space: normal; overflow: visible; }
+  .ledger-detail {
+    @apply mt-6 pl-[110px];
+  }
+  .ledger-detail-grid {
+    @apply grid gap-4;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+  .ledger-detail .spotlight-hl { padding: 16px; }
+  .ledger-detail .spotlight-hl h3 { font-size: 14px; }
+  .ledger-detail .spotlight-hl p { font-size: 13px; }
+  .ledger-detail .verify-block { margin-top: 20px; }
+
+  /* Sticky right-rail version nav (desktop only) */
+  .changelog-with-rail {
+    @apply relative;
+  }
+  .changelog-rail {
+    position: fixed;
+    right: 28px; top: 120px;
+    display: none;
+    font-family: theme('fontFamily.mono');
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    z-index: 5;
+  }
+  @media (min-width: 1280px) {
+    .changelog-rail { display: block; }
+  }
+  .changelog-rail .rail-label {
+    @apply text-muted mb-3 tracking-[0.12em];
+  }
+  .changelog-rail a {
+    @apply block py-1.5 text-muted hover:text-ink;
+    border-left: 1px solid var(--line);
+    padding-left: 12px;
+    transition: all 150ms;
+  }
+  .changelog-rail a:hover,
+  .changelog-rail a.active {
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Small "how updates reach you" section — plain-language visual */
+  .auto-explainer {
+    @apply py-20 border-b border-line;
+    background: var(--bg2);
+  }
+  .auto-explainer-inner {
+    @apply max-w-[720px] mx-auto text-center;
+  }
+  .auto-explainer h2 {
+    @apply font-display text-[28px] font-medium text-ink mb-4;
+    letter-spacing: -0.02em;
+  }
+  .auto-explainer .lede {
+    @apply text-[16px] text-ink2 mx-auto mb-10 max-w-[560px];
+  }
+  .auto-explainer .flow {
+    @apply grid gap-4 text-left;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+  .auto-explainer .flow-step {
+    @apply bg-bg border border-line rounded-[3px] p-5;
+  }
+  .auto-explainer .flow-step .n {
+    @apply font-mono text-[10px] tracking-[0.14em] uppercase text-accent mb-2 block;
+  }
+  .auto-explainer .flow-step h4 {
+    @apply font-display text-[14px] font-semibold text-ink m-0 mb-1.5;
+  }
+  .auto-explainer .flow-step p {
+    @apply text-[13px] text-ink2 m-0 leading-[1.55];
+  }
+
+  /* ---------- Changelog (legacy .release-card, used only on older versions) -*/
   .release-card {
     @apply border-t border-line py-10;
     page-break-inside: avoid;
