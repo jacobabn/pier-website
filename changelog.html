@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog — Pier</title>
+<meta name="description" content="Every Pier release, with what changed and when. Auto-updates inside the app deliver each version the moment it's published.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="https://pier.abn.company/changelog">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/#agents">Agents</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="/nl/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="/#download" class="btn ghost sm">Download</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<header class="legal-hero">
+  <div class="shell">
+    <p class="eyebrow"><span class="n">— —</span>Release history</p>
+    <h1>Every version of Pier,<br><em>and what changed.</em></h1>
+    <p class="lede">Once you've installed Pier, every update arrives in the app automatically — you'll see a quiet "new version available" prompt the moment a release lands here. This page stays in sync with the appcast.xml the app reads; editing one updates both.</p>
+    <div class="meta" id="latest-meta">
+      <span id="latest-tag">Loading latest release…</span>
+    </div>
+  </div>
+</header>
+
+<section class="legal-body">
+  <div class="shell">
+    <div id="releases" class="mx-auto max-w-[920px]">
+      <p class="text-center text-muted font-mono text-mono-sm py-20" id="loading-msg">Loading release history…</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h3>Product</h3>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/#agents">Agents</a>
+        <a href="/blog/">Blog</a>
+        <a href="/changelog">Changelog</a>
+        <a href="/download/Pier-User-Guide.pdf">User guide (PDF)</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h3>Company</h3>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="/nl/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h3>Legal</h3>
+        <a href="/legal/privacy">Privacy</a>
+        <a href="/legal/terms">Terms</a>
+        <a href="/legal/refund">Refund</a>
+        <a href="/legal/impressum">Impressum</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 A Brand New Company B.V. · KvK 88565548 · BTW NL004626508B12 · Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+    <div class="footer-bottom" style="margin-top:8px;">
+      <a href="/legal/privacy">Privacy</a>
+      <span class="sp"></span>
+      <a href="/legal/terms">Terms</a>
+      <span class="sp"></span>
+      <a href="/legal/refund">Refund</a>
+      <span class="sp"></span>
+      <a href="/legal/impressum">Impressum</a>
+      <span class="sp"></span>
+      <a href="#" onclick="window.PierConsent&&window.PierConsent.showBanner();return false;">Cookie settings</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Live changelog loader. Fetches /download/versions.json, renders each
+// release as a .release-card. Adding a new release is a single JSON edit.
+(async function(){
+  const escape = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmtDate = iso => {
+    try {
+      return new Date(iso + 'T00:00:00Z').toLocaleDateString('en-GB', {year:'numeric', month:'long', day:'numeric'});
+    } catch { return iso; }
+  };
+  try {
+    const res = await fetch('/download/versions.json?t=' + Date.now(), {cache: 'no-store'});
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const latest = data.releases[0];
+
+    // hero meta line
+    document.getElementById('latest-meta').innerHTML =
+      `<span>Latest · v${escape(latest.version)}</span>` +
+      `<span>Shipped ${escape(fmtDate(latest.date))}</span>` +
+      `<span>${escape(data.releases.length)} release${data.releases.length === 1 ? '' : 's'} total</span>`;
+
+    // release list
+    const container = document.getElementById('releases');
+    container.innerHTML = data.releases.map((r, idx) => {
+      const isLatest = idx === 0;
+      return `
+        <article class="release-card">
+          <div class="release-head">
+            <h2 class="release-version">v${escape(r.version)}</h2>
+            <span class="release-date">${escape(fmtDate(r.date))}</span>
+            ${isLatest ? '<span class="release-latest-pill">Latest</span>' : ''}
+          </div>
+          <p class="release-title">${escape(r.title)}</p>
+          <div class="release-meta-line">
+            ${r.dmgUrl ? `<span>Download · <a href="${escape(r.dmgUrl)}">Pier-${escape(r.version)}.dmg</a> · ${escape(r.dmgSize || '')}</span>` : ''}
+            ${r.sha256 ? `<span>SHA-256 · <code style="font-family:var(--font-mono, monospace);font-size:10px;">${escape(r.sha256.slice(0,16))}…</code></span>` : ''}
+          </div>
+          <div class="release-highlights">
+            ${(r.highlights || []).map(h => `
+              <div class="highlight">
+                <span class="highlight-tag tag-${escape(h.tag || 'new')}">${escape(h.tag || 'new')}</span>
+                <h4>${escape(h.title)}</h4>
+                <p>${escape(h.body)}</p>
+              </div>
+            `).join('')}
+          </div>
+        </article>
+      `;
+    }).join('');
+  } catch (err) {
+    document.getElementById('loading-msg').textContent =
+      'Could not load release history (' + err.message + '). Refresh to retry.';
+  }
+})();
+</script>
+<script src="/site.js" defer></script>
+<script src="/cookies.js" defer></script>
+</body>
+</html>
