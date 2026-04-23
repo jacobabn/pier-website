@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla-migratie zonder SEO-verlies: een case na 12 jaar · Pier — Blog</title>
+<meta name="description" content="Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, migration, php, mysql, htaccess, seo">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-migration-seo-case-study/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-migration-seo-case-study/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla-migratie zonder SEO-verlies: een case na 12 jaar">
+<meta property="og:description" content="Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Opgerolde oude zeekaart op eiken met koperen passer en een klein rood lakzegel op een papieren label.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-04-23T06:38:46.888Z">
+<meta property="article:modified_time" content="2026-04-23T06:38:46.888Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="seo">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla-migratie zonder SEO-verlies: een case na 12 jaar">
+<meta name="twitter:description" content="Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/hero.jpg">
+<meta name="twitter:image:alt" content="Opgerolde oude zeekaart op eiken met koperen passer en een klein rood lakzegel op een papieren label.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="14 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-migration-seo-case-study/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/"},
+  "url":"https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/",
+  "headline":"Joomla-migratie zonder SEO-verlies: een case na 12 jaar",
+  "description":"Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Opgerolde oude zeekaart op eiken met koperen passer en een klein rood lakzegel op een papieren label."
+  },
+  "datePublished":"2026-04-23T06:38:46.888Z",
+  "dateModified":"2026-04-23T06:38:46.888Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, migration, php, mysql, htaccess, seo",
+  "wordCount":1583,
+  "articleSection":"Migration",
+  "articleBody":"Het telefoontje kwam van een Belgisch bureau waar we mee samenwerken: een reisuitgever, 3.400 artikelen, Joomla 2.5.28, draaiend op shared hosting waarvan de hostingmaatschappij net had laten weten dat PHP 5.6 eind kwartaal uitgefaseerd werd. De site trok nog altijd zo'n 180.000 organische sessies per maand, voornamelijk op long-tail routegidsen die sinds 2014 goed stonden. Het bureau had in oktober een rebuild geoffreerd, de klant had bedankt, en nu was de hosting-deadline nog zes weken weg. De briefing was smal: verhuis de site naar moderne hosting, zet hem op een ondersteunde PHP-versie, en verlies geen SEO-waarde . Geen redesign. Geen overstap naar WordPress. De Joomla-migratie moest saai zijn, terugdraaibaar, en klaar voor de PHP-cutoff. Zo zag dat eruit, stap voor stap, inclusief wat schuin ging. De beginnende inventaris Voordat we iets aanraakten, hebben we een halve dag besteed aan het inventariseren van wat er daadwerkelijk op schijf en in de database stond. Op een site van deze leeftijd zijn de geïnstalleerde extensies de migratie. Core Joomla-upgrades zijn gedocumenteerd; de vijf SEF-plugins die op elkaar gestapeld staan niet. De shared host gaf ons SSH, met moeite. Eerste ronde: ssh client@oldhost php -v # PHP 5.6.40 (cli) cd ~/public_html cat configuration.php | grep -E 'dbtype|host|user|db =' # mysqli / localhost / [redacted] ls administrator/components/ | wc -l # 47 ls plugins/system/ | wc -l # 22 Zevenenveertig admin-componenten en tweeëntwintig system plugins op een 2.5-installatie is archeologie, geen software. We exporteerden de extensies-tabel om te zien wat er echt actief stond: SELECT name, element, type, enabled FROM jos_extensions WHERE enabled = 1 AND type IN ('component','plugin') ORDER BY type, name; Drie SEF-plugins (search engine friendly URL) stonden tegelijk aan: sh404SEF, de native SEF van Joomla, en iets wat JoomSEF heette en sinds 2015 niet meer was bijgewerkt. Elk schreef URL's op de ander herschreven. De live URL-structuur die de zoekmachines hadden geïndexeerd was de output van alle drie, in volgorde, en geen van de ontwikkelaars die dit had opgezet was nog bereikbaar. Dát is de SEO-waarde: tien jaar Googlebot die een specifieke URL-vorm heeft geleerd die geen enkele component op de server nog from scratch kan reproduceren. De URL-waarheid vastleggen vóór de verhuizing De fout bij dit soort migraties van een verouderde site is proberen de redirect-logica vanuit de broncode te begrijpen. Dat gaat je niet lukken. De rewrites zijn emergent. Wat je in plaats daarvan wilt, is een ground-truth lijst van elke URL die Google werkelijk kent, met de HTTP-status en eindbestemming die elk op dat moment retourneert. We haalden drie bronnen op en voegden ze samen: De XML-sitemap die de site serveerde (~3.400 URL's). Een Search Console-export van elke URL met minstens één impressie in de afgelopen 16 maanden (~11.800 URL's — veel meer dan de sitemap, zoals verwacht). Access logs van de laatste 90 dagen, ge-grep't op 200-GETs met een Googlebot- of Bingbot-user-agent. Gedupliceerd leverde dat 14.210 canonieke URL's op waar de zoekmachines om gaven. Daarna hebben we ze allemaal zelf gecrawld en de status, de uiteindelijke URL na redirects en de canonical-tag van de pagina vastgelegd: cat urls.txt | while read url; do curl -sI -L -o /dev/null -w '%{http_code}\\t%{url_effective}\\t%{redirect_url}\\n' \"$url\" done > baseline.tsv Die baseline.tsv is het contract. Na de migratie moet dezelfde crawl op de nieuwe host dezelfde eindbestemmingen opleveren met dezelfde statuscodes (of een 301 naar dezelfde bestemming). Alles wat afwijkt is ranking-verlies. Google's eigen richtlijn over site moves met URL-wijzigingen is de moeite om vooraf door te nemen — het stuk over redirect chains wordt altijd vergeten. De nieuwe host klaarzetten De nieuwe hosting was een kleine VPS met PHP 8.2, MariaDB 10.6 en Apache 2.4 met mod_rewrite . Joomla 2.5 draait niet op PHP 8.2. Op PHP 7.4 draait hij ook niet, niet schoon. Het ondersteunde upgrade-pad is 2.5 → 3.10 → 4.x → 5.x, en zelfs de eerste sprong verandert genoeg aan het database-schema om de helft van de third-party extensies te breken. We kozen de pragmatische route: upgrade naar Joomla 3.10 LTS, die draait op PHP 8.1 met de compatibiliteitsplugin en acceptabel draait op 8.2 met een handvol patches. Joomla 4 had betekend dat we drie custom componenten hadden moeten herschrijven, en dat budget was er niet. 3.10 gaf de klant twee jaar extra en hield het template, de menu's en — cruciaal — de SEF-URL's intact. De migratie werd uiteraard eerst op staging gedraaid: # On old host mysqldump --single-transaction --quick --default-character-set=utf8 \\ -u dbuser -p oldjoomla > dump.sql tar czf files.tar.gz public_html/ # On new host mysql -u newuser -p newjoomla < dump.sql tar xzf files.tar.gz -C /var/www/staging/ Twee dingen beten ons hier. De oude database was utf8 (drie bytes), geen utf8mb4 . Een rechte dump-and-restore in een utf8mb4 -database verminkte een handvol ar",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla-migratie zonder SEO-verlies: een case na 12 jaar","item":"https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kun je Joomla 2.5 direct naar Joomla 5 migreren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet schoon. Het ondersteunde pad is 2.5 → 3.10 → 4.x → 5.x, en de meeste third-party extensies breken tussen major versies. Voor oudere sites is 3.10 LTS vaak de pragmatische halte."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Behouden 301-redirects de PageRank?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Google heeft bevestigd dat 301-redirects volledige link-equity doorgeven. In de praktijk hangt ranking-stabiliteit meer af van het compleet houden van de URL-set en het ongewijzigd laten van de content dan van het redirect-type zelf."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik tijdens de migratie utf8 naar utf8mb4 converteren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, uiteindelijk wel — utf8 in MySQL is drie bytes en kan geen emoji of sommige CJK-karakters opslaan. Doe het ná de Joomla-versie-upgrade, niet ervoor, om collation-conflicten halverwege de upgrade te voorkomen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/joomla-migration-seo-case-study/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 003</span>
+      </div>
+      <p class="eyebrow"><span class="n">003 —</span>Migration</p>
+      <h1 class="display-l post-title">Joomla-migratie zonder SEO-verlies: een case na 12 jaar</h1>
+      <p class="lede post-lede">Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.</p>
+      <div class="post-meta">
+        <time datetime="2026-04-23T06:38:46.888Z">23 april 2026</time>
+        <span class="dotsep">·</span>
+        <span>14 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-migration-seo-case-study/hero.webp" type="image/webp">
+      <img src="/blog/joomla-migration-seo-case-study/hero.jpg" alt="Opgerolde oude zeekaart op eiken met koperen passer en een klein rood lakzegel op een papieren label." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 003</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het telefoontje kwam van een Belgisch bureau waar we mee samenwerken: een reisuitgever, 3.400 artikelen, Joomla 2.5.28, draaiend op shared hosting waarvan de hostingmaatschappij net had laten weten dat PHP 5.6 eind kwartaal uitgefaseerd werd. De site trok nog altijd zo'n 180.000 organische sessies per maand, voornamelijk op long-tail routegidsen die sinds 2014 goed stonden. Het bureau had in oktober een rebuild geoffreerd, de klant had bedankt, en nu was de hosting-deadline nog zes weken weg.</p><p>De briefing was smal: verhuis de site naar moderne hosting, zet hem op een ondersteunde PHP-versie, en <strong>verlies geen SEO-waarde</strong>. Geen redesign. Geen overstap naar WordPress. De Joomla-migratie moest saai zijn, terugdraaibaar, en klaar voor de PHP-cutoff. Zo zag dat eruit, stap voor stap, inclusief wat schuin ging.</p><h2>De beginnende inventaris</h2><p>Voordat we iets aanraakten, hebben we een halve dag besteed aan het inventariseren van wat er daadwerkelijk op schijf en in de database stond. Op een site van deze leeftijd zijn de geïnstalleerde extensies de migratie. Core Joomla-upgrades zijn gedocumenteerd; de vijf SEF-plugins die op elkaar gestapeld staan niet.</p><p>De shared host gaf ons SSH, met moeite. Eerste ronde:</p><pre><code class="lang-bash">ssh client@oldhost
+php -v
+# PHP 5.6.40 (cli)
+
+cd ~/public_html
+cat configuration.php | grep -E 'dbtype|host|user|db ='
+# mysqli / localhost / [redacted]
+
+ls administrator/components/ | wc -l
+# 47
+
+ls plugins/system/ | wc -l
+# 22</code></pre><p>Zevenenveertig admin-componenten en tweeëntwintig system plugins op een 2.5-installatie is archeologie, geen software. We exporteerden de extensies-tabel om te zien wat er echt actief stond:</p><pre><code class="lang-sql">SELECT name, element, type, enabled
+FROM jos_extensions
+WHERE enabled = 1
+  AND type IN ('component','plugin')
+ORDER BY type, name;</code></pre><p>Drie SEF-plugins (search engine friendly URL) stonden tegelijk aan: sh404SEF, de native SEF van Joomla, en iets wat JoomSEF heette en sinds 2015 niet meer was bijgewerkt. Elk schreef URL's op de ander herschreven. De live URL-structuur die de zoekmachines hadden geïndexeerd was de output van alle drie, in volgorde, en geen van de ontwikkelaars die dit had opgezet was nog bereikbaar. Dát is de SEO-waarde: tien jaar Googlebot die een specifieke URL-vorm heeft geleerd die geen enkele component op de server nog from scratch kan reproduceren.</p><h2>De URL-waarheid vastleggen vóór de verhuizing</h2><p>De fout bij dit soort migraties van een <a href="/">verouderde site</a> is proberen de redirect-logica vanuit de broncode te begrijpen. Dat gaat je niet lukken. De rewrites zijn emergent. Wat je in plaats daarvan wilt, is een ground-truth lijst van elke URL die Google werkelijk kent, met de HTTP-status en eindbestemming die elk op dat moment retourneert.</p><p>We haalden drie bronnen op en voegden ze samen:</p><ol><li>De XML-sitemap die de site serveerde (~3.400 URL's).</li><li>Een Search Console-export van elke URL met minstens één impressie in de afgelopen 16 maanden (~11.800 URL's — veel meer dan de sitemap, zoals verwacht).</li><li>Access logs van de laatste 90 dagen, ge-grep't op 200-GETs met een Googlebot- of Bingbot-user-agent.</li></ol><p>Gedupliceerd leverde dat 14.210 canonieke URL's op waar de zoekmachines om gaven. Daarna hebben we ze allemaal zelf gecrawld en de status, de uiteindelijke URL na redirects en de canonical-tag van de pagina vastgelegd:</p><pre><code class="lang-bash">cat urls.txt | while read url; do
+  curl -sI -L -o /dev/null -w '%{http_code}\t%{url_effective}\t%{redirect_url}\n' "$url"
+done &gt; baseline.tsv</code></pre><p>Die <code>baseline.tsv</code> is het contract. Na de migratie moet dezelfde crawl op de nieuwe host dezelfde eindbestemmingen opleveren met dezelfde statuscodes (of een 301 naar dezelfde bestemming). Alles wat afwijkt is ranking-verlies. Google's eigen richtlijn over <a href="https://developers.google.com/search/docs/crawling-indexing/301-redirects">site moves met URL-wijzigingen</a> is de moeite om vooraf door te nemen — het stuk over redirect chains wordt altijd vergeten.</p><h2>De nieuwe host klaarzetten</h2><p>De nieuwe hosting was een kleine VPS met PHP 8.2, MariaDB 10.6 en Apache 2.4 met <code>mod_rewrite</code>. Joomla 2.5 draait niet op PHP 8.2. Op PHP 7.4 draait hij ook niet, niet schoon. Het ondersteunde upgrade-pad is 2.5 → 3.10 → 4.x → 5.x, en zelfs de eerste sprong verandert genoeg aan het database-schema om de helft van de third-party extensies te breken.</p><p>We kozen de pragmatische route: upgrade naar Joomla 3.10 LTS, die draait op PHP 8.1 met de compatibiliteitsplugin en acceptabel draait op 8.2 met een handvol patches. Joomla 4 had betekend dat we drie custom componenten hadden moeten herschrijven, en dat budget was er niet. 3.10 gaf de klant twee jaar extra en hield het template, de menu's en — cruciaal — de SEF-URL's intact.</p><p>De migratie werd uiteraard eerst op staging gedraaid:</p><pre><code class="lang-bash"># On old host
+mysqldump --single-transaction --quick --default-character-set=utf8 \
+  -u dbuser -p oldjoomla &gt; dump.sql
+tar czf files.tar.gz public_html/
+
+# On new host
+mysql -u newuser -p newjoomla &lt; dump.sql
+tar xzf files.tar.gz -C /var/www/staging/</code></pre><p>Twee dingen beten ons hier. De oude database was <code>utf8</code> (drie bytes), geen <code>utf8mb4</code>. Een rechte dump-and-restore in een <code>utf8mb4</code>-database verminkte een handvol artikelen met emoji en oude Windows-1252 smart quotes. We importeerden opnieuw met de originele charset, draaiden de Joomla 3.10-upgrade, en converteerden <em>daarna</em> pas de tabellen naar <code>utf8mb4</code>, nadat we hadden bevestigd dat de upgrade geen tekstkolommen had aangeraakt.</p><p>De tweede beet: <code>jos_session</code> had 2,1 miljoen rijen. Het upgrade-script probeerde die te alteren en liep vast. We hebben hem eerst getruncatet. Sessions zijn wegwerp; niemand heeft er ooit een gemist.</p><h2>Het SEF-ontwarren</h2><p>Met 3.10 draaiend op staging wezen we een lokale hosts-entry erop en draaiden de baseline-crawl opnieuw. 4.100 URL's retourneerden 404.</p><p>Allemaal sh404SEF-gegenereerde URL's met het oude slug-formaat (<code>/reisgidsen/frankrijk/provence-verborgen-dorpjes.html</code> — trailing <code>.html</code>, Nederlandse slug, categorie-dan-slug patroon). De native router van Joomla 3.10 produceerde <code>/reisgidsen/frankrijk/427-provence-verborgen-dorpjes</code>. Ander pad, ID in de slug, geen suffix. Als we dat hadden geshipt, waren tien jaar backlinks weg geweest.</p><p>De fix had drie delen.</p><p><strong>sh404SEF herinstalleren.</strong> De 3.x-compatibele versie bestaat en kan, gelukkig, zijn oude URL-database uit de tabellen van de 2.5-versie importeren. We exporteerden <code>jos_sh404sef_urls</code> uit de oude database, importeerden die in de nieuwe, en lieten sh404SEF de routing weer overnemen. Daarmee werden ongeveer 3.700 van de 404's hersteld.</p><p><strong>Statische redirect-map voor de rest.</strong> De resterende 400 URL's waren oude JoomSEF-restanten van vóór sh404SEF in 2016 werd geïnstalleerd. Die zitten in geen enkele huidige plugin-database. We hebben de mapping met de hand opgebouwd vanuit het baseline-bestand en in <code>.htaccess</code> geplaatst, boven het Joomla-rewrite-blok:</p><pre><code class="lang-apache">RewriteEngine On
+
+# Legacy JoomSEF redirects (pre-2016)
+RewriteRule ^content/view/(\d+)/\d+/?$ /index.php?option=com_content&amp;view=article&amp;id=$1 [R=301,L]
+RewriteRule ^nl/reisgids-(.+)\.htm$ /reisgidsen/$1 [R=301,L,NC]
+
+# Trailing .html on category pages (sh404SEF v2 shape)
+RewriteRule ^([a-z-]+)/([a-z0-9-]+)\.html$ /$1/$2 [R=301,L]
+
+# Joomla standard
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule .* index.php [L]</code></pre><p><strong>Canonical afdwingen.</strong> De native SEF van Joomla 3.10 produceerde nog altijd een alternatieve URL voor elk artikel (de ID-gebaseerde vorm). We zetten sh404SEF op 301 voor alle niet-canonieke varianten naar de canonieke, en voegden een template-override voor de canonical-tag toe om te garanderen dat de <code>&lt;link rel="canonical"&gt;</code> in de page head overeenkwam. Google pikt het uiteindelijk uit één signaal, maar drie kloppende signalen convergeren sneller.</p><p>Zie de <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">Apache mod_rewrite-referentie</a> voor de flag-semantiek; de <code>[L]</code> op de legacy-regels is belangrijk, want zonder vangt de trailing-<code>.html</code>-regel de al herschreven interne requests op en krijg je een loop.</p><aside class="callout"><strong>Valstrik:</strong> Als de oude site URL's met een trailing slash serveerde en de nieuwe niet (of andersom), behandelt Google ze als aparte URL's en splitst de link-equity. Kies één vorm, 301 de andere, en zorg dat interne links, de sitemap en de canonical-tag het eens zijn. We zijn een halve dag kwijtgeraakt aan een <code>XMapDeleted</code>-kolom in sh404SEF die nog steeds sitemap-entries genereerde voor de pre-slash-varianten.</aside><h2>Cutover</h2><p>DNS-cutover gebeurde op een dinsdag om 04:00 CET. De TTL was de week ervoor al naar 300 seconden verlaagd. De volgorde:</p><ol><li>De oude site in read-only zetten (gebruikersregistratie, reacties, formulieren uitzetten) om 03:00.</li><li>Finale differentiële <code>mysqldump</code> van artikel- en user-tabellen, teruggezet op de nieuwe host.</li><li>A-record omzetten.</li><li>De access log op de nieuwe host volgen tot Googlebot aankwam (dat duurde 47 minuten).</li><li>De baseline-crawl opnieuw draaien tegen het live domein.</li></ol><p>De crawl kwam terug met 11 niet-matchende URL's. Alle elf artikelen die op de oude site waren bewerkt tussen de laatste volledige dump en de cutover; de content klopte, de modified timestamp niet. Acceptabel.</p><h2>Wat de rankings deden</h2><p>De eerlijke cijfers, uit Search Console, 90 dagen na cutover:</p><ul><li>Totaal clicks: −4,2% vs. de 90 dagen ervoor (binnen normale seizoensvariatie voor deze niche).</li><li>Geïndexeerde pagina's: 3.380 → 3.340. Veertig uitgevallen URL's, allemaal pre-2014-artikelen zonder backlinks en met vrijwel nul impressies.</li><li>Gemiddelde positie op de top 500 queries: onveranderd tot +0,3.</li><li>Core Web Vitals: van 18% "good" naar 71% "good" op mobiel, puur door de hostingwisseling.</li></ul><p>Geen ranking-inzinking. Het werk gebeurde vóór de cutover, niet erna.</p><h2>De tool-vraag</h2><p>Het traagste deel van deze klus was niet de dump of de rewrites. Het waren de kleine SQL-queries tegen de oude database om te begrijpen wat er stond — welke extensies echt in gebruik waren, welke artikelen non-ASCII-karakters bevatten, welke user-accounts sinds 2017 slapend waren — en aantekeningen bijhouden van wat we veranderden en waarom, zodat het rollback-plan eerlijk bleef.</p><p>Toen we Pier bouwden, waren de Joomla- en Drupal-migraties die we de jaren ervoor hadden gedaan precies de use case. Een dockende <a href="/#database">MySQL-editor</a> naast de bestandsstructuur, met <a href="/#features">versiegeschiedenis</a> op elke bewerking, blijkt te zijn wat dit werk werkelijk nodig heeft: geen framework, geen dashboard, alleen de twee panelen tegelijk open met een audit trail eronder.</p><h2>Eén ding dat je vandaag kunt doen</h2><p>Als je een verouderde Joomla- of Drupal-site hebt op een host die blijft zeuren over PHP-versies, trek nu alvast een baseline-crawl — sitemap plus Search Console-export plus 90 dagen aan access logs, gedupliceerd, met statuscodes vastgelegd. De migratie is makkelijker als je de vorm van het ding dat je niet mag breken al kent.</p>
+    </div>
+
+    <aside class="pullquote">Bij een migratie van een verouderde Joomla-site gebeurt het SEO-werk vóór de cutover: leg elke geïndexeerde URL vast als baseline en zorg dat de nieuwe host dezelfde vormen retourneert.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kun je Joomla 2.5 direct naar Joomla 5 migreren?</p>
+      <p class="faq-a">Niet schoon. Het ondersteunde pad is 2.5 → 3.10 → 4.x → 5.x, en de meeste third-party extensies breken tussen major versies. Voor oudere sites is 3.10 LTS vaak de pragmatische halte.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Behouden 301-redirects de PageRank?</p>
+      <p class="faq-a">Google heeft bevestigd dat 301-redirects volledige link-equity doorgeven. In de praktijk hangt ranking-stabiliteit meer af van het compleet houden van de URL-set en het ongewijzigd laten van de content dan van het redirect-type zelf.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik tijdens de migratie utf8 naar utf8mb4 converteren?</p>
+      <p class="faq-a">Ja, uiteindelijk wel — utf8 in MySQL is drie bytes en kan geen emoji of sommige CJK-karakters opslaan. Doe het ná de Joomla-versie-upgrade, niet ervoor, om collation-conflicten halverwege de upgrade te voorkomen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=seo">#seo</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 april 2026</span></span>
+      <h3>Legacy PHP herbesmetting: de .htaccess-muur die houdt</h3>
+      <span class="pc-lede">De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.webp" type="image/webp">
+        <img src="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg" alt="Een messing sleutel op ivoren papieren kaart naast kleirode lakzegel, leren regelboek en schuifmaat op bone werkblad." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>18 april 2026</span></span>
+      <h3>Legacy WordPress .htaccess: de regels die 80% oplossen</h3>
+      <span class="pc-lede">De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/joomla-migration-seo-case-study/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
