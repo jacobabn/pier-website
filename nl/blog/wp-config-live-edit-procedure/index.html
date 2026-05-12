@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>wp-config.php in productie: een veilige edit-procedure · Pier — Blog</title>
+<meta name="description" content="wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, security, workflow, sftp, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="wp-config.php in productie: een veilige edit-procedure">
+<meta property="og:description" content="wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-12T07:37:23.599Z">
+<meta property="article:modified_time" content="2026-05-12T07:37:23.599Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="wp-config.php in productie: een veilige edit-procedure">
+<meta name="twitter:description" content="wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/hero.jpg">
+<meta name="twitter:image:alt" content="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/"},
+  "url":"https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/",
+  "headline":"wp-config.php in productie: een veilige edit-procedure",
+  "description":"wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand."
+  },
+  "datePublished":"2026-05-12T07:37:23.599Z",
+  "dateModified":"2026-05-12T07:37:23.599Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, security, workflow, sftp, operations",
+  "wordCount":1280,
+  "articleSection":"WordPress",
+  "articleBody":"Het is woensdagmiddag 14:00. Een klant mailt waarom hun staging-URL in Google opduikt. Je opent SFTP, vindt wp-config.php en ziet dat de WP_HOME -constante hardcoded op het staging-domein staat. Die moet je veranderen, en de site serveert op dit moment zo'n veertig requests per minuut. wp-config.php is het WordPress-bestand met de slechtste risk-to-edit ratio van het hele CMS. Eén verkeerd karakter (een vergeten puntkomma, een smart quote uit een Notion-document, een verdwaalde byte order mark) brengt de hele site naar een wit scherm of een half-gerenderde HTML-dump waarin het absolute bestandspad uitlekt. Geen waarschuwing, geen soft fail, geen retry. PHP kan het bestand niet parsen en de site ligt eruit tot je terugdraait of fixt. Dit is de procedure die we gebruiken bij het bewerken van wp-config.php op een live WordPress-site, zonder requests te laten vallen. De aanname: SFTP-toegang, een shell op de server is fijn maar niet verplicht, en php staat op je laptop voor een lint-pass. Wat er echt stuk gaat Voordat we naar de procedure gaan, helpt het om te weten op welke manieren een wp-config.php-bewerking een productiesite onderuit haalt. Grofweg op volgorde van frequentie, in onze ervaring: Een achtergebleven sluit-tag ?> met witruimte erachter, die de Content-Type -header corrumpeert en redirects breekt. Een define() voor een constante die verderop al gedefinieerd is, wat een warning oplevert die sommige strenge PHP 8-configs als fatal naar boven brengen. Smart quotes uit een copy-paste ( “ in plaats van \" ) die de PHP-parser niet kan lezen. Een BOM bovenaan het bestand van een editor die op UTF-8-with-BOM stond, waardoor er drie onzichtbare bytes voor <?php verstuurd worden en alle header() -calls breken. De $table_prefix -regel die onder de require_once naar wp-settings.php is beland, wat stilletjes faalt omdat WordPress al gebooted is. Geen van deze fouten haal je eruit met visueel kijken. Allemaal worden ze opgepakt door php -l of door de ruwe bytes van het bestand te lezen. Wij doen beide. De pre-flight De procedure rust op één regel: je bewerkt wp-config.php nooit in-place via SFTP. Je bewerkt altijd een kopie, lint hem, swapt hem, en houdt de vorige kopie nog een dag binnen handbereik voor het geval het nieuwe bestand een runtime-fout naar boven brengt. Haal het live-bestand op met een datum in de naam: sftp user@host:/var/www/site/wp-config.php ./wp-config.live.php cp wp-config.live.php wp-config.bak.2026-05-12.php cp wp-config.live.php wp-config.new.php De .bak -kopie blijf je verder met rust laten. De .new -kopie is waar je de wijziging doet. Open hem in een editor waarvan je weet dat hij geen BOM toevoegt en geen quotes normaliseert. VS Code met de encoding in de statusbalk zichtbaar is prima. TextEdit op macOS in rich-text-modus niet. Maak de aanpassing. Draai daarna lokaal een lint-pass: php -l wp-config.new.php # No syntax errors detected in wp-config.new.php Als php -l iets anders teruggeeft dan precies die regel: stop. Niet uploaden. De PHP-parser op de server is dezelfde parser, en die zal identiek falen. De commando-line options-pagina van PHP legt uit dat -l het bestand inleest, parst en afsluit zonder code uit te voeren, waardoor je hem veilig kunt draaien op een config met echte database-credentials erin. De lint-pass vangt zo'n 90% van wat wp-config.php-bewerkingen om zeep helpt. De resterende 10% is runtime: een dubbele constante, een environment-variabele die op je laptop bestaat maar niet op de server, een require-pad dat op macOS klopt maar niet op de Linux-machine. Daarvoor heb je de swap nodig. De atomic swap SFTP geeft je geen atomic rename tijdens schrijven zoals mv op POSIX dat doet. Een bestand met dezelfde naam uploaden overschrijft byte voor byte, en er is een window (klein, maar reëel) waarin het bestand half geschreven is en PHP het kan inlezen. Komt er in dat window een request binnen, dan krijg je een parse-error en gaat de request 500. De oplossing: upload onder een andere naam en rename op de server. De meeste SFTP-servers behandelen rename als één filesystem-operatie. sftp user@host <<'EOF' cd /var/www/site put wp-config.new.php wp-config.php.incoming rename wp-config.php wp-config.php.previous rename wp-config.php.incoming wp-config.php EOF Tijdens die twee renames (milliseconden op ext4 of APFS) wijst wp-config.php óf naar het oude bestand óf naar het nieuwe. Nooit naar een half geschreven bestand. Heeft het nieuwe bestand een runtime-probleem, dan staat wp-config.php.previous ernaast en zet één rename het terug. Ondersteunt je SFTP-client geen inline rename , gebruik dan een SSH-oneliner: ssh user@host 'cd /var/www/site && mv wp-config.php.incoming wp-config.php' . Het punt is dat de swap één filesystem-operatie is, niet een upload van meerdere seconden. Na de swap Hit de site. Niet alleen de homepage. Hit een wp-admin-URL, een REST-endpoint, een pagina met een bekende plugin-shortcode. De reden: wp-config.php wordt geladen vóór alle plugin-code, maar plugin-c",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"wp-config.php in productie: een veilige edit-procedure","item":"https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik wp-config.php bewerken vanuit de WordPress-admin?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Daar zit geen ingebouwde admin-UI voor. Sommige security-plugins tonen een read-only weergave, maar schrijftoegang is om hardening-redenen bewust alleen vanaf het filesystem mogelijk."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Welke file-permissions moet wp-config.php hebben?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "440 in de meeste setups, 400 als je stack dat toelaat. Nooit 644 of 666. De webserver-user heeft lees-rechten nodig, niemand heeft tijdens runtime schrijfrechten nodig."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Worden alle gebruikers uitgelogd als ik de salts vervang?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Dat is precies waar de salts voor dienen. Plan de rotatie in een rustige periode en plak een banner als je site veel ingelogde gebruikers heeft."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wp-config-live-edit-procedure/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 004</span>
+      </div>
+      <p class="eyebrow"><span class="n">004 —</span>WordPress</p>
+      <h1 class="display-l post-title">wp-config.php in productie: een veilige edit-procedure</h1>
+      <p class="lede post-lede">wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-12T07:37:23.599Z">12 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+      <img src="/blog/wp-config-live-edit-procedure/hero.jpg" alt="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 004</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is woensdagmiddag 14:00. Een klant mailt waarom hun staging-URL in Google opduikt. Je opent SFTP, vindt wp-config.php en ziet dat de <code>WP_HOME</code>-constante hardcoded op het staging-domein staat. Die moet je veranderen, en de site serveert op dit moment zo'n veertig requests per minuut.</p>
+
+<p>wp-config.php is het WordPress-bestand met de slechtste risk-to-edit ratio van het hele CMS. Eén verkeerd karakter (een vergeten puntkomma, een smart quote uit een Notion-document, een verdwaalde byte order mark) brengt de hele site naar een wit scherm of een half-gerenderde HTML-dump waarin het absolute bestandspad uitlekt. Geen waarschuwing, geen soft fail, geen retry. PHP kan het bestand niet parsen en de site ligt eruit tot je terugdraait of fixt.</p>
+
+<p>Dit is de procedure die we gebruiken bij het bewerken van wp-config.php op een live WordPress-site, zonder requests te laten vallen. De aanname: SFTP-toegang, een shell op de server is fijn maar niet verplicht, en <code>php</code> staat op je laptop voor een lint-pass.</p>
+
+<h2>Wat er echt stuk gaat</h2>
+
+<p>Voordat we naar de procedure gaan, helpt het om te weten op welke manieren een wp-config.php-bewerking een productiesite onderuit haalt. Grofweg op volgorde van frequentie, in onze ervaring:</p>
+
+<ul>
+  <li>Een achtergebleven sluit-tag <code>?&gt;</code> met witruimte erachter, die de <code>Content-Type</code>-header corrumpeert en redirects breekt.</li>
+  <li>Een <code>define()</code> voor een constante die verderop al gedefinieerd is, wat een warning oplevert die sommige strenge PHP 8-configs als fatal naar boven brengen.</li>
+  <li>Smart quotes uit een copy-paste (<code>“</code> in plaats van <code>"</code>) die de PHP-parser niet kan lezen.</li>
+  <li>Een BOM bovenaan het bestand van een editor die op UTF-8-with-BOM stond, waardoor er drie onzichtbare bytes voor <code>&lt;?php</code> verstuurd worden en alle <code>header()</code>-calls breken.</li>
+  <li>De <code>$table_prefix</code>-regel die onder de <code>require_once</code> naar wp-settings.php is beland, wat stilletjes faalt omdat WordPress al gebooted is.</li>
+</ul>
+
+<p>Geen van deze fouten haal je eruit met visueel kijken. Allemaal worden ze opgepakt door <code>php -l</code> of door de ruwe bytes van het bestand te lezen. Wij doen beide.</p>
+
+<h2>De pre-flight</h2>
+
+<p>De procedure rust op één regel: je bewerkt wp-config.php nooit in-place via SFTP. Je bewerkt altijd een kopie, lint hem, swapt hem, en houdt de vorige kopie nog een dag binnen handbereik voor het geval het nieuwe bestand een runtime-fout naar boven brengt.</p>
+
+<p>Haal het live-bestand op met een datum in de naam:</p>
+
+<pre><code class="lang-bash">sftp user@host:/var/www/site/wp-config.php ./wp-config.live.php
+cp wp-config.live.php wp-config.bak.2026-05-12.php
+cp wp-config.live.php wp-config.new.php
+</code></pre>
+
+<p>De <code>.bak</code>-kopie blijf je verder met rust laten. De <code>.new</code>-kopie is waar je de wijziging doet. Open hem in een editor waarvan je weet dat hij geen BOM toevoegt en geen quotes normaliseert. VS Code met de encoding in de statusbalk zichtbaar is prima. TextEdit op macOS in rich-text-modus niet.</p>
+
+<p>Maak de aanpassing. Draai daarna lokaal een lint-pass:</p>
+
+<pre><code class="lang-bash">php -l wp-config.new.php
+# No syntax errors detected in wp-config.new.php
+</code></pre>
+
+<p>Als <code>php -l</code> iets anders teruggeeft dan precies die regel: stop. Niet uploaden. De PHP-parser op de server is dezelfde parser, en die zal identiek falen. De <a href="https://www.php.net/manual/en/features.commandline.options.php">commando-line options-pagina van PHP</a> legt uit dat <code>-l</code> het bestand inleest, parst en afsluit zonder code uit te voeren, waardoor je hem veilig kunt draaien op een config met echte database-credentials erin.</p>
+
+<p>De lint-pass vangt zo'n 90% van wat wp-config.php-bewerkingen om zeep helpt. De resterende 10% is runtime: een dubbele constante, een environment-variabele die op je laptop bestaat maar niet op de server, een require-pad dat op macOS klopt maar niet op de Linux-machine. Daarvoor heb je de swap nodig.</p>
+
+<h2>De atomic swap</h2>
+
+<p>SFTP geeft je geen atomic rename tijdens schrijven zoals <code>mv</code> op POSIX dat doet. Een bestand met dezelfde naam uploaden overschrijft byte voor byte, en er is een window (klein, maar reëel) waarin het bestand half geschreven is en PHP het kan inlezen. Komt er in dat window een request binnen, dan krijg je een parse-error en gaat de request 500.</p>
+
+<p>De oplossing: upload onder een andere naam en rename op de server. De meeste SFTP-servers behandelen rename als één filesystem-operatie.</p>
+
+<pre><code class="lang-bash">sftp user@host &lt;&lt;'EOF'
+cd /var/www/site
+put wp-config.new.php wp-config.php.incoming
+rename wp-config.php wp-config.php.previous
+rename wp-config.php.incoming wp-config.php
+EOF
+</code></pre>
+
+<p>Tijdens die twee renames (milliseconden op ext4 of APFS) wijst wp-config.php óf naar het oude bestand óf naar het nieuwe. Nooit naar een half geschreven bestand. Heeft het nieuwe bestand een runtime-probleem, dan staat <code>wp-config.php.previous</code> ernaast en zet één rename het terug.</p>
+
+<aside class="callout">Ondersteunt je SFTP-client geen inline <code>rename</code>, gebruik dan een SSH-oneliner: <code>ssh user@host 'cd /var/www/site &amp;&amp; mv wp-config.php.incoming wp-config.php'</code>. Het punt is dat de swap één filesystem-operatie is, niet een upload van meerdere seconden.</aside>
+
+<h2>Na de swap</h2>
+
+<p>Hit de site. Niet alleen de homepage. Hit een wp-admin-URL, een REST-endpoint, een pagina met een bekende plugin-shortcode. De reden: wp-config.php wordt geladen vóór alle plugin-code, maar plugin-code kan afhangen van constantes die je net hebt aangepast. <code>WP_DEBUG</code> die van <code>false</code> naar <code>true</code> gaat, brengt deprecation-warnings naar boven van een plugin-auteur die in 2024 nog PHP 7.4-syntax aanleverde. Beter dat je die nu ziet dan om 23:00.</p>
+
+<p>Zodra de site weer netjes antwoordt, lock je het bestand:</p>
+
+<pre><code class="lang-bash">chmod 440 wp-config.php
+chown www-data:www-data wp-config.php
+</code></pre>
+
+<p>440 betekent dat de webserver-user kan lezen en niemand kan schrijven. 400 is strenger, maar breekt sommige shared-hosting-setups waar de web-user ook de FTP-user is. Kies de strengste van de twee die je stack niet sloopt. De <a href="https://wordpress.org/documentation/article/hardening-wordpress/">WordPress hardening guide</a> raadt 400 of 440 aan en waarschuwt expliciet tegen 644 of 666.</p>
+
+<p>Laat <code>wp-config.php.previous</code> de rest van de dag op de server staan. Morgen weghalen. Vergeet je het, dan struikelt je volgende deploy er waarschijnlijk overheen, wat op zich ook een reminder is.</p>
+
+<h2>Credentials en key-rotatie</h2>
+
+<p>Heeft de bewerking ook de acht <code>AUTH_KEY</code> / <code>SECURE_AUTH_KEY</code> / <code>LOGGED_IN_KEY</code> / <code>NONCE_KEY</code>-salts (plus hun vier <code>_SALT</code>-tegenhangers) ververst, dan wordt elke ingelogde gebruiker uitgelogd. Dat is by design. Vervang je ze omdat je een compromittering vermoedt: nu doen. Vervang je ze omdat de codex zegt dat het periodiek moet en je klant heeft vierduizend ingelogde abonnees: plan het in een rustig uur en plak een banner op de site.</p>
+
+<p>Genereer de nieuwe salts via de <a href="https://api.wordpress.org/secret-key/1.1/salt/">officiële WordPress salt-API</a> in plaats van zelf iets in elkaar te zetten. Hij geeft 64 cryptografisch willekeurige bytes per constante, in precies het formaat dat wp-config.php verwacht. Plakken, linten, swappen.</p>
+
+<p>Verander je de database-credentials (<code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_HOST</code>), test de nieuwe credentials dan eerst met de <code>mysql</code>-client vanaf dezelfde server. WordPress geeft je geen bruikbare fout als ze niet kloppen. Je krijgt <em>Error establishing a database connection</em>, en dat kan betekenen dat de credentials fout zijn, dat de DB plat ligt, dat de host onbereikbaar is, of dat je een constante-naam hebt vertypt. <code>mysql -u newuser -p -h localhost</code> vertelt je in minder dan een seconde welke van de vier het is.</p>
+
+<h2>Wanneer de procedure niet past</h2>
+
+<p>Deze procedure gaat uit van SFTP, een shell-gewoonte en een php-binary op je laptop. Voor een <a href="/">verouderde site</a> die je vorige week hebt overgenomen, waarvan de SFTP-credentials in een mailtje uit 2019 staan en de vorige developer met FileZilla's drag-and-drop werkte, is dat met de hand lastig vol te houden. Dat was precies het geval waar we bij onze eigen shop steeds tegenaan liepen, en de reden waarom we Pier zijn gaan bouwen: een Mac-app die met de FTP/SFTP-server aanmeert en elke file-edit als een getrackte, terugdraaibare wijziging behandelt. De wp-config.php-swap hierboven is in Pier één toetsaanslag, met de lint-pass en een automatische entry in de <a href="/#features">version history</a> die <em>terug naar wat er om 14:00 stond</em> letterlijk één klik maakt. Zelfde procedure, minder touw.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: trek een kopie van je productie-wp-config.php, draai er lokaal <code>php -l</code> overheen en bevestig dat hij schoon parst. Doet hij dat niet, dan zit er een latente bug te wachten op de volgende edit om zichzelf te onthullen.</p>
+    </div>
+
+    <aside class="pullquote">Schrijf wp-config.php nooit in-place over. Upload onder een andere naam, swap met een rename, en houd het vorige bestand een dag binnen handbereik.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik wp-config.php bewerken vanuit de WordPress-admin?</p>
+      <p class="faq-a">Nee. Daar zit geen ingebouwde admin-UI voor. Sommige security-plugins tonen een read-only weergave, maar schrijftoegang is om hardening-redenen bewust alleen vanaf het filesystem mogelijk.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Welke file-permissions moet wp-config.php hebben?</p>
+      <p class="faq-a">440 in de meeste setups, 400 als je stack dat toelaat. Nooit 644 of 666. De webserver-user heeft lees-rechten nodig, niemand heeft tijdens runtime schrijfrechten nodig.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Worden alle gebruikers uitgelogd als ik de salts vervang?</p>
+      <p class="faq-a">Ja. Dat is precies waar de salts voor dienen. Plan de rotatie in een rustige periode en plak een banner als je site veel ingelogde gebruikers heeft.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 april 2026</span></span>
+      <h3>Legacy PHP herbesmetting: de .htaccess-muur die houdt</h3>
+      <span class="pc-lede">De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/htaccess-rewrite-rules-legacy-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.webp" type="image/webp">
+        <img src="/nl/blog/htaccess-rewrite-rules-legacy-wordpress/hero.jpg" alt="Een messing sleutel op ivoren papieren kaart naast kleirode lakzegel, leren regelboek en schuifmaat op bone werkblad." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>18 april 2026</span></span>
+      <h3>Legacy WordPress .htaccess: de regels die 80% oplossen</h3>
+      <span class="pc-lede">De .htaccess-regels die stilletjes de meeste redirect loops, mixed content en kapotte pretty permalinks op overgenomen WordPress-sites oplossen.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
