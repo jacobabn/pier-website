@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>FTP is not dead: when SFTP is overkill and FTPS is just right · Pier — Blog</title>
+<meta name="description" content="A Friday hotfix on a Magento 1 site, no SSH, no port 22 open, and the question gets suddenly real. SFTP is not always the answer, and FTPS is not the compromise it gets framed as.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="ftp, sftp, security, tooling, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="FTP is not dead: when SFTP is overkill and FTPS is just right">
+<meta property="og:description" content="A Friday hotfix on a Magento 1 site, no SSH, no port 22 open, and the question gets suddenly real. SFTP is not always the answer, and FTPS is not the compromise it gets framed as.">
+<meta property="og:url" content="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<meta property="og:image" content="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Brass weighing scale on bone-coloured paper, one pan empty, the other holding an envelope sealed with red wax.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-12T07:46:56.485Z">
+<meta property="article:modified_time" content="2026-05-12T07:46:56.485Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Tooling">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="FTP is not dead: when SFTP is overkill and FTPS is just right">
+<meta name="twitter:description" content="A Friday hotfix on a Magento 1 site, no SSH, no port 22 open, and the question gets suddenly real. SFTP is not always the answer, and FTPS is not the compromise it gets framed as.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta name="twitter:image:alt" content="Brass weighing scale on bone-coloured paper, one pan empty, the other holding an envelope sealed with red wax.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Tooling">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/ftp-not-dead-ftps-vs-sftp/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/"},
+  "url":"https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/",
+  "headline":"FTP is not dead: when SFTP is overkill and FTPS is just right",
+  "description":"A Friday hotfix on a Magento 1 site, no SSH, no port 22 open, and the question gets suddenly real. SFTP is not always the answer, and FTPS is not the compromise it gets framed as.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Brass weighing scale on bone-coloured paper, one pan empty, the other holding an envelope sealed with red wax."
+  },
+  "datePublished":"2026-05-12T07:46:56.485Z",
+  "dateModified":"2026-05-12T07:46:56.485Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"ftp, sftp, security, tooling, operations",
+  "wordCount":1081,
+  "articleSection":"Tooling",
+  "articleBody":"The Friday hotfix scene A Dutch agency we work with hit this last month. 16:40 on a Friday, a Magento 1 site on a shared Hetzner package, checkout swallowing orders for ninety minutes. The engineer who knew the codebase was on a train, tethered, opening Transmit and watching the spinner. The host offered FTP and FTPS. No SSH. No SFTP. No port 22. The question was not which protocol is best. The question was which one the box would actually accept and which one a tethered laptop in a tunnel would survive. That is most of the FTP versus FTPS versus SFTP debate, once you strip out the LinkedIn certainty. The protocols solve overlapping problems, the boxes you inherit dictate which problem you actually have, and the wrong default wastes a billable hour. What SFTP actually buys you SFTP is not a flavour of FTP. It is the SSH File Transfer Protocol, a separate spec that happens to share three letters. It rides inside an SSH session on port 22, uses a single channel for control and data, and inherits SSH's key authentication, known_hosts pinning, and tunnelling. On any server you fully control, it is the right default. The catch is &ldquo;any server you fully control&rdquo;. A long tail of WordPress, Joomla, and Magento installs lives on packages where the hosting provider does not hand out shell accounts. Some offer SFTP via a forced internal-sftp setup with no shell. Many do not. The legacy site you are paid to keep alive may simply not have port 22 open to you, and asking the host's first-line support to enable it is its own afternoon. The other catch is that SFTP is chatty over high latency. Every read and write is a request-response over the SSH channel. On a 200ms link with a thousand small files, you feel it. Passive-mode FTP and FTPS can saturate the data channel with a single sustained transfer; SFTP, by design, cannot. SFTP and FTPS share an &ldquo;S&rdquo; and almost nothing else. If your client lets you pick one from a dropdown that says &ldquo;secure FTP&rdquo;, read the port. 22 means SFTP. 21 with AUTH TLS, or 990, means FTPS. Get this wrong once and you will spend ten minutes wondering why your key file is being rejected by a TLS handshake. Where FTPS earns its keep FTPS is FTP plus TLS, standardised in RFC 4217 . It comes in two shapes that matter at the firewall. Explicit FTPS starts on the normal control port 21 in plaintext, then issues AUTH TLS and upgrades. Implicit FTPS starts encrypted from the first byte on port 990. Explicit is what almost every modern shared host actually offers. Implicit is deprecated, but still appears on older Plesk and DirectAdmin boxes. The case for FTPS is unromantic. Your host already runs vsftpd or Pure-FTPd. The credential database, the chroot rules, the per-user quota, the directory permissions all exist. Turning on TLS is a config flag and a certificate. A typical vsftpd block on the server side looks like this: listen=YES ssl_enable=YES force_local_data_ssl=YES force_local_logins_ssl=YES ssl_tlsv1_2=YES ssl_sslv2=NO ssl_sslv3=NO require_ssl_reuse=NO rsa_cert_file=/etc/ssl/private/vsftpd.pem rsa_private_key_file=/etc/ssl/private/vsftpd.key pasv_min_port=40000 pasv_max_port=40100 The pasv_min_port and pasv_max_port pair is the part that bites. FTP and FTPS use a separate data channel that the server picks at random within that range. Your firewall has to allow the range, and your NAT has to know how to translate it. Get it wrong and you see 425 Can't open data connection on every LIST , and the client appears to &ldquo;connect fine but never list files&rdquo;. That is not your TLS config; that is the data channel. From the client side, a quick sanity check is one line of curl: curl -v --ssl-reqd --user me:secret \\ ftp://ftp.example.com/wp-content/themes/ If that walks the directory, the TLS path is healthy. If it hangs after PASV , the passive range is blocked somewhere between you and the disk. Active versus passive, briefly Active FTP, where the server connects back to the client on a data port, is dead for anyone behind NAT, which is everyone. Force passive in the client and force the passive port range on the server. Anything else is a story you tell support at 17:00 on a Friday. When plain FTP is still defensible Plain FTP over port 21 sends credentials in clear. On the open internet, that is indefensible. Inside a private VPC, on a build agent dropping artifacts onto an internal mirror that nothing outside the subnet can reach, it is fine and sometimes preferable because the firewall config is one rule and the throughput is unencrypted line speed. We do not recommend it, we have seen it justified twice in five years, and both times the operator could draw the network on a napkin. If your &ldquo;FTP&rdquo; is exposed to the public internet and not wrapped in TLS or SSH, treat it as a P1. The control channel passes the password in cleartext on the first USER / PASS exchange. Anyone on the path sees it. The decision in two lines If you control the box, give ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"FTP is not dead: when SFTP is overkill and FTPS is just right","item":"https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is FTPS more secure than SFTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both are strong when configured correctly. The practical question is which one your server actually exposes and whether the passive data port range is reachable from your network."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does FTPS need a certificate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The server needs an X.509 certificate. A Let's Encrypt cert on the FTP service is straightforward; self-signed works if the client trusts it, but it creates warnings every time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my FTPS client connect but never list files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Almost always the passive data channel. The control connection on port 21 is fine, but the data ports the server hands back are blocked at a firewall or NAT between you and the host."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I run SFTP without giving the user a shell?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Use a Match block in sshd_config with ForceCommand internal-sftp and ChrootDirectory. The user gets file transfer only, no shell login and no port forwarding."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 005</span>
+      </div>
+      <p class="eyebrow"><span class="n">005 —</span>Tooling</p>
+      <h1 class="display-l post-title">FTP is not dead: when SFTP is overkill and FTPS is just right</h1>
+      <p class="lede post-lede">A Friday hotfix on a Magento 1 site, no SSH, no port 22 open, and the question gets suddenly real. SFTP is not always the answer, and FTPS is not the compromise it gets framed as.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-12T07:46:56.485Z">12 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/ftp-not-dead-ftps-vs-sftp/hero.webp" type="image/webp">
+      <img src="/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg" alt="Brass weighing scale on bone-coloured paper, one pan empty, the other holding an envelope sealed with red wax." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 005</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The Friday hotfix scene</h2>
+<p>A Dutch agency we work with hit this last month. 16:40 on a Friday, a Magento 1 site on a shared Hetzner package, checkout swallowing orders for ninety minutes. The engineer who knew the codebase was on a train, tethered, opening Transmit and watching the spinner. The host offered FTP and FTPS. No SSH. No SFTP. No port 22.</p>
+<p>The question was not which protocol is best. The question was which one the box would actually accept and which one a tethered laptop in a tunnel would survive. That is most of the FTP versus FTPS versus SFTP debate, once you strip out the LinkedIn certainty. The protocols solve overlapping problems, the boxes you inherit dictate which problem you actually have, and the wrong default wastes a billable hour.</p>
+
+<h2>What SFTP actually buys you</h2>
+<p>SFTP is not a flavour of FTP. It is the SSH File Transfer Protocol, a separate spec that happens to share three letters. It rides inside an SSH session on port 22, uses a single channel for control and data, and inherits SSH's key authentication, known_hosts pinning, and tunnelling. On any server you fully control, it is the right default.</p>
+<p>The catch is &ldquo;any server you fully control&rdquo;. A long tail of WordPress, Joomla, and Magento installs lives on packages where the hosting provider does not hand out shell accounts. Some offer SFTP via a forced <code>internal-sftp</code> setup with no shell. Many do not. The legacy site you are paid to keep alive may simply not have port 22 open to you, and asking the host's first-line support to enable it is its own afternoon.</p>
+<p>The other catch is that SFTP is chatty over high latency. Every read and write is a request-response over the SSH channel. On a 200ms link with a thousand small files, you feel it. Passive-mode FTP and FTPS can saturate the data channel with a single sustained transfer; SFTP, by design, cannot.</p>
+
+<aside class="callout">SFTP and FTPS share an &ldquo;S&rdquo; and almost nothing else. If your client lets you pick one from a dropdown that says &ldquo;secure FTP&rdquo;, read the port. 22 means SFTP. 21 with AUTH TLS, or 990, means FTPS. Get this wrong once and you will spend ten minutes wondering why your key file is being rejected by a TLS handshake.</aside>
+
+<h2>Where FTPS earns its keep</h2>
+<p>FTPS is FTP plus TLS, standardised in <a href="https://datatracker.ietf.org/doc/html/rfc4217">RFC 4217</a>. It comes in two shapes that matter at the firewall.</p>
+<p>Explicit FTPS starts on the normal control port 21 in plaintext, then issues <code>AUTH TLS</code> and upgrades. Implicit FTPS starts encrypted from the first byte on port 990. Explicit is what almost every modern shared host actually offers. Implicit is deprecated, but still appears on older Plesk and DirectAdmin boxes.</p>
+<p>The case for FTPS is unromantic. Your host already runs vsftpd or Pure-FTPd. The credential database, the chroot rules, the per-user quota, the directory permissions all exist. Turning on TLS is a config flag and a certificate. A typical vsftpd block on the server side looks like this:</p>
+<pre><code class="lang-ini">listen=YES
+ssl_enable=YES
+force_local_data_ssl=YES
+force_local_logins_ssl=YES
+ssl_tlsv1_2=YES
+ssl_sslv2=NO
+ssl_sslv3=NO
+require_ssl_reuse=NO
+rsa_cert_file=/etc/ssl/private/vsftpd.pem
+rsa_private_key_file=/etc/ssl/private/vsftpd.key
+pasv_min_port=40000
+pasv_max_port=40100</code></pre>
+<p>The <code>pasv_min_port</code> and <code>pasv_max_port</code> pair is the part that bites. FTP and FTPS use a separate data channel that the server picks at random within that range. Your firewall has to allow the range, and your NAT has to know how to translate it. Get it wrong and you see <code>425 Can't open data connection</code> on every <code>LIST</code>, and the client appears to &ldquo;connect fine but never list files&rdquo;. That is not your TLS config; that is the data channel.</p>
+<p>From the client side, a quick sanity check is one line of curl:</p>
+<pre><code class="lang-bash">curl -v --ssl-reqd --user me:secret \
+  ftp://ftp.example.com/wp-content/themes/</code></pre>
+<p>If that walks the directory, the TLS path is healthy. If it hangs after <code>PASV</code>, the passive range is blocked somewhere between you and the disk.</p>
+
+<h3>Active versus passive, briefly</h3>
+<p>Active FTP, where the server connects back to the client on a data port, is dead for anyone behind NAT, which is everyone. Force passive in the client and force the passive port range on the server. Anything else is a story you tell support at 17:00 on a Friday.</p>
+
+<h2>When plain FTP is still defensible</h2>
+<p>Plain FTP over port 21 sends credentials in clear. On the open internet, that is indefensible. Inside a private VPC, on a build agent dropping artifacts onto an internal mirror that nothing outside the subnet can reach, it is fine and sometimes preferable because the firewall config is one rule and the throughput is unencrypted line speed. We do not recommend it, we have seen it justified twice in five years, and both times the operator could draw the network on a napkin.</p>
+<p>If your &ldquo;FTP&rdquo; is exposed to the public internet and not wrapped in TLS or SSH, treat it as a P1. The control channel passes the password in cleartext on the first <code>USER</code>/<code>PASS</code> exchange. Anyone on the path sees it.</p>
+
+<h2>The decision in two lines</h2>
+<p>If you control the box, give yourself SFTP and a chrooted user. The <a href="https://man.openbsd.org/sshd_config">Match block</a> below pinned to a group is the minimum:</p>
+<pre><code class="lang-sshconfig">Match Group sftponly
+    ChrootDirectory /var/sftp/%u
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no
+    PasswordAuthentication no</code></pre>
+<p>If you do not control the box, and the host already runs FTP, turn on explicit FTPS, pin the passive port range, force TLS 1.2 or 1.3, and stop. FTPS is not a compromise in that scenario. It is the protocol that matches the infrastructure you actually have, and it ships the same bytes through the same TLS that your HTTPS does.</p>
+<p>The protocol is not the interesting decision. What is interesting is whether your editor knows the file's <a href="/#features">version history</a>, whether your save is two clicks from undo, and whether the next person who opens that <a href="/">legacy site</a> a year from now can see who changed what. When we built Pier we ran into this exact thing, roughly a third of the boxes our customers connect to do not have SSH at all. The fix that mattered was not making FTPS faster but making every save reversible with one keystroke, so the protocol underneath stops being the scary part of the job.</p>
+<p>The smallest thing you can do today: open your hosting panel, find the FTP user, and check whether TLS is enforced on login. If it is not, flip the toggle. If the panel does not expose the toggle, the support email writes itself.</p>
+    </div>
+
+    <aside class="pullquote">If you own the box, use SFTP. If you do not, and the host already runs FTP, turn on explicit FTPS and pin the passive port range. The rest is firewall.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is FTPS more secure than SFTP?</p>
+      <p class="faq-a">Both are strong when configured correctly. The practical question is which one your server actually exposes and whether the passive data port range is reachable from your network.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does FTPS need a certificate?</p>
+      <p class="faq-a">Yes. The server needs an X.509 certificate. A Let&#39;s Encrypt cert on the FTP service is straightforward; self-signed works if the client trusts it, but it creates warnings every time.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does my FTPS client connect but never list files?</p>
+      <p class="faq-a">Almost always the passive data channel. The control connection on port 21 is fine, but the data ports the server hands back are blocked at a firewall or NAT between you and the host.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I run SFTP without giving the user a shell?</p>
+      <p class="faq-a">Yes. Use a Match block in sshd_config with ForceCommand internal-sftp and ChrootDirectory. The user gets file transfer only, no shell login and no port forwarding.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/blog/wp-config-live-edit-procedure/hero.jpg" alt="Brass padlock with wax-sealed paper tag on folded linen cloth, bone paper surface, dark oak table edge." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 May 2026</span></span>
+      <h3>wp-config.php on production: a safe edit procedure</h3>
+      <span class="pc-lede">wp-config.php is one line away from a white screen. Here is the procedure we use to change it on a live WordPress site without ever dropping a request.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Brass padlock on paper card with wax seal, tarred rope coil, red ribbon on scarred oak workbench." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 April 2026</span></span>
+      <h3>Legacy PHP reinfection: the .htaccess wall that holds</h3>
+      <span class="pc-lede">A client&#39;s WordPress kept getting reinfected every few days. Cleaning files wasn&#39;t enough. Here&#39;s the .htaccess pattern that finally stopped it.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

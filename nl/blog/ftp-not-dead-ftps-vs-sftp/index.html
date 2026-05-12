@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat · Pier — Blog</title>
+<meta name="description" content="SFTP is de juiste default als je de server zelf beheert. Op shared hosting zonder poort 22 sluit FTPS met expliciete TLS aan op wat er al draait.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="ftp, sftp, security, tooling, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat">
+<meta property="og:description" content="SFTP is de juiste default als je de server zelf beheert. Op shared hosting zonder poort 22 sluit FTPS met expliciete TLS aan op wat er al draait.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Koperen weegschaal op botkleurig papier, één schaal leeg, de andere met envelop verzegeld met rode was.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-12T07:46:56.485Z">
+<meta property="article:modified_time" content="2026-05-12T07:46:56.485Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Tooling">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat">
+<meta name="twitter:description" content="SFTP is de juiste default als je de server zelf beheert. Op shared hosting zonder poort 22 sluit FTPS met expliciete TLS aan op wat er al draait.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg">
+<meta name="twitter:image:alt" content="Koperen weegschaal op botkleurig papier, één schaal leeg, de andere met envelop verzegeld met rode was.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Tooling">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/ftp-not-dead-ftps-vs-sftp/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/"},
+  "url":"https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/",
+  "headline":"FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat",
+  "description":"SFTP is de juiste default als je de server zelf beheert. Op shared hosting zonder poort 22 sluit FTPS met expliciete TLS aan op wat er al draait.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Koperen weegschaal op botkleurig papier, één schaal leeg, de andere met envelop verzegeld met rode was."
+  },
+  "datePublished":"2026-05-12T07:46:56.485Z",
+  "dateModified":"2026-05-12T07:46:56.485Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"ftp, sftp, security, tooling, operations",
+  "wordCount":1069,
+  "articleSection":"Tooling",
+  "articleBody":"De vrijdagse hotfix Een Nederlands bureau waar we mee werken liep hier vorige maand tegenaan. Vrijdag 16:40, een Magento 1-site op een shared Hetzner-pakket, de checkout slikt al negentig minuten orders zonder ze te verwerken. De engineer die de codebase kende zat in de trein, getetherd, Transmit open, starend naar de spinner. De host bood FTP en FTPS aan. Geen SSH. Geen SFTP. Geen poort 22. De vraag was niet welk protocol het beste is. De vraag was welk protocol de server überhaupt zou accepteren en welk protocol een getetherde laptop in een tunnel zou overleven. Dat is grofweg de hele FTP-versus-FTPS-versus-SFTP-discussie, zodra je de LinkedIn-stelligheid eruit haalt. De protocollen lossen overlappende problemen op, de servers die je erft bepalen welk probleem je daadwerkelijk hebt, en de verkeerde default kost je een declarabel uur. Wat SFTP je oplevert SFTP is geen variant van FTP. Het is het SSH File Transfer Protocol, een aparte spec die toevallig drie letters deelt. Het draait binnen een SSH-sessie op poort 22, gebruikt één kanaal voor zowel control als data, en erft de key-authenticatie, known_hosts-pinning en tunneling van SSH. Op elke server die je volledig beheert is dit de juiste default. De haak zit in &lsquo;volledig beheert&rsquo;. Een lange staart aan WordPress-, Joomla- en Magento-installaties draait op pakketten waar de hostingmaatschappij geen shell-accounts uitdeelt. Sommige bieden SFTP aan via een geforceerde internal-sftp -setup zonder shell. Veel niet. De legacy site die je betaald wordt om in leven te houden heeft simpelweg geen poort 22 open voor jou, en de eerste lijn van support vragen om die open te zetten is op zich al een middag werk. De andere haak is dat SFTP veel heen-en-weer doet over een trage verbinding. Elke read en write is een request-response over het SSH-kanaal. Op een 200ms-link met duizend kleine bestanden voel je dat. Passive-mode FTP en FTPS kunnen het datakanaal vullen met één doorgaande transfer, SFTP kan dat per ontwerp niet. SFTP en FTPS delen één &lsquo;s&rsquo; en verder bijna niets. Als je client je laat kiezen uit een dropdown die &lsquo;secure FTP&rsquo; zegt, lees de poort. 22 betekent SFTP. 21 met AUTH TLS, of 990, betekent FTPS. Loop hier één keer in en je verspeelt tien minuten met de vraag waarom je keyfile door een TLS-handshake wordt geweigerd. Waar FTPS zijn nut bewijst FTPS is FTP plus TLS, gestandaardiseerd in RFC 4217 . Het komt in twee smaken die er bij de firewall toe doen. Explicit FTPS start op de gewone controlepoort 21 in plaintext, voert vervolgens AUTH TLS uit en upgradet. Implicit FTPS start vanaf de eerste byte versleuteld op poort 990. Explicit is wat vrijwel elke moderne shared host daadwerkelijk aanbiedt. Implicit is deprecated, maar duikt nog op bij oudere Plesk- en DirectAdmin-bakken. Het argument voor FTPS is weinig romantisch. Je host draait al vsftpd of Pure-FTPd. De credentialdatabase, de chroot-regels, de per-user quota, de directory-permissies bestaan al. TLS aanzetten is één configvlag en een certificaat. Een typisch vsftpd-blok aan de serverkant ziet er zo uit: listen=YES ssl_enable=YES force_local_data_ssl=YES force_local_logins_ssl=YES ssl_tlsv1_2=YES ssl_sslv2=NO ssl_sslv3=NO require_ssl_reuse=NO rsa_cert_file=/etc/ssl/private/vsftpd.pem rsa_private_key_file=/etc/ssl/private/vsftpd.key pasv_min_port=40000 pasv_max_port=40100 Het paar pasv_min_port en pasv_max_port is het stuk dat bijt. FTP en FTPS gebruiken een apart datakanaal dat de server willekeurig kiest binnen die range. Je firewall moet die range toestaan, en je NAT moet weten hoe hij hem moet vertalen. Doe dat verkeerd en je krijgt 425 Can't open data connection op elke LIST , en de client lijkt &lsquo;prima te verbinden maar nooit files te listen&rsquo;. Dat is niet je TLS-config, dat is het datakanaal. Aan de clientkant is een snelle sanity check één regel curl: curl -v --ssl-reqd --user me:secret \\ ftp://ftp.example.com/wp-content/themes/ Als die de directory afloopt, is het TLS-pad gezond. Blijft hij hangen na PASV , dan zit de passive-range ergens tussen jou en de schijf dicht. Active versus passive, kort Active FTP, waarbij de server terug verbindt naar de client op een datapoort, is dood voor iedereen achter NAT, en dat is iedereen. Forceer passive in de client en pin de passive port range op de server vast. Alles wat anders is, wordt een verhaal dat je om 17:00 op vrijdag aan support uitlegt. Wanneer kale FTP nog te verdedigen valt Kale FTP over poort 21 stuurt credentials in plaintext over de lijn. Op het open internet is dat onverdedigbaar. Binnen een private VPC, op een build agent die artefacten op een interne mirror dropt die van buiten het subnet onbereikbaar is, kan het en is het soms zelfs te prefereren omdat de firewallconfig één regel is en de throughput onversleutelde lijnsnelheid haalt. We raden het niet aan, we hebben het in vijf jaar tweemaal terecht zien gebeuren, en beide keren kon de operator het netwerk op een bierviltje tekenen. Hang",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat","item":"https://pier.abn.company/nl/blog/ftp-not-dead-ftps-vs-sftp/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is FTPS veiliger dan SFTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Beide zijn sterk, mits correct geconfigureerd. De praktische vraag is welk protocol je server überhaupt aanbiedt en of de passive data port range vanuit jouw netwerk bereikbaar is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heeft FTPS een certificaat nodig?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. De server heeft een X.509-certificaat nodig. Een Let's Encrypt-cert op de FTP-service is recht-toe-recht-aan, self-signed werkt mits de client het vertrouwt, maar dat geeft elke keer waarschuwingen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom maakt mijn FTPS-client wel verbinding maar list hij geen bestanden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vrijwel altijd het passive datakanaal. De controleverbinding op poort 21 is in orde, maar de datapoorten die de server teruggeeft worden ergens tussen jou en de host door een firewall of NAT geblokkeerd."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 005</span>
+      </div>
+      <p class="eyebrow"><span class="n">005 —</span>Tooling</p>
+      <h1 class="display-l post-title">FTP leeft nog: wanneer SFTP overkill is en FTPS volstaat</h1>
+      <p class="lede post-lede">SFTP is de juiste default als je de server zelf beheert. Op shared hosting zonder poort 22 sluit FTPS met expliciete TLS aan op wat er al draait.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-12T07:46:56.485Z">12 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/ftp-not-dead-ftps-vs-sftp/hero.webp" type="image/webp">
+      <img src="/blog/ftp-not-dead-ftps-vs-sftp/hero.jpg" alt="Koperen weegschaal op botkleurig papier, één schaal leeg, de andere met envelop verzegeld met rode was." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 005</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De vrijdagse hotfix</h2>
+<p>Een Nederlands bureau waar we mee werken liep hier vorige maand tegenaan. Vrijdag 16:40, een Magento 1-site op een shared Hetzner-pakket, de checkout slikt al negentig minuten orders zonder ze te verwerken. De engineer die de codebase kende zat in de trein, getetherd, Transmit open, starend naar de spinner. De host bood FTP en FTPS aan. Geen SSH. Geen SFTP. Geen poort 22.</p>
+<p>De vraag was niet welk protocol het beste is. De vraag was welk protocol de server überhaupt zou accepteren en welk protocol een getetherde laptop in een tunnel zou overleven. Dat is grofweg de hele FTP-versus-FTPS-versus-SFTP-discussie, zodra je de LinkedIn-stelligheid eruit haalt. De protocollen lossen overlappende problemen op, de servers die je erft bepalen welk probleem je daadwerkelijk hebt, en de verkeerde default kost je een declarabel uur.</p>
+
+<h2>Wat SFTP je oplevert</h2>
+<p>SFTP is geen variant van FTP. Het is het SSH File Transfer Protocol, een aparte spec die toevallig drie letters deelt. Het draait binnen een SSH-sessie op poort 22, gebruikt één kanaal voor zowel control als data, en erft de key-authenticatie, known_hosts-pinning en tunneling van SSH. Op elke server die je volledig beheert is dit de juiste default.</p>
+<p>De haak zit in &lsquo;volledig beheert&rsquo;. Een lange staart aan WordPress-, Joomla- en Magento-installaties draait op pakketten waar de hostingmaatschappij geen shell-accounts uitdeelt. Sommige bieden SFTP aan via een geforceerde <code>internal-sftp</code>-setup zonder shell. Veel niet. De legacy site die je betaald wordt om in leven te houden heeft simpelweg geen poort 22 open voor jou, en de eerste lijn van support vragen om die open te zetten is op zich al een middag werk.</p>
+<p>De andere haak is dat SFTP veel heen-en-weer doet over een trage verbinding. Elke read en write is een request-response over het SSH-kanaal. Op een 200ms-link met duizend kleine bestanden voel je dat. Passive-mode FTP en FTPS kunnen het datakanaal vullen met één doorgaande transfer, SFTP kan dat per ontwerp niet.</p>
+
+<aside class="callout">SFTP en FTPS delen één &lsquo;s&rsquo; en verder bijna niets. Als je client je laat kiezen uit een dropdown die &lsquo;secure FTP&rsquo; zegt, lees de poort. 22 betekent SFTP. 21 met AUTH TLS, of 990, betekent FTPS. Loop hier één keer in en je verspeelt tien minuten met de vraag waarom je keyfile door een TLS-handshake wordt geweigerd.</aside>
+
+<h2>Waar FTPS zijn nut bewijst</h2>
+<p>FTPS is FTP plus TLS, gestandaardiseerd in <a href="https://datatracker.ietf.org/doc/html/rfc4217">RFC 4217</a>. Het komt in twee smaken die er bij de firewall toe doen.</p>
+<p>Explicit FTPS start op de gewone controlepoort 21 in plaintext, voert vervolgens <code>AUTH TLS</code> uit en upgradet. Implicit FTPS start vanaf de eerste byte versleuteld op poort 990. Explicit is wat vrijwel elke moderne shared host daadwerkelijk aanbiedt. Implicit is deprecated, maar duikt nog op bij oudere Plesk- en DirectAdmin-bakken.</p>
+<p>Het argument voor FTPS is weinig romantisch. Je host draait al vsftpd of Pure-FTPd. De credentialdatabase, de chroot-regels, de per-user quota, de directory-permissies bestaan al. TLS aanzetten is één configvlag en een certificaat. Een typisch vsftpd-blok aan de serverkant ziet er zo uit:</p>
+<pre><code class="lang-ini">listen=YES
+ssl_enable=YES
+force_local_data_ssl=YES
+force_local_logins_ssl=YES
+ssl_tlsv1_2=YES
+ssl_sslv2=NO
+ssl_sslv3=NO
+require_ssl_reuse=NO
+rsa_cert_file=/etc/ssl/private/vsftpd.pem
+rsa_private_key_file=/etc/ssl/private/vsftpd.key
+pasv_min_port=40000
+pasv_max_port=40100</code></pre>
+<p>Het paar <code>pasv_min_port</code> en <code>pasv_max_port</code> is het stuk dat bijt. FTP en FTPS gebruiken een apart datakanaal dat de server willekeurig kiest binnen die range. Je firewall moet die range toestaan, en je NAT moet weten hoe hij hem moet vertalen. Doe dat verkeerd en je krijgt <code>425 Can't open data connection</code> op elke <code>LIST</code>, en de client lijkt &lsquo;prima te verbinden maar nooit files te listen&rsquo;. Dat is niet je TLS-config, dat is het datakanaal.</p>
+<p>Aan de clientkant is een snelle sanity check één regel curl:</p>
+<pre><code class="lang-bash">curl -v --ssl-reqd --user me:secret \
+  ftp://ftp.example.com/wp-content/themes/</code></pre>
+<p>Als die de directory afloopt, is het TLS-pad gezond. Blijft hij hangen na <code>PASV</code>, dan zit de passive-range ergens tussen jou en de schijf dicht.</p>
+
+<h3>Active versus passive, kort</h3>
+<p>Active FTP, waarbij de server terug verbindt naar de client op een datapoort, is dood voor iedereen achter NAT, en dat is iedereen. Forceer passive in de client en pin de passive port range op de server vast. Alles wat anders is, wordt een verhaal dat je om 17:00 op vrijdag aan support uitlegt.</p>
+
+<h2>Wanneer kale FTP nog te verdedigen valt</h2>
+<p>Kale FTP over poort 21 stuurt credentials in plaintext over de lijn. Op het open internet is dat onverdedigbaar. Binnen een private VPC, op een build agent die artefacten op een interne mirror dropt die van buiten het subnet onbereikbaar is, kan het en is het soms zelfs te prefereren omdat de firewallconfig één regel is en de throughput onversleutelde lijnsnelheid haalt. We raden het niet aan, we hebben het in vijf jaar tweemaal terecht zien gebeuren, en beide keren kon de operator het netwerk op een bierviltje tekenen.</p>
+<p>Hangt je &lsquo;FTP&rsquo; aan het publieke internet zonder TLS of SSH eromheen, behandel het als een P1. Het controlekanaal stuurt het wachtwoord in plaintext bij de eerste <code>USER</code>/<code>PASS</code>-uitwisseling. Iedereen op het pad ziet het.</p>
+
+<h2>De beslissing in twee regels</h2>
+<p>Beheer je de server zelf, geef jezelf SFTP en een chrooted user. Het onderstaande <a href="https://man.openbsd.org/sshd_config">Match-block</a>, vastgezet op een groep, is het minimum:</p>
+<pre><code class="lang-sshconfig">Match Group sftponly
+    ChrootDirectory /var/sftp/%u
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no
+    PasswordAuthentication no</code></pre>
+<p>Beheer je de server niet, en draait de host al FTP, zet dan expliciet FTPS aan, pin de passive port range vast, forceer TLS 1.2 of 1.3, en stop. FTPS is in dat scenario geen compromis. Het is het protocol dat past bij de infrastructuur die je daadwerkelijk hebt, en het stuurt dezelfde bytes door dezelfde TLS als je HTTPS.</p>
+<p>Het protocol is niet de interessante keuze. Wat interessant is, is of je editor de <a href="/#features">version history</a> van het bestand kent, of je save twee klikken van een undo zit, en of de volgende persoon die over een jaar die <a href="/">legacy site</a> opent kan zien wie wat veranderde. Toen we Pier bouwden liepen we hier letterlijk tegenaan, ongeveer een derde van de servers waar onze klanten op verbinden heeft helemaal geen SSH. De fix die er werkelijk toe deed was niet FTPS sneller maken, maar elke save met één toetsaanslag omkeerbaar maken, zodat het protocol eronder ophoudt het enge deel van het werk te zijn.</p>
+<p>Het kleinste wat je vandaag kunt doen: open je hostingpanel, zoek de FTP-user op, en controleer of TLS wordt afgedwongen bij login. Zo niet, zet de toggle om. Heeft het panel die toggle niet, dan schrijft de supportmail zichzelf.</p>
+    </div>
+
+    <aside class="pullquote">Beheer je de server zelf, gebruik SFTP. Doe je dat niet en draait de host al FTP, zet dan expliciet FTPS aan en pin de passive port range vast. De rest is firewall.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is FTPS veiliger dan SFTP?</p>
+      <p class="faq-a">Beide zijn sterk, mits correct geconfigureerd. De praktische vraag is welk protocol je server überhaupt aanbiedt en of de passive data port range vanuit jouw netwerk bereikbaar is.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Heeft FTPS een certificaat nodig?</p>
+      <p class="faq-a">Ja. De server heeft een X.509-certificaat nodig. Een Let&#39;s Encrypt-cert op de FTP-service is recht-toe-recht-aan, self-signed werkt mits de client het vertrouwt, maar dat geeft elke keer waarschuwingen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom maakt mijn FTPS-client wel verbinding maar list hij geen bestanden?</p>
+      <p class="faq-a">Vrijwel altijd het passive datakanaal. De controleverbinding op poort 21 is in orde, maar de datapoorten die de server teruggeeft worden ergens tussen jou en de host door een firewall of NAT geblokkeerd.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-live-edit-procedure/hero.jpg" alt="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 mei 2026</span></span>
+      <h3>wp-config.php in productie: een veilige edit-procedure</h3>
+      <span class="pc-lede">wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 april 2026</span></span>
+      <h3>Legacy PHP herbesmetting: de .htaccess-muur die houdt</h3>
+      <span class="pc-lede">De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/ftp-not-dead-ftps-vs-sftp/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
