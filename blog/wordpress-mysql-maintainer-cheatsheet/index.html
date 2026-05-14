@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet · Pier — Blog</title>
+<meta name="description" content="The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet">
+<meta property="og:description" content="The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.">
+<meta property="og:url" content="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+<meta property="og:image" content="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-14T06:39:54.138Z">
+<meta property="article:modified_time" content="2026-05-14T06:39:54.138Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet">
+<meta name="twitter:description" content="The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg">
+<meta name="twitter:image:alt" content="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/"},
+  "url":"https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/",
+  "headline":"WordPress MySQL queries: a legacy maintainer's cheatsheet",
+  "description":"The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards."
+  },
+  "datePublished":"2026-05-14T06:39:54.138Z",
+  "dateModified":"2026-05-14T06:39:54.138Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, mysql, databases, php, operations, workflow",
+  "wordCount":1153,
+  "articleSection":"Databases",
+  "articleBody":"A client emails at 17:40 on a Tuesday. They updated WooCommerce on a 2018 build, and now wp-admin returns a white screen. The error log is empty. SSH gives you a shell, but only to public_html . You have phpMyAdmin, ten minutes, and the agency lead is already asking questions in a different channel. The only tool that's going to fix this in time is the MySQL console. This is the situation where the MySQL queries you actually memorised earn their keep. Not the elegant statements from a database design course. The half-dozen one-liners that fix things on a legacy WordPress site running 5.8 on PHP 7.4 behind a Litespeed cache, with seven years of post revisions and a postmeta table the size of a small lake. What follows is the working set. Run them on a copy first if the table size makes you nervous, and back up the row you are about to modify. Always. The site-URL pair After any migration, two rows in wp_options decide whether the site loads at all. SELECT option_id, option_name, option_value FROM wp_options WHERE option_name IN ('siteurl', 'home'); Updating them looks trivial: UPDATE wp_options SET option_value = 'https://new.example.com' WHERE option_name IN ('siteurl', 'home'); It is not. This fixes the front page and the login redirect. It does not fix the URLs hard-coded into post content, widget JSON, Customizer mods, or serialized plugin settings. WordPress stores a lot of state as PHP-serialized strings, and a serialized string includes its byte length. A naive SQL search-and-replace breaks the length prefix and silently corrupts the row. For the rest of the URLs, use WP-CLI's search-replace command , which deserialises before substituting: wp search-replace 'https://old.example.com' 'https://new.example.com' \\ --skip-columns=guid --all-tables-with-prefix If WP-CLI is not installed and the host won't let you install it, the interconnect/it Search Replace DB script is the safe fallback. Never run a raw UPDATE ... SET ... REPLACE() across all tables. Once a week, somewhere, someone does that and spends Saturday restoring from backup. The locked-admin escape hatch When a plugin update breaks the admin and you cannot reach /wp-admin to deactivate anything, the brute-force fix is to empty the active plugins list straight from the database. SELECT option_value FROM wp_options WHERE option_name = 'active_plugins'\\G Copy that string somewhere safe. Then: UPDATE wp_options SET option_value = 'a:0:{}' WHERE option_name = 'active_plugins'; The value a:0:{} is a PHP-serialized empty array. The site loads with zero plugins, you log in, you reactivate them one by one until you find the offender. Paste the saved value back when you are done, minus the broken plugin. If the site has a must-use plugin loader or a custom drop-in calling plugins_loaded hooks, this won't help. Check wp-content/mu-plugins/ over FTP before assuming the database is the problem. The autoload audit Every row in wp_options with autoload = 'yes' loads on every single request. On a healthy site that's around 200KB. On a five-year-old WordPress with a graveyard of deactivated plugins, it can be 8MB, and your TTFB is mostly MySQL reading option blobs. SELECT option_name, LENGTH(option_value) AS size_bytes FROM wp_options WHERE autoload = 'yes' ORDER BY size_bytes DESC LIMIT 20; And the headline number: SELECT ROUND(SUM(LENGTH(option_value))/1024, 1) AS autoload_kb FROM wp_options WHERE autoload = 'yes'; Common offenders we see on legacy WordPress sites: rank_math_404_logs , jetpack_sync_* , woocommerce_admin_notes , old elementor_* revision caches, and any option ending in _log or _queue . Most have no reason to autoload. Switch them off: UPDATE wp_options SET autoload = 'no' WHERE option_name = 'rank_math_404_logs'; If the plugin actually needs the option, it will call get_option() on demand. The cost moves from every request to the few requests that need it. The revisions purge Post revisions are useful until they aren't. An editorial site that has been live since 2018 with three authors and unlimited revisions has, in our experience, somewhere between 60 and 85 percent of wp_posts taken up by revision rows. Count them: SELECT post_status, post_type, COUNT(*) AS n FROM wp_posts GROUP BY post_status, post_type ORDER BY n DESC; Delete revisions older than 90 days: DELETE FROM wp_posts WHERE post_type = 'revision' AND post_modified < DATE_SUB(NOW(), INTERVAL 90 DAY); That leaves orphaned wp_postmeta rows pointing at posts that no longer exist. Clean them up: DELETE pm FROM wp_postmeta pm LEFT JOIN wp_posts p ON pm.post_id = p.ID WHERE p.ID IS NULL; Then cap future revisions in wp-config.php so the table doesn't grow back: define( 'WP_POST_REVISIONS', 5 ); Password resets, role lookups, transient sweeps Three small MySQL queries that get used more than the headline ones. Reset an admin password without email access: UPDATE wp_users SET user_pass = MD5('temporary-pw-change-me') WHERE user_login = 'admin'; WordPress accepts plain MD5 hashes on login a",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress MySQL queries: a legacy maintainer's cheatsheet","item":"https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I run these queries on a live production WordPress site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "SELECTs are safe. For UPDATE and DELETE, back up the affected rows first, run inside a transaction if your engine supports it, and have a known-good database dump from within the last hour."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why doesn't updating siteurl and home fix all URLs after a migration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress stores plugin settings, widgets, and Customizer mods as PHP-serialized strings with byte-length prefixes. A raw SQL replace breaks the prefix and corrupts the row. Use WP-CLI search-replace instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to delete all post revisions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Deleting revisions older than 90 days has been safe on every site we've touched. Editors lose the ability to roll back specific older drafts, but current post content and recent edit history stay intact."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reset a WordPress admin password without SMTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run UPDATE wp_users SET user_pass = MD5('temp') WHERE user_login = 'admin'. WordPress accepts the MD5, logs you in, and re-hashes to phpass automatically. Change it through the UI immediately after."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 006</span>
+      </div>
+      <p class="eyebrow"><span class="n">006 —</span>Databases</p>
+      <h1 class="display-l post-title">WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h1>
+      <p class="lede post-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-14T06:39:54.138Z">14 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 006</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A client emails at 17:40 on a Tuesday. They updated WooCommerce on a 2018 build, and now wp-admin returns a white screen. The error log is empty. SSH gives you a shell, but only to <code>public_html</code>. You have phpMyAdmin, ten minutes, and the agency lead is already asking questions in a different channel. The only tool that's going to fix this in time is the MySQL console.</p>
+
+<p>This is the situation where the MySQL queries you actually memorised earn their keep. Not the elegant statements from a database design course. The half-dozen one-liners that fix things on a legacy WordPress site running 5.8 on PHP 7.4 behind a Litespeed cache, with seven years of post revisions and a postmeta table the size of a small lake.</p>
+
+<p>What follows is the working set. Run them on a copy first if the table size makes you nervous, and back up the row you are about to modify. Always.</p>
+
+<h2>The site-URL pair</h2>
+
+<p>After any migration, two rows in <code>wp_options</code> decide whether the site loads at all.</p>
+
+<pre><code class="lang-sql">SELECT option_id, option_name, option_value
+FROM wp_options
+WHERE option_name IN ('siteurl', 'home');</code></pre>
+
+<p>Updating them looks trivial:</p>
+
+<pre><code class="lang-sql">UPDATE wp_options
+SET option_value = 'https://new.example.com'
+WHERE option_name IN ('siteurl', 'home');</code></pre>
+
+<p>It is not. This fixes the front page and the login redirect. It does not fix the URLs hard-coded into post content, widget JSON, Customizer mods, or serialized plugin settings. WordPress stores a lot of state as PHP-serialized strings, and a serialized string includes its byte length. A naive SQL search-and-replace breaks the length prefix and silently corrupts the row.</p>
+
+<p>For the rest of the URLs, use <a href="https://developer.wordpress.org/cli/commands/search-replace/">WP-CLI's search-replace command</a>, which deserialises before substituting:</p>
+
+<pre><code class="lang-bash">wp search-replace 'https://old.example.com' 'https://new.example.com' \
+  --skip-columns=guid --all-tables-with-prefix</code></pre>
+
+<p>If WP-CLI is not installed and the host won't let you install it, the interconnect/it Search Replace DB script is the safe fallback. Never run a raw <code>UPDATE ... SET ... REPLACE()</code> across all tables. Once a week, somewhere, someone does that and spends Saturday restoring from backup.</p>
+
+<h2>The locked-admin escape hatch</h2>
+
+<p>When a plugin update breaks the admin and you cannot reach <code>/wp-admin</code> to deactivate anything, the brute-force fix is to empty the active plugins list straight from the database.</p>
+
+<pre><code class="lang-sql">SELECT option_value
+FROM wp_options
+WHERE option_name = 'active_plugins'\G</code></pre>
+
+<p>Copy that string somewhere safe. Then:</p>
+
+<pre><code class="lang-sql">UPDATE wp_options
+SET option_value = 'a:0:{}'
+WHERE option_name = 'active_plugins';</code></pre>
+
+<p>The value <code>a:0:{}</code> is a PHP-serialized empty array. The site loads with zero plugins, you log in, you reactivate them one by one until you find the offender. Paste the saved value back when you are done, minus the broken plugin.</p>
+
+<aside class="callout">If the site has a must-use plugin loader or a custom drop-in calling <code>plugins_loaded</code> hooks, this won't help. Check <code>wp-content/mu-plugins/</code> over FTP before assuming the database is the problem.</aside>
+
+<h2>The autoload audit</h2>
+
+<p>Every row in <code>wp_options</code> with <code>autoload = 'yes'</code> loads on every single request. On a healthy site that's around 200KB. On a five-year-old WordPress with a graveyard of deactivated plugins, it can be 8MB, and your TTFB is mostly MySQL reading option blobs.</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS size_bytes
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY size_bytes DESC
+LIMIT 20;</code></pre>
+
+<p>And the headline number:</p>
+
+<pre><code class="lang-sql">SELECT ROUND(SUM(LENGTH(option_value))/1024, 1) AS autoload_kb
+FROM wp_options
+WHERE autoload = 'yes';</code></pre>
+
+<p>Common offenders we see on legacy WordPress sites: <code>rank_math_404_logs</code>, <code>jetpack_sync_*</code>, <code>woocommerce_admin_notes</code>, old <code>elementor_*</code> revision caches, and any option ending in <code>_log</code> or <code>_queue</code>. Most have no reason to autoload. Switch them off:</p>
+
+<pre><code class="lang-sql">UPDATE wp_options
+SET autoload = 'no'
+WHERE option_name = 'rank_math_404_logs';</code></pre>
+
+<p>If the plugin actually needs the option, it will call <code>get_option()</code> on demand. The cost moves from every request to the few requests that need it.</p>
+
+<h2>The revisions purge</h2>
+
+<p>Post revisions are useful until they aren't. An editorial site that has been live since 2018 with three authors and unlimited revisions has, in our experience, somewhere between 60 and 85 percent of <code>wp_posts</code> taken up by revision rows. Count them:</p>
+
+<pre><code class="lang-sql">SELECT post_status, post_type, COUNT(*) AS n
+FROM wp_posts
+GROUP BY post_status, post_type
+ORDER BY n DESC;</code></pre>
+
+<p>Delete revisions older than 90 days:</p>
+
+<pre><code class="lang-sql">DELETE FROM wp_posts
+WHERE post_type = 'revision'
+  AND post_modified &lt; DATE_SUB(NOW(), INTERVAL 90 DAY);</code></pre>
+
+<p>That leaves orphaned <code>wp_postmeta</code> rows pointing at posts that no longer exist. Clean them up:</p>
+
+<pre><code class="lang-sql">DELETE pm FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON pm.post_id = p.ID
+WHERE p.ID IS NULL;</code></pre>
+
+<p>Then cap future revisions in <code>wp-config.php</code> so the table doesn't grow back:</p>
+
+<pre><code class="lang-php">define( 'WP_POST_REVISIONS', 5 );</code></pre>
+
+<h2>Password resets, role lookups, transient sweeps</h2>
+
+<p>Three small MySQL queries that get used more than the headline ones.</p>
+
+<p>Reset an admin password without email access:</p>
+
+<pre><code class="lang-sql">UPDATE wp_users
+SET user_pass = MD5('temporary-pw-change-me')
+WHERE user_login = 'admin';</code></pre>
+
+<p>WordPress accepts plain MD5 hashes on login and silently re-hashes to phpass on success. This is documented behaviour, not a backdoor. Change the password through the admin UI immediately after.</p>
+
+<p>List every administrator-level user on a site you have just inherited:</p>
+
+<pre><code class="lang-sql">SELECT u.ID, u.user_login, u.user_email, u.user_registered
+FROM wp_users u
+JOIN wp_usermeta m ON u.ID = m.user_id
+WHERE m.meta_key = 'wp_capabilities'
+  AND m.meta_value LIKE '%administrator%'
+ORDER BY u.user_registered;</code></pre>
+
+<p>If there is an admin account you do not recognise, especially one registered between 02:00 and 05:00 UTC, you are doing security work now, not maintenance.</p>
+
+<p>Sweep expired transients (most plugins never clean theirs):</p>
+
+<pre><code class="lang-sql">DELETE FROM wp_options
+WHERE option_name LIKE '\_transient\_%'
+   OR option_name LIKE '\_site\_transient\_%';</code></pre>
+
+<p>Find the largest tables in the database, using <a href="https://dev.mysql.com/doc/refman/8.0/en/information-schema.html">information_schema</a>:</p>
+
+<pre><code class="lang-sql">SELECT table_name,
+       ROUND((data_length + index_length)/1024/1024, 1) AS mb,
+       table_rows
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+ORDER BY mb DESC
+LIMIT 10;</code></pre>
+
+<p>Nine times out of ten the answer is <code>wp_postmeta</code>, <code>wp_options</code>, or <code>wp_actionscheduler_logs</code>. The tenth time it's a plugin you have never heard of writing every page view into a table with no index, and the conversation with the client about whether to keep that plugin starts there.</p>
+
+<h2>Keeping the cheatsheet honest</h2>
+
+<p>None of these MySQL queries are clever. They are the ones you reach for when a legacy site is on fire and the only tool you trust is the one that was already on the box when the site went live in 2014. The skill is knowing which one to run and in what order, not memorising obscure JOIN tricks.</p>
+
+<p>When we built Pier we ran into this exact thing with our own customers: people running these queries from phpMyAdmin and praying they had typed the WHERE clause correctly. The way we ended up handling it was to wrap every UPDATE and DELETE in the built-in <a href="/#database">MySQL editor</a> with a row-level preview, and to keep a <a href="/#features">version history</a> snapshot of every row touched, so a wrong WHERE clause is a two-click revert instead of a Saturday restoring backups.</p>
+
+<p>The smallest thing you could do today: open the database on the <a href="/">legacy site</a> you maintain most, run the autoload audit query, and screenshot the top five rows. You will almost always find a plugin you had forgotten about quietly leaking telemetry into option storage on every request.</p>
+    </div>
+
+    <aside class="pullquote">The five WordPress MySQL queries worth keeping in muscle memory: site-URL pair, active_plugins reset, autoload audit, revisions purge, largest-tables list.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I run these queries on a live production WordPress site?</p>
+      <p class="faq-a">SELECTs are safe. For UPDATE and DELETE, back up the affected rows first, run inside a transaction if your engine supports it, and have a known-good database dump from within the last hour.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why doesn&#39;t updating siteurl and home fix all URLs after a migration?</p>
+      <p class="faq-a">WordPress stores plugin settings, widgets, and Customizer mods as PHP-serialized strings with byte-length prefixes. A raw SQL replace breaks the prefix and corrupts the row. Use WP-CLI search-replace instead.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to delete all post revisions?</p>
+      <p class="faq-a">Deleting revisions older than 90 days has been safe on every site we&#39;ve touched. Editors lose the ability to roll back specific older drafts, but current post content and recent edit history stay intact.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I reset a WordPress admin password without SMTP?</p>
+      <p class="faq-a">Run UPDATE wp_users SET user_pass = MD5(&#39;temp&#39;) WHERE user_login = &#39;admin&#39;. WordPress accepts the MD5, logs you in, and re-hashes to phpass automatically. Change it through the UI immediately after.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/blog/wp-config-live-edit-procedure/hero.jpg" alt="Brass padlock with wax-sealed paper tag on folded linen cloth, bone paper surface, dark oak table edge." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 May 2026</span></span>
+      <h3>wp-config.php on production: a safe edit procedure</h3>
+      <span class="pc-lede">wp-config.php is one line away from a white screen. Here is the procedure we use to change it on a live WordPress site without ever dropping a request.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Brass padlock on paper card with wax seal, tarred rope coil, red ribbon on scarred oak workbench." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 April 2026</span></span>
+      <h3>Legacy PHP reinfection: the .htaccess wall that holds</h3>
+      <span class="pc-lede">A client&#39;s WordPress kept getting reinfected every few days. Cleaning files wasn&#39;t enough. Here&#39;s the .htaccess pattern that finally stopped it.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
