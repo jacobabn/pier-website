@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Composer op legacy PHP: eerst inventariseren, dan init · Pier — Blog</title>
+<meta name="description" content="Je hebt een WordPress-installatie geërfd met drie plugins, drie versies van Guzzle en geen composer.json. Composer init is de verkeerde eerste stap.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, workflow, tooling, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/composer-legacy-php-site/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Composer op legacy PHP: eerst inventariseren, dan init">
+<meta property="og:description" content="Je hebt een WordPress-installatie geërfd met drie plugins, drie versies van Guzzle en geen composer.json. Composer init is de verkeerde eerste stap.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/composer-legacy-php-site/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/composer-legacy-php-site/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/composer-legacy-php-site/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Eikenhouten gereedschapslade half open op donkere werkbank, messing grepen, benen elzen in vilten vakken, papieren label aan ring.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T04:31:13.565Z">
+<meta property="article:modified_time" content="2026-05-15T04:31:13.565Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Composer op legacy PHP: eerst inventariseren, dan init">
+<meta name="twitter:description" content="Je hebt een WordPress-installatie geërfd met drie plugins, drie versies van Guzzle en geen composer.json. Composer init is de verkeerde eerste stap.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/composer-legacy-php-site/hero.jpg">
+<meta name="twitter:image:alt" content="Eikenhouten gereedschapslade half open op donkere werkbank, messing grepen, benen elzen in vilten vakken, papieren label aan ring.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/composer-legacy-php-site/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/composer-legacy-php-site/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/composer-legacy-php-site/"},
+  "url":"https://pier.abn.company/nl/blog/composer-legacy-php-site/",
+  "headline":"Composer op legacy PHP: eerst inventariseren, dan init",
+  "description":"Je hebt een WordPress-installatie geërfd met drie plugins, drie versies van Guzzle en geen composer.json. Composer init is de verkeerde eerste stap.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/composer-legacy-php-site/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Eikenhouten gereedschapslade half open op donkere werkbank, messing grepen, benen elzen in vilten vakken, papieren label aan ring."
+  },
+  "datePublished":"2026-05-15T04:31:13.565Z",
+  "dateModified":"2026-05-15T04:31:13.565Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, wordpress, workflow, tooling, architecture",
+  "wordCount":1124,
+  "articleSection":"PHP",
+  "articleBody":"De Loom kwam binnen om 23:41. Zesentwintig minuten, zonder cut. De agency lead deelde zijn scherm met een WordPress-installatie die ze hadden overgenomen van een vorig intern team, ongeveer 320MB aan PHP buiten wp-content/uploads . Drie custom plugins, elk met zijn eigen /lib/ -map: eentje met Guzzle 5, eentje met Guzzle 6, en eentje met wat een handmatig aangepaste fork leek van stripe-php uit 2018. Nergens een composer.json . De Stripe-integratie moest SCA goed gaan afhandelen vóór de volgende factuurcyclus. Hun eerste reactie, redelijk en bijna juist, was om composer init te draaien en opnieuw te beginnen. Dit is de post die ik stuur als iemand vraagt waarom we niet gewoon eerst moderniseren. Composer is een van de beste dingen die PHP is overkomen. Maar op een legacy PHP-site is het de verkeerde eerste stap. Composer veronderstelt een wereld waar legacy PHP nooit in leefde De autoloader van Composer werkt omdat elk package zich aan PSR-4 houdt, zijn namespace declareert en een composer.json meelevert. Draai composer require guzzlehttp/guzzle op een schone Laravel-installatie en het werkt gewoon. Hetzelfde commando op een WordPress-site uit 2014 kan al bij de eerste request een fatal opleveren: PHP Fatal error: Cannot redeclare class GuzzleHttp\\Client in /wp-content/plugins/abc-integration/lib/guzzle/src/Client.php on line 41 De legacy plugin laadt zijn eigen Guzzle via require_once __DIR__ . '/lib/guzzle/autoload.php' bij plugin-init. De autoloader van Composer, die ná WordPress wordt geregistreerd, vindt dezelfde fully-qualified class al gedeclareerd en valt om. Er is geen schone fix vanuit Composer zelf. Je kunt namespaces hernoemen met php-scoper , de oudere kopie van een prefix voorzien, of de legacy include eruit slopen. Elk pad is echt werk, en op een site met honderd geïnstalleerde plugins maak je die afweging steeds opnieuw. De legacy site heeft, met andere woorden, zijn eigen autoload-verhaal. Soms zeven verschillende. Composer vervangt die verhalen niet. Het voegt er een achtste aan toe. Inventariseer voordat je de autoloader aanraakt Voordat je composer init draait, doe eerst het saaie werk. Lijst elke gevendorde library op, elke versiestring die je kunt vinden, en elke plek waar een globale functie of class wordt gedeclareerd. Klinkt vervelend. Kost je een ochtend. Bespaart je een week. Op het filesystem: find . -path '*/vendor/*' -name 'composer.json' 2>/dev/null find . -path '*/lib/*' -name '*.php' | xargs grep -l 'const VERSION' 2>/dev/null grep -rE \"define\\(\\s*['\\\"][A-Z_]+_VERSION\" wp-content/ 2>/dev/null Draai die drie en je hebt een eerlijk beeld van wat er feitelijk wordt geladen. In de helft van de gevallen vind je twee kopieën van dezelfde library op verschillende versies, beide geïnclude, waarbij de tweede wint omdat die later laadt. Dat is geen Composer-probleem. Dat is een site die in kaart moet worden gebracht. Voor class-conflicten is de goedkoopste scan: grep -rE \"^(class|interface|trait) [A-Z]\" wp-content/plugins/ \\ | awk '{print $1, $2, $3}' | sort | uniq -c | sort -rn | head -20 Als bovenaan classes staan die in drie bestanden zijn gedeclareerd, dan is dat je volgende ticket. Los de botsingen op voordat je een tool introduceert die ervan uitgaat dat ze er niet zijn. Composer naast, niet over Als de audit klaar is, heb je twee eerlijke opties. Alles omzetten naar Composer (een project, geen taak), of Composer naast de legacy code laten draaien (kleinere scope, vaak beter). Het naast-elkaar-patroon ziet er zo uit. Maak een composer.json in de project root met een aangepaste vendor-dir zodat die niet botst met iets dat al op disk staat: { \"config\": { \"vendor-dir\": \"vendor-managed\" }, \"require\": { \"stripe/stripe-php\": \"^13.0\" }, \"autoload\": { \"psr-4\": { \"Acme\\\\Integration\\\\\": \"wp-content/mu-plugins/acme-integration/src/\" } } } Laad vendor-managed/autoload.php in vanuit één mu-plugin, en alleen de code die jij beheert gebruikt hem. De legacy plugins houden hun eigen include-ketens. De nieuwe Stripe-integratie krijgt een actuele SDK. Verder verandert er niets. Die wijziging kun je op een dinsdagmiddag deployen en alsnog op tijd aan tafel zitten. Wat dit kost Je geeft de hoofdbelofte van Composer op, namelijk dat het al je dependencies beheert. Die oude Guzzle 5 blijft gewoon in abc-integration/lib/ staan, ongepatcht, zijn ding doend. Het is dan wel een bekende onbekende geworden in plaats van een verborgen. Documenteer het, zet het op de upgrade-backlog en verder. Het alternatief, zes plugins herschrijven om één autoloader te delen, is precies het werk dat de vorige eigenaar tien jaar lang heeft uitgesteld. Je hebt het uitstel geërfd, niet de verplichting. Het .htaccess-detail dat niemand noemt Als je wél Composer introduceert op een shared-hosting WordPress, weiger dan directe toegang tot de vendor-map. De standaardinstallatie serveert vrolijk vendor-managed/composer/installed.json als een nieuwsgierige aanvaller erom vraagt, en dat bestand is een dependency-vingerafdruk die ze ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/composer-legacy-php-site/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Composer op legacy PHP: eerst inventariseren, dan init","item":"https://pier.abn.company/nl/blog/composer-legacy-php-site/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik gewoon composer require nieuwe packages draaien op een legacy WordPress-site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Soms. Als de classes van het nieuwe package niet botsen met iets wat al gevendord is, dan ja. Grep eerst op de namespace, en gebruik een aangepaste vendor-dir zodat de autoloader geïsoleerd blijft."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is de veiligste manier om een gevendorde Stripe SDK uit 2018 te upgraden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet in-place vervangen. Installeer de nieuwe versie via Composer in een aparte vendor-dir, vervang de include op één integratiepunt, en laat de oude kopie op disk staan tot elk code-pad getest is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik de vendor-map committen op een legacy site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op shared hosting zonder SSH, ja. Op een host die composer install in de deploy draait, nee. De doorslag geeft of je deploy-pipeline Composer betrouwbaar kan draaien, niet je voorkeur."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/composer-legacy-php-site/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 012</span>
+      </div>
+      <p class="eyebrow"><span class="n">012 —</span>PHP</p>
+      <h1 class="display-l post-title">Composer op legacy PHP: eerst inventariseren, dan init</h1>
+      <p class="lede post-lede">Je hebt een WordPress-installatie geërfd met drie plugins, drie versies van Guzzle en geen composer.json. Composer init is de verkeerde eerste stap.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T04:31:13.565Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/composer-legacy-php-site/hero.webp" type="image/webp">
+      <img src="/blog/composer-legacy-php-site/hero.jpg" alt="Eikenhouten gereedschapslade half open op donkere werkbank, messing grepen, benen elzen in vilten vakken, papieren label aan ring." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 012</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom kwam binnen om 23:41. Zesentwintig minuten, zonder cut. De agency lead deelde zijn scherm met een WordPress-installatie die ze hadden overgenomen van een vorig intern team, ongeveer 320MB aan PHP buiten <code>wp-content/uploads</code>. Drie custom plugins, elk met zijn eigen <code>/lib/</code>-map: eentje met Guzzle 5, eentje met Guzzle 6, en eentje met wat een handmatig aangepaste fork leek van <code>stripe-php</code> uit 2018. Nergens een <code>composer.json</code>. De Stripe-integratie moest SCA goed gaan afhandelen vóór de volgende factuurcyclus. Hun eerste reactie, redelijk en bijna juist, was om <code>composer init</code> te draaien en opnieuw te beginnen.</p><p>Dit is de post die ik stuur als iemand vraagt waarom we niet gewoon eerst moderniseren. Composer is een van de beste dingen die PHP is overkomen. Maar op een legacy PHP-site is het de verkeerde eerste stap.</p><h2>Composer veronderstelt een wereld waar legacy PHP nooit in leefde</h2><p>De autoloader van Composer werkt omdat elk package zich aan PSR-4 houdt, zijn namespace declareert en een <code>composer.json</code> meelevert. Draai <code>composer require guzzlehttp/guzzle</code> op een schone Laravel-installatie en het werkt gewoon. Hetzelfde commando op een WordPress-site uit 2014 kan al bij de eerste request een fatal opleveren:</p><pre><code class="lang-text">PHP Fatal error: Cannot redeclare class GuzzleHttp\Client
+in /wp-content/plugins/abc-integration/lib/guzzle/src/Client.php on line 41</code></pre><p>De legacy plugin laadt zijn eigen Guzzle via <code>require_once __DIR__ . '/lib/guzzle/autoload.php'</code> bij plugin-init. De autoloader van Composer, die ná WordPress wordt geregistreerd, vindt dezelfde fully-qualified class al gedeclareerd en valt om. Er is geen schone fix vanuit Composer zelf. Je kunt namespaces hernoemen met <a href="https://github.com/humbug/php-scoper">php-scoper</a>, de oudere kopie van een prefix voorzien, of de legacy include eruit slopen. Elk pad is echt werk, en op een site met honderd geïnstalleerde plugins maak je die afweging steeds opnieuw.</p><p>De legacy site heeft, met andere woorden, zijn eigen autoload-verhaal. Soms zeven verschillende. Composer vervangt die verhalen niet. Het voegt er een achtste aan toe.</p><h2>Inventariseer voordat je de autoloader aanraakt</h2><p>Voordat je <code>composer init</code> draait, doe eerst het saaie werk. Lijst elke gevendorde library op, elke versiestring die je kunt vinden, en elke plek waar een globale functie of class wordt gedeclareerd. Klinkt vervelend. Kost je een ochtend. Bespaart je een week.</p><p>Op het filesystem:</p><pre><code class="lang-bash">find . -path '*/vendor/*' -name 'composer.json' 2&gt;/dev/null
+find . -path '*/lib/*' -name '*.php' | xargs grep -l 'const VERSION' 2&gt;/dev/null
+grep -rE "define\(\s*['\"][A-Z_]+_VERSION" wp-content/ 2&gt;/dev/null</code></pre><p>Draai die drie en je hebt een eerlijk beeld van wat er feitelijk wordt geladen. In de helft van de gevallen vind je twee kopieën van dezelfde library op verschillende versies, beide geïnclude, waarbij de tweede wint omdat die later laadt. Dat is geen Composer-probleem. Dat is een site die in kaart moet worden gebracht.</p><p>Voor class-conflicten is de goedkoopste scan:</p><pre><code class="lang-bash">grep -rE "^(class|interface|trait) [A-Z]" wp-content/plugins/ \
+  | awk '{print $1, $2, $3}' | sort | uniq -c | sort -rn | head -20</code></pre><p>Als bovenaan classes staan die in drie bestanden zijn gedeclareerd, dan is dat je volgende ticket. Los de botsingen op voordat je een tool introduceert die ervan uitgaat dat ze er niet zijn.</p><h2>Composer naast, niet over</h2><p>Als de audit klaar is, heb je twee eerlijke opties. Alles omzetten naar Composer (een project, geen taak), of Composer naast de legacy code laten draaien (kleinere scope, vaak beter).</p><p>Het naast-elkaar-patroon ziet er zo uit. Maak een <code>composer.json</code> in de project root met een aangepaste <code>vendor-dir</code> zodat die niet botst met iets dat al op disk staat:</p><pre><code class="lang-json">{
+  "config": {
+    "vendor-dir": "vendor-managed"
+  },
+  "require": {
+    "stripe/stripe-php": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Acme\\Integration\\": "wp-content/mu-plugins/acme-integration/src/"
+    }
+  }
+}</code></pre><p>Laad <code>vendor-managed/autoload.php</code> in vanuit één mu-plugin, en alleen de code die jij beheert gebruikt hem. De legacy plugins houden hun eigen include-ketens. De nieuwe Stripe-integratie krijgt een actuele SDK. Verder verandert er niets. Die wijziging kun je op een dinsdagmiddag deployen en alsnog op tijd aan tafel zitten.</p><h3>Wat dit kost</h3><p>Je geeft de hoofdbelofte van Composer op, namelijk dat het al je dependencies beheert. Die oude Guzzle 5 blijft gewoon in <code>abc-integration/lib/</code> staan, ongepatcht, zijn ding doend. Het is dan wel een bekende onbekende geworden in plaats van een verborgen. Documenteer het, zet het op de upgrade-backlog en verder. Het alternatief, zes plugins herschrijven om één autoloader te delen, is precies het werk dat de vorige eigenaar tien jaar lang heeft uitgesteld. Je hebt het uitstel geërfd, niet de verplichting.</p><h2>Het .htaccess-detail dat niemand noemt</h2><p>Als je wél Composer introduceert op een shared-hosting WordPress, weiger dan directe toegang tot de vendor-map. De standaardinstallatie serveert vrolijk <code>vendor-managed/composer/installed.json</code> als een nieuwsgierige aanvaller erom vraagt, en dat bestand is een dependency-vingerafdruk die ze in ongeveer dertig seconden kunnen matchen tegen de <a href="https://github.com/FriendsOfPHP/security-advisories">PHP security advisories database</a>.</p><pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteRule ^vendor-managed/ - [F,L]
+&lt;/IfModule&gt;
+
+&lt;FilesMatch "(composer\.(json|lock)|\.env)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre><p>Test met <code>curl -I https://yoursite.test/composer.json</code> en bevestig een 403. Dit is geen Composer-tekortkoming. Het is een deploy-gewoonte die de moderne framework-wereld oplost via document-root conventies, en die de meeste WordPress shared hosts simpelweg niet hebben ingericht.</p><aside class="callout"><code>composer install</code> op productie draaien via SSH is prima. Het draaien via een web-based "composer endpoint"-plugin is hoe sites worden overgenomen. Als je er één hebt geërfd, gooi die er eerst uit voordat je iets anders doet.</aside><h2>Wanneer het antwoord nog niet is</h2><p>Soms is het juiste antwoord: Composer helemaal niet introduceren op een bepaalde site. Een custom PHP-applicatie op PHP 7.4, drie gevendorde libraries, geen actief feature-werk. Composer toevoegen verandert het deploy-verhaal (je hebt nu <code>composer install</code> in CI nodig, of een gecommitte <code>vendor-managed/</code>) en levert nauwelijks iets op. Houd de dependencies bij in een platte tekst-inventaris, pin ze in Git, en laat de site saai blijven. Saai is een feature op een <a href="/">legacy site</a> die al tien jaar werkt.</p><p>Het audit-werk hierboven verdwijnt niet als je Composer overslaat. De gevendorde kopieën moeten nog steeds in kaart, de botsende classes moeten nog steeds opgelost, de .htaccess moet nog steeds de verkeerde paden blokkeren. Composer adopteren is een afgeleide beslissing. Het upstream-werk is weten wat er feitelijk op de server staat.</p><h2>Waar dit landt</h2><p>Toen we Pier bouwden, kwamen we dit tegen op ongeveer veertig klantsites, waarvan vrijwel geen enkele een composer.json had die klopte met wat er op disk stond. We hebben het uiteindelijk opgelost door het live filesystem en de live <a href="/#database">MySQL editor</a> in hetzelfde venster te zetten met volledige <a href="/#features">version history</a>, zodat de audit gebeurt op de plek waar je toch al aan het werk bent.</p><p>Het kleinste wat je vandaag kunt doen: draai de drie <code>find</code>- en <code>grep</code>-commando's hierboven op de site waar je je het meeste zorgen over maakt, plak de output in een document, en lees het door. Je lost in dat kwartier niets op. Maar je weet daarna wél waarmee je te maken hebt, en dat is meer dan de meeste geërfde sites ooit krijgen.</p>
+    </div>
+
+    <aside class="pullquote">Draai composer init als laatste op een legacy PHP-site. Inventariseer eerst de gevendorde libraries, los de class-botsingen op, en introduceer Composer dan naast de bestaande code.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik gewoon composer require nieuwe packages draaien op een legacy WordPress-site?</p>
+      <p class="faq-a">Soms. Als de classes van het nieuwe package niet botsen met iets wat al gevendord is, dan ja. Grep eerst op de namespace, en gebruik een aangepaste vendor-dir zodat de autoloader geïsoleerd blijft.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is de veiligste manier om een gevendorde Stripe SDK uit 2018 te upgraden?</p>
+      <p class="faq-a">Niet in-place vervangen. Installeer de nieuwe versie via Composer in een aparte vendor-dir, vervang de include op één integratiepunt, en laat de oude kopie op disk staan tot elk code-pad getest is.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik de vendor-map committen op een legacy site?</p>
+      <p class="faq-a">Op shared hosting zonder SSH, ja. Op een host die composer install in de deploy draait, nee. De doorslag geeft of je deploy-pipeline Composer betrouwbaar kan draaien, niet je voorkeur.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/ai-code-review-legacy-php/hero.webp" type="image/webp">
+        <img src="/nl/blog/ai-code-review-legacy-php/hero.jpg" alt="Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>AI-codereview op legacy PHP: vangsten en blinde vlekken</h3>
+      <span class="pc-lede">Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/nl/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Web root: zeven bestanden die je nooit publiek serveert</h3>
+      <span class="pc-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/composer-legacy-php-site/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

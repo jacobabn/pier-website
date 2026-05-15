@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Composer and the legacy PHP site you just inherited · Pier — Blog</title>
+<meta name="description" content="You inherited a WordPress install with three plugins, three vendored Guzzles, and zero composer.json. Composer init is the wrong first move. Here is the audit that comes first.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, workflow, tooling, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/composer-legacy-php-site/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/composer-legacy-php-site/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Composer and the legacy PHP site you just inherited">
+<meta property="og:description" content="You inherited a WordPress install with three plugins, three vendored Guzzles, and zero composer.json. Composer init is the wrong first move. Here is the audit that comes first.">
+<meta property="og:url" content="https://pier.abn.company/blog/composer-legacy-php-site/">
+<meta property="og:image" content="https://pier.abn.company/blog/composer-legacy-php-site/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/composer-legacy-php-site/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Oak tool chest drawer half open on dark workbench, brass pulls, bone-handled awls in felted compartments, paper tag on ring.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T04:31:13.565Z">
+<meta property="article:modified_time" content="2026-05-15T04:31:13.565Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Composer and the legacy PHP site you just inherited">
+<meta name="twitter:description" content="You inherited a WordPress install with three plugins, three vendored Guzzles, and zero composer.json. Composer init is the wrong first move. Here is the audit that comes first.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/composer-legacy-php-site/hero.jpg">
+<meta name="twitter:image:alt" content="Oak tool chest drawer half open on dark workbench, brass pulls, bone-handled awls in felted compartments, paper tag on ring.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/composer-legacy-php-site/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/composer-legacy-php-site/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/composer-legacy-php-site/"},
+  "url":"https://pier.abn.company/blog/composer-legacy-php-site/",
+  "headline":"Composer and the legacy PHP site you just inherited",
+  "description":"You inherited a WordPress install with three plugins, three vendored Guzzles, and zero composer.json. Composer init is the wrong first move. Here is the audit that comes first.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/composer-legacy-php-site/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Oak tool chest drawer half open on dark workbench, brass pulls, bone-handled awls in felted compartments, paper tag on ring."
+  },
+  "datePublished":"2026-05-15T04:31:13.565Z",
+  "dateModified":"2026-05-15T04:31:13.565Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, wordpress, workflow, tooling, architecture",
+  "wordCount":1108,
+  "articleSection":"PHP",
+  "articleBody":"The Loom came in at 23:41. Twenty-six minutes, no edit. The agency lead screen-shared a WordPress install they had inherited from a former in-house team, sized at roughly 320MB of PHP outside of wp-content/uploads . Three custom plugins, each carrying its own /lib/ directory: one with Guzzle 5, one with Guzzle 6, one with what appeared to be a hand-edited fork of stripe-php from 2018. No composer.json anywhere. The Stripe integration needed to handle SCA properly before the next billing cycle. Their first instinct, reasonable and almost correct, was to run composer init and start over. This is the post I send when someone asks why we do not just modernise first. Composer is one of the best things to happen to PHP. It is also, on a legacy PHP site, the wrong first move. Composer assumes a world that legacy PHP never lived in Composer's autoloader works because every package agrees on PSR-4, declares its namespace, and ships a composer.json . Run composer require guzzlehttp/guzzle on a clean Laravel project and it just works. The same command on a 2014-era WordPress site can produce a fatal at the first request: PHP Fatal error: Cannot redeclare class GuzzleHttp\\Client in /wp-content/plugins/abc-integration/lib/guzzle/src/Client.php on line 41 The legacy plugin includes its own Guzzle via require_once __DIR__ . '/lib/guzzle/autoload.php' on plugin load. Composer's autoloader, registered after WordPress boots, finds the same fully-qualified class name pre-declared and dies. There is no clean fix from Composer's side. You can rename namespaces with php-scoper , prefix the older copy, or rip out the legacy include. Each path is real work, and on a site with a hundred deployed plugins you will be making this decision repeatedly. The legacy site, in other words, has its own autoload story. Sometimes seven of them. Composer does not replace those stories. It adds an eighth. Inventory before you touch the autoloader Before any composer init , do the boring thing first. List every vendored library, every version string you can find, and every place a global function or class is declared. This sounds tedious. It takes a morning. It saves a week. On the filesystem: find . -path '*/vendor/*' -name 'composer.json' 2>/dev/null find . -path '*/lib/*' -name '*.php' | xargs grep -l 'const VERSION' 2>/dev/null grep -rE \"define\\(\\s*['\\\"][A-Z_]+_VERSION\" wp-content/ 2>/dev/null Run those three and you have a candid picture of what is actually loaded. Half the time you find two copies of the same library at different versions, both being included, with the second one winning because it loads later. That is not a Composer problem. That is a site that needs to be mapped. For class collisions, the cheapest scan is: grep -rE \"^(class|interface|trait) [A-Z]\" wp-content/plugins/ \\ | awk '{print $1, $2, $3}' | sort | uniq -c | sort -rn | head -20 If the top of the list shows class names declared in three files, that is your next ticket. Fix the collisions before introducing a tool that assumes there are none. Composer alongside, not over Once the audit is done, you have two honest options. Convert everything to Composer (a project, not a task) or run Composer alongside the legacy code (a smaller, often better, scope). The alongside pattern looks like this. Create a composer.json at the project root with a custom vendor-dir so it does not collide with anything already on disk: { \"config\": { \"vendor-dir\": \"vendor-managed\" }, \"require\": { \"stripe/stripe-php\": \"^13.0\" }, \"autoload\": { \"psr-4\": { \"Acme\\\\Integration\\\\\": \"wp-content/mu-plugins/acme-integration/src/\" } } } Include vendor-managed/autoload.php from a single mu-plugin, and only the code you control uses it. The legacy plugins keep their own include chains. The new Stripe integration gets a current SDK. Nothing else moves. You can ship that change on a Tuesday afternoon and still go for dinner. What this costs You give up Composer's main promise, which is that it manages all your dependencies. You will still have the old Guzzle 5 sitting in abc-integration/lib/ , unpatched, doing its thing. That is a known unknown rather than a hidden one. Document it, add it to the upgrade backlog, and move on. The alternative, which is rewriting six plugins to share one autoloader, is the work the previous owner postponed for ten years. You inherited the postponement, not the obligation. The .htaccess detail nobody mentions When you do introduce Composer to a shared-hosting WordPress, deny direct access to the vendor directory. The default install will happily serve vendor-managed/composer/installed.json if a curious attacker requests it, and that file is a dependency fingerprint they can match against the PHP security advisories database in about thirty seconds. <IfModule mod_rewrite.c> RewriteEngine On RewriteRule ^vendor-managed/ - [F,L] </IfModule> <FilesMatch \"(composer\\.(json|lock)|\\.env)$\"> Require all denied </FilesMatch> Test with curl -I https://yoursite.test/composer.json and confirm ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/composer-legacy-php-site/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Composer and the legacy PHP site you just inherited","item":"https://pier.abn.company/blog/composer-legacy-php-site/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I just composer require new packages on a legacy WordPress site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sometimes. If the new package's classes do not collide with anything already vendored, yes. Grep for the namespace first, and use a custom vendor-dir so the autoloader stays isolated."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the safest way to upgrade a vendored Stripe SDK from 2018?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Do not replace it in-place. Install the new version via Composer into a separate vendor-dir, swap the include in one integration point, and keep the old copy on disk until every code path is tested."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I commit the vendor directory on a legacy site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On shared hosting without SSH, yes. On a host that runs composer install in deploy, no. The deciding factor is whether your deploy pipeline can run Composer reliably, not preference."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does php-scoper actually solve the class collision problem?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For libraries you control or fork, yes. It prefixes namespaces at build time so two versions can coexist. For plugin code you do not own, it usually creates more maintenance than it saves."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/composer-legacy-php-site/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 012</span>
+      </div>
+      <p class="eyebrow"><span class="n">012 —</span>PHP</p>
+      <h1 class="display-l post-title">Composer and the legacy PHP site you just inherited</h1>
+      <p class="lede post-lede">You inherited a WordPress install with three plugins, three vendored Guzzles, and zero composer.json. Composer init is the wrong first move. Here is the audit that comes first.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T04:31:13.565Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/composer-legacy-php-site/hero.webp" type="image/webp">
+      <img src="/blog/composer-legacy-php-site/hero.jpg" alt="Oak tool chest drawer half open on dark workbench, brass pulls, bone-handled awls in felted compartments, paper tag on ring." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 012</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom came in at 23:41. Twenty-six minutes, no edit. The agency lead screen-shared a WordPress install they had inherited from a former in-house team, sized at roughly 320MB of PHP outside of <code>wp-content/uploads</code>. Three custom plugins, each carrying its own <code>/lib/</code> directory: one with Guzzle 5, one with Guzzle 6, one with what appeared to be a hand-edited fork of <code>stripe-php</code> from 2018. No <code>composer.json</code> anywhere. The Stripe integration needed to handle SCA properly before the next billing cycle. Their first instinct, reasonable and almost correct, was to run <code>composer init</code> and start over.</p><p>This is the post I send when someone asks why we do not just modernise first. Composer is one of the best things to happen to PHP. It is also, on a legacy PHP site, the wrong first move.</p><h2>Composer assumes a world that legacy PHP never lived in</h2><p>Composer's autoloader works because every package agrees on PSR-4, declares its namespace, and ships a <code>composer.json</code>. Run <code>composer require guzzlehttp/guzzle</code> on a clean Laravel project and it just works. The same command on a 2014-era WordPress site can produce a fatal at the first request:</p><pre><code class="lang-text">PHP Fatal error: Cannot redeclare class GuzzleHttp\Client
+in /wp-content/plugins/abc-integration/lib/guzzle/src/Client.php on line 41</code></pre><p>The legacy plugin includes its own Guzzle via <code>require_once __DIR__ . '/lib/guzzle/autoload.php'</code> on plugin load. Composer's autoloader, registered after WordPress boots, finds the same fully-qualified class name pre-declared and dies. There is no clean fix from Composer's side. You can rename namespaces with <a href="https://github.com/humbug/php-scoper">php-scoper</a>, prefix the older copy, or rip out the legacy include. Each path is real work, and on a site with a hundred deployed plugins you will be making this decision repeatedly.</p><p>The legacy site, in other words, has its own autoload story. Sometimes seven of them. Composer does not replace those stories. It adds an eighth.</p><h2>Inventory before you touch the autoloader</h2><p>Before any <code>composer init</code>, do the boring thing first. List every vendored library, every version string you can find, and every place a global function or class is declared. This sounds tedious. It takes a morning. It saves a week.</p><p>On the filesystem:</p><pre><code class="lang-bash">find . -path '*/vendor/*' -name 'composer.json' 2&gt;/dev/null
+find . -path '*/lib/*' -name '*.php' | xargs grep -l 'const VERSION' 2&gt;/dev/null
+grep -rE "define\(\s*['\"][A-Z_]+_VERSION" wp-content/ 2&gt;/dev/null</code></pre><p>Run those three and you have a candid picture of what is actually loaded. Half the time you find two copies of the same library at different versions, both being included, with the second one winning because it loads later. That is not a Composer problem. That is a site that needs to be mapped.</p><p>For class collisions, the cheapest scan is:</p><pre><code class="lang-bash">grep -rE "^(class|interface|trait) [A-Z]" wp-content/plugins/ \
+  | awk '{print $1, $2, $3}' | sort | uniq -c | sort -rn | head -20</code></pre><p>If the top of the list shows class names declared in three files, that is your next ticket. Fix the collisions before introducing a tool that assumes there are none.</p><h2>Composer alongside, not over</h2><p>Once the audit is done, you have two honest options. Convert everything to Composer (a project, not a task) or run Composer alongside the legacy code (a smaller, often better, scope).</p><p>The alongside pattern looks like this. Create a <code>composer.json</code> at the project root with a custom <code>vendor-dir</code> so it does not collide with anything already on disk:</p><pre><code class="lang-json">{
+  "config": {
+    "vendor-dir": "vendor-managed"
+  },
+  "require": {
+    "stripe/stripe-php": "^13.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Acme\\Integration\\": "wp-content/mu-plugins/acme-integration/src/"
+    }
+  }
+}</code></pre><p>Include <code>vendor-managed/autoload.php</code> from a single mu-plugin, and only the code you control uses it. The legacy plugins keep their own include chains. The new Stripe integration gets a current SDK. Nothing else moves. You can ship that change on a Tuesday afternoon and still go for dinner.</p><h3>What this costs</h3><p>You give up Composer's main promise, which is that it manages all your dependencies. You will still have the old Guzzle 5 sitting in <code>abc-integration/lib/</code>, unpatched, doing its thing. That is a known unknown rather than a hidden one. Document it, add it to the upgrade backlog, and move on. The alternative, which is rewriting six plugins to share one autoloader, is the work the previous owner postponed for ten years. You inherited the postponement, not the obligation.</p><h2>The .htaccess detail nobody mentions</h2><p>When you do introduce Composer to a shared-hosting WordPress, deny direct access to the vendor directory. The default install will happily serve <code>vendor-managed/composer/installed.json</code> if a curious attacker requests it, and that file is a dependency fingerprint they can match against the <a href="https://github.com/FriendsOfPHP/security-advisories">PHP security advisories database</a> in about thirty seconds.</p><pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteRule ^vendor-managed/ - [F,L]
+&lt;/IfModule&gt;
+
+&lt;FilesMatch "(composer\.(json|lock)|\.env)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre><p>Test with <code>curl -I https://yoursite.test/composer.json</code> and confirm a 403. This is not Composer's fault. It is a deployment habit that the modern framework world handles via document-root conventions and that WordPress shared hosts mostly do not.</p><aside class="callout">Running <code>composer install</code> on production via SSH is fine. Running it via a web-based "composer endpoint" plugin is how sites get owned. If you have inherited one, delete it before you do anything else.</aside><h2>When the answer is not yet</h2><p>Sometimes the right call is to not introduce Composer at all on a given site. A custom PHP application running PHP 7.4, three vendored libraries, no active feature work. Adding Composer changes the deployment story (you now need <code>composer install</code> in CI, or a committed <code>vendor-managed/</code>) and gains very little. Track the dependencies in a plain text inventory, pin them in Git, and let the site stay boring. Boring is a feature on a <a href="/">legacy site</a> that has worked for a decade.</p><p>The audit work above does not go away if you skip Composer. The vendored copies still need to be inventoried, the colliding classes still need to be fixed, the .htaccess still needs to deny the wrong paths. Composer adoption is a downstream decision. The upstream work is knowing what is actually on the server.</p><h2>Where this lands</h2><p>When we built Pier we ran into this across roughly forty customer sites, almost none of which had a composer.json that matched what was on disk. The way we ended up handling it was to put the live filesystem and the live <a href="/#database">MySQL editor</a> in the same window with full <a href="/#features">version history</a>, so the audit happens where you are already editing.</p><p>The smallest thing you can do today: run the three <code>find</code> and <code>grep</code> commands above on the site that is worrying you, paste the output into a doc, and read it. You will not fix anything in those fifteen minutes. You will know what you are dealing with, which is more than most inherited sites get.</p>
+    </div>
+
+    <aside class="pullquote">On a legacy PHP site, run composer init last. Inventory the vendored libraries, fix the class collisions, then introduce Composer alongside the old code.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I just composer require new packages on a legacy WordPress site?</p>
+      <p class="faq-a">Sometimes. If the new package&#39;s classes do not collide with anything already vendored, yes. Grep for the namespace first, and use a custom vendor-dir so the autoloader stays isolated.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the safest way to upgrade a vendored Stripe SDK from 2018?</p>
+      <p class="faq-a">Do not replace it in-place. Install the new version via Composer into a separate vendor-dir, swap the include in one integration point, and keep the old copy on disk until every code path is tested.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I commit the vendor directory on a legacy site?</p>
+      <p class="faq-a">On shared hosting without SSH, yes. On a host that runs composer install in deploy, no. The deciding factor is whether your deploy pipeline can run Composer reliably, not preference.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does php-scoper actually solve the class collision problem?</p>
+      <p class="faq-a">For libraries you control or fork, yes. It prefixes namespaces at build time so two versions can coexist. For plugin code you do not own, it usually creates more maintenance than it saves.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/ai-code-review-legacy-php/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/ai-code-review-legacy-php/hero.webp" type="image/webp">
+        <img src="/blog/ai-code-review-legacy-php/hero.jpg" alt="Vintage calipers on a cream draughting template with pencil lines, small clay-red paper tab, dark oak workbench." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>15 May 2026</span></span>
+      <h3>AI-assisted PHP review: what it catches, what it misses</h3>
+      <span class="pc-lede">An honest look at what AI code review actually changes when you&#39;re refactoring 14-year-old PHP: the bugs it finds in seconds, the legacy decisions it can&#39;t read.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/composer-legacy-php-site/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
