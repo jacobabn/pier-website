@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress zonder dashboard: waarom bureaus in FTP wonen · Pier — Blog</title>
+<meta name="description" content="Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, ftp, workflow, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress zonder dashboard: waarom bureaus in FTP wonen">
+<meta property="og:description" content="Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T08:33:00.133Z">
+<meta property="article:modified_time" content="2026-05-15T08:33:00.133Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress zonder dashboard: waarom bureaus in FTP wonen">
+<meta name="twitter:description" content="Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta name="twitter:image:alt" content="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/"},
+  "url":"https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/",
+  "headline":"WordPress zonder dashboard: waarom bureaus in FTP wonen",
+  "description":"Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau."
+  },
+  "datePublished":"2026-05-15T08:33:00.133Z",
+  "dateModified":"2026-05-15T08:33:00.133Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, mysql, ftp, workflow, operations",
+  "wordCount":1367,
+  "articleSection":"WordPress",
+  "articleBody":"Om 23:41 op een dinsdag stuurde een bureau-eigenaar een Loom van zijn scherm. Geen browser. Geen wp-admin . Alleen een file tree op een shared host, een MySQL-prompt in een ander paneel, en een tail -f op error_log . \"Zo runnen we klantsites sinds 2014,\" zei hij. \"Het dashboard is voor de klant. Daar gaan we niet in tenzij het echt moet.\" Die houding klinkt ketters tot je een paar jaar hebt opgeruimd na WordPress-dashboards. Dan klinkt het als een vanzelfsprekende werkkeuze. Deze post gaat over waarom sommige bureaus een WordPress-portfolio bijna volledig draaien vanuit FTP en MySQL, wat ze ermee winnen, en waar de aanpak stukloopt. Als je ooit wp-admin hebt weggeklikt en in plaats daarvan een SFTP-client hebt geopend, herken je de vorm hiervan. Het dashboard is een klantoppervlak, geen operator-oppervlak De WordPress-admin is rond 2005 ontworpen voor één gebruiker die posts intikt. Er kwamen pluginpagina's bij, theme-opties, een blokeditor, een site-editor en een dozijn overlappende menustructuren, maar de onderliggende aanname is nooit veranderd: de operator is dezelfde persoon als de auteur van de content. Voor een bureau dat dertig of veertig verouderde sites beheert, klopt die aanname niet. De operator wil weten welke plugin de homepage 400 ms heeft vertraagd na de auto-update van vannacht. De auteur wil een persbericht publiceren. Beide taken achter dezelfde login plaatsen dwingt elke operator-actie door een UI die voor het andere doel is afgestemd. Zo krijg je bureaus die wp-admin alleen behandelen als content-oppervlak, en het operator-werk elders doen. Dat 'elders' is bijna altijd twee dingen: het filesystem via SFTP, en de database via een SQL-client. Zodra je dat accepteert, wordt veel WordPress-onderhoud eenvoudiger. Hoe 'in de FTP wonen' er in de praktijk uitziet De uitdrukking is een afkorting. Niemand gebruikt in 2026 nog plain FTP als het te vermijden valt; SFTP over SSH is het minimum. Maar het werkpatroon is hetzelfde als vijftien jaar geleden. Een bureau-engineer opent de site tree en gaat direct naar wp-content/ . De indeling is bekend. plugins/ bevat de traag bewegende WooCommerce-stack en de snelle 'de klant wilde iets'-plugins. themes/ is meestal één child theme van een parent die al twee jaar niet is aangeraakt. uploads/ is waar elke 'de site is nu enorm'-klacht in werkelijkheid zit. Drie bestanden worden constant geopend: wp-config.php voor database-credentials, debug-flags, memory limits en de table prefix. .htaccess in de document root voor redirects, security blocks en PHP-value overrides. wp-content/debug.log als WP_DEBUG_LOG aanstaat, of de error_log van de host als dat niet zo is. Het eerste wat de meeste operators op een nieuwe site doen, is debug-output forceren naar een bestand dat het dashboard nooit te zien krijgt: // wp-config.php: operator-side debugging, never on a production dashboard define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); // writes to wp-content/debug.log define( 'WP_DEBUG_DISPLAY', false ); // never leak warnings to visitors @ini_set( 'display_errors', 0 ); Dat geeft je een echt log dat je kunt tail-en, in plaats van te proberen een deprecation warning te reproduceren door door admin-pagina's te klikken. De .htaccess als het echte controlpaneel De meeste operator-configuratie die eigenlijk in een settings-UI thuishoort, staat in plaats daarvan in .htaccess . Een typisch bureau-blok op een gehardende WordPress-installatie ziet er ongeveer zo uit: # Block direct PHP execution inside uploads <Directory /var/www/site/wp-content/uploads> <FilesMatch \"\\.(php|phtml|phar)$\"> Require all denied </FilesMatch> </Directory> # Stop XML-RPC entirely. Almost no client uses it, attackers love it <Files xmlrpc.php> Require all denied </Files> # Force HTTPS without depending on a plugin RewriteEngine On RewriteCond %{HTTPS} !=on RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301] Niets daarvan is bereikbaar vanuit wp-admin zonder een plugin te installeren, en die plugin is óf traag, óf verlaten, óf allebei. De Apache rewrite docs zijn nog altijd de canonieke referentie; bookmark ze één keer en je hebt de pluginlaag niet meer nodig. SQL verslaat het zoekvak van wp-admin De tweede helft van het bureauleven is de database. Zodra je je SQL-client meer vertrouwt dan het dashboard, krimpt een hele categorie problemen in tot queries van twee regels. Vind elke post die na een migratie nog naar een oud domein linkt: SELECT ID, post_title FROM wp_posts WHERE post_status = 'publish' AND post_content LIKE '%old-domain.test%'; Vind de autoloaded options die stilletjes je TTFB om zeep helpen: SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' ORDER BY bytes DESC LIMIT 20; Die tweede query is een van de meest impactvolle dingen die je op een trage WordPress-site kunt draaien. Een opgezwollen wp_options -tabel is veruit de meest voorkomende oorzaak van een site die 'over de jaren traag is geworden'. Je vindt dit niet vanuit het dashbo",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress zonder dashboard: waarom bureaus in FTP wonen","item":"https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is WordPress bewerken via SFTP veilig op een live site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een staging-kopie bewerken en deployen is veiliger. Directe edits op productie werken voor kleine CSS- of template-wijzigingen, maar nooit voor functions.php of plugincode zonder een geteste rollback."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom is wp_options zo vaak de oorzaak van traagheid?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plugins schrijven autoloaded options die bij elke request worden geladen. Over de jaren laten verlaten plugins megabytes aan autoload-data achter. Eén query op wp_options vindt het meestal binnen enkele minuten."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik een URL-search-replace doen met gewone SQL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen voor niet-geserialiseerde kolommen zoals post_content. Alles wat geserialiseerde PHP-arrays kan bevatten (wp_options, wp_postmeta) heeft een tool nodig die serialisatie begrijpt, zoals WP-CLI search-replace of Search-Replace-DB."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wordpress-without-the-dashboard/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 018</span>
+      </div>
+      <p class="eyebrow"><span class="n">018 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress zonder dashboard: waarom bureaus in FTP wonen</h1>
+      <p class="lede post-lede">Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T08:33:00.133Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-without-the-dashboard/hero.jpg" alt="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 018</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 op een dinsdag stuurde een bureau-eigenaar een Loom van zijn scherm. Geen browser. Geen <code>wp-admin</code>. Alleen een file tree op een shared host, een MySQL-prompt in een ander paneel, en een <code>tail -f</code> op <code>error_log</code>. "Zo runnen we klantsites sinds 2014," zei hij. "Het dashboard is voor de klant. Daar gaan we niet in tenzij het echt moet."</p>
+<p>Die houding klinkt ketters tot je een paar jaar hebt opgeruimd na WordPress-dashboards. Dan klinkt het als een vanzelfsprekende werkkeuze. Deze post gaat over waarom sommige bureaus een WordPress-portfolio bijna volledig draaien vanuit FTP en MySQL, wat ze ermee winnen, en waar de aanpak stukloopt. Als je ooit wp-admin hebt weggeklikt en in plaats daarvan een SFTP-client hebt geopend, herken je de vorm hiervan.</p>
+<h2>Het dashboard is een klantoppervlak, geen operator-oppervlak</h2>
+<p>De WordPress-admin is rond 2005 ontworpen voor één gebruiker die posts intikt. Er kwamen pluginpagina's bij, theme-opties, een blokeditor, een site-editor en een dozijn overlappende menustructuren, maar de onderliggende aanname is nooit veranderd: de operator is dezelfde persoon als de auteur van de content. Voor een bureau dat dertig of veertig <a href="/">verouderde sites</a> beheert, klopt die aanname niet.</p>
+<p>De operator wil weten welke plugin de homepage 400 ms heeft vertraagd na de auto-update van vannacht. De auteur wil een persbericht publiceren. Beide taken achter dezelfde login plaatsen dwingt elke operator-actie door een UI die voor het andere doel is afgestemd. Zo krijg je bureaus die wp-admin alleen behandelen als content-oppervlak, en het operator-werk elders doen.</p>
+<p>Dat 'elders' is bijna altijd twee dingen: het filesystem via SFTP, en de database via een SQL-client. Zodra je dat accepteert, wordt veel WordPress-onderhoud eenvoudiger.</p>
+<h2>Hoe 'in de FTP wonen' er in de praktijk uitziet</h2>
+<p>De uitdrukking is een afkorting. Niemand gebruikt in 2026 nog plain FTP als het te vermijden valt; <a href="https://datatracker.ietf.org/doc/html/rfc4253">SFTP over SSH</a> is het minimum. Maar het werkpatroon is hetzelfde als vijftien jaar geleden.</p>
+<p>Een bureau-engineer opent de site tree en gaat direct naar <code>wp-content/</code>. De indeling is bekend. <code>plugins/</code> bevat de traag bewegende WooCommerce-stack en de snelle 'de klant wilde iets'-plugins. <code>themes/</code> is meestal één child theme van een parent die al twee jaar niet is aangeraakt. <code>uploads/</code> is waar elke 'de site is nu enorm'-klacht in werkelijkheid zit.</p>
+<p>Drie bestanden worden constant geopend:</p>
+<ul>
+<li><code>wp-config.php</code> voor database-credentials, debug-flags, memory limits en de table prefix.</li>
+<li><code>.htaccess</code> in de document root voor redirects, security blocks en PHP-value overrides.</li>
+<li><code>wp-content/debug.log</code> als <code>WP_DEBUG_LOG</code> aanstaat, of de <code>error_log</code> van de host als dat niet zo is.</li>
+</ul>
+<p>Het eerste wat de meeste operators op een nieuwe site doen, is debug-output forceren naar een bestand dat het dashboard nooit te zien krijgt:</p>
+<pre><code class="lang-php">// wp-config.php: operator-side debugging, never on a production dashboard
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );      // writes to wp-content/debug.log
+define( 'WP_DEBUG_DISPLAY', false ); // never leak warnings to visitors
+@ini_set( 'display_errors', 0 );
+</code></pre>
+<p>Dat geeft je een echt log dat je kunt tail-en, in plaats van te proberen een deprecation warning te reproduceren door door admin-pagina's te klikken.</p>
+<h3>De .htaccess als het echte controlpaneel</h3>
+<p>De meeste operator-configuratie die eigenlijk in een settings-UI thuishoort, staat in plaats daarvan in <code>.htaccess</code>. Een typisch bureau-blok op een gehardende WordPress-installatie ziet er ongeveer zo uit:</p>
+<pre><code class="lang-apache"># Block direct PHP execution inside uploads
+&lt;Directory /var/www/site/wp-content/uploads&gt;
+  &lt;FilesMatch "\.(php|phtml|phar)$"&gt;
+    Require all denied
+  &lt;/FilesMatch&gt;
+&lt;/Directory&gt;
+
+# Stop XML-RPC entirely. Almost no client uses it, attackers love it
+&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;
+
+# Force HTTPS without depending on a plugin
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</code></pre>
+<p>Niets daarvan is bereikbaar vanuit wp-admin zonder een plugin te installeren, en die plugin is óf traag, óf verlaten, óf allebei. De <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">Apache rewrite docs</a> zijn nog altijd de canonieke referentie; bookmark ze één keer en je hebt de pluginlaag niet meer nodig.</p>
+<h2>SQL verslaat het zoekvak van wp-admin</h2>
+<p>De tweede helft van het bureauleven is de database. Zodra je je SQL-client meer vertrouwt dan het dashboard, krimpt een hele categorie problemen in tot queries van twee regels.</p>
+<p>Vind elke post die na een migratie nog naar een oud domein linkt:</p>
+<pre><code class="lang-sql">SELECT ID, post_title
+FROM wp_posts
+WHERE post_status = 'publish'
+  AND post_content LIKE '%old-domain.test%';
+</code></pre>
+<p>Vind de autoloaded options die stilletjes je TTFB om zeep helpen:</p>
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 20;
+</code></pre>
+<p>Die tweede query is een van de meest impactvolle dingen die je op een trage WordPress-site kunt draaien. Een opgezwollen <code>wp_options</code>-tabel is veruit de meest voorkomende oorzaak van een site die 'over de jaren traag is geworden'. Je vindt dit niet vanuit het dashboard, want het dashboard is juist het ding dat de bloat schrijft.</p>
+<p>Een URL over een hele site vervangen op de juiste manier, hoort ook in SQL-terrein. Directe <code>UPDATE</code>-statements breken geserialiseerde PHP-arrays in <code>wp_options</code> en <code>wp_postmeta</code>, dus het werkbare gereedschap is <a href="https://github.com/interconnectit/Search-Replace-DB">Search-Replace-DB van interconnect/it</a> of het equivalent in WP-CLI. Hoe dan ook: het is een script dat je draait, geen formulier in een dashboard.</p>
+<aside class="callout"><strong>Let op:</strong> draai nooit een naïeve <code>UPDATE wp_options SET option_value = REPLACE(...)</code> op een geserialiseerde waarde. PHP-serialisatie codeert string-lengtes; een search-replace die de lengte verandert zonder opnieuw te serialiseren, levert een option op die PHP stil laat falen op <code>unserialize</code>, en de betreffende plugin gaat zich gedragen alsof hij geen instellingen heeft. Gebruik een tool die serialisatie begrijpt.</aside>
+<h2>Waar de FTP-first aanpak stukloopt</h2>
+<p>Het eerlijke deel. In de file tree wonen is geen schone winst.</p>
+<p>Het veronderstelt dat je code kunt lezen. Een WooCommerce-shop met twintig plugins is een dependency-graaf die je niet in je hoofd houdt, en grep-en op een hook-naam brengt je maar zo ver. Het veronderstelt dat je een staging-kopie hebt, want direct in een productie-<code>functions.php</code> editen via SFTP is hoe sites om 02:00 op een white screen eindigen. En het veronderstelt dat je een audit trail hebt, en die geeft rauwe SFTP je niet. Twee engineers die hetzelfde bestand editen, overschrijven elkaar zonder waarschuwing.</p>
+<p>De klassieke bureau-workaround is een Git-mirror van <code>wp-content/</code> met een deploy hook, plus een dagelijkse <code>mysqldump</code> naar S3. Dat werkt, maar het is veel infrastructuur per klantsite, en zodra een klant een tekstwijziging van één teken vraagt, ben je alsnog aan het SSH-en.</p>
+<p>De vorm van die kloof is overal zichtbaar waar mensen WordPress op schaal beheren. <a href="https://developer.wordpress.org/cli/commands/">WP-CLI</a> bestaat omdat het dashboard de verkeerde plek is om plugins in bulk te updaten of salts te roteren. De <a href="https://wordpress.org/documentation/article/debugging-in-wordpress/">officiële debugging guide</a> gaat vooral over flags die je in <code>wp-config.php</code> zet, niet over schermen waarop je klikt. Operator-controle over een WordPress-installatie zit per ontwerp buiten de admin-UI.</p>
+<h2>Hoe een werkende bureau-setup eruitziet</h2>
+<p>Als je schetst wat een stabiel WordPress-bureau in 2026 daadwerkelijk draait, ziet het er ongeveer zo uit:</p>
+<ol>
+<li>SFTP naar <code>wp-content/</code> als primair edit-oppervlak, met een lokale mirror in een echte editor.</li>
+<li>Een SQL-client verbonden met de live database voor reads, en met een staging-kopie voor writes.</li>
+<li><code>WP_DEBUG_LOG</code> aan, getail-d in een terminalvenster dat de hele dag open blijft.</li>
+<li>Een back-upjob die draait voor elke deploy en na elke schemawijziging.</li>
+<li>wp-admin overgedragen aan de klant, het operator-account alleen gebruikt als iets wat de klant deed teruggedraaid moet worden.</li>
+</ol>
+<p>Het dashboard is er nog steeds. Het is alleen gedegradeerd naar het oppervlak waar het altijd al het beste in was: niet-technische auteurs laten publiceren.</p>
+<h2>Het gat in version history</h2>
+<p>Het enige wat deze workflow altijd heeft gemist, is bruikbare <a href="/#features">version history</a>. SFTP geeft je een bestand; het geeft je niet het bestand van gisteren. Git op <code>wp-content/</code> is de standaardoplossing en die werkt, maar het is setup-per-site en de meeste eenmansbureaus slaan het over bij kleinere klanten. De kosten van overslaan komen aan het licht zodra een plugin-update een custom hook in een child theme stilletjes overschrijft.</p>
+<p>Toen we Pier bouwden, liepen we precies hier tegenaan, omdat de mensen voor wie we het bouwden al in SFTP en een <a href="/#database">MySQL editor</a> leefden. Wat we uiteindelijk deden, was elke save automatisch versioneren aan de serverkant, zodat one-click rollback werkt of de wijziging nu uit een chat-prompt of een handmatige bestandswijziging komt.</p>
+<p>Het kleinste wat je vandaag kunt doen: zet <code>WP_DEBUG_LOG</code> aan op één site die je beheert, tail <code>wp-content/debug.log</code> een uur lang, en zie wat je dashboard al die tijd voor je verborgen heeft.</p>
+    </div>
+
+    <aside class="pullquote">wp-admin is gebouwd voor auteurs, niet voor operators. Bureaus die WordPress op schaal beheren, doen het echte werk vooral in SFTP, SQL en het error log.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is WordPress bewerken via SFTP veilig op een live site?</p>
+      <p class="faq-a">Een staging-kopie bewerken en deployen is veiliger. Directe edits op productie werken voor kleine CSS- of template-wijzigingen, maar nooit voor functions.php of plugincode zonder een geteste rollback.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom is wp_options zo vaak de oorzaak van traagheid?</p>
+      <p class="faq-a">Plugins schrijven autoloaded options die bij elke request worden geladen. Over de jaren laten verlaten plugins megabytes aan autoload-data achter. Eén query op wp_options vindt het meestal binnen enkele minuten.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik een URL-search-replace doen met gewone SQL?</p>
+      <p class="faq-a">Alleen voor niet-geserialiseerde kolommen zoals post_content. Alles wat geserialiseerde PHP-arrays kan bevatten (wp_options, wp_postmeta) heeft een tool nodig die serialisatie begrijpt, zoals WP-CLI search-replace of Search-Replace-DB.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp">
+        <img src="/nl/blog/backups-that-arent-backups-audit/hero.jpg" alt="Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Backups die geen backup zijn: audit in zeven punten</h3>
+      <span class="pc-lede">Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

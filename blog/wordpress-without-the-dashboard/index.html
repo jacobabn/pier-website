@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress without the dashboard: why some agencies live in the FTP · Pier — Blog</title>
+<meta name="description" content="A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, ftp, workflow, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress without the dashboard: why some agencies live in the FTP">
+<meta property="og:description" content="A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.">
+<meta property="og:url" content="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+<meta property="og:image" content="https://pier.abn.company/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T08:33:00.133Z">
+<meta property="article:modified_time" content="2026-05-15T08:33:00.133Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress without the dashboard: why some agencies live in the FTP">
+<meta name="twitter:description" content="A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wordpress-without-the-dashboard/hero.jpg">
+<meta name="twitter:image:alt" content="Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wordpress-without-the-dashboard/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wordpress-without-the-dashboard/"},
+  "url":"https://pier.abn.company/blog/wordpress-without-the-dashboard/",
+  "headline":"WordPress without the dashboard: why some agencies live in the FTP",
+  "description":"A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wordpress-without-the-dashboard/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk."
+  },
+  "datePublished":"2026-05-15T08:33:00.133Z",
+  "dateModified":"2026-05-15T08:33:00.133Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, php, mysql, ftp, workflow, operations",
+  "wordCount":1386,
+  "articleSection":"WordPress",
+  "articleBody":"At 23:41 on a Tuesday, an agency lead sent over a Loom of his screen. No browser. No wp-admin . Just a file tree on a shared host, a MySQL prompt in another pane, and a tail -f on error_log . \"This is how we've run client sites since 2014,\" he said. \"The dashboard is for the customer. We don't go in there unless we have to.\" That stance sounds heretical until you've spent a few years cleaning up after WordPress dashboards. Then it sounds like an obvious workflow choice. This post is about why some agencies run a WordPress estate almost entirely from FTP and MySQL, what they gain from it, and where the approach breaks. If you've ever closed wp-admin and reached for an SFTP client instead, you'll recognise the shape of this. The dashboard is a customer surface, not an operator surface The WordPress admin was designed around 2005 for a single user typing posts. It picked up plugin pages, theme options, a block editor, a site editor, and a dozen overlapping menu structures, but the underlying assumption never changed: the operator is the same person as the content author. For an agency running thirty or forty legacy sites , that assumption is wrong. The operator wants to know which plugin slowed the homepage by 400 ms after last night's auto-update. The author wants to publish a press release. Putting both jobs behind the same login forces every operator action to go through a UI tuned for the other use case. So you get agencies who treat wp-admin as a content surface only, and do the operator work elsewhere. The elsewhere is almost always two things: the filesystem over SFTP, and the database over a SQL client. Once you accept that, a lot of WordPress maintenance simplifies. What \"living in the FTP\" actually looks like The phrase is shorthand. Nobody uses plain FTP in 2026 if they can avoid it; SFTP over SSH is the floor. But the working pattern is the same as it was fifteen years ago. An agency engineer opens the site tree and goes straight to wp-content/ . They already know the layout. plugins/ holds the slow-moving WooCommerce stack and the fast-moving \"client wanted a thing\" plugins. themes/ is usually one child theme of a parent that hasn't been touched in two years. uploads/ is where every \"the site is huge now\" complaint actually lives. Three files get opened constantly: wp-config.php for database creds, debug flags, memory limits, and the table prefix. .htaccess at the document root for redirects, security blocks and PHP value overrides. wp-content/debug.log when WP_DEBUG_LOG is on, or the host's error_log when it isn't. The first thing most operators do on a new site is force debug output into a file the dashboard never sees: // wp-config.php — operator-side debugging, never on a production dashboard define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); // writes to wp-content/debug.log define( 'WP_DEBUG_DISPLAY', false ); // never leak warnings to visitors @ini_set( 'display_errors', 0 ); That gives you a real log you can tail instead of trying to reproduce a deprecation warning by clicking through admin pages. The .htaccess as the real control panel Most of the operator-grade configuration that should be in a settings UI lives in .htaccess instead. A typical agency block on a hardened WordPress install looks something like this: # Block direct PHP execution inside uploads <Directory /var/www/site/wp-content/uploads> <FilesMatch \"\\.(php|phtml|phar)$\"> Require all denied </FilesMatch> </Directory> # Stop XML-RPC entirely — almost no client uses it, attackers love it <Files xmlrpc.php> Require all denied </Files> # Force HTTPS without depending on a plugin RewriteEngine On RewriteCond %{HTTPS} !=on RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301] None of that is reachable from wp-admin without installing a plugin, and the plugin will either be slow, abandoned, or both. The Apache rewrite docs are still the canonical reference; bookmark them once and you stop needing the plugin layer. SQL beats the wp-admin search box The second half of agency life is the database. Once you trust your SQL client more than the dashboard, a class of problems collapses to two-line queries. Find every post that links to an old domain after a migration: SELECT ID, post_title FROM wp_posts WHERE post_status = 'publish' AND post_content LIKE '%old-domain.test%'; Find the autoloaded options that are quietly destroying TTFB: SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' ORDER BY bytes DESC LIMIT 20; That second query is one of the highest-leverage things you can run on a slow WordPress site. A bloated wp_options table is the single most common cause of a site that \"got slow over the years.\" You will not find this from inside the dashboard, because the dashboard is the thing writing the bloat. Replacing a URL across a site, the right way, also lives in SQL territory. Direct UPDATE statements break serialised PHP arrays inside wp_options and wp_postmeta , so the working to",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wordpress-without-the-dashboard/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress without the dashboard: why some agencies live in the FTP","item":"https://pier.abn.company/blog/wordpress-without-the-dashboard/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is editing WordPress over SFTP safe on a live site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Editing a staging copy and deploying is safer. Direct edits on production work for small CSS or template changes, but never for functions.php or plugin code without a tested rollback path."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is wp_options so often the source of slowness?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plugins write autoloaded options that load on every request. Over years, abandoned plugins leave megabytes of autoload data behind. A single query against wp_options usually finds it in minutes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I do a URL search-replace with plain SQL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only for unserialised columns like post_content. Anything that may contain serialised PHP arrays (wp_options, wp_postmeta) needs a serialisation-aware tool such as WP-CLI search-replace or Search-Replace-DB."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I disable wp-admin entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Clients still need it to publish. The pattern is to demote it to a content surface, do operator work over SFTP and SQL, and keep an admin account only for cleanup."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 018</span>
+      </div>
+      <p class="eyebrow"><span class="n">018 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress without the dashboard: why some agencies live in the FTP</h1>
+      <p class="lede post-lede">A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T08:33:00.133Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-without-the-dashboard/hero.jpg" alt="Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 018</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>At 23:41 on a Tuesday, an agency lead sent over a Loom of his screen. No browser. No <code>wp-admin</code>. Just a file tree on a shared host, a MySQL prompt in another pane, and a <code>tail -f</code> on <code>error_log</code>. "This is how we've run client sites since 2014," he said. "The dashboard is for the customer. We don't go in there unless we have to."</p>
+<p>That stance sounds heretical until you've spent a few years cleaning up after WordPress dashboards. Then it sounds like an obvious workflow choice. This post is about why some agencies run a WordPress estate almost entirely from FTP and MySQL, what they gain from it, and where the approach breaks. If you've ever closed wp-admin and reached for an SFTP client instead, you'll recognise the shape of this.</p>
+<h2>The dashboard is a customer surface, not an operator surface</h2>
+<p>The WordPress admin was designed around 2005 for a single user typing posts. It picked up plugin pages, theme options, a block editor, a site editor, and a dozen overlapping menu structures, but the underlying assumption never changed: the operator is the same person as the content author. For an agency running thirty or forty <a href="/">legacy sites</a>, that assumption is wrong.</p>
+<p>The operator wants to know which plugin slowed the homepage by 400 ms after last night's auto-update. The author wants to publish a press release. Putting both jobs behind the same login forces every operator action to go through a UI tuned for the other use case. So you get agencies who treat wp-admin as a content surface only, and do the operator work elsewhere.</p>
+<p>The elsewhere is almost always two things: the filesystem over SFTP, and the database over a SQL client. Once you accept that, a lot of WordPress maintenance simplifies.</p>
+<h2>What "living in the FTP" actually looks like</h2>
+<p>The phrase is shorthand. Nobody uses plain FTP in 2026 if they can avoid it; <a href="https://datatracker.ietf.org/doc/html/rfc4253">SFTP over SSH</a> is the floor. But the working pattern is the same as it was fifteen years ago.</p>
+<p>An agency engineer opens the site tree and goes straight to <code>wp-content/</code>. They already know the layout. <code>plugins/</code> holds the slow-moving WooCommerce stack and the fast-moving "client wanted a thing" plugins. <code>themes/</code> is usually one child theme of a parent that hasn't been touched in two years. <code>uploads/</code> is where every "the site is huge now" complaint actually lives.</p>
+<p>Three files get opened constantly:</p>
+<ul>
+<li><code>wp-config.php</code> for database creds, debug flags, memory limits, and the table prefix.</li>
+<li><code>.htaccess</code> at the document root for redirects, security blocks and PHP value overrides.</li>
+<li><code>wp-content/debug.log</code> when <code>WP_DEBUG_LOG</code> is on, or the host's <code>error_log</code> when it isn't.</li>
+</ul>
+<p>The first thing most operators do on a new site is force debug output into a file the dashboard never sees:</p>
+<pre><code class="lang-php">// wp-config.php — operator-side debugging, never on a production dashboard
+define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );      // writes to wp-content/debug.log
+define( 'WP_DEBUG_DISPLAY', false ); // never leak warnings to visitors
+@ini_set( 'display_errors', 0 );
+</code></pre>
+<p>That gives you a real log you can <code>tail</code> instead of trying to reproduce a deprecation warning by clicking through admin pages.</p>
+<h3>The .htaccess as the real control panel</h3>
+<p>Most of the operator-grade configuration that should be in a settings UI lives in <code>.htaccess</code> instead. A typical agency block on a hardened WordPress install looks something like this:</p>
+<pre><code class="lang-apache"># Block direct PHP execution inside uploads
+&lt;Directory /var/www/site/wp-content/uploads&gt;
+  &lt;FilesMatch "\.(php|phtml|phar)$"&gt;
+    Require all denied
+  &lt;/FilesMatch&gt;
+&lt;/Directory&gt;
+
+# Stop XML-RPC entirely — almost no client uses it, attackers love it
+&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;
+
+# Force HTTPS without depending on a plugin
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</code></pre>
+<p>None of that is reachable from wp-admin without installing a plugin, and the plugin will either be slow, abandoned, or both. The <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">Apache rewrite docs</a> are still the canonical reference; bookmark them once and you stop needing the plugin layer.</p>
+<h2>SQL beats the wp-admin search box</h2>
+<p>The second half of agency life is the database. Once you trust your SQL client more than the dashboard, a class of problems collapses to two-line queries.</p>
+<p>Find every post that links to an old domain after a migration:</p>
+<pre><code class="lang-sql">SELECT ID, post_title
+FROM wp_posts
+WHERE post_status = 'publish'
+  AND post_content LIKE '%old-domain.test%';
+</code></pre>
+<p>Find the autoloaded options that are quietly destroying TTFB:</p>
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 20;
+</code></pre>
+<p>That second query is one of the highest-leverage things you can run on a slow WordPress site. A bloated <code>wp_options</code> table is the single most common cause of a site that "got slow over the years." You will not find this from inside the dashboard, because the dashboard is the thing writing the bloat.</p>
+<p>Replacing a URL across a site, the right way, also lives in SQL territory. Direct <code>UPDATE</code> statements break serialised PHP arrays inside <code>wp_options</code> and <code>wp_postmeta</code>, so the working tool is <a href="https://github.com/interconnectit/Search-Replace-DB">interconnect/it's Search-Replace-DB</a> or the equivalent built into WP-CLI. Either way, it's a script you run, not a dashboard form.</p>
+<aside class="callout"><strong>Heads up:</strong> never run a naïve <code>UPDATE wp_options SET option_value = REPLACE(...)</code> on a serialised value. PHP serialisation encodes string lengths; a search-replace that changes the length without re-serialising will produce an option that PHP silently fails to <code>unserialize</code>, and the affected plugin will start behaving as if it has no settings. Use a serialisation-aware tool.</aside>
+<h2>Where the FTP-first approach breaks</h2>
+<p>The honest part. Living in the file tree is not a clean win.</p>
+<p>It assumes you can read code. A WooCommerce store with twenty plugins is a dependency graph you cannot hold in your head, and grepping for a hook name only gets you so far. It assumes you have a staging copy, because directly editing a production <code>functions.php</code> over SFTP is how sites end up white-screened at 02:00. And it assumes you have an audit trail, which raw SFTP does not give you. Two engineers editing the same file overwrite each other silently.</p>
+<p>The classic agency workaround is a Git mirror of <code>wp-content/</code> with a deploy hook, plus a daily <code>mysqldump</code> to S3. That works, but it's a lot of plumbing per client site, and the moment a client asks for a one-character copy change you're still SSH-ing in.</p>
+<p>The shape of the gap is visible everywhere people maintain WordPress at scale. <a href="https://developer.wordpress.org/cli/commands/">WP-CLI</a> exists because the dashboard is the wrong place to bulk-update plugins or rotate salts. The <a href="https://wordpress.org/documentation/article/debugging-in-wordpress/">official debugging guide</a> is mostly about flags you set in <code>wp-config.php</code>, not screens you click. Operator-level control of a WordPress install lives outside the admin UI, by design.</p>
+<h2>The shape of a working agency setup</h2>
+<p>If you sketch what a stable WordPress agency actually runs in 2026, it looks roughly like this:</p>
+<ol>
+<li>SFTP into <code>wp-content/</code> as the primary editing surface, with a local mirror in a real editor.</li>
+<li>A SQL client connected to the live database for reads, and to a staging copy for writes.</li>
+<li><code>WP_DEBUG_LOG</code> on, tailed in a terminal window that stays open all day.</li>
+<li>A backup job that runs before any deploy and after any schema change.</li>
+<li>wp-admin handed to the client, with the operator's account used only when something the client did needs to be undone.</li>
+</ol>
+<p>The dashboard is still there. It's just demoted to the surface it was always best at: letting non-technical authors publish.</p>
+<h2>The version-history gap</h2>
+<p>The one thing this workflow has always lacked is a usable <a href="/#features">version history</a>. SFTP gives you a file; it does not give you yesterday's file. Git on <code>wp-content/</code> is the standard fix, and it works, but it's per-site setup and most one-person agencies skip it on smaller clients. The cost of skipping it shows up the first time a plugin update silently overwrites a custom hook in a child theme.</p>
+<p>When we built Pier we ran into this exact thing, because the people we built it for were already living in SFTP and a <a href="/#database">MySQL editor</a>. The way we ended up handling it was to version every save automatically, on the server side, so one-click rollback works whether the edit came from a chat prompt or a manual file change.</p>
+<p>The smallest thing you can do today: turn on <code>WP_DEBUG_LOG</code> on one site you maintain, tail <code>wp-content/debug.log</code> for an hour, and see what your dashboard has been hiding from you.</p>
+    </div>
+
+    <aside class="pullquote">wp-admin was built for authors, not operators. Agencies that run WordPress at scale do most of their real work in SFTP, SQL and the error log.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is editing WordPress over SFTP safe on a live site?</p>
+      <p class="faq-a">Editing a staging copy and deploying is safer. Direct edits on production work for small CSS or template changes, but never for functions.php or plugin code without a tested rollback path.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why is wp_options so often the source of slowness?</p>
+      <p class="faq-a">Plugins write autoloaded options that load on every request. Over years, abandoned plugins leave megabytes of autoload data behind. A single query against wp_options usually finds it in minutes.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I do a URL search-replace with plain SQL?</p>
+      <p class="faq-a">Only for unserialised columns like post_content. Anything that may contain serialised PHP arrays (wp_options, wp_postmeta) needs a serialisation-aware tool such as WP-CLI search-replace or Search-Replace-DB.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I disable wp-admin entirely?</p>
+      <p class="faq-a">No. Clients still need it to publish. The pattern is to demote it to a content surface, do operator work over SFTP and SQL, and keep an admin account only for cleanup.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 May 2026</span></span>
+      <h3>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h3>
+      <span class="pc-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/backups-that-arent-backups-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp">
+        <img src="/blog/backups-that-arent-backups-audit/hero.jpg" alt="Antique brass balance scale on scarred oak, one pan holding a cream envelope with clay-red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Backups that aren&#39;t really backups: a seven-point audit</h3>
+      <span class="pc-lede">An agency lead sent a Loom at 23:41: the restore file was 11 MB, the database is 4.7 GB. Here&#39;s how that happens, and how to make sure it doesn&#39;t to you.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
