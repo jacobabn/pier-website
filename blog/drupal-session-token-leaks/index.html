@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal session token leaks: three patterns and the fixes · Pier — Blog</title>
+<meta name="description" content="An admin getting silently logged out is rarely a flaky cookie. On legacy Drupal sites it usually means the session token is being copied out of a referrer log or a cached page.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, security, php, htaccess, mysql">
+
+<link rel="canonical" href="https://pier.abn.company/blog/drupal-session-token-leaks/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-session-token-leaks/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-session-token-leaks/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-session-token-leaks/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal session token leaks: three patterns and the fixes">
+<meta property="og:description" content="An admin getting silently logged out is rarely a flaky cookie. On legacy Drupal sites it usually means the session token is being copied out of a referrer log or a cached page.">
+<meta property="og:url" content="https://pier.abn.company/blog/drupal-session-token-leaks/">
+<meta property="og:image" content="https://pier.abn.company/blog/drupal-session-token-leaks/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/drupal-session-token-leaks/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Vintage rotary phone receiver on worn leather blotter, coiled cable across dark oak desk, red wax seal on folded paper.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T10:47:36.272Z">
+<meta property="article:modified_time" content="2026-05-15T10:47:36.272Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="mysql">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal session token leaks: three patterns and the fixes">
+<meta name="twitter:description" content="An admin getting silently logged out is rarely a flaky cookie. On legacy Drupal sites it usually means the session token is being copied out of a referrer log or a cached page.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/drupal-session-token-leaks/hero.jpg">
+<meta name="twitter:image:alt" content="Vintage rotary phone receiver on worn leather blotter, coiled cable across dark oak desk, red wax seal on folded paper.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-session-token-leaks/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/drupal-session-token-leaks/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/drupal-session-token-leaks/"},
+  "url":"https://pier.abn.company/blog/drupal-session-token-leaks/",
+  "headline":"Drupal session token leaks: three patterns and the fixes",
+  "description":"An admin getting silently logged out is rarely a flaky cookie. On legacy Drupal sites it usually means the session token is being copied out of a referrer log or a cached page.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/drupal-session-token-leaks/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Vintage rotary phone receiver on worn leather blotter, coiled cable across dark oak desk, red wax seal on folded paper."
+  },
+  "datePublished":"2026-05-15T10:47:36.272Z",
+  "dateModified":"2026-05-15T10:47:36.272Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"drupal, security, php, htaccess, mysql",
+  "wordCount":1096,
+  "articleSection":"Drupal",
+  "articleBody":"The first hint was a support ticket at 02:18: an admin user on a 14-year-old Drupal 7 site kept getting logged out, but the watchdog table told a different story. Someone in another country was opening her session, idling for forty seconds, then closing the tab. Her session token was being copy-pasted, almost certainly out of a referrer log somewhere upstream. Session token leaks on legacy Drupal sites rarely look like a single dramatic breach. They look like users complaining about flaky logins. By the time you trace it back, the token has been visible to a CDN, an analytics provider, three logged proxies and a developer's browser history. Below are the three leak paths we see most often on these stacks, with the fixes you can ship before lunch. 1. Session IDs travelling in the URL This one predates a lot of modern hardening and still shows up on Drupal 6 and 7 installs that were copied from server to server over the years. If PHP's session.use_trans_sid is on, or if session.use_only_cookies is off, PHP will happily append ?PHPSESSID=... to internal links the first time a visitor lands on the site without a cookie. That string is now in: the browser's address bar every Referer header sent to fonts.googleapis.com, the CDN, any analytics pixel access logs on every proxy in between the visitor's history sync to their other devices To check what your stack is doing, run on the server: php -r 'echo \"use_trans_sid=\".ini_get(\"session.use_trans_sid\").PHP_EOL; echo \"use_only_cookies=\".ini_get(\"session.use_only_cookies\").PHP_EOL;' If use_trans_sid is anything other than 0 , you have the problem. Force the correct defaults at the Drupal level in sites/default/settings.php so the fix survives PHP upgrades: ini_set('session.use_trans_sid', 0); ini_set('session.use_only_cookies', 1); ini_set('session.use_strict_mode', 1); use_strict_mode is the underrated one. It tells PHP to refuse a session ID it did not issue itself, which kills the classic \"paste the cookie into a fresh browser\" attack. The PHP manual covers the full list of session security ini settings and is worth a read end to end. Then grep your codebase for session_id( and the SID constant in custom modules. We have found internal \"magic links\" in client code that literally email customers a URL containing their own session ID. Replace those with one-time tokens via drupal_get_token() or a row in the flood table. 2. Cookies without Secure, HttpOnly or SameSite Drupal sets a session cookie called SESS<hash> on HTTP and SSESS<hash> on HTTPS. On a healthy site you want it flagged Secure, HttpOnly and SameSite=Lax. On a site that was built when the front end was http://, then bolted to TLS five years later via a reverse proxy, you often get none of the three. Confirm what you are actually serving: curl -sI https://example.com/user/login | grep -i set-cookie If the response does not contain Secure; HttpOnly; SameSite=Lax , fix it in settings.php : ini_set('session.cookie_secure', 1); ini_set('session.cookie_httponly', 1); ini_set('session.cookie_samesite', 'Lax'); $cookie_domain = '.example.com'; On Drupal 7 you also want $conf['https'] = TRUE; if the site sits behind a TLS-terminating proxy, otherwise Drupal will keep issuing the insecure SESS cookie and accept it back over HTTP. The OWASP write-up on the HttpOnly flag explains why this single attribute blocks most XSS-driven session token theft, and it costs you nothing to ship. SameSite is the trickier one. Lax is safe for almost every Drupal install. Strict breaks federated login flows. None requires Secure and reopens cross-site territory you almost certainly do not want. If a payment provider's callback breaks after you set Lax, your real bug is that the callback is a GET, not the cookie policy. If you run an old multisite under one apex domain, double-check $cookie_domain . Setting it to .example.com on a parent site will share session cookies with every subdomain, including the staging environment a contractor forgot to password-protect three years ago. Scope it tightly, or leave it unset and let PHP default to the request host. 3. Authenticated pages served from the page cache This one is the most embarrassing, because the leak is usually self-inflicted. Drupal's internal page cache, plus a Varnish layer in front, plus a CDN at the edge, is fine for anonymous traffic. The moment one of those layers caches a response that contained a logged-in user's CSRF token, form build ID or username in the markup, every subsequent visitor gets that token. A few signs you have this problem: a Cache-Control: public, max-age=... header on a page that includes a <form> with a form_token hidden input Set-Cookie: SESS... appearing on the same response as X-Drupal-Cache: HIT two anonymous users seeing the exact same form_build_id when you reload from incognito The fix is to make the cacheability of authenticated responses explicit. In .htaccess , or in your Varnish VCL, never cache when a session cookie is present: # .htacces",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/drupal-session-token-leaks/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal session token leaks: three patterns and the fixes","item":"https://pier.abn.company/blog/drupal-session-token-leaks/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does setting SameSite=Lax break payment provider callbacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if the callback is a GET that needs to carry the session cookie. POST callbacks work fine under Lax. Convert the GET callback to POST, or hand the provider a one-time token instead of relying on the session."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is session.use_strict_mode safe to enable on a production Drupal site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for almost every install. It only rejects session IDs PHP did not issue. The one thing it breaks is custom code that hands a client a session ID to log them in later, which you should not be doing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Drupal still issue an insecure cookie after I enabled HTTPS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Drupal 7 only flips to the SSESS cookie when it sees the request is HTTPS. Behind a TLS-terminating proxy you also need $conf['https'] = TRUE; in settings.php, otherwise it falls back to SESS."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I confirm the page cache is not serving authenticated content?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hit a logged-in page in two different incognito windows and compare the form_build_id values. If they match, the page is being cached with user-specific markup baked in."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/drupal-session-token-leaks/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 021</span>
+      </div>
+      <p class="eyebrow"><span class="n">021 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal session token leaks: three patterns and the fixes</h1>
+      <p class="lede post-lede">An admin getting silently logged out is rarely a flaky cookie. On legacy Drupal sites it usually means the session token is being copied out of a referrer log or a cached page.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T10:47:36.272Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-session-token-leaks/hero.webp" type="image/webp">
+      <img src="/blog/drupal-session-token-leaks/hero.jpg" alt="Vintage rotary phone receiver on worn leather blotter, coiled cable across dark oak desk, red wax seal on folded paper." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 021</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The first hint was a support ticket at 02:18: an admin user on a 14-year-old Drupal 7 site kept getting logged out, but the watchdog table told a different story. Someone in another country was opening her session, idling for forty seconds, then closing the tab. Her session token was being copy-pasted, almost certainly out of a referrer log somewhere upstream.</p>
+
+<p>Session token leaks on <a href="/">legacy Drupal sites</a> rarely look like a single dramatic breach. They look like users complaining about flaky logins. By the time you trace it back, the token has been visible to a CDN, an analytics provider, three logged proxies and a developer's browser history. Below are the three leak paths we see most often on these stacks, with the fixes you can ship before lunch.</p>
+
+<h2>1. Session IDs travelling in the URL</h2>
+
+<p>This one predates a lot of modern hardening and still shows up on Drupal 6 and 7 installs that were copied from server to server over the years. If PHP's <code>session.use_trans_sid</code> is on, or if <code>session.use_only_cookies</code> is off, PHP will happily append <code>?PHPSESSID=...</code> to internal links the first time a visitor lands on the site without a cookie. That string is now in:</p>
+
+<ul>
+<li>the browser's address bar</li>
+<li>every <code>Referer</code> header sent to fonts.googleapis.com, the CDN, any analytics pixel</li>
+<li>access logs on every proxy in between</li>
+<li>the visitor's history sync to their other devices</li>
+</ul>
+
+<p>To check what your stack is doing, run on the server:</p>
+
+<pre><code class="lang-bash">php -r 'echo "use_trans_sid=".ini_get("session.use_trans_sid").PHP_EOL;
+echo "use_only_cookies=".ini_get("session.use_only_cookies").PHP_EOL;'</code></pre>
+
+<p>If <code>use_trans_sid</code> is anything other than <code>0</code>, you have the problem. Force the correct defaults at the Drupal level in <code>sites/default/settings.php</code> so the fix survives PHP upgrades:</p>
+
+<pre><code class="lang-php">ini_set('session.use_trans_sid', 0);
+ini_set('session.use_only_cookies', 1);
+ini_set('session.use_strict_mode', 1);</code></pre>
+
+<p><code>use_strict_mode</code> is the underrated one. It tells PHP to refuse a session ID it did not issue itself, which kills the classic "paste the cookie into a fresh browser" attack. The PHP manual covers the full list of <a href="https://www.php.net/manual/en/session.security.ini.php">session security ini settings</a> and is worth a read end to end.</p>
+
+<p>Then grep your codebase for <code>session_id(</code> and the <code>SID</code> constant in custom modules. We have found internal "magic links" in client code that literally email customers a URL containing their own session ID. Replace those with one-time tokens via <code>drupal_get_token()</code> or a row in the <code>flood</code> table.</p>
+
+<h2>2. Cookies without Secure, HttpOnly or SameSite</h2>
+
+<p>Drupal sets a session cookie called <code>SESS&lt;hash&gt;</code> on HTTP and <code>SSESS&lt;hash&gt;</code> on HTTPS. On a healthy site you want it flagged Secure, HttpOnly and SameSite=Lax. On a site that was built when the front end was http://, then bolted to TLS five years later via a reverse proxy, you often get none of the three.</p>
+
+<p>Confirm what you are actually serving:</p>
+
+<pre><code class="lang-bash">curl -sI https://example.com/user/login | grep -i set-cookie</code></pre>
+
+<p>If the response does not contain <code>Secure; HttpOnly; SameSite=Lax</code>, fix it in <code>settings.php</code>:</p>
+
+<pre><code class="lang-php">ini_set('session.cookie_secure', 1);
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Lax');
+$cookie_domain = '.example.com';</code></pre>
+
+<p>On Drupal 7 you also want <code>$conf['https'] = TRUE;</code> if the site sits behind a TLS-terminating proxy, otherwise Drupal will keep issuing the insecure <code>SESS</code> cookie and accept it back over HTTP. The OWASP write-up on the <a href="https://owasp.org/www-community/HttpOnly">HttpOnly flag</a> explains why this single attribute blocks most XSS-driven session token theft, and it costs you nothing to ship.</p>
+
+<p>SameSite is the trickier one. <code>Lax</code> is safe for almost every Drupal install. <code>Strict</code> breaks federated login flows. <code>None</code> requires <code>Secure</code> and reopens cross-site territory you almost certainly do not want. If a payment provider's callback breaks after you set Lax, your real bug is that the callback is a GET, not the cookie policy.</p>
+
+<aside class="callout">If you run an old multisite under one apex domain, double-check <code>$cookie_domain</code>. Setting it to <code>.example.com</code> on a parent site will share session cookies with every subdomain, including the staging environment a contractor forgot to password-protect three years ago. Scope it tightly, or leave it unset and let PHP default to the request host.</aside>
+
+<h2>3. Authenticated pages served from the page cache</h2>
+
+<p>This one is the most embarrassing, because the leak is usually self-inflicted. Drupal's internal page cache, plus a Varnish layer in front, plus a CDN at the edge, is fine for anonymous traffic. The moment one of those layers caches a response that contained a logged-in user's CSRF token, form build ID or username in the markup, every subsequent visitor gets that token.</p>
+
+<p>A few signs you have this problem:</p>
+
+<ul>
+<li>a <code>Cache-Control: public, max-age=...</code> header on a page that includes a <code>&lt;form&gt;</code> with a <code>form_token</code> hidden input</li>
+<li><code>Set-Cookie: SESS...</code> appearing on the same response as <code>X-Drupal-Cache: HIT</code></li>
+<li>two anonymous users seeing the exact same <code>form_build_id</code> when you reload from incognito</li>
+</ul>
+
+<p>The fix is to make the cacheability of authenticated responses explicit. In <code>.htaccess</code>, or in your Varnish VCL, never cache when a session cookie is present:</p>
+
+<pre><code class="lang-apacheconf"># .htaccess, before the Drupal rewrite block
+SetEnvIf Cookie "S?SESS[a-f0-9]+=" has_session
+Header always set Cache-Control "private, no-store, no-cache, must-revalidate" env=has_session
+Header always unset Set-Cookie env=has_session</code></pre>
+
+<p>In Drupal 7, audit anything that calls <code>drupal_page_is_cacheable()</code>. In Drupal 8 and later, the <a href="https://www.drupal.org/docs/drupal-apis/cache-api/cache-api-overview">cache contexts and tags system</a> does this work for you, but only if your custom blocks declare the right contexts. A block that renders user-specific content without <code>cache.contexts: ['user']</code> will get baked into the anonymous variant of the page and served to the world.</p>
+
+<p>While you are in there, run this against the database to see how many active sessions you have per uid. More than a handful for the same user, on different IP prefixes, is a strong tell:</p>
+
+<pre><code class="lang-sql">SELECT uid,
+       COUNT(*) AS sessions,
+       COUNT(DISTINCT SUBSTRING_INDEX(hostname, '.', 2)) AS networks
+FROM sessions
+WHERE uid &gt; 0
+GROUP BY uid
+HAVING networks &gt; 2
+ORDER BY networks DESC;</code></pre>
+
+<p>If the same uid is logged in from five different /16 networks, the cookie is being shared, not the password.</p>
+
+<h2>A note on tooling</h2>
+
+<p>When we built Pier we ran into this exact pattern on a client's Drupal 7 install, and the way we ended up handling it was to wire a small audit straight into the chat: an operator can ask the <a href="/#database">MySQL editor</a> to list sessions with more than two distinct networks, then patch <code>settings.php</code> and push it back over SFTP without leaving the app. The <a href="/#features">version history</a> sits one click away, which matters the first time you set SameSite=Lax in production and a niche flow breaks.</p>
+
+<p>Open <code>sites/default/settings.php</code>, paste the three <code>ini_set</code> lines from section two, deploy, and re-run <code>curl -sI</code> against your login page. If the Set-Cookie response now reads <code>Secure; HttpOnly; SameSite=Lax</code>, you have closed the largest of the three leaks before lunch. The other two can wait for the next sprint.</p>
+    </div>
+
+    <aside class="pullquote">If your Drupal site issues a session cookie without Secure, HttpOnly and SameSite=Lax, every other security control on the stack is mostly decorative.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Does setting SameSite=Lax break payment provider callbacks?</p>
+      <p class="faq-a">Only if the callback is a GET that needs to carry the session cookie. POST callbacks work fine under Lax. Convert the GET callback to POST, or hand the provider a one-time token instead of relying on the session.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is session.use_strict_mode safe to enable on a production Drupal site?</p>
+      <p class="faq-a">Yes for almost every install. It only rejects session IDs PHP did not issue. The one thing it breaks is custom code that hands a client a session ID to log them in later, which you should not be doing.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does Drupal still issue an insecure cookie after I enabled HTTPS?</p>
+      <p class="faq-a">Drupal 7 only flips to the SSESS cookie when it sees the request is HTTPS. Behind a TLS-terminating proxy you also need $conf[&#39;https&#39;] = TRUE; in settings.php, otherwise it falls back to SESS.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I confirm the page cache is not serving authenticated content?</p>
+      <p class="faq-a">Hit a logged-in page in two different incognito windows and compare the form_build_id values. If they match, the page is being cached with user-specific markup baked in.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/drupal-7-end-of-life-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-end-of-life-checklist/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-end-of-life-checklist/hero.jpg" alt="Closed leather logbook with silk ribbon, brass pen nib on red wax seal, dated card on dark oak desk." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Drupal 7 end-of-life: a checklist for clients still on it</h3>
+      <span class="pc-lede">Drupal 7 went unsupported in January 2025. The sites still humming along on it in mid-2026 are not unsupported by accident, they are unsupported by neglect.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Spotting a hacked WordPress install: a 5-minute audit</h3>
+      <span class="pc-lede">You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/drupal-session-token-leaks/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
