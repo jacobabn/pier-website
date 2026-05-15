@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Cron jobs via FTP: een overgenomen server doorlichten · Pier — Blog</title>
+<meta name="description" content="Je erft een site met een FTP-login en een database-dump. Ergens draaien er taken op schema. Vind ze, voor er één om 03:00 op zondag stuk gaat.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, mysql, wordpress, magento, ftp, php">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/cron-jobs-over-ftp-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/cron-jobs-over-ftp-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Cron jobs via FTP: een overgenomen server doorlichten">
+<meta property="og:description" content="Je erft een site met een FTP-login en een database-dump. Ergens draaien er taken op schema. Vind ze, voor er één om 03:00 op zondag stuk gaat.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Messing scheepsbel op donkere eikenhouten beugel tegen botkleurige muur, hennep koord met roodbruin wassegel-label.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T13:14:57.214Z">
+<meta property="article:modified_time" content="2026-05-15T13:14:57.214Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Cron jobs via FTP: een overgenomen server doorlichten">
+<meta name="twitter:description" content="Je erft een site met een FTP-login en een database-dump. Ergens draaien er taken op schema. Vind ze, voor er één om 03:00 op zondag stuk gaat.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Messing scheepsbel op donkere eikenhouten beugel tegen botkleurige muur, hennep koord met roodbruin wassegel-label.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/cron-jobs-over-ftp-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/"},
+  "url":"https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/",
+  "headline":"Cron jobs via FTP: een overgenomen server doorlichten",
+  "description":"Je erft een site met een FTP-login en een database-dump. Ergens draaien er taken op schema. Vind ze, voor er één om 03:00 op zondag stuk gaat.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Messing scheepsbel op donkere eikenhouten beugel tegen botkleurige muur, hennep koord met roodbruin wassegel-label."
+  },
+  "datePublished":"2026-05-15T13:14:57.214Z",
+  "dateModified":"2026-05-15T13:14:57.214Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, mysql, wordpress, magento, ftp, php",
+  "wordCount":1097,
+  "articleSection":"Workflow",
+  "articleBody":"De overdrachtsmail beslaat twee alinea's. \"Login staat in de password manager. Site draait al jaren stabiel. Vorige dev is in 2023 vertrokken.\" Bijgevoegd zitten een SFTP-account en een MySQL-gebruiker. Geen shell, geen controlepaneel, geen documentatie over wat er op een schema draait. Ergens op die machine vuurt iets elke vijf minuten, elke nacht om 02:00, of één keer per maand op de eerste. Je moet ze allemaal vinden voor er één onder jouw beheer stukgaat. Cron jobs via FTP zijn een eigen vorm van forensisch werk. Je kunt geen crontab -l draaien. Je kunt geen ls /etc/cron.d/ doen. Wat je wél kunt: de sporen lezen die geplande taken achterlaten, die kruisen met de staat van de database, en het schema van buitenaf reconstrueren. Dit is de volgorde die ik aanhoud bij elke overname van een legacy site . Sporen in het bestandssysteem Shared hosts sluiten de FTP-gebruiker bijna altijd op in één home directory. /etc is onbereikbaar. Maar cron jobs laten vingerafdrukken achter binnen de docroot, en daar begin je. Zoek eerst naar logbestanden die de site zelf wegschrijft. De meeste CMS'en droppen ergens een log op een voorspelbare plek: /wp-content/debug.log /wp-content/uploads/wc-logs/*.log /sites/default/files/php_errors.log /var/log/magento.log /var/reports/ /storage/logs/laravel.log Open ze en grep op \"cron\". WordPress schrijft bij elke run een regel zoals WP-Cron: doing event 'woocommerce_cleanup_sessions' . Magento schrijft cron_schedule -regels naar var/log/system.log. Drupal logt elke cron-run met username \"Anonymous\" en path \"/cron\". Zelfs als de cron extern wordt getriggerd door een curl uit /etc/crontab, logt de applicatie zelf het event, en dat log staat binnen de FTP-root. Doe daarna een recursieve mtime-sweep. Cron-gedreven scripts schrijven naar disk. Back-ups belanden ergens. Caches worden geroteerd. Exportfeeds worden opnieuw gegenereerd. Als je een directory met mtimes kunt opvragen, zoek dan naar bestanden waarvan de timestamps in een regelmatig ritme vallen: backup-2026-04-14-0300.sql.gz backup-2026-04-15-0300.sql.gz backup-2026-04-16-0300.sql.gz feed-google-shopping-20260514.xml feed-google-shopping-20260515.xml Dat is een dagelijkse back-up om 03:00 en een dagelijkse Google Shopping-export. Je hebt de cron-regel zelf niet gevonden. Je hebt het bewijs gevonden dat die bestaat, en nu weet je welk script in de docroot die bestanden heeft weggeschreven. De database onthoudt alles Dan het tweede deel. Schedulers op applicatieniveau bewaren hun queue in MySQL, en MySQL heb je. Drie tabellen tellen, afhankelijk van de stack. WordPress WordPress bewaart zijn volledige cron-schema geserialiseerd in één rij: SELECT option_value FROM wp_options WHERE option_name = 'cron'; De waarde is een PHP-geserialiseerde array met unix-timestamps als sleutel. Unserialise hem (een PHP-oneliner volstaat) en je krijgt de complete lijst met aankomende events, de hooknamen, het herhalingsinterval en de meegegeven argumenten. De officiële WP-Cron-documentatie is hier het herlezen waard. De valkuil: wp-cron vuurt alleen als iemand de site bezoekt, tenzij een echte system cron wp-cron.php periodiek pingt. Magento Magento bewaart zijn queue in cron_schedule . Eén rij per geplande run: SELECT job_code, status, scheduled_at, executed_at, finished_at FROM cron_schedule ORDER BY scheduled_at DESC LIMIT 50; Groepeer op job_code en je hebt elke job die ooit heeft gedraaid, plus zijn cadans. Als status urenlang op pending blijft staan, roept geen enkele system cron cron.php aan en is de queue vastgelopen. De Adobe Commerce cron reference documenteert het schema volledig. Drupal Drupal 7 en 8+ bewaren allebei een system.cron_last -entry in de state-tabel. Query hem om te zien wanneer cron voor het laatst is afgerond: SELECT name, value FROM key_value WHERE collection = 'state' AND name = 'system.cron_last'; Loopt die timestamp uren achter, dan faalt cron stilzwijgend of is hij nooit aan iets externs gekoppeld. De HTTP-laag is de derde getuige De meeste shared hosts geven de FTP-gebruiker leesrechten op de ruwe access logs, meestal onder /logs/ of /var/log/apache/ binnen de home directory. Open het bestand van vorige week en grep op de entrypoints die schedulers raken: grep -E \"wp-cron\\.php|/cron|cron\\.php|run\\.php\" access.log.1 Je zoekt naar een User-Agent curl of Wget die op een schoon interval een van deze endpoints raakt vanaf één IP. Dat vertelt je dat er een echte system cron bestaat, dat hij op de weblaag wijst, en je kunt de frequentie raden uit de gaten tussen de timestamps. Als de enige hits op wp-cron.php van echte bezoekers-IP's met browser-user-agents komen, is er helemaal geen externe cron en drijft het schema af. Check ook .htaccess in de docroot op rewrite-regels die cron-endpoints achter schone URL's verstoppen: RewriteRule ^run-tasks/?$ /cron.php?secret=hunter2 [L] Die ene regel, die we op meer dan één geërfde site hebben aangetroffen, betekent dat er een publieke URL is die door iets externs gepingd wordt, en dat ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Cron jobs via FTP: een overgenomen server doorlichten","item":"https://pier.abn.company/nl/blog/cron-jobs-over-ftp-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik /etc/crontab via FTP lezen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op vrijwel elke shared host niet. De FTP-gebruiker zit opgesloten in een home directory. Je moet system crons afleiden uit logbestanden, mtimes van bestanden, en access-log-hits op scheduler-endpoints."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe weet ik of WP-Cron daadwerkelijk op een schema afvuurt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Grep de access log op hits naar wp-cron.php. Als de enige bezoekers echte browsers zijn en geen curl- of Wget-user-agent op een schoon interval, drijft er niets en stapelen events zich oneindig op."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waar bewaart Magento zijn geplande jobs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "In de cron_schedule-tabel. Eén rij per geplande run, met status, scheduled_at, executed_at en finished_at. Groepeer op job_code om de cadans te zien en vastgelopen jobs te vinden."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/cron-jobs-over-ftp-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 024</span>
+      </div>
+      <p class="eyebrow"><span class="n">024 —</span>Workflow</p>
+      <h1 class="display-l post-title">Cron jobs via FTP: een overgenomen server doorlichten</h1>
+      <p class="lede post-lede">Je erft een site met een FTP-login en een database-dump. Ergens draaien er taken op schema. Vind ze, voor er één om 03:00 op zondag stuk gaat.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T13:14:57.214Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/cron-jobs-over-ftp-audit/hero.webp" type="image/webp">
+      <img src="/blog/cron-jobs-over-ftp-audit/hero.jpg" alt="Messing scheepsbel op donkere eikenhouten beugel tegen botkleurige muur, hennep koord met roodbruin wassegel-label." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 024</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De overdrachtsmail beslaat twee alinea's. "Login staat in de password manager. Site draait al jaren stabiel. Vorige dev is in 2023 vertrokken." Bijgevoegd zitten een SFTP-account en een MySQL-gebruiker. Geen shell, geen controlepaneel, geen documentatie over wat er op een schema draait. Ergens op die machine vuurt iets elke vijf minuten, elke nacht om 02:00, of één keer per maand op de eerste. Je moet ze allemaal vinden voor er één onder jouw beheer stukgaat.</p><p>Cron jobs via FTP zijn een eigen vorm van forensisch werk. Je kunt geen <code>crontab -l</code> draaien. Je kunt geen <code>ls /etc/cron.d/</code> doen. Wat je wél kunt: de sporen lezen die geplande taken achterlaten, die kruisen met de staat van de database, en het schema van buitenaf reconstrueren. Dit is de volgorde die ik aanhoud bij elke overname van een <a href="/">legacy site</a>.</p><h2>Sporen in het bestandssysteem</h2><p>Shared hosts sluiten de FTP-gebruiker bijna altijd op in één home directory. /etc is onbereikbaar. Maar cron jobs laten vingerafdrukken achter binnen de docroot, en daar begin je.</p><p>Zoek eerst naar logbestanden die de site zelf wegschrijft. De meeste CMS'en droppen ergens een log op een voorspelbare plek:</p><pre><code class="lang-bash">/wp-content/debug.log
+/wp-content/uploads/wc-logs/*.log
+/sites/default/files/php_errors.log
+/var/log/magento.log
+/var/reports/
+/storage/logs/laravel.log</code></pre><p>Open ze en grep op "cron". WordPress schrijft bij elke run een regel zoals <code>WP-Cron: doing event 'woocommerce_cleanup_sessions'</code>. Magento schrijft <code>cron_schedule</code>-regels naar var/log/system.log. Drupal logt elke cron-run met username "Anonymous" en path "/cron". Zelfs als de cron extern wordt getriggerd door een curl uit /etc/crontab, logt de applicatie zelf het event, en dat log staat binnen de FTP-root.</p><p>Doe daarna een recursieve mtime-sweep. Cron-gedreven scripts schrijven naar disk. Back-ups belanden ergens. Caches worden geroteerd. Exportfeeds worden opnieuw gegenereerd. Als je een directory met mtimes kunt opvragen, zoek dan naar bestanden waarvan de timestamps in een regelmatig ritme vallen:</p><pre><code class="lang-bash">backup-2026-04-14-0300.sql.gz
+backup-2026-04-15-0300.sql.gz
+backup-2026-04-16-0300.sql.gz
+feed-google-shopping-20260514.xml
+feed-google-shopping-20260515.xml</code></pre><p>Dat is een dagelijkse back-up om 03:00 en een dagelijkse Google Shopping-export. Je hebt de cron-regel zelf niet gevonden. Je hebt het bewijs gevonden dat die bestaat, en nu weet je welk script in de docroot die bestanden heeft weggeschreven.</p><h2>De database onthoudt alles</h2><p>Dan het tweede deel. Schedulers op applicatieniveau bewaren hun queue in MySQL, en MySQL heb je. Drie tabellen tellen, afhankelijk van de stack.</p><h3>WordPress</h3><p>WordPress bewaart zijn volledige cron-schema geserialiseerd in één rij:</p><pre><code class="lang-sql">SELECT option_value
+FROM wp_options
+WHERE option_name = 'cron';</code></pre><p>De waarde is een PHP-geserialiseerde array met unix-timestamps als sleutel. Unserialise hem (een PHP-oneliner volstaat) en je krijgt de complete lijst met aankomende events, de hooknamen, het herhalingsinterval en de meegegeven argumenten. De <a href="https://developer.wordpress.org/plugins/cron/">officiële WP-Cron-documentatie</a> is hier het herlezen waard. De valkuil: wp-cron vuurt alleen als iemand de site bezoekt, tenzij een echte system cron <code>wp-cron.php</code> periodiek pingt.</p><h3>Magento</h3><p>Magento bewaart zijn queue in <code>cron_schedule</code>. Eén rij per geplande run:</p><pre><code class="lang-sql">SELECT job_code, status, scheduled_at, executed_at, finished_at
+FROM cron_schedule
+ORDER BY scheduled_at DESC
+LIMIT 50;</code></pre><p>Groepeer op <code>job_code</code> en je hebt elke job die ooit heeft gedraaid, plus zijn cadans. Als <code>status</code> urenlang op <code>pending</code> blijft staan, roept geen enkele system cron <code>cron.php</code> aan en is de queue vastgelopen. De <a href="https://developer.adobe.com/commerce/php/development/components/cron/">Adobe Commerce cron reference</a> documenteert het schema volledig.</p><h3>Drupal</h3><p>Drupal 7 en 8+ bewaren allebei een <code>system.cron_last</code>-entry in de state-tabel. Query hem om te zien wanneer cron voor het laatst is afgerond:</p><pre><code class="lang-sql">SELECT name, value
+FROM key_value
+WHERE collection = 'state' AND name = 'system.cron_last';</code></pre><p>Loopt die timestamp uren achter, dan faalt cron stilzwijgend of is hij nooit aan iets externs gekoppeld.</p><h2>De HTTP-laag is de derde getuige</h2><p>De meeste shared hosts geven de FTP-gebruiker leesrechten op de ruwe access logs, meestal onder <code>/logs/</code> of <code>/var/log/apache/</code> binnen de home directory. Open het bestand van vorige week en grep op de entrypoints die schedulers raken:</p><pre><code class="lang-bash">grep -E "wp-cron\.php|/cron|cron\.php|run\.php" access.log.1</code></pre><p>Je zoekt naar een User-Agent <code>curl</code> of <code>Wget</code> die op een schoon interval een van deze endpoints raakt vanaf één IP. Dat vertelt je dat er een echte system cron bestaat, dat hij op de weblaag wijst, en je kunt de frequentie raden uit de gaten tussen de timestamps. Als de enige hits op <code>wp-cron.php</code> van echte bezoekers-IP's met browser-user-agents komen, is er helemaal geen externe cron en drijft het schema af.</p><p>Check ook <code>.htaccess</code> in de docroot op rewrite-regels die cron-endpoints achter schone URL's verstoppen:</p><pre><code class="lang-apache">RewriteRule ^run-tasks/?$ /cron.php?secret=hunter2 [L]</code></pre><p>Die ene regel, die we op meer dan één geërfde site hebben aangetroffen, betekent dat er een publieke URL is die door iets externs gepingd wordt, en dat het secret-token gewoon in de rewrite staat. Als de vorige developer weg is en de cron op een externe uptime monitor draait waar jij nooit op hebt ingelogd, is dit je enige draadje ernaartoe.</p><h2>Het schema weer in elkaar zetten</h2><p>Inmiddels heb je drie lijsten. De mtime-sweep vertelt je welke bestanden cron produceert en wanneer. De database-queue vertelt je welke applicatie-jobs geregistreerd staan. De access log vertelt je of er überhaupt iets externs de queue aandrijft. Leg ze naast elkaar.</p><p>Wat je doorgaans vindt op een site die drie jaar stilletjes heeft gedraaid is ongeveer dit: één externe curl die elke vijf minuten <code>wp-cron.php</code> of <code>cron.php</code> raakt vanaf een goedkope uptime monitor, een handvol applicatie-jobs geregistreerd door plugins die al lang verwijderd zijn en nu fouten gooien die niemand leest, één of twee backup-scripts die schrijven naar een map die sinds 2022 niet meer is leeggemaakt, en één rewrite-regel die een onauthenticated trigger-endpoint blootlegt.</p><aside class="callout">Een geplande job die in een deprecated functie afvuurt, verschijnt niet als een 500 in je access log als de cron runner de output opslokt. Grep het PHP-errorlog over minstens een volle week voor je een overname als afgerond beschouwt.</aside><h2>Wat we voor precies dit moment hebben gebouwd</h2><p>De reden dat we de vorm van deze audit kennen, is dat we hem ongeveer veertig keer met de hand hebben gedaan voor we er moe van werden. Toen we Pier bouwden belandden we steeds in dezelfde scène: een FTP-account, een MySQL-login, en een developer die om 23:00 op een dinsdag een schema probeert te reconstrueren uit logbestanden. De manier waarop we het uiteindelijk hebben aangepakt was het bestandssysteem en de <a href="/#database">MySQL editor</a> in hetzelfde venster zetten, zodat de access log en de <code>cron_schedule</code>-tabel naast elkaar staan, en elke wijziging die je in een van beide doet wordt vastgelegd in <a href="/#features">version history</a>.</p><p>Het kleinste wat je vandaag kunt doen: open de access log van een site die je nu beheert en grep op <code>wp-cron.php</code> of <code>cron.php</code>. Als de enige hits van echte browsers komen, heb je net een cron job gevonden die niet draait, en heb je tien minuten om een uptime monitor op te tuigen die dat oplost.</p>
+    </div>
+
+    <aside class="pullquote">Als de enige hits op wp-cron.php in je access log van echte browsers komen, draait je cron niet. Controleer het log voor je het schema vertrouwt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik /etc/crontab via FTP lezen?</p>
+      <p class="faq-a">Op vrijwel elke shared host niet. De FTP-gebruiker zit opgesloten in een home directory. Je moet system crons afleiden uit logbestanden, mtimes van bestanden, en access-log-hits op scheduler-endpoints.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe weet ik of WP-Cron daadwerkelijk op een schema afvuurt?</p>
+      <p class="faq-a">Grep de access log op hits naar wp-cron.php. Als de enige bezoekers echte browsers zijn en geen curl- of Wget-user-agent op een schoon interval, drijft er niets en stapelen events zich oneindig op.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waar bewaart Magento zijn geplande jobs?</p>
+      <p class="faq-a">In de cron_schedule-tabel. Eén rij per geplande run, met status, scheduled_at, executed_at en finished_at. Groepeer op job_code om de cadans te zien en vastgelopen jobs te vinden.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-without-the-dashboard/hero.jpg" alt="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>WordPress zonder dashboard: waarom bureaus in FTP wonen</h3>
+      <span class="pc-lede">Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/cron-jobs-over-ftp-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
