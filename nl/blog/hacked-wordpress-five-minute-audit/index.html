@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Gehackte WordPress herkennen: de 5-minuten audit · Pier — Blog</title>
+<meta name="description" content="Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, php, mysql, htaccess, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Gehackte WordPress herkennen: de 5-minuten audit">
+<meta property="og:description" content="Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T09:10:31.213Z">
+<meta property="article:modified_time" content="2026-05-15T09:10:31.213Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Gehackte WordPress herkennen: de 5-minuten audit">
+<meta name="twitter:description" content="Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/"},
+  "url":"https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/",
+  "headline":"Gehackte WordPress herkennen: de 5-minuten audit",
+  "description":"Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak."
+  },
+  "datePublished":"2026-05-15T09:10:31.213Z",
+  "dateModified":"2026-05-15T09:10:31.213Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, security, php, mysql, htaccess, operations",
+  "wordCount":1133,
+  "articleSection":"Security",
+  "articleBody":"De Slack-melding komt binnen om 23:41. De WordPress-site van een klant krijgt een Google Safe Browsing-waarschuwing, de agency lead zit om 06:00 in een vliegtuig, en jij hebt de FTP-credentials en het databasewachtwoord in 1Password staan. Tijd om de site lokaal te klonen heb je niet. Je hebt misschien vijf minuten voordat de klant gaat appen. Dit is de audit die ik draai, ongeveer in deze volgorde, op elke WordPress-site waarvan ik vermoed dat hij is gecompromitteerd. Hij gaat uit van shell- of FTP-toegang, MySQL-toegang en verder niets. Geen Wordfence-abonnement, geen actieve malwarescanner, geen verse back-up. Alleen de live installatie en een terminal. De twee bestanden die aanvallers als eerste aanraken Begin bij het bestandssysteem. In mijn eigen opschoonwerk laten verreweg de meeste WordPress-compromitteringen sporen achter op twee plekken: wp-config.php en .htaccess . Lees beide. Niet greppen, gewoon van boven naar beneden lezen. In wp-config.php zoek je naar alles boven de openings- <?php -tag (PHP die draait vóór de standaardconfig), naar elke require van een bestand buiten de WordPress-installatie, en naar elke base64_decode , gzinflate , eval of str_rot13 . Een schone wp-config heeft daar geen enkele van. Zie je bovenaan een one-liner met obfuscated payload, dan heb je je antwoord. In .htaccess is het patroon meestal een conditionele RewriteRule die alleen afgaat bij verwijzingen vanuit zoekmachines of specifieke user agents. De klassieke versie ziet er zo uit: RewriteCond %{HTTP_REFERER} (google|bing|yahoo|yandex) [NC] RewriteCond %{HTTP_USER_AGENT} !(bot|crawl|spider) [NC] RewriteRule .* http://malicious-domain.tld/redirect.php [R=302,L] De site oogt prima als je hem direct bezoekt. Alleen bezoekers die binnenkomen via een zoekresultaat worden omgeleid. Die asymmetrie is precies het doel van de aanval: voor de eigenaar lijkt de site gezond, terwijl het SEO-verkeer wordt verzilverd. De mod_rewrite-documentatie van Apache legt de conditionele syntax uit als je wilt nakijken wat elke directive precies doet. Vier SQL-queries op de live database Nu de database. Open MySQL en draai deze vier queries op het WordPress-schema. Elke query richt zich op een ander trucje waarmee aanvallers persistentie behouden. 1. Admin-gebruikers die jij niet hebt aangemaakt SELECT ID, user_login, user_email, user_registered FROM wp_users ORDER BY user_registered DESC LIMIT 20; Let op accounts die in de laatste 30 dagen zijn geregistreerd en die niemand in het team zich herinnert aangemaakt te hebben. Kruisverwijs met wp_usermeta voor gebruikers van wie de wp_capabilities -metawaarde administrator bevat. Aanvallers maken vaak een tweede admin aan, zodat het intrekken van de eerste (of het roteren van het oorspronkelijke admin-wachtwoord) ze niet buitensluit. 2. Actieve plugins en geplande taken SELECT option_value FROM wp_options WHERE option_name = 'active_plugins'; SELECT option_value FROM wp_options WHERE option_name = 'cron'; Beide resultaten zijn geserialiseerde PHP-arrays. Loop de lijst met actieve plugins door. Alles wat je niet herkent, alles met een generieke naam als wp-cache-helper of seo-tools , alles in een directory die niet matcht met een plugin in de officiële WordPress.org plugin directory , krijgt een kritische blik. Kijk daarna naar wp-content/plugins/ op schijf: de meeste legitieme plugins komen met een readme.txt, een languages-map en een build-directory. Eén anoniem PHP-bestand in een eigen slug-mapje is een rode vlag. De cron-option somt elke geplande hook op die WordPress kent. Aanvallers zijn dol op wp-cron omdat ze er een payload mee kunnen inplannen die elk uur afgaat, zonder zichtbare admin-UI. Hooks als wp_update_check_v2 of namen die je niet kunt herleiden tot een plugin die je herkent, zijn verdacht tot het tegendeel bewezen is. 3. Geïnjecteerde post-inhoud SELECT ID, post_title FROM wp_posts WHERE post_content LIKE '%<iframe%' OR post_content LIKE '%display:none%' OR post_content LIKE '%eval(base64%'; Geïnjecteerde spamlinks zitten vaak in gepubliceerde posts, verstopt achter een display:none -div of een iframe buiten beeld. Voor een menselijke bezoeker leest de post normaal; alleen zoekmachines indexeren de verborgen ankerteksten. De mu-plugins-map en de uploads-map Twee mappen waaruit WordPress code uitvoert en die de meeste eigenaren vergeten: wp-content/mu-plugins/ en (bij verkeerde configuratie) wp-content/uploads/ . Must-use plugins laden automatisch en hebben geen vermelding in de admin-UI. Er is geen \"deactiveer\"-knop. Als mu-plugins/ bestaat en jij hebt er geen bestand neergezet, lees dan elk PHP-bestand erin. Het is het schoonste persistentie-mechanisme dat een aanvaller kan kiezen. De uploads-map hoort alleen media te bevatten. Vind je een .php -bestand onder wp-content/uploads/ , dan klopt er iets niet. Draai dit vanaf de WordPress-root via SSH: find wp-content/uploads -name \"*.php\" -type f Een schone installatie geeft niets terug. Elke output is óf een kwetsbaarheid (een uplo",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Gehackte WordPress herkennen: de 5-minuten audit","item":"https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik deze audit draaien zonder shell-toegang?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het grootste deel wel. De bestandschecks werken via SFTP, en de SQL-queries werken in phpMyAdmin of Adminer. Alleen de wp-cli checksum-stap heeft shell nodig, of het equivalent bij een managed host."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe vers moet de back-up zijn?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ouder dan de vroegste verdachte timestamp die je vond. Als wp_users een rogue admin laat zien die op 1 mei is geregistreerd en je enige back-up is van 5 mei, dan zet je een gecompromitteerde site terug."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Checksums kloppen, maar Google flagt de site nog steeds. Wat nu?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bekijk de mailqueue en de laatste 48 uur aan access logs. De compromittering kan in een plugin zitten (niet in core), of de flag kan een achtergebleven Safe Browsing-vermelding zijn van een eerder incident."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 019</span>
+      </div>
+      <p class="eyebrow"><span class="n">019 —</span>Security</p>
+      <h1 class="display-l post-title">Gehackte WordPress herkennen: de 5-minuten audit</h1>
+      <p class="lede post-lede">Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T09:10:31.213Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+      <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 019</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Slack-melding komt binnen om 23:41. De WordPress-site van een klant krijgt een Google Safe Browsing-waarschuwing, de agency lead zit om 06:00 in een vliegtuig, en jij hebt de FTP-credentials en het databasewachtwoord in 1Password staan. Tijd om de site lokaal te klonen heb je niet. Je hebt misschien vijf minuten voordat de klant gaat appen.</p><p>Dit is de audit die ik draai, ongeveer in deze volgorde, op elke WordPress-site waarvan ik vermoed dat hij is gecompromitteerd. Hij gaat uit van shell- of FTP-toegang, MySQL-toegang en verder niets. Geen Wordfence-abonnement, geen actieve malwarescanner, geen verse back-up. Alleen de live installatie en een terminal.</p><h2>De twee bestanden die aanvallers als eerste aanraken</h2><p>Begin bij het bestandssysteem. In mijn eigen opschoonwerk laten verreweg de meeste WordPress-compromitteringen sporen achter op twee plekken: <code>wp-config.php</code> en <code>.htaccess</code>. Lees beide. Niet greppen, gewoon van boven naar beneden lezen.</p><p>In <code>wp-config.php</code> zoek je naar alles boven de openings-<code>&lt;?php</code>-tag (PHP die draait vóór de standaardconfig), naar elke <code>require</code> van een bestand buiten de WordPress-installatie, en naar elke <code>base64_decode</code>, <code>gzinflate</code>, <code>eval</code> of <code>str_rot13</code>. Een schone wp-config heeft daar geen enkele van. Zie je bovenaan een one-liner met obfuscated payload, dan heb je je antwoord.</p><p>In <code>.htaccess</code> is het patroon meestal een conditionele <code>RewriteRule</code> die alleen afgaat bij verwijzingen vanuit zoekmachines of specifieke user agents. De klassieke versie ziet er zo uit:</p><pre><code class="lang-apache">RewriteCond %{HTTP_REFERER} (google|bing|yahoo|yandex) [NC]
+RewriteCond %{HTTP_USER_AGENT} !(bot|crawl|spider) [NC]
+RewriteRule .* http://malicious-domain.tld/redirect.php [R=302,L]</code></pre><p>De site oogt prima als je hem direct bezoekt. Alleen bezoekers die binnenkomen via een zoekresultaat worden omgeleid. Die asymmetrie is precies het doel van de aanval: voor de eigenaar lijkt de site gezond, terwijl het SEO-verkeer wordt verzilverd. De <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite-documentatie van Apache</a> legt de conditionele syntax uit als je wilt nakijken wat elke directive precies doet.</p><h2>Vier SQL-queries op de live database</h2><p>Nu de database. Open MySQL en draai deze vier queries op het WordPress-schema. Elke query richt zich op een ander trucje waarmee aanvallers persistentie behouden.</p><h3>1. Admin-gebruikers die jij niet hebt aangemaakt</h3><pre><code class="lang-sql">SELECT ID, user_login, user_email, user_registered
+FROM wp_users
+ORDER BY user_registered DESC
+LIMIT 20;</code></pre><p>Let op accounts die in de laatste 30 dagen zijn geregistreerd en die niemand in het team zich herinnert aangemaakt te hebben. Kruisverwijs met <code>wp_usermeta</code> voor gebruikers van wie de <code>wp_capabilities</code>-metawaarde <code>administrator</code> bevat. Aanvallers maken vaak een tweede admin aan, zodat het intrekken van de eerste (of het roteren van het oorspronkelijke admin-wachtwoord) ze niet buitensluit.</p><h3>2. Actieve plugins en geplande taken</h3><pre><code class="lang-sql">SELECT option_value FROM wp_options WHERE option_name = 'active_plugins';
+SELECT option_value FROM wp_options WHERE option_name = 'cron';</code></pre><p>Beide resultaten zijn geserialiseerde PHP-arrays. Loop de lijst met actieve plugins door. Alles wat je niet herkent, alles met een generieke naam als <code>wp-cache-helper</code> of <code>seo-tools</code>, alles in een directory die niet matcht met een plugin in de officiële <a href="https://wordpress.org/plugins/">WordPress.org plugin directory</a>, krijgt een kritische blik. Kijk daarna naar <code>wp-content/plugins/</code> op schijf: de meeste legitieme plugins komen met een readme.txt, een languages-map en een build-directory. Eén anoniem PHP-bestand in een eigen slug-mapje is een rode vlag.</p><p>De cron-option somt elke geplande hook op die WordPress kent. Aanvallers zijn dol op wp-cron omdat ze er een payload mee kunnen inplannen die elk uur afgaat, zonder zichtbare admin-UI. Hooks als <code>wp_update_check_v2</code> of namen die je niet kunt herleiden tot een plugin die je herkent, zijn verdacht tot het tegendeel bewezen is.</p><h3>3. Geïnjecteerde post-inhoud</h3><pre><code class="lang-sql">SELECT ID, post_title FROM wp_posts
+WHERE post_content LIKE '%&lt;iframe%'
+   OR post_content LIKE '%display:none%'
+   OR post_content LIKE '%eval(base64%';</code></pre><p>Geïnjecteerde spamlinks zitten vaak in gepubliceerde posts, verstopt achter een <code>display:none</code>-div of een iframe buiten beeld. Voor een menselijke bezoeker leest de post normaal; alleen zoekmachines indexeren de verborgen ankerteksten.</p><h2>De mu-plugins-map en de uploads-map</h2><p>Twee mappen waaruit WordPress code uitvoert en die de meeste eigenaren vergeten: <code>wp-content/mu-plugins/</code> en (bij verkeerde configuratie) <code>wp-content/uploads/</code>.</p><p>Must-use plugins laden automatisch en hebben geen vermelding in de admin-UI. Er is geen "deactiveer"-knop. Als <code>mu-plugins/</code> bestaat en jij hebt er geen bestand neergezet, lees dan elk PHP-bestand erin. Het is het schoonste persistentie-mechanisme dat een aanvaller kan kiezen.</p><p>De uploads-map hoort alleen media te bevatten. Vind je een <code>.php</code>-bestand onder <code>wp-content/uploads/</code>, dan klopt er iets niet. Draai dit vanaf de WordPress-root via SSH:</p><pre><code class="lang-bash">find wp-content/uploads -name "*.php" -type f</code></pre><p>Een schone installatie geeft niets terug. Elke output is óf een kwetsbaarheid (een upload-formulier dat geen bestandsextensie valideerde) óf een al geplaatste web shell. Als noodgreep zet je een <code>.htaccess</code>-bestand in de uploads-map met daarin <code>php_flag engine off</code>, en onderzoek je daarna pas waar de aanvaller binnenkwam.</p><h2>Integriteit van core-bestanden in 30 seconden</h2><p>Staat WP-CLI op de server, dan vertelt dit ene commando je of er een core-bestand is gewijzigd ten opzichte van wat WordPress.org heeft uitgeleverd:</p><pre><code class="lang-bash">wp core verify-checksums</code></pre><p>Het commando vergelijkt elk bestand in <code>wp-admin/</code> en <code>wp-includes/</code> met de officiële checksums. Een schone installatie meldt <code>Success: WordPress installation verifies against checksums.</code> Een gecompromitteerde installatie laat precies de bestanden zien die niet kloppen. Die output, samen met wat je vond in <code>wp-config.php</code> en <code>.htaccess</code>, is meestal genoeg om te weten of je gaat opschonen of terugzet vanaf een back-up.</p><aside class="callout">Markeert <code>verify-checksums</code> bestanden die je niet had verwacht, verwijder ze dan nog niet. Kopieer elk gewijzigd bestand eerst naar een quarantaine-map buiten de webroot. Je hebt ze nodig wanneer je het incidentrapport voor de klant schrijft en (vaak) wanneer je probeert te achterhalen welke plugin-kwetsbaarheid de oorspronkelijke ingang was. Het wegmikken van het bewijs is precies wat de tweede compromittering een week later mogelijk maakt.</aside><h2>Wat te doen met de bevindingen</h2><p>Vijf minuten brengt je tot een oordeel, niet tot een fix. Komen twee of meer checks vies terug, dan is de site gecompromitteerd en is de enige veilige route een back-up terugzetten van vóór de vroegste verdachte timestamp, en daarna dichten waarmee ze binnenkwamen. Komt alles schoon terug en wordt de site nog steeds geflagd, dan is het de moeite waard om de mailqueue van de server en de laatste 48 uur aan access logs te lezen voordat je aanneemt dat Google het mis heeft.</p><p>Bij het bouwen van Pier, de chat-editor die we maken voor elke <a href="/">legacy site</a>, kwamen we deze flow vaak genoeg tegen dat we de audit rechtstreeks in de chat hebben gedraad: wijs hem op een FTP- en MySQL-verbinding, vraag of de site is gecompromitteerd, en hij draait de bestandschecks en SQL-queries hierboven op de live installatie. Elk bestand dat hij aanraakt belandt in de <a href="/#features">version history</a>, en dezelfde <a href="/#database">MySQL editor</a> laat je een rij of een bestand diffen tegen de staat van vorige week als je toch gaat opschonen.</p><p>Het kleinste dat je vandaag kunt doen, ook op een site die je vertrouwt: lees je eigen <code>wp-config.php</code> en je eigen <code>.htaccess</code> één keer van boven naar beneden. Herken je niet elke regel, dan heb je huiswerk.</p>
+    </div>
+
+    <aside class="pullquote">Lees wp-config.php en .htaccess van boven naar beneden, draai vier SQL-queries op wp_users, wp_options en wp_posts, en verifieer daarna de core-checksums.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik deze audit draaien zonder shell-toegang?</p>
+      <p class="faq-a">Het grootste deel wel. De bestandschecks werken via SFTP, en de SQL-queries werken in phpMyAdmin of Adminer. Alleen de wp-cli checksum-stap heeft shell nodig, of het equivalent bij een managed host.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe vers moet de back-up zijn?</p>
+      <p class="faq-a">Ouder dan de vroegste verdachte timestamp die je vond. Als wp_users een rogue admin laat zien die op 1 mei is geregistreerd en je enige back-up is van 5 mei, dan zet je een gecompromitteerde site terug.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Checksums kloppen, maar Google flagt de site nog steeds. Wat nu?</p>
+      <p class="faq-a">Bekijk de mailqueue en de laatste 48 uur aan access logs. De compromittering kan in een plugin zitten (niet in core), of de flag kan een achtergebleven Safe Browsing-vermelding zijn van een eerder incident.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/shared-cpanel-clients-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/shared-cpanel-clients-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/shared-cpanel-clients-field-guide/hero.jpg" alt="Houten kaartenbaklade half open op donker eiken bureau, messing labelhouder, ivoren kaarten, één met rood lintje." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Business</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Shared cPanel klanten: de vier soorten en wat ze nodig hebben</h3>
+      <span class="pc-lede">Vrijwel elk bureau heeft nog een staart aan shared cPanel klanten. Er leven er vier soorten op, en weten welke voor je zit scheelt een uur per gesprek.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/nl/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Web root: zeven bestanden die je nooit publiek serveert</h3>
+      <span class="pc-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
