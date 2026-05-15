@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Backups die geen backup zijn: audit in zeven punten · Pier — Blog</title>
+<meta name="description" content="Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, mysql, workflow, tooling, databases, wordpress">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/backups-that-arent-backups-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/backups-that-arent-backups-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Backups die geen backup zijn: audit in zeven punten">
+<meta property="og:description" content="Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T07:14:50.651Z">
+<meta property="article:modified_time" content="2026-05-15T07:14:50.651Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Backups die geen backup zijn: audit in zeven punten">
+<meta name="twitter:description" content="Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/"},
+  "url":"https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/",
+  "headline":"Backups die geen backup zijn: audit in zeven punten",
+  "description":"Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel."
+  },
+  "datePublished":"2026-05-15T07:14:50.651Z",
+  "dateModified":"2026-05-15T07:14:50.651Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"operations, mysql, workflow, tooling, databases, wordpress",
+  "wordCount":1279,
+  "articleSection":"Operations",
+  "articleBody":"Een Nederlandse agency waar we mee werken stuurde dinsdag om 23:41 een Loom. Drie minuten lang, met een voice-over die na de eerste zin stilviel: \"We probeerden net de backup van vorige week te restoren en het SQL-bestand is 11 megabyte.\" Productie is een Magento 1.9-shop. De database is 4,7 GB. De nachtelijke backup draaide al twee jaar, elke ochtend een groen vinkje, en niemand had het bestand ooit geopend. Dit is de audit die niemand uitvoert tot het op niets anders meer aankomt. De zeven faalmodes hieronder zien we bij legacy-site opdrachten zo vaak dat we ze inmiddels standaard bij intake aflopen. Waar de leugen meestal zit Een backup is twee dingen aan elkaar geniet: een bestand, en een geteste route terug naar draaiende productie. Mist één van de twee, dan heb je hoopvolle opslag. Agencies houden zichzelf voor de gek over backups om dezelfde reden als bij test coverage: groene vinkjes voelen als een contract. Dat zijn ze niet. 1. De hosting-panel snapshot op dezelfde schijf De \"Full Backup\"-wizard van cPanel, het on-server archief van Plesk, de dagelijkse tarball van DirectAdmin. Ze schrijven allemaal naar hetzelfde volume waarvandaan de site wordt geserveerd. Faalt de schijf, dan faalt het archief mee. Wordt het account geschorst wegens een openstaande factuur, dan wordt het archief mee geschorst. Eet de RAID-controller van de host zichzelf op, dan is er geen Plan B. De 3-2-1-regel, beschreven in CISA's data backup guidance , is ouder dan de cloud en gaat nog steeds op: drie kopieën, twee media, één off-site. Een bestand op /home/USER/backups/ is één kopie. 2. De dump die liep maar niet klaar was mysqldump exit met 0 bij truncatie vaker dan mensen denken. Staat max_allowed_packet op de server op 16M en zit er een geserialiseerde blob van 22M in wp_options , dan stopt de dump te vroeg, ziet het bestand er op het eerste gezicht normaal uit, en sterft de restore later op één enkele rij die niemand kan vinden. De cron stuurt sowieso z'n succesmail. mysqldump --single-transaction --quick --max-allowed-packet=512M \\ --routines --triggers --events \\ -h db.example.com -u backup_ro -p\"$BACKUP_PWD\" \\ example_db | gzip > /backups/example_db-$(date +%F).sql.gz De vlaggen die ertoe doen, allemaal gedocumenteerd op de officiële mysqldump-pagina : --single-transaction om mid-write tearing op InnoDB te voorkomen, --quick om rij voor rij te streamen in plaats van in RAM te bufferen, --max-allowed-packet hoger gezet dan de grootste rij die je ooit zou kunnen hebben, en --routines --triggers --events om de schema-objecten op te pakken die mysqldump anders zonder mededeling weglaat. Check altijd de staart van het bestand voor je het vertrouwt: gunzip -c /backups/example_db-2026-05-15.sql.gz | tail -1 # -- Dump completed on 2026-05-15 2:14:38 Een afgekapte mysqldump exit doorgaans met status 0. Verifieer altijd dat de afsluitende -- Dump completed on -footer aanwezig is voor je het bestand vertrouwt. Elke Got error 1153 ervoor betekent dat de dump op een packet-grens is afgesneden. 3. De bestanden die niemand back-upt De database is sexy. De 38 GB aan wp-content/uploads niet. We zien dit maandelijks: de SQL-backup is in orde, de bestands-backup heeft zeven maanden niet gedraaid omdat iemand een rsync-exclusion schreef om *.zip over te slaan, en daarna iemand anders het dagelijkse archief hernoemde naar backup.zip . Loop de feitelijke paden op disk af en vergelijk ze met wat er in het off-site archief zit: ssh prod 'du -sh /var/www/html/wp-content/uploads \\ /var/www/html/wp-content/plugins \\ /etc/letsencrypt /etc/nginx' Liggen die getallen niet binnen een paar procent van wat je laatste archief bevat, dan is de backup die je hebt niet de site die je draait. 4. De off-site die het niet is Hetzner productieserver, Hetzner Storage Box, beide in FSN1. Ziet er op het diagram uit als off-site. Is het niet. Als Hetzner een regionaal incident heeft, vallen de site en z'n \"backup\" samen uit. Dezelfde blast radius is geen redundantie. De goedkope oplossing is een tweede provider voor de cold copy, niet een andere regio van dezelfde. Backblaze B2 naast een Hetzner-productiebak, rsync.net naast AWS, Wasabi naast Vercel object storage. Wat het ook is: het moet als aparte factuur van een apart bedrijf binnenkomen. 5. De restore die nooit is geprobeerd Een backup die nooit is teruggezet naar een werkende URL is folklore. We hebben agency-contracten met vijf cijfers hierop zien stuklopen. Het script liep, het bestand bestond, niemand heeft het ooit teruggegoten in een verse database en gecheckt of de homepage rendert. Pak één keer per kwartaal het archief van afgelopen nacht en restore het in een wegwerpcontainer: docker run -d --name restore-test \\ -e MYSQL_ROOT_PASSWORD=test mysql:8 gunzip -c example_db-2026-05-15.sql.gz | \\ docker exec -i restore-test mysql -uroot -ptest \\ -e \"CREATE DATABASE r; USE r; SOURCE /dev/stdin\" Gaat het mis, dan heb je tot het volgende echte incident om uit te zoeken waarom. 6. De secrets die in het archief",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Backups die geen backup zijn: audit in zeven punten","item":"https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe vaak moet een agency restores écht testen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minimaal per kwartaal, met een benoemde eigenaar en een agenda-uitnodiging. Niet-geteste backups hebben een gemeten faalpercentage bij de eerste restore dat ruim boven nul ligt, en die kosten landen bij de agency, niet bij de host."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is een backup uit het hosting-panel ooit op zichzelf genoeg?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Panel-backups landen vrijwel altijd op dezelfde schijf en hetzelfde account als productie. Behandel ze als een snelle lokale kopie, en zet er een onafhankelijke off-site kopie op de factuur van een andere provider naast."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is de meest voorkomende stille faalmode?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een mysqldump die afkapt op <code>max_allowed_packet</code> maar toch met 0 exit. Het bestand ziet er normaal uit tot de dag dat je hem probeert te restoren. Verifieer altijd dat de afsluitende 'Dump completed on'-footer aanwezig is."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/backups-that-arent-backups-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 016</span>
+      </div>
+      <p class="eyebrow"><span class="n">016 —</span>Operations</p>
+      <h1 class="display-l post-title">Backups die geen backup zijn: audit in zeven punten</h1>
+      <p class="lede post-lede">Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T07:14:50.651Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp">
+      <img src="/blog/backups-that-arent-backups-audit/hero.jpg" alt="Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 016</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlandse agency waar we mee werken stuurde dinsdag om 23:41 een Loom. Drie minuten lang, met een voice-over die na de eerste zin stilviel: "We probeerden net de backup van vorige week te restoren en het SQL-bestand is 11 megabyte." Productie is een Magento 1.9-shop. De database is 4,7 GB. De nachtelijke backup draaide al twee jaar, elke ochtend een groen vinkje, en niemand had het bestand ooit geopend.</p>
+<p>Dit is de audit die niemand uitvoert tot het op niets anders meer aankomt. De zeven faalmodes hieronder zien we bij legacy-site opdrachten zo vaak dat we ze inmiddels standaard bij intake aflopen.</p>
+
+<h2>Waar de leugen meestal zit</h2>
+<p>Een backup is twee dingen aan elkaar geniet: een bestand, en een geteste route terug naar draaiende productie. Mist één van de twee, dan heb je hoopvolle opslag. Agencies houden zichzelf voor de gek over backups om dezelfde reden als bij test coverage: groene vinkjes voelen als een contract. Dat zijn ze niet.</p>
+
+<h2>1. De hosting-panel snapshot op dezelfde schijf</h2>
+<p>De "Full Backup"-wizard van cPanel, het on-server archief van Plesk, de dagelijkse tarball van DirectAdmin. Ze schrijven allemaal naar hetzelfde volume waarvandaan de site wordt geserveerd. Faalt de schijf, dan faalt het archief mee. Wordt het account geschorst wegens een openstaande factuur, dan wordt het archief mee geschorst. Eet de RAID-controller van de host zichzelf op, dan is er geen Plan B.</p>
+<p>De 3-2-1-regel, beschreven in <a href="https://www.cisa.gov/sites/default/files/publications/data_backup_options.pdf">CISA's data backup guidance</a>, is ouder dan de cloud en gaat nog steeds op: drie kopieën, twee media, één off-site. Een bestand op <code>/home/USER/backups/</code> is één kopie.</p>
+
+<h2>2. De dump die liep maar niet klaar was</h2>
+<p><code>mysqldump</code> exit met 0 bij truncatie vaker dan mensen denken. Staat <code>max_allowed_packet</code> op de server op 16M en zit er een geserialiseerde blob van 22M in <code>wp_options</code>, dan stopt de dump te vroeg, ziet het bestand er op het eerste gezicht normaal uit, en sterft de restore later op één enkele rij die niemand kan vinden. De cron stuurt sowieso z'n succesmail.</p>
+<pre><code class="lang-bash">mysqldump --single-transaction --quick --max-allowed-packet=512M \
+  --routines --triggers --events \
+  -h db.example.com -u backup_ro -p"$BACKUP_PWD" \
+  example_db | gzip &gt; /backups/example_db-$(date +%F).sql.gz</code></pre>
+<p>De vlaggen die ertoe doen, allemaal gedocumenteerd op de <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">officiële mysqldump-pagina</a>: <code>--single-transaction</code> om mid-write tearing op InnoDB te voorkomen, <code>--quick</code> om rij voor rij te streamen in plaats van in RAM te bufferen, <code>--max-allowed-packet</code> hoger gezet dan de grootste rij die je ooit zou kunnen hebben, en <code>--routines --triggers --events</code> om de schema-objecten op te pakken die mysqldump anders zonder mededeling weglaat.</p>
+<p>Check altijd de staart van het bestand voor je het vertrouwt:</p>
+<pre><code class="lang-bash">gunzip -c /backups/example_db-2026-05-15.sql.gz | tail -1
+# -- Dump completed on 2026-05-15  2:14:38</code></pre>
+<aside class="callout">Een afgekapte mysqldump exit doorgaans met status 0. Verifieer altijd dat de afsluitende <code>-- Dump completed on</code>-footer aanwezig is voor je het bestand vertrouwt. Elke <code>Got error 1153</code> ervoor betekent dat de dump op een packet-grens is afgesneden.</aside>
+
+<h2>3. De bestanden die niemand back-upt</h2>
+<p>De database is sexy. De 38 GB aan <code>wp-content/uploads</code> niet. We zien dit maandelijks: de SQL-backup is in orde, de bestands-backup heeft zeven maanden niet gedraaid omdat iemand een rsync-exclusion schreef om <code>*.zip</code> over te slaan, en daarna iemand anders het dagelijkse archief hernoemde naar <code>backup.zip</code>.</p>
+<p>Loop de feitelijke paden op disk af en vergelijk ze met wat er in het off-site archief zit:</p>
+<pre><code class="lang-bash">ssh prod 'du -sh /var/www/html/wp-content/uploads \
+                  /var/www/html/wp-content/plugins \
+                  /etc/letsencrypt /etc/nginx'</code></pre>
+<p>Liggen die getallen niet binnen een paar procent van wat je laatste archief bevat, dan is de backup die je hebt niet de site die je draait.</p>
+
+<h2>4. De off-site die het niet is</h2>
+<p>Hetzner productieserver, Hetzner Storage Box, beide in FSN1. Ziet er op het diagram uit als off-site. Is het niet. Als Hetzner een regionaal incident heeft, vallen de site en z'n "backup" samen uit. Dezelfde blast radius is geen redundantie.</p>
+<p>De goedkope oplossing is een tweede provider voor de cold copy, niet een andere regio van dezelfde. Backblaze B2 naast een Hetzner-productiebak, rsync.net naast AWS, Wasabi naast Vercel object storage. Wat het ook is: het moet als aparte factuur van een apart bedrijf binnenkomen.</p>
+
+<h2>5. De restore die nooit is geprobeerd</h2>
+<p>Een backup die nooit is teruggezet naar een werkende URL is folklore. We hebben agency-contracten met vijf cijfers hierop zien stuklopen. Het script liep, het bestand bestond, niemand heeft het ooit teruggegoten in een verse database en gecheckt of de homepage rendert.</p>
+<p>Pak één keer per kwartaal het archief van afgelopen nacht en restore het in een wegwerpcontainer:</p>
+<pre><code class="lang-bash">docker run -d --name restore-test \
+  -e MYSQL_ROOT_PASSWORD=test mysql:8
+
+gunzip -c example_db-2026-05-15.sql.gz | \
+  docker exec -i restore-test mysql -uroot -ptest \
+  -e "CREATE DATABASE r; USE r; SOURCE /dev/stdin"</code></pre>
+<p>Gaat het mis, dan heb je tot het volgende echte incident om uit te zoeken waarom.</p>
+
+<h2>6. De secrets die in het archief ontbreken</h2>
+<p>WordPress salts, Drupal's <code>settings.php</code>, <code>.env</code>-bestanden, Magento's <code>app/etc/env.php</code> met de crypt key. Als die door <code>.gitignore</code> worden uitgesloten én door de backup-rsync, levert het restoren van database en uploads je een half-werkende site op die zijn eigen user data niet kan ontsleutelen.</p>
+<p>Bij Magento betekent <code>env.php</code> kwijtraken dat je de crypt key kwijtraakt, en dat opgeslagen payment tokens van klanten onleesbare garbage worden. Bij Drupal maakt het verlies van <code>hash_salt</code> in <code>settings.php</code> elke ingelogde session ongeldig en breekt het one-time login links. Behandel per-site config als een first-class backup-artifact, encrypted at rest, met een gedocumenteerd recovery-pad. Pin het naast de password manager, niet op dezelfde schijf waarvandaan het kwam.</p>
+
+<h2>7. De cron die al negen maanden faalt</h2>
+<p>Cron-jobs die afhangen van uitgaande DNS, een remote mount of een API-key falen stilletjes zodra de omringende infrastructuur de eerste keer verschuift. De job staat nog op de crontab, de mtime op de bestemming is gewoon altijd afgelopen augustus.</p>
+<pre><code class="lang-bash">find /backups -type f -name '*.sql.gz' \
+  -printf '%T+ %p\n' | sort | tail -5</code></pre>
+<p>Is het nieuwste bestand in <code>/backups</code> van augustus en is het vandaag mei, dan schrijft je cron al negen maanden naar een verouderd pad of faalt hij zonder melding. Bouw een heartbeat in die succes bewijst, niet alleen exit code 0:</p>
+<pre><code class="lang-bash">0 3 * * * /usr/local/bin/backup.sh \
+  &amp;&amp; curl -fsS -m 10 https://hc-ping.com/your-uuid \
+  || curl -fsS -m 10 https://hc-ping.com/your-uuid/fail</code></pre>
+<p>De afwezigheid van een heartbeat is het signaal dat je echt wil. Wat dan ook dat betrouwbaar naar huis pingt voldoet, het punt is dat stilte een alert wordt.</p>
+
+<h2>De audit van vanavond</h2>
+<p>Twee uur, voor het volgende backup-venster:</p>
+<ol>
+<li>SSH naar productie. <code>du -sh</code> op de vier grootste directories op disk.</li>
+<li>Open het meest recente off-site archief en verifieer dat dezelfde paden en groottes erin zitten.</li>
+<li>Tail de meest recente SQL-dump. Zoek naar <code>-- Dump completed on</code>. Zoek naar elke <code>Got error</code>.</li>
+<li>Restore de dump naar een wegwerp-MySQL-container. Open de homepage op <code>/tmp</code>.</li>
+<li>Noteer waar het archief staat en op welke factuur het verschijnt. Is dat dezelfde factuur als productie, dan escaleren.</li>
+<li>Voeg een heartbeat-URL toe die de cron pingt bij succes, niet alleen op schema.</li>
+<li>Zet de volgende restore-oefening in de agenda met een specifieke datum en een benoemde eigenaar.</li>
+</ol>
+<p>Toen we Pier bouwden liepen we steeds tegen punt 2, 3 en 5 aan op overgenomen <a href="/">legacy sites</a>, vaak in het eerste uur van een opdracht. Hoe we het in de app uiteindelijk hebben opgelost: een lokale <a href="/#features">versiegeschiedenis</a> van elke chat-gedreven aanpassing, los gehouden van wat de backup van de host ook doet, zodat het undo-pad nooit afhangt van dezelfde infrastructuur die net stuk ging.</p>
+<p>Het kleinste dat je vandaag kan doen: open een terminal, draai het bovenstaande <code>find</code>-commando op je backup-directory, en lees de wijzigingsdatum van je nieuwste bestand hardop voor. Aarzel je bij het jaartal, dan heb je je antwoord.</p>
+    </div>
+
+    <aside class="pullquote">Een backup is een bestand plus een geteste route terug naar draaiende productie. Kun je niet aanwijzen wanneer de laatste geslaagde restore was, dan heb je geen backup, dan heb je hoopvolle opslag.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe vaak moet een agency restores écht testen?</p>
+      <p class="faq-a">Minimaal per kwartaal, met een benoemde eigenaar en een agenda-uitnodiging. Niet-geteste backups hebben een gemeten faalpercentage bij de eerste restore dat ruim boven nul ligt, en die kosten landen bij de agency, niet bij de host.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is een backup uit het hosting-panel ooit op zichzelf genoeg?</p>
+      <p class="faq-a">Nee. Panel-backups landen vrijwel altijd op dezelfde schijf en hetzelfde account als productie. Behandel ze als een snelle lokale kopie, en zet er een onafhankelijke off-site kopie op de factuur van een andere provider naast.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is de meest voorkomende stille faalmode?</p>
+      <p class="faq-a">Een mysqldump die afkapt op &lt;code&gt;max_allowed_packet&lt;/code&gt; maar toch met 0 exit. Het bestand ziet er normaal uit tot de dag dat je hem probeert te restoren. Verifieer altijd dat de afsluitende &#39;Dump completed on&#39;-footer aanwezig is.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/inline-css-embedded-fonts-aged-well/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/inline-css-embedded-fonts-aged-well/hero.webp" type="image/webp">
+        <img src="/nl/blog/inline-css-embedded-fonts-aged-well/hero.jpg" alt="Gesloten bordeauxrood leren logboek op donker eiken bureau, rood lint, messing penpunt op verzegelde kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Frontend</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Inline CSS en embedded fonts: oude gewoontes die werken</h3>
+      <span class="pc-lede">Elf jaar later doet in een WordPress-theme uit 2014 nog precies dat nuttig werk wat we ooit bespotten: inline CSS, self-hosted fonts, kale JavaScript.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/backups-that-arent-backups-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
