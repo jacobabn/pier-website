@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>AI-codereview op legacy PHP: vangsten en blinde vlekken · Pier — Blog</title>
+<meta name="description" content="Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, ai, workflow, security, wordpress, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/ai-code-review-legacy-php/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/ai-code-review-legacy-php/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="AI-codereview op legacy PHP: vangsten en blinde vlekken">
+<meta property="og:description" content="Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T02:30:47.606Z">
+<meta property="article:modified_time" content="2026-05-15T02:30:47.606Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="AI-codereview op legacy PHP: vangsten en blinde vlekken">
+<meta name="twitter:description" content="Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/hero.jpg">
+<meta name="twitter:image:alt" content="Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/ai-code-review-legacy-php/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/ai-code-review-legacy-php/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/ai-code-review-legacy-php/"},
+  "url":"https://pier.abn.company/nl/blog/ai-code-review-legacy-php/",
+  "headline":"AI-codereview op legacy PHP: vangsten en blinde vlekken",
+  "description":"Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/ai-code-review-legacy-php/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank."
+  },
+  "datePublished":"2026-05-15T02:30:47.606Z",
+  "dateModified":"2026-05-15T02:30:47.606Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, ai, workflow, security, wordpress, tooling",
+  "wordCount":1182,
+  "articleSection":"AI",
+  "articleBody":"Het is woensdag, half vier. Je bent drie uur bezig met een refactor van een 14 jaar oud WordPress-thema dat een Nederlands bureau waar we mee werken heeft overgenomen van een lang vertrokken freelancer. Het bestand is functions.php . Regel 312 luidt extract($_REQUEST); . De AI-reviewpass markeerde het binnen een seconde, samen met veertien andere bevindingen verspreid over wp-content/themes/ . Geen ervan is fout. Ongeveer de helft doet ertoe. Dit is de perspectiefverschuiving die niemand echt heeft opgeschreven: AI-ondersteunde codereview op legacy PHP maakt het werk niet op de voor de hand liggende manier sneller. Het verschuift de bottleneck. Het detectieprobleem is grotendeels opgelost. Het beslisprobleem is nu het hele werk. Wat het model in seconden ziet Voor bugs op patroon-niveau zijn de huidige modellen heel goed. Geef ze een legacy codebase van 600 bestanden in WordPress of Magento 1 en een AI-pass haalt er betrouwbaar het volgende uit: Elke overgebleven mysql_query() -aanroep, deprecated in PHP 5.5 en verdwenen in PHP 7. Niet-prepared SQL met geconcateneerde $_GET - of $_POST -waarden. Aanroepen van create_function() , each() , split() en de rest van de PHP 7.2 deprecatielijst. Type-juggling bugs rond == op stringachtige getallen (zie de vergelijkingstabel op php.net ). SSRF-achtige file_get_contents() -aanroepen op door de gebruiker bepaalde URL's. Output die naar de pagina geschreven wordt zonder esc_html() of esc_attr() . Een senior PHP-ontwikkelaar die deze audit met de hand doet, is een week per site bezig. Een model dat op voldoende PHP getraind is doet het in de tijd die nodig is om koffie te zetten. De output is ongeveer zo accuraat als een vermoeide mens, mogelijk iets beter op de saaie patroonmatches, zeker minder goed op alles waarvoor je de historie van het project moet lezen. Dit deel van de verschuiving is echt en onomstreden. Was een audit in 2024 nog 'zoek alle kapotte stukken', dan begint een audit in 2026 met een printbare lijst kapotte stukken en de vraag 'welke daarvan pakken we aan'. Waar het model met overtuiging mis is De fouten zitten bij context, niet bij vermogen. Een paar die we steeds tegenkomen op echte legacy sites. De ontbrekende break die geen bug is Een switch -case zonder break ziet eruit als een duidelijke omissie. Op een Drupal 7 site die we hebben gecontroleerd was de ontbrekende break dragend: hij viel met opzet door naar een legacy redirect die een analytics-consultant in 2017 had aangelegd. Tweeduizend pagina's per maand raken die fall-through. Het model zei 'waarschijnlijk bug'. Het was in feite de business-logica. Dode code die nog steeds wordt aangeroepen Legacy PHP houdt van require_once met relatieve paden twee directories omhoog. Een AI-rapport noemt een functie zelfverzekerd dood omdat niets in het bestand of de namespace ernaar verwijst. Vervolgens includeert een Joomla-module uit 2012 dat bestand rechtstreeks en klapt de productie de ochtend na de deploy. De deprecated functie die de host heeft vastgepind Sommige shared hosts serveren nog steeds PHP 7.4, soms 7.2. Het model raadt aan om each() of create_function() te vervangen door het moderne equivalent, wat op zichzelf klopt en stukgaat zodra je pusht naar een host die drie major versies achterloopt. De fix vereist dat je de .htaccess leest: AddHandler application/x-httpd-php74 .php # of, op cPanel: # AddType application/x-httpd-ea-php74 .php .php7 .phtml Die regel ziet het model niet, tenzij je hem aanlevert. Het geeft het juiste antwoord voor de verkeerde PHP-versie en noemt het af. Het patroon van een twee keer geregistreerde hook is een stillere neef van hetzelfde probleem. WordPress-plugins uit de jaren 2014 tot 2018 registreren regelmatig hetzelfde filter opnieuw binnen zowel plugins_loaded als init , omdat een concurrerende plugin het ooit deregistreerde. De bevinding 'duplicate hook registration' klopt technisch en is operationeel catastrofaal. De reviewloop, opnieuw geschreven De vorm van een legacy PHP-refactor was vroeger lineair. Lees het bestand. Schrijf notities in een kladblok. Patroon-match tegen bugs die je eerder hebt gezien. Beslis wat je verandert. Run de wijziging tegen een staging-kopie. Wacht tot een klant mailt over het ding dat je hebt gesloopt. Met AI-review in de loop ziet de vorm er nu zo uit: Run het model over de hele tree. Triëer de bevindingen tegen de echte historie van de codebase. Schrijf voor elke bevinding die het waard is om op te pakken de wijziging op als een hypothese. Verifieer tegen een echte database en een echte requestflow. Houd een undo-pad open totdat de klant er een week mee heeft geleefd. Stap 2 is het werk. Daar verdient domeinkennis zich terug. Een bevinding als 'de wp_users -query op regel 88 is niet prepared' is een hypothese, totdat je de git blame , de support tickets en het gedrag op staging hebt gecontroleerd. Het model heeft geen ongelijk. Het weet alleen niet of de variabele uit een constante in wp-config.php komt of uit een querystring d",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/ai-code-review-legacy-php/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"AI-codereview op legacy PHP: vangsten en blinde vlekken","item":"https://pier.abn.company/nl/blog/ai-code-review-legacy-php/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Vangt AI betrouwbaar SQL injection in legacy PHP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja voor het voor de hand liggende string-concat patroon. Het mist de subtielere gevallen waarbij input door drie functieaanroepen en een sessievariabele heen gaat. Behandel elke flag als een hypothese om te verifiëren."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Vervangt AI-codereview senior PHP-ontwikkelaars?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het vervangt het detectiedeel van hun werk. De triagebeslissing over wat veilig is om te veranderen blijft bij wie de historie van de codebase en de eigenaardigheden van de klant kent."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe accuraat is AI op deprecatie-audits van PHP 7 naar 8?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Erg accuraat op patroonmatches als create_function of each. Minder betrouwbaar als de host op een oudere PHP-versie draait, want het model kan je .htaccess niet lezen tenzij je hem aanlevert."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/ai-code-review-legacy-php/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 009</span>
+      </div>
+      <p class="eyebrow"><span class="n">009 —</span>AI</p>
+      <h1 class="display-l post-title">AI-codereview op legacy PHP: vangsten en blinde vlekken</h1>
+      <p class="lede post-lede">Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T02:30:47.606Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/ai-code-review-legacy-php/hero.webp" type="image/webp">
+      <img src="/blog/ai-code-review-legacy-php/hero.jpg" alt="Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 009</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is woensdag, half vier. Je bent drie uur bezig met een refactor van een 14 jaar oud WordPress-thema dat een Nederlands bureau waar we mee werken heeft overgenomen van een lang vertrokken freelancer. Het bestand is <code>functions.php</code>. Regel 312 luidt <code>extract($_REQUEST);</code>. De AI-reviewpass markeerde het binnen een seconde, samen met veertien andere bevindingen verspreid over <code>wp-content/themes/</code>. Geen ervan is fout. Ongeveer de helft doet ertoe.</p><p>Dit is de perspectiefverschuiving die niemand echt heeft opgeschreven: AI-ondersteunde codereview op legacy PHP maakt het werk niet op de voor de hand liggende manier sneller. Het verschuift de bottleneck. Het detectieprobleem is grotendeels opgelost. Het beslisprobleem is nu het hele werk.</p><h2>Wat het model in seconden ziet</h2><p>Voor bugs op patroon-niveau zijn de huidige modellen heel goed. Geef ze een legacy codebase van 600 bestanden in WordPress of Magento 1 en een AI-pass haalt er betrouwbaar het volgende uit:</p><ul><li>Elke overgebleven <code>mysql_query()</code>-aanroep, deprecated in PHP 5.5 en verdwenen in PHP 7.</li><li>Niet-prepared SQL met geconcateneerde <code>$_GET</code>- of <code>$_POST</code>-waarden.</li><li>Aanroepen van <code>create_function()</code>, <code>each()</code>, <code>split()</code> en de rest van de PHP 7.2 deprecatielijst.</li><li>Type-juggling bugs rond <code>==</code> op stringachtige getallen (zie de <a href="https://www.php.net/manual/en/language.operators.comparison.php">vergelijkingstabel op php.net</a>).</li><li>SSRF-achtige <code>file_get_contents()</code>-aanroepen op door de gebruiker bepaalde URL's.</li><li>Output die naar de pagina geschreven wordt zonder <code>esc_html()</code> of <code>esc_attr()</code>.</li></ul><p>Een senior PHP-ontwikkelaar die deze audit met de hand doet, is een week per site bezig. Een model dat op voldoende PHP getraind is doet het in de tijd die nodig is om koffie te zetten. De output is ongeveer zo accuraat als een vermoeide mens, mogelijk iets beter op de saaie patroonmatches, zeker minder goed op alles waarvoor je de historie van het project moet lezen.</p><p>Dit deel van de verschuiving is echt en onomstreden. Was een audit in 2024 nog 'zoek alle kapotte stukken', dan begint een audit in 2026 met een printbare lijst kapotte stukken en de vraag 'welke daarvan pakken we aan'.</p><h2>Waar het model met overtuiging mis is</h2><p>De fouten zitten bij context, niet bij vermogen. Een paar die we steeds tegenkomen op echte legacy sites.</p><h3>De ontbrekende break die geen bug is</h3><p>Een <code>switch</code>-case zonder <code>break</code> ziet eruit als een duidelijke omissie. Op een Drupal 7 site die we hebben gecontroleerd was de ontbrekende break dragend: hij viel met opzet door naar een legacy redirect die een analytics-consultant in 2017 had aangelegd. Tweeduizend pagina's per maand raken die fall-through. Het model zei 'waarschijnlijk bug'. Het was in feite de business-logica.</p><h3>Dode code die nog steeds wordt aangeroepen</h3><p>Legacy PHP houdt van <code>require_once</code> met relatieve paden twee directories omhoog. Een AI-rapport noemt een functie zelfverzekerd dood omdat niets in het bestand of de namespace ernaar verwijst. Vervolgens includeert een Joomla-module uit 2012 dat bestand rechtstreeks en klapt de productie de ochtend na de deploy.</p><h3>De deprecated functie die de host heeft vastgepind</h3><p>Sommige shared hosts serveren nog steeds PHP 7.4, soms 7.2. Het model raadt aan om <code>each()</code> of <code>create_function()</code> te vervangen door het moderne equivalent, wat op zichzelf klopt en stukgaat zodra je pusht naar een host die drie major versies achterloopt. De fix vereist dat je de <code>.htaccess</code> leest:</p><pre><code class="lang-apache">AddHandler application/x-httpd-php74 .php
+# of, op cPanel:
+# AddType application/x-httpd-ea-php74 .php .php7 .phtml
+</code></pre><p>Die regel ziet het model niet, tenzij je hem aanlevert. Het geeft het juiste antwoord voor de verkeerde PHP-versie en noemt het af.</p><p>Het patroon van een twee keer geregistreerde hook is een stillere neef van hetzelfde probleem. WordPress-plugins uit de jaren 2014 tot 2018 registreren regelmatig hetzelfde filter opnieuw binnen zowel <code>plugins_loaded</code> als <code>init</code>, omdat een concurrerende plugin het ooit deregistreerde. De bevinding 'duplicate hook registration' klopt technisch en is operationeel catastrofaal.</p><h2>De reviewloop, opnieuw geschreven</h2><p>De vorm van een legacy PHP-refactor was vroeger lineair. Lees het bestand. Schrijf notities in een kladblok. Patroon-match tegen bugs die je eerder hebt gezien. Beslis wat je verandert. Run de wijziging tegen een staging-kopie. Wacht tot een klant mailt over het ding dat je hebt gesloopt.</p><p>Met AI-review in de loop ziet de vorm er nu zo uit:</p><ol><li>Run het model over de hele tree.</li><li>Triëer de bevindingen tegen de echte historie van de codebase.</li><li>Schrijf voor elke bevinding die het waard is om op te pakken de wijziging op als een hypothese.</li><li>Verifieer tegen een echte database en een echte requestflow.</li><li>Houd een undo-pad open totdat de klant er een week mee heeft geleefd.</li></ol><p>Stap 2 is het werk. Daar verdient domeinkennis zich terug. Een bevinding als 'de <code>wp_users</code>-query op regel 88 is niet prepared' is een hypothese, totdat je de <code>git blame</code>, de support tickets en het gedrag op staging hebt gecontroleerd. Het model heeft geen ongelijk. Het weet alleen niet of de variabele uit een constante in <code>wp-config.php</code> komt of uit een querystring die een klant zelf kan opstellen. De <a href="https://owasp.org/www-community/attacks/SQL_Injection">OWASP-uitleg over SQL injection</a> is nog steeds de juiste primer voor die afweging.</p><h2>Triage als de eigenlijke vaardigheid</h2><p>De senior ontwikkelaars met wie we werken worden merkbaar beter in één specifieke beweging: een AI-bevinding lezen en in ongeveer vijftien seconden beslissen of die een echt onderzoek waard is. De beweging gaat zo:</p><ul><li>Is de input attacker-controlled? Zo ja, echt lezen.</li><li>Loopt deze code-pad daadwerkelijk op de productiesite? Check de access logs, niet het bestand.</li><li>Als we het veranderen, kunnen we het dan met één klik terugzetten?</li></ul><p>Die derde vraag werd vroeger beantwoord met 'ik zip het bestand eerst even'. Nu wordt hij beantwoord door <a href="/#features">version history</a> op bestandsniveau op het project zelf, wat de drempel om de wijziging te proberen wegneemt. De kosten van een verkeerde triage-inschatting dalen tot ongeveer nul, wat betekent dat de lat voor 'het proberen waard' ook zakt.</p><h2>Wat dit verandert aan het werk</h2><p>Van begin tot eind lijkt de dag minder op archeologie en meer op redactiewerk. Je begint met een lijst verdachte regels. Je beslist over vijf ervan. Je voert de wijziging door. Je houdt het audit trail intact. Je gaat door. Wat AI niet heeft gedaan, is de ontwikkelaar overbodig maken. Het schoof ze een laag omhoog, van 'vind de bug' naar 'beslis welke bug echt is'.</p><p>Toen we Pier bouwden liepen we tegen precies deze loop aan op elke <a href="/">legacy site</a> die we aanraakten. Hoe we het uiteindelijk hebben opgelost was om de AI-review, de FTP-edit, de <a href="/#database">MySQL editor</a> en de version history per bestand in één venster te zetten, zodat een triagebeslissing en het undo-pad één toetsaanslag van elkaar af zitten.</p><aside class="callout">Modellen herschrijven met overtuiging een mod_rewrite-blok in <code>.htaccess</code> naar een 'schonere' versie die een regel <code>RewriteCond %{HTTPS} off</code> laat vallen. De site werkt nog voor iedereen, behalve voor die ene klant achter een corporate proxy die de HTTPS-header eruit strijkt. Diff rewrite rules altijd met de hand. Zie de <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">Apache mod_rewrite-referentie</a>.</aside><p>Het kleinste wat je vandaag kunt doen: pak de oudste <code>functions.php</code> in je projecttree, draai er een AI-reviewpass op, en lees voor je iets fixt de <code>git blame</code> op de drie meest alarmerende bevindingen. De helft daarvan is een echte bug. De andere helft leert je iets over de site dat het model niet kon zien.</p>
+    </div>
+
+    <aside class="pullquote">AI-codereview lost de detectie op legacy PHP op. Het werk dat overblijft is triage: beslissen welke bevinding een echte bug is en welke een stuk dragende historie.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Vangt AI betrouwbaar SQL injection in legacy PHP?</p>
+      <p class="faq-a">Ja voor het voor de hand liggende string-concat patroon. Het mist de subtielere gevallen waarbij input door drie functieaanroepen en een sessievariabele heen gaat. Behandel elke flag als een hypothese om te verifiëren.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Vervangt AI-codereview senior PHP-ontwikkelaars?</p>
+      <p class="faq-a">Het vervangt het detectiedeel van hun werk. De triagebeslissing over wat veilig is om te veranderen blijft bij wie de historie van de codebase en de eigenaardigheden van de klant kent.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe accuraat is AI op deprecatie-audits van PHP 7 naar 8?</p>
+      <p class="faq-a">Erg accuraat op patroonmatches als create_function of each. Minder betrouwbaar als de host op een oudere PHP-versie draait, want het model kan je .htaccess niet lezen tenzij je hem aanlevert.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=ai">#ai</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-live-edit-procedure/hero.jpg" alt="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 mei 2026</span></span>
+      <h3>wp-config.php in productie: een veilige edit-procedure</h3>
+      <span class="pc-lede">wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/ai-code-review-legacy-php/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
