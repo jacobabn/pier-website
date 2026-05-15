@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Ruwe .sql-dumps lezen zonder import: een CLI-playbook · Pier — Blog</title>
+<meta name="description" content="Een back-up van 3 GB belandt in Slack en de klant wil weten of één rij erin staat. De CLI-workflow voor ruwe .sql-dumps zonder import op schijf.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, workflow, tooling, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/read-raw-sql-dumps-cli/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/read-raw-sql-dumps-cli/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Ruwe .sql-dumps lezen zonder import: een CLI-playbook">
+<meta property="og:description" content="Een back-up van 3 GB belandt in Slack en de klant wil weten of één rij erin staat. De CLI-workflow voor ruwe .sql-dumps zonder import op schijf.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Marlpriem van messing op geteerd hennep touw, losgemaakte strengen, rode lakzegel op papieren label, eiken plank, linnen doek.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T07:54:13.831Z">
+<meta property="article:modified_time" content="2026-05-15T07:54:13.831Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Ruwe .sql-dumps lezen zonder import: een CLI-playbook">
+<meta name="twitter:description" content="Een back-up van 3 GB belandt in Slack en de klant wil weten of één rij erin staat. De CLI-workflow voor ruwe .sql-dumps zonder import op schijf.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/hero.jpg">
+<meta name="twitter:image:alt" content="Marlpriem van messing op geteerd hennep touw, losgemaakte strengen, rode lakzegel op papieren label, eiken plank, linnen doek.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/read-raw-sql-dumps-cli/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/"},
+  "url":"https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/",
+  "headline":"Ruwe .sql-dumps lezen zonder import: een CLI-playbook",
+  "description":"Een back-up van 3 GB belandt in Slack en de klant wil weten of één rij erin staat. De CLI-workflow voor ruwe .sql-dumps zonder import op schijf.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Marlpriem van messing op geteerd hennep touw, losgemaakte strengen, rode lakzegel op papieren label, eiken plank, linnen doek."
+  },
+  "datePublished":"2026-05-15T07:54:13.831Z",
+  "dateModified":"2026-05-15T07:54:13.831Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, databases, workflow, tooling, operations",
+  "wordCount":1057,
+  "articleSection":"Databases",
+  "articleBody":"Een klant stuurt je een backup-prod.sql.gz van 3,2 GB via WeTransfer met de melding: \"het ontbrekende gebruikersaccount zit er ergens in, alleen weten we niet waar.\" Importeren betekent een wegwerp-database opzetten, veertig minuten wachten tot de load klaar is, en dan SELECT-statements schrijven op een server die je morgen toch weggooit. De ruwe .sql-dump op schijf lezen duurt minder dan een minuut, kost geen RAM en beantwoordt precies dezelfde vraag. De CLI-workflow voor het lezen van een ruwe .sql-dump is ouder dan de meeste frameworks waarop we sites uitleveren, en hij wint nog steeds van elke GUI als het om forensisch werk op grote bestanden gaat. Hieronder de toolkit waar een handvol van ons direct naar grijpt zodra er een dump in een Slack-thread belandt. Wat het bestand is voordat je het opent Een MySQL .sql-dump is een script in platte tekst met CREATE TABLE , INSERT INTO en bovenaan een paar session-instellingen. mysqldump schrijft ze in een voorspelbare volgorde, en dat is de reden dat elke truc hieronder werkt. Begin met de goedkoopst mogelijke vragen. Is het bestand überhaupt gecomprimeerd? file backup-prod.sql.gz # backup-prod.sql.gz: gzip compressed data, from Unix, original size 3221225472 Goed. Stream het nu zonder het naar schijf uit te pakken: zcat backup-prod.sql.gz | head -50 De eerste vijftig regels vertellen je welke MySQL-versie de dump heeft geproduceerd, de character set, en (als je client het heeft onthouden) de naam van de database. Als head eindeloos blijft hangen, is het bestand niet daadwerkelijk gzipped en kijk je naar een binaire blob die iemand hernoemd heeft. Alle tabellen in seconden op een rij De CREATE TABLE -statements staan in een mysqldump-output regel-geanker, wat betekent dat grep ze vindt zonder rij-data te scannen: zcat backup-prod.sql.gz | grep -nE \"^CREATE TABLE\" # 142:CREATE TABLE `wp_commentmeta` ( # 168:CREATE TABLE `wp_comments` ( # 234:CREATE TABLE `wp_options` ( # 412:CREATE TABLE `wp_postmeta` ( # 1238941:CREATE TABLE `wp_posts` ( De regelnummers tellen, want ze vertellen je grofweg hoe het bestand op schijf is opgebouwd. Als wp_options op regel 234 staat en wp_posts op regel 1,2 miljoen, dan is dat geen bug. wp_options is klein, en wp_posts is waar het gewicht zit. Wil je per tabel een schatting van het aantal rijen zonder SQL te parsen? Tel de INSERT-statements: zcat backup-prod.sql.gz | grep -c \"^INSERT INTO \\`wp_postmeta\\`\" # 8742 Dat is niet het exacte aantal rijen (elke INSERT bevat meerdere tuples), maar wel een bruikbare proxy voor \"is deze tabel 50 rijen of 5 miljoen\". Eén tabel uit een dump van vier gigabyte trekken Dit is de truc die de hele post terugverdient. mysqldump zet elke tabel tussen twee comment-blokken die er zo uitzien: -- Table structure for table `wp_users` DROP TABLE IF EXISTS `wp_users`; CREATE TABLE `wp_users` (...); INSERT INTO `wp_users` VALUES (...); -- Table structure for table `wp_usermeta` sed kan precies één tabel uitsnijden door op de markerregels te matchen: zcat backup-prod.sql.gz \\ | sed -n '/^-- Table structure for table `wp_users`/,/^-- Table structure for table/p' \\ > wp_users.sql Je hebt nu een bestand van 40 KB dat binnen twee seconden importeert in een wegwerp-database. Dezelfde one-liner werkt voor users_field_data van Drupal, customer_entity van Magento, of wat je verouderde site ook gebruikt. Wissel de tabelnaam en draaien. Let op: het sluitende range-patroon matcht het structuur-commentaar van de volgende tabel, dus de laatste tabel in een dump termineert niet netjes. Vervang voor de laatste tabel het tweede patroon door /^-- Dump completed/ , of pipe de output door head -n -1 om de zwerf-header van de staart af te knippen. Jagen op één enkele rij De vraag over die \"ontbrekende gebruiker\" wordt een one-liner. Zoek het e-mailadres ergens in de dump: zgrep -n \"marieke@example.nl\" backup-prod.sql.gz Zit het e-mailadres begraven in een gigantische extended INSERT, dan krijg je een regelnummer en een muur aan tekst. Herformatteer de matchende regel zo dat elke tuple op een eigen regel komt: zgrep \"marieke@example.nl\" backup-prod.sql.gz \\ | sed 's/),(/),\\n(/g' \\ | grep \"marieke@example.nl\" Dat laatste filter print alleen de tuple die je zoekt. Je weet nu het ID van de gebruiker, de gehashte password, de registratiedatum en welke meta-rijen je terug zou moeten kopiëren. Totale tijd: onder de vijf seconden op een dump van 3 GB. Twee dumps diffen zonder ook maar één van beide te importeren Klanten sturen voortdurend back-ups van \"voor\" en \"na\", meestal met de vraag \"wat is er veranderd?\" Beide in tijdelijke databases importeren en vergelijkingsqueries draaien is het voor de hand liggende antwoord, en bijna altijd het verkeerde voor een eerste pass. Diff eerst de schemas: zcat backup-monday.sql.gz | grep -E \"^CREATE TABLE\" | sort > schema-mon.txt zcat backup-friday.sql.gz | grep -E \"^CREATE TABLE\" | sort > schema-fri.txt diff schema-mon.txt schema-fri.txt Is het schema identiek, dan zit de wijziging in rij-data en k",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Ruwe .sql-dumps lezen zonder import: een CLI-playbook","item":"https://pier.abn.company/nl/blog/read-raw-sql-dumps-cli/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Werken deze trucs ook op PostgreSQL-dumps?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Grotendeels. pg_dump gebruikt andere comment-markers en COPY-statements in plaats van INSERTs, dus pas de patronen aan. De structurele workflow (schemas greppen, sed om één tabel te extraheren) is identiek."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als de dump extended INSERTs gebruikt met miljoenen tuples per statement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Herformatteer de regel met sed 's/),(/),\\n(/g' zodat elke tuple op een eigen regel staat. Daarna mikt grep op individuele rijen binnen milliseconden, zelfs op dumps van meerdere gigabytes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mist grep rijen die letterlijke newlines bevatten in TEXT-kolommen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dat kan. Voor uitputtende zoekopdrachten gebruik je grep -z om het bestand als null-delimited te behandelen, of extraheer je de tabel met sed en laat je MySQL het netjes parsen in een wegwerp-database."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/read-raw-sql-dumps-cli/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 017</span>
+      </div>
+      <p class="eyebrow"><span class="n">017 —</span>Databases</p>
+      <h1 class="display-l post-title">Ruwe .sql-dumps lezen zonder import: een CLI-playbook</h1>
+      <p class="lede post-lede">Een back-up van 3 GB belandt in Slack en de klant wil weten of één rij erin staat. De CLI-workflow voor ruwe .sql-dumps zonder import op schijf.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T07:54:13.831Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/read-raw-sql-dumps-cli/hero.webp" type="image/webp">
+      <img src="/blog/read-raw-sql-dumps-cli/hero.jpg" alt="Marlpriem van messing op geteerd hennep touw, losgemaakte strengen, rode lakzegel op papieren label, eiken plank, linnen doek." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 017</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een klant stuurt je een <code>backup-prod.sql.gz</code> van 3,2 GB via WeTransfer met de melding: "het ontbrekende gebruikersaccount zit er ergens in, alleen weten we niet waar." Importeren betekent een wegwerp-database opzetten, veertig minuten wachten tot de load klaar is, en dan SELECT-statements schrijven op een server die je morgen toch weggooit. De ruwe .sql-dump op schijf lezen duurt minder dan een minuut, kost geen RAM en beantwoordt precies dezelfde vraag.</p>
+
+<p>De CLI-workflow voor het lezen van een ruwe .sql-dump is ouder dan de meeste frameworks waarop we sites uitleveren, en hij wint nog steeds van elke GUI als het om forensisch werk op grote bestanden gaat. Hieronder de toolkit waar een handvol van ons direct naar grijpt zodra er een dump in een Slack-thread belandt.</p>
+
+<h2>Wat het bestand is voordat je het opent</h2>
+
+<p>Een MySQL .sql-dump is een script in platte tekst met <code>CREATE TABLE</code>, <code>INSERT INTO</code> en bovenaan een paar session-instellingen. <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">mysqldump</a> schrijft ze in een voorspelbare volgorde, en dat is de reden dat elke truc hieronder werkt.</p>
+
+<p>Begin met de goedkoopst mogelijke vragen. Is het bestand überhaupt gecomprimeerd?</p>
+
+<pre><code class="lang-bash">file backup-prod.sql.gz
+# backup-prod.sql.gz: gzip compressed data, from Unix, original size 3221225472</code></pre>
+
+<p>Goed. Stream het nu zonder het naar schijf uit te pakken:</p>
+
+<pre><code class="lang-bash">zcat backup-prod.sql.gz | head -50</code></pre>
+
+<p>De eerste vijftig regels vertellen je welke MySQL-versie de dump heeft geproduceerd, de character set, en (als je client het heeft onthouden) de naam van de database. Als <code>head</code> eindeloos blijft hangen, is het bestand niet daadwerkelijk gzipped en kijk je naar een binaire blob die iemand hernoemd heeft.</p>
+
+<h2>Alle tabellen in seconden op een rij</h2>
+
+<p>De <code>CREATE TABLE</code>-statements staan in een mysqldump-output regel-geanker, wat betekent dat <code>grep</code> ze vindt zonder rij-data te scannen:</p>
+
+<pre><code class="lang-bash">zcat backup-prod.sql.gz | grep -nE "^CREATE TABLE"
+# 142:CREATE TABLE `wp_commentmeta` (
+# 168:CREATE TABLE `wp_comments` (
+# 234:CREATE TABLE `wp_options` (
+# 412:CREATE TABLE `wp_postmeta` (
+# 1238941:CREATE TABLE `wp_posts` (</code></pre>
+
+<p>De regelnummers tellen, want ze vertellen je grofweg hoe het bestand op schijf is opgebouwd. Als <code>wp_options</code> op regel 234 staat en <code>wp_posts</code> op regel 1,2 miljoen, dan is dat geen bug. <code>wp_options</code> is klein, en <code>wp_posts</code> is waar het gewicht zit.</p>
+
+<p>Wil je per tabel een schatting van het aantal rijen zonder SQL te parsen? Tel de INSERT-statements:</p>
+
+<pre><code class="lang-bash">zcat backup-prod.sql.gz | grep -c "^INSERT INTO \`wp_postmeta\`"
+# 8742</code></pre>
+
+<p>Dat is niet het exacte aantal rijen (elke INSERT bevat meerdere tuples), maar wel een bruikbare proxy voor "is deze tabel 50 rijen of 5 miljoen".</p>
+
+<h2>Eén tabel uit een dump van vier gigabyte trekken</h2>
+
+<p>Dit is de truc die de hele post terugverdient. mysqldump zet elke tabel tussen twee comment-blokken die er zo uitzien:</p>
+
+<pre><code class="lang-sql">-- Table structure for table `wp_users`
+DROP TABLE IF EXISTS `wp_users`;
+CREATE TABLE `wp_users` (...);
+INSERT INTO `wp_users` VALUES (...);
+-- Table structure for table `wp_usermeta`</code></pre>
+
+<p><a href="https://www.gnu.org/software/sed/manual/sed.html">sed</a> kan precies één tabel uitsnijden door op de markerregels te matchen:</p>
+
+<pre><code class="lang-bash">zcat backup-prod.sql.gz \
+  | sed -n '/^-- Table structure for table `wp_users`/,/^-- Table structure for table/p' \
+  &gt; wp_users.sql</code></pre>
+
+<p>Je hebt nu een bestand van 40 KB dat binnen twee seconden importeert in een wegwerp-database. Dezelfde one-liner werkt voor <code>users_field_data</code> van Drupal, <code>customer_entity</code> van Magento, of wat je <a href="/">verouderde site</a> ook gebruikt. Wissel de tabelnaam en draaien.</p>
+
+<aside class="callout"><strong>Let op:</strong> het sluitende range-patroon matcht het structuur-commentaar van de <em>volgende</em> tabel, dus de laatste tabel in een dump termineert niet netjes. Vervang voor de laatste tabel het tweede patroon door <code>/^-- Dump completed/</code>, of pipe de output door <code>head -n -1</code> om de zwerf-header van de staart af te knippen.</aside>
+
+<h2>Jagen op één enkele rij</h2>
+
+<p>De vraag over die "ontbrekende gebruiker" wordt een one-liner. Zoek het e-mailadres ergens in de dump:</p>
+
+<pre><code class="lang-bash">zgrep -n "marieke@example.nl" backup-prod.sql.gz</code></pre>
+
+<p>Zit het e-mailadres begraven in een gigantische extended INSERT, dan krijg je een regelnummer en een muur aan tekst. Herformatteer de matchende regel zo dat elke tuple op een eigen regel komt:</p>
+
+<pre><code class="lang-bash">zgrep "marieke@example.nl" backup-prod.sql.gz \
+  | sed 's/),(/),\n(/g' \
+  | grep "marieke@example.nl"</code></pre>
+
+<p>Dat laatste filter print alleen de tuple die je zoekt. Je weet nu het ID van de gebruiker, de gehashte password, de registratiedatum en welke meta-rijen je terug zou moeten kopiëren. Totale tijd: onder de vijf seconden op een dump van 3 GB.</p>
+
+<h2>Twee dumps diffen zonder ook maar één van beide te importeren</h2>
+
+<p>Klanten sturen voortdurend back-ups van "voor" en "na", meestal met de vraag "wat is er veranderd?" Beide in tijdelijke databases importeren en vergelijkingsqueries draaien is het voor de hand liggende antwoord, en bijna altijd het verkeerde voor een eerste pass. Diff eerst de schemas:</p>
+
+<pre><code class="lang-bash">zcat backup-monday.sql.gz | grep -E "^CREATE TABLE" | sort &gt; schema-mon.txt
+zcat backup-friday.sql.gz | grep -E "^CREATE TABLE" | sort &gt; schema-fri.txt
+diff schema-mon.txt schema-fri.txt</code></pre>
+
+<p>Is het schema identiek, dan zit de wijziging in rij-data en kun je verder graven met grep. Is er een tabel bijgekomen of verdwenen, dan heb je het gevonden zonder de importkosten te betalen.</p>
+
+<p>Voor diffen op rij-niveau van één tabel haal je dezelfde tabel uit beide dumps met het sed-recept hierboven, en draai je daarna <code>diff</code> op de twee <code>wp_options.sql</code>-bestanden. De meeste "de site brak op vrijdag"-incidenten lossen op bij deze stap, omdat de gewijzigde rij iets duidelijks is: een verouderde URL in <code>siteurl</code>, een plugin-lijst die omsloeg in <code>active_plugins</code>, een cache-invalidator die rommel wegschreef.</p>
+
+<h2>Toekijken hoe een trage operatie afrondt</h2>
+
+<p>Eén laatste tool die zichzelf terugverdient op grote dumps: <code>pv</code> (pipe viewer). Wanneer je de dump uiteindelijk wél importeert, pipe je hem door pv heen zodat je de voortgang ziet:</p>
+
+<pre><code class="lang-bash">pv backup-prod.sql.gz | gunzip | mysql -u root -p target_db
+# 1.34GiB 0:04:12 [5.42MiB/s] [=======&gt;          ] 41% ETA 0:06:01</code></pre>
+
+<p>Geen gestaar meer naar een bevroren terminal met de vraag of MySQL nog werkt of overleden is. Dezelfde truc werkt voor elke lange pipe: pv ertussen, voortgangsbalk onderaan het scherm.</p>
+
+<p>Toen we <a href="/">Pier</a> bouwden voor het bewerken van verouderde WordPress- en Drupal-sites via FTP en MySQL, was dit een van de workflows waar we aan de terminal naar bleven grijpen, zelfs nadat de in-app <a href="/#database">MySQL editor</a> live ging. De recepten hierboven horen in het spiergeheugen van elke developer, of je nu ooit onze app opent of niet.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: pak een <code>.sql</code>-back-up die al op je laptop staat en draai er <code>zcat backup.sql.gz | grep -E "^CREATE TABLE"</code> op. Je ziet de vorm van je database in drie seconden.</p>
+    </div>
+
+    <aside class="pullquote">Een .sql-dump is gewoon een tekstbestand. Met zcat, grep, sed, diff en pv beantwoord je de meeste &#39;wat zit er in deze back-up?&#39;-vragen in seconden, zonder ooit MySQL te starten.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Werken deze trucs ook op PostgreSQL-dumps?</p>
+      <p class="faq-a">Grotendeels. pg_dump gebruikt andere comment-markers en COPY-statements in plaats van INSERTs, dus pas de patronen aan. De structurele workflow (schemas greppen, sed om één tabel te extraheren) is identiek.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als de dump extended INSERTs gebruikt met miljoenen tuples per statement?</p>
+      <p class="faq-a">Herformatteer de regel met sed &#39;s/),(/),\n(/g&#39; zodat elke tuple op een eigen regel staat. Daarna mikt grep op individuele rijen binnen milliseconden, zelfs op dumps van meerdere gigabytes.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Mist grep rijen die letterlijke newlines bevatten in TEXT-kolommen?</p>
+      <p class="faq-a">Dat kan. Voor uitputtende zoekopdrachten gebruik je grep -z om het bestand als null-delimited te behandelen, of extraheer je de tabel met sed en laat je MySQL het netjes parsen in een wegwerp-database.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/backups-that-arent-backups-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp">
+        <img src="/nl/blog/backups-that-arent-backups-audit/hero.jpg" alt="Antieke koperen balansweegschaal op gekrast eiken, één schaal met crème envelop en kleirode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Backups die geen backup zijn: audit in zeven punten</h3>
+      <span class="pc-lede">Een agency-lead stuurde om 23:41 een Loom: het restore-bestand was 11 MB, de database 4,7 GB. Zo gebeurt het, en zo voorkom je dat het jou overkomt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/read-raw-sql-dumps-cli/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
