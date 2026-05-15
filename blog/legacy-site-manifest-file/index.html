@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy site manifests: a 20-minute audit blueprint · Pier — Blog</title>
+<meta name="description" content="You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what&#39;s actually running.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, php, mysql, htaccess, wordpress, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/legacy-site-manifest-file/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-site-manifest-file/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-site-manifest-file/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy site manifests: a 20-minute audit blueprint">
+<meta property="og:description" content="You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what&#39;s actually running.">
+<meta property="og:url" content="https://pier.abn.company/blog/legacy-site-manifest-file/">
+<meta property="og:image" content="https://pier.abn.company/blog/legacy-site-manifest-file/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/legacy-site-manifest-file/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Open wooden card-index drawer on linen, brass label-holder, fanned index cards, clay-red ribbon on one card.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T12:27:13.699Z">
+<meta property="article:modified_time" content="2026-05-15T12:27:13.699Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Legacy site manifests: a 20-minute audit blueprint">
+<meta name="twitter:description" content="You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what&#39;s actually running.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/legacy-site-manifest-file/hero.jpg">
+<meta name="twitter:image:alt" content="Open wooden card-index drawer on linen, brass label-holder, fanned index cards, clay-red ribbon on one card.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/legacy-site-manifest-file/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/legacy-site-manifest-file/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/legacy-site-manifest-file/"},
+  "url":"https://pier.abn.company/blog/legacy-site-manifest-file/",
+  "headline":"Legacy site manifests: a 20-minute audit blueprint",
+  "description":"You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what's actually running.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/legacy-site-manifest-file/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Open wooden card-index drawer on linen, brass label-holder, fanned index cards, clay-red ribbon on one card."
+  },
+  "datePublished":"2026-05-15T12:27:13.699Z",
+  "dateModified":"2026-05-15T12:27:13.699Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"workflow, php, mysql, htaccess, wordpress, operations",
+  "wordCount":1281,
+  "articleSection":"Workflow",
+  "articleBody":"A Dutch agency we work with handed over a WordPress site last month: nine years old, around 140 posts, three custom plugins nobody remembered writing, a Magento 1 store stapled onto a subdomain, and a PHP version the hosting panel quietly listed as 7.2. The brief was \"small content update.\" Two hours in, we were still reverse-engineering what the site actually was. This is the part of legacy site work nobody writes down. The site has been running for a decade. Half the institutional knowledge left with the developer who built it. The other half lives in a Slack channel nobody can find anymore. Before you touch a single line of code, you need a manifest. What a manifest actually is A manifest is one plain-text file, checked into the site repo or stored alongside your project notes, that captures everything a successor would ask you in their first hour. Not the code: the context around the code. Versions, paths, cron jobs, hardcoded URLs, the email address the contact form posts to, the cert renewal cadence, the staging URL nobody else has access to. Call it MANIFEST.md, SITE.md, README.ops, whatever the team will actually read. The name matters less than the discipline of writing one before you do anything else. The 20-minute capture, in order You can write a usable manifest in 20 minutes if you stop trying to make it pretty. Open a markdown file. Set a timer. Go through the following six steps in order, with no detours. 1. Runtime versions. SSH or FTP in, then drop a phpinfo file or check the existing one. From CLI: php -v mysql --version nginx -v 2>&1 || apache2 -v 2>&1 If you only have FTP, write a one-line PHP probe and pull the response: <?php echo phpversion(), \"\\n\", PHP_OS, \"\\n\"; ?> Record exact versions, not ranges. \"PHP 7.4.33\" not \"PHP 7.x.\" The patch number matters when CVE references come up later. The official php.net supported versions table tells you which line is still receiving security fixes. 2. Database connection. Find wp-config.php, settings.php, configuration.php, or app/etc/local.xml depending on the CMS. Note the database name, user, host, and whether it points at localhost or a separate host. If it's a separate host, write down the IP, not just the hostname. DNS records drift. grep -E \"DB_(NAME|USER|HOST)\" wp-config.php Do not paste the password into the manifest. A reference like \"see vault entry kv/clients/acme/db\" is enough. 3. .htaccess and rewrite rules. This is where the bodies are buried. Every legacy site has a .htaccess block someone added at 2am to fix a redirect loop and never documented. Cat the file, paste it verbatim into the manifest under its own heading, and annotate the non-obvious blocks. Even a note like \"this block forces HTTPS for /shop/ only, reason unknown\" is useful. RewriteEngine On RewriteCond %{HTTP_HOST} ^oldbrand\\.nl$ [NC] RewriteRule ^(.*)$ https://newbrand.nl/$1 [R=301,L] Apache's own mod_rewrite documentation is the reference you want open in another tab when decoding a 12-rule chain. 4. Cron jobs. Run crontab -l on the server. Check /etc/cron.d/ for system-level jobs. For WordPress, look in wp_options for active wp-cron tasks and any HTTP-loopback scheduler. Magento 1 has its own cron.sh that documents separately. 5. Plugin and module inventory. On WordPress with WP-CLI installed: wp plugin list --format=csv > plugins.csv If WP-CLI isn't there, a directory listing of wp-content/plugins is enough. Record version numbers next to each. Mark plugins last updated more than 24 months ago. Those are your audit candidates. 6. Mail flow. Where does the contact form send to? Through PHP mail()? An SMTP plugin? A transactional service like Postmark or SendGrid? This is the question that always comes up six weeks in, when a customer asks why their order confirmation never arrived. Find the answer once, write it down. Hardcoded paths and the long tail The hardest part of a manifest is not the obvious entries. It's the long tail of small assumptions baked into the codebase that nobody flagged. A few that recur on every legacy site we audit: Absolute paths in includes (require '/home/oldowner/public_html/lib.php') that break the moment the site moves hosts. Hardcoded API keys in plugin files, not in wp-config. SSL certificate paths in custom snippets, often pointing at a Let's Encrypt directory symlinked through three layers. The one cron job that runs on a developer's laptop, not the server, and has done so for two years. Grep for the obvious patterns and add the hits to the manifest: grep -r \"/home/\" wp-content/ --include=\"*.php\" grep -rE \"https?://[a-z0-9.-]+\\.[a-z]{2,}\" wp-content/themes/ --include=\"*.php\" If the site has writeable wp-content directories and you don't trust the host, grep for recently modified PHP files before you write the manifest. A site you're auditing for the first time might already be compromised, and the cleanest manifest in the world will not help if the timestamps you're recording belong to an attacker's webshell. Where to store it Th",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/legacy-site-manifest-file/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy site manifests: a 20-minute audit blueprint","item":"https://pier.abn.company/blog/legacy-site-manifest-file/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How is a site manifest different from a README?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A README explains what the site does. A manifest captures what's running it: versions, paths, cron jobs, dependencies, mail flow. Successors need both, but they need the manifest first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should the manifest file live?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Three places at once: the repo root for developers, your password vault for anyone needing credentials, and a PDF in the project folder of whoever invoices the client."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should I update it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Every time you change something material: PHP upgrade, plugin install, cert renewal, cron edit, host migration. An outdated manifest is worse than none because it lies confidently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I inherit a site with zero documentation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run the 20-minute capture before touching code. Versions first, .htaccess second, database third. Cron and mail flow last, because they tend to reveal themselves under pressure."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 023</span>
+      </div>
+      <p class="eyebrow"><span class="n">023 —</span>Workflow</p>
+      <h1 class="display-l post-title">Legacy site manifests: a 20-minute audit blueprint</h1>
+      <p class="lede post-lede">You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what&#39;s actually running.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T12:27:13.699Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+      <img src="/blog/legacy-site-manifest-file/hero.jpg" alt="Open wooden card-index drawer on linen, brass label-holder, fanned index cards, clay-red ribbon on one card." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 023</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with handed over a WordPress site last month: nine years old, around 140 posts, three custom plugins nobody remembered writing, a Magento 1 store stapled onto a subdomain, and a PHP version the hosting panel quietly listed as 7.2. The brief was "small content update." Two hours in, we were still reverse-engineering what the site actually was.</p>
+<p>This is the part of <a href="/">legacy site</a> work nobody writes down. The site has been running for a decade. Half the institutional knowledge left with the developer who built it. The other half lives in a Slack channel nobody can find anymore. Before you touch a single line of code, you need a manifest.</p>
+<h2>What a manifest actually is</h2>
+<p>A manifest is one plain-text file, checked into the site repo or stored alongside your project notes, that captures everything a successor would ask you in their first hour. Not the code: the context around the code. Versions, paths, cron jobs, hardcoded URLs, the email address the contact form posts to, the cert renewal cadence, the staging URL nobody else has access to.</p>
+<p>Call it MANIFEST.md, SITE.md, README.ops, whatever the team will actually read. The name matters less than the discipline of writing one before you do anything else.</p>
+<h2>The 20-minute capture, in order</h2>
+<p>You can write a usable manifest in 20 minutes if you stop trying to make it pretty. Open a markdown file. Set a timer. Go through the following six steps in order, with no detours.</p>
+<p><strong>1. Runtime versions.</strong> SSH or FTP in, then drop a phpinfo file or check the existing one. From CLI:</p>
+<pre><code class="lang-bash">php -v
+mysql --version
+nginx -v 2>&1 || apache2 -v 2>&1</code></pre>
+<p>If you only have FTP, write a one-line PHP probe and pull the response:</p>
+<pre><code class="lang-php">&lt;?php echo phpversion(), "\n", PHP_OS, "\n"; ?&gt;</code></pre>
+<p>Record exact versions, not ranges. "PHP 7.4.33" not "PHP 7.x." The patch number matters when CVE references come up later. The official <a href="https://www.php.net/supported-versions.php">php.net supported versions table</a> tells you which line is still receiving security fixes.</p>
+<p><strong>2. Database connection.</strong> Find wp-config.php, settings.php, configuration.php, or app/etc/local.xml depending on the CMS. Note the database name, user, host, and whether it points at localhost or a separate host. If it's a separate host, write down the IP, not just the hostname. DNS records drift.</p>
+<pre><code class="lang-bash">grep -E "DB_(NAME|USER|HOST)" wp-config.php</code></pre>
+<p>Do not paste the password into the manifest. A reference like "see vault entry kv/clients/acme/db" is enough.</p>
+<p><strong>3. .htaccess and rewrite rules.</strong> This is where the bodies are buried. Every legacy site has a .htaccess block someone added at 2am to fix a redirect loop and never documented. Cat the file, paste it verbatim into the manifest under its own heading, and annotate the non-obvious blocks. Even a note like "this block forces HTTPS for /shop/ only, reason unknown" is useful.</p>
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTP_HOST} ^oldbrand\.nl$ [NC]
+RewriteRule ^(.*)$ https://newbrand.nl/$1 [R=301,L]</code></pre>
+<p>Apache's own <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite documentation</a> is the reference you want open in another tab when decoding a 12-rule chain.</p>
+<p><strong>4. Cron jobs.</strong> Run crontab -l on the server. Check /etc/cron.d/ for system-level jobs. For WordPress, look in wp_options for active wp-cron tasks and any HTTP-loopback scheduler. Magento 1 has its own cron.sh that documents separately.</p>
+<p><strong>5. Plugin and module inventory.</strong> On WordPress with WP-CLI installed:</p>
+<pre><code class="lang-bash">wp plugin list --format=csv > plugins.csv</code></pre>
+<p>If WP-CLI isn't there, a directory listing of wp-content/plugins is enough. Record version numbers next to each. Mark plugins last updated more than 24 months ago. Those are your audit candidates.</p>
+<p><strong>6. Mail flow.</strong> Where does the contact form send to? Through PHP mail()? An SMTP plugin? A transactional service like Postmark or SendGrid? This is the question that always comes up six weeks in, when a customer asks why their order confirmation never arrived. Find the answer once, write it down.</p>
+<h2>Hardcoded paths and the long tail</h2>
+<p>The hardest part of a manifest is not the obvious entries. It's the long tail of small assumptions baked into the codebase that nobody flagged. A few that recur on every legacy site we audit:</p>
+<ul>
+<li>Absolute paths in includes (require '/home/oldowner/public_html/lib.php') that break the moment the site moves hosts.</li>
+<li>Hardcoded API keys in plugin files, not in wp-config.</li>
+<li>SSL certificate paths in custom snippets, often pointing at a Let's Encrypt directory symlinked through three layers.</li>
+<li>The one cron job that runs on a developer's laptop, not the server, and has done so for two years.</li>
+</ul>
+<p>Grep for the obvious patterns and add the hits to the manifest:</p>
+<pre><code class="lang-bash">grep -r "/home/" wp-content/ --include="*.php"
+grep -rE "https?://[a-z0-9.-]+\.[a-z]{2,}" wp-content/themes/ --include="*.php"</code></pre>
+<aside class="callout">If the site has writeable wp-content directories and you don't trust the host, grep for recently modified PHP files before you write the manifest. A site you're auditing for the first time might already be compromised, and the cleanest manifest in the world will not help if the timestamps you're recording belong to an attacker's webshell.</aside>
+<h2>Where to store it</h2>
+<p>The manifest belongs in three places at once. First, in the repo root if the site is in version control. Second, in your password manager or vault under the client entry, so a colleague who needs database access doesn't have to clone anything. Third, as a printed PDF in the project folder of whoever's invoicing the client. That last one sounds excessive until the client's domain registrar account goes silent for two weeks and you need to prove what you inherited.</p>
+<p>Update the manifest every time you change something material. A manifest untouched for 18 months is worse than no manifest, because it lies confidently. <a href="https://owasp.org/www-project-top-ten/">OWASP's guidance</a> on legacy application inventories says the same thing in more words: documentation has to be a living artifact or it becomes a liability.</p>
+<h2>A worked example</h2>
+<p>Here's a trimmed manifest from a real WordPress site we picked up earlier this year, names changed:</p>
+<pre><code class="lang-markdown"># acme-nl manifest
+Last updated: 2026-04-12
+
+## Runtime
+- PHP 7.4.33 (host panel allows up to 8.1)
+- MySQL 5.7.39 (MariaDB-compatible)
+- Apache 2.4.41
+- WordPress 6.2.3 (auto-updates disabled)
+
+## Database
+- Host: 145.220.x.x (not localhost)
+- DB: acme_prod, user: acme_wp
+- Credentials: vault://clients/acme/db
+- Daily mysqldump to /backups/acme-YYYY-MM-DD.sql.gz, 30-day retention
+
+## .htaccess quirks
+- Forces HTTPS for /winkel/ only (legacy SEO redirect chain)
+- Blocks /wp-login.php to non-NL IPs (geoblock added 2024-08)
+
+## Cron
+- wp-cron disabled; system cron runs /usr/local/bin/php wp-cron.php every 10m
+- nightly mysqldump at 02:30 CET
+
+## Mail
+- WP Mail SMTP plugin pointed at Postmark, API key in wp-config (move to env)
+
+## Known landmines
+- Theme contains hardcoded path /home/acmenl1/ in functions.php line 312
+- Custom plugin "acme-orders" written by previous dev, no source repo, 1.8MB
+- SSL cert auto-renews via host panel, not certbot</code></pre>
+<p>That's it. 30 lines, fits on a screen, makes the next person 80% faster.</p>
+<h2>The audit that pays for itself</h2>
+<p>Every legacy site we've worked with that had a manifest got handed off in days. Every one that didn't burned a week of someone's life reconstructing missing context. The 20 minutes you spend writing it is the cheapest insurance the project will buy.</p>
+<p>When we built Pier for editing legacy sites by chat, we ran into this exact problem on almost every site we docked with. The way we ended up handling it: Pier writes a baseline manifest the first time you connect, captures PHP and MySQL versions, schema, .htaccess, and the plugin inventory automatically, and stamps a new entry into <a href="/#features">version history</a> every time something material changes. The manifest stops being something you remember to update.</p>
+<p>The smallest thing you could do today: pick the oldest site in your portfolio, open a terminal, and start a MANIFEST.md with the three version commands at the top of this post. You'll have something useful before your coffee gets cold.</p>
+    </div>
+
+    <aside class="pullquote">Every legacy site needs a manifest file. Twenty minutes of writing it saves the next person, or you in six months, a week of archaeology.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How is a site manifest different from a README?</p>
+      <p class="faq-a">A README explains what the site does. A manifest captures what&#39;s running it: versions, paths, cron jobs, dependencies, mail flow. Successors need both, but they need the manifest first.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Where should the manifest file live?</p>
+      <p class="faq-a">Three places at once: the repo root for developers, your password vault for anyone needing credentials, and a PDF in the project folder of whoever invoices the client.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How often should I update it?</p>
+      <p class="faq-a">Every time you change something material: PHP upgrade, plugin install, cert renewal, cron edit, host migration. An outdated manifest is worse than none because it lies confidently.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if I inherit a site with zero documentation?</p>
+      <p class="faq-a">Run the 20-minute capture before touching code. Versions first, .htaccess second, database third. Cron and mail flow last, because they tend to reveal themselves under pressure.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leather logbook with ribbon marker on dark oak, brass pen nib, red wax seal on folded paper, soft window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Reviving a dead WordPress site: a 90-minute playbook</h3>
+      <span class="pc-lede">A Dutch agency owner sent a Loom at 23:41: white screen, no logs, no SSH. Ninety minutes later the cart was live. Here is the order we work in.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Spotting a hacked WordPress install: a 5-minute audit</h3>
+      <span class="pc-lede">You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
