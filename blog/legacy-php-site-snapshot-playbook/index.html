@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy PHP site snapshot: a one-afternoon playbook · Pier — Blog</title>
+<meta name="description" content="You just got handed SFTP creds, a vague Slack thread, and a site nobody has touched in four years. Here is how to know what you are looking at by 5pm.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, php, mysql, sftp, htaccess, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-php-site-snapshot-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy PHP site snapshot: a one-afternoon playbook">
+<meta property="og:description" content="You just got handed SFTP creds, a vague Slack thread, and a site nobody has touched in four years. Here is how to know what you are looking at by 5pm.">
+<meta property="og:url" content="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/">
+<meta property="og:image" content="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Antique nautical chart on dark oak table with brass dividers and small red wax seal beside a paper tag.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T05:14:08.756Z">
+<meta property="article:modified_time" content="2026-05-15T05:14:08.756Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Legacy PHP site snapshot: a one-afternoon playbook">
+<meta name="twitter:description" content="You just got handed SFTP creds, a vague Slack thread, and a site nobody has touched in four years. Here is how to know what you are looking at by 5pm.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Antique nautical chart on dark oak table with brass dividers and small red wax seal beside a paper tag.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/legacy-php-site-snapshot-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/"},
+  "url":"https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/",
+  "headline":"Legacy PHP site snapshot: a one-afternoon playbook",
+  "description":"You just got handed SFTP creds, a vague Slack thread, and a site nobody has touched in four years. Here is how to know what you are looking at by 5pm.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Antique nautical chart on dark oak table with brass dividers and small red wax seal beside a paper tag."
+  },
+  "datePublished":"2026-05-15T05:14:08.756Z",
+  "dateModified":"2026-05-15T05:14:08.756Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"workflow, php, mysql, sftp, htaccess, operations",
+  "wordCount":1750,
+  "articleSection":"Workflow",
+  "articleBody":"It is just past one in the afternoon. An agency you have worked with twice before has dropped a Bitwarden share into your inbox: SFTP creds, a database password, the URL of a site nobody at the agency has logged into for four years. Their client wants a quote for \"modernising it a bit\" and the agency wants a written assessment before five so they can send a number tonight. You have never seen the codebase. You have four hours. What follows is the playbook we use for that exact situation. It assumes a PHP legacy site on shared or VPS hosting with SFTP and direct MySQL access. By 17:00 you should have a local snapshot, a one-page summary of what is actually running, and enough signal to defend a number. The brief and the four hours Set the goal explicitly before opening anything. You are not refactoring. You are not patching. You are producing two artefacts: A frozen copy of the site (files plus database) that you could restore over the live site in fifteen minutes. A one-page document that tells the agency what stack, what version, what plugins, what cron, and what known risks. That framing matters because the temptation, once you are in, is to start fixing the obvious things. Resist it. A snapshot is a measurement. The fix is a separate conversation, and that conversation goes better when you are quoting from a document. Hour one: inventory the file tree Open SFTP and resist the urge to download everything to your laptop first. Most legacy WordPress installs are 2 to 8 GB once you include uploads, and you do not need uploads to know what the site is. Start with shape, not bytes. If you have shell access, four commands pay for themselves immediately: cd /var/www/site find . -name \"*.php\" | wc -l du -sh . */ 2>/dev/null | sort -h ls -la wp-config.php sites/default/settings.php configuration.php app/etc/local.xml 2>/dev/null php -v 2>/dev/null || php-cgi -v 2>/dev/null The first tells you roughly how much PHP you are dealing with. A plain WordPress is around 2,500 PHP files. If you see 20,000 you are looking at a site stuffed with plugins, or a Drupal 7 with a lot of contrib modules, or a Magento. The second tells you which directory ate the disk (almost always wp-content/uploads , occasionally a forgotten backup-db/ directory that someone dropped in 2019). The third tells you, in one shot, which CMS you are dealing with. The fourth tells you which PHP version is actually executing, which matters because shared hosts will lie to you in the control panel. If you do not have shell, every decent SFTP client (Cyberduck, Transmit, FileZilla) can show file counts per directory. Drop a one-line PHP file at the webroot to get the runtime version: <?php echo PHP_VERSION, ' ', PHP_SAPI, ' ', php_uname(); ?> Visit it once. Delete it. Note the version. PHP's supported-versions page tells you whether that version is still in security support, and on a legacy site the answer is usually no. Spotting the CMS without guessing Each CMS leaves a signature you can trust: WordPress : wp-config.php at the root, wp-content/plugins/ and wp-content/themes/ . Drupal : sites/default/settings.php , core/CHANGELOG.txt (D8+), or CHANGELOG.txt at the root (D7). Joomla : configuration.php at the root with a JConfig class. Magento 1 : app/etc/local.xml . Magento 2: app/etc/env.php . Custom PHP : an index.php that includes a router, no CMS markers. Treat with caution. Custom PHP from 2014 is the genre most likely to have a forgotten admin route. Hour two: read the database Before you read a single row, dump it. A read-only audit is still a write event in someone's mind, and a host can fail at any moment. A snapshot you cannot restore is not a snapshot. mysqldump --single-transaction --quick --routines --triggers \\ -h DBHOST -u DBUSER -p DBNAME | gzip > site-$(date +%F).sql.gz The --single-transaction flag is the one that lets you take a consistent dump of an InnoDB database without locking the site. MySQL's mysqldump reference spells out the trade-offs against MyISAM. If the dump finishes in under two minutes, the database is small enough that you can pull a copy down and work locally for the rest of the audit. Now look at shape: SELECT table_name, engine, table_rows, ROUND(data_length/1024/1024, 1) AS data_mb, ROUND(index_length/1024/1024, 1) AS index_mb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY data_length DESC LIMIT 20; This one query tells you where the weight is. On WordPress the top of the list is usually wp_options (autoloaded option bloat), wp_postmeta (orphan meta from deleted plugins), and wp_posts (revisions). On Magento 1 the top is almost always core_url_rewrite and log_url_info , both of which mean nothing for users and everything for backups. For WordPress specifically, two follow-up queries tell you the rest of the story: SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' ORDER BY bytes DESC LIMIT 20; SELECT post_status, COUNT(*) FROM wp_posts GROUP BY post_sta",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy PHP site snapshot: a one-afternoon playbook","item":"https://pier.abn.company/blog/legacy-php-site-snapshot-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I really need to dump the database before I read it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. A read-only audit can still trigger plugin behaviour, and a host can fail at any moment. A dump in your first ten minutes is the cheapest insurance you will ever buy."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if I don't have shell access, only SFTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The same playbook works over SFTP plus a MySQL client. You lose the speed of find and du, but the four artefacts (file list, DB dump, .htaccess, error log) are all reachable from a desktop client."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should the handover document be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "One page. Anything longer gets skimmed; anything shorter omits a risk. Bullet form, named headings, no narrative. The agency will paste from it directly into their quote."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do I do about uploads if I excluded them from the archive?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Note the uploads directory size and last-modified date in the handover. If a restore is ever needed, rsync uploads from the live site at that point. Do not bake them into the snapshot."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/legacy-php-site-snapshot-playbook/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 013</span>
+      </div>
+      <p class="eyebrow"><span class="n">013 —</span>Workflow</p>
+      <h1 class="display-l post-title">Legacy PHP site snapshot: a one-afternoon playbook</h1>
+      <p class="lede post-lede">You just got handed SFTP creds, a vague Slack thread, and a site nobody has touched in four years. Here is how to know what you are looking at by 5pm.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T05:14:08.756Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/legacy-php-site-snapshot-playbook/hero.webp" type="image/webp">
+      <img src="/blog/legacy-php-site-snapshot-playbook/hero.jpg" alt="Antique nautical chart on dark oak table with brass dividers and small red wax seal beside a paper tag." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 013</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is just past one in the afternoon. An agency you have worked with twice before has dropped a Bitwarden share into your inbox: SFTP creds, a database password, the URL of a site nobody at the agency has logged into for four years. Their client wants a quote for "modernising it a bit" and the agency wants a written assessment before five so they can send a number tonight. You have never seen the codebase. You have four hours.</p>
+
+<p>What follows is the playbook we use for that exact situation. It assumes a PHP <a href="/">legacy site</a> on shared or VPS hosting with SFTP and direct MySQL access. By 17:00 you should have a local snapshot, a one-page summary of what is actually running, and enough signal to defend a number.</p>
+
+<h2>The brief and the four hours</h2>
+
+<p>Set the goal explicitly before opening anything. You are not refactoring. You are not patching. You are producing two artefacts:</p>
+
+<ol>
+<li>A frozen copy of the site (files plus database) that you could restore over the live site in fifteen minutes.</li>
+<li>A one-page document that tells the agency what stack, what version, what plugins, what cron, and what known risks.</li>
+</ol>
+
+<p>That framing matters because the temptation, once you are in, is to start fixing the obvious things. Resist it. A snapshot is a measurement. The fix is a separate conversation, and that conversation goes better when you are quoting from a document.</p>
+
+<h2>Hour one: inventory the file tree</h2>
+
+<p>Open SFTP and resist the urge to download everything to your laptop first. Most legacy WordPress installs are 2 to 8 GB once you include uploads, and you do not need uploads to know what the site is. Start with shape, not bytes.</p>
+
+<p>If you have shell access, four commands pay for themselves immediately:</p>
+
+<pre><code class="lang-bash">cd /var/www/site
+find . -name "*.php" | wc -l
+du -sh . */ 2&gt;/dev/null | sort -h
+ls -la wp-config.php sites/default/settings.php configuration.php app/etc/local.xml 2&gt;/dev/null
+php -v 2&gt;/dev/null || php-cgi -v 2&gt;/dev/null
+</code></pre>
+
+<p>The first tells you roughly how much PHP you are dealing with. A plain WordPress is around 2,500 PHP files. If you see 20,000 you are looking at a site stuffed with plugins, or a Drupal 7 with a lot of contrib modules, or a Magento. The second tells you which directory ate the disk (almost always <code>wp-content/uploads</code>, occasionally a forgotten <code>backup-db/</code> directory that someone dropped in 2019). The third tells you, in one shot, which CMS you are dealing with. The fourth tells you which PHP version is actually executing, which matters because shared hosts will lie to you in the control panel.</p>
+
+<p>If you do not have shell, every decent SFTP client (Cyberduck, Transmit, FileZilla) can show file counts per directory. Drop a one-line PHP file at the webroot to get the runtime version:</p>
+
+<pre><code class="lang-php">&lt;?php echo PHP_VERSION, ' ', PHP_SAPI, ' ', php_uname(); ?&gt;
+</code></pre>
+
+<p>Visit it once. Delete it. Note the version. <a href="https://www.php.net/supported-versions.php">PHP's supported-versions page</a> tells you whether that version is still in security support, and on a legacy site the answer is usually no.</p>
+
+<h3>Spotting the CMS without guessing</h3>
+
+<p>Each CMS leaves a signature you can trust:</p>
+
+<ul>
+<li><strong>WordPress</strong>: <code>wp-config.php</code> at the root, <code>wp-content/plugins/</code> and <code>wp-content/themes/</code>.</li>
+<li><strong>Drupal</strong>: <code>sites/default/settings.php</code>, <code>core/CHANGELOG.txt</code> (D8+), or <code>CHANGELOG.txt</code> at the root (D7).</li>
+<li><strong>Joomla</strong>: <code>configuration.php</code> at the root with a <code>JConfig</code> class.</li>
+<li><strong>Magento 1</strong>: <code>app/etc/local.xml</code>. Magento 2: <code>app/etc/env.php</code>.</li>
+<li><strong>Custom PHP</strong>: an <code>index.php</code> that includes a router, no CMS markers. Treat with caution. Custom PHP from 2014 is the genre most likely to have a forgotten admin route.</li>
+</ul>
+
+<h2>Hour two: read the database</h2>
+
+<p>Before you read a single row, dump it. A read-only audit is still a write event in someone's mind, and a host can fail at any moment. A snapshot you cannot restore is not a snapshot.</p>
+
+<pre><code class="lang-bash">mysqldump --single-transaction --quick --routines --triggers \
+  -h DBHOST -u DBUSER -p DBNAME | gzip &gt; site-$(date +%F).sql.gz
+</code></pre>
+
+<p>The <code>--single-transaction</code> flag is the one that lets you take a consistent dump of an InnoDB database without locking the site. <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">MySQL's mysqldump reference</a> spells out the trade-offs against MyISAM. If the dump finishes in under two minutes, the database is small enough that you can pull a copy down and work locally for the rest of the audit.</p>
+
+<p>Now look at shape:</p>
+
+<pre><code class="lang-sql">SELECT table_name,
+       engine,
+       table_rows,
+       ROUND(data_length/1024/1024, 1)  AS data_mb,
+       ROUND(index_length/1024/1024, 1) AS index_mb
+FROM   information_schema.tables
+WHERE  table_schema = DATABASE()
+ORDER  BY data_length DESC
+LIMIT  20;
+</code></pre>
+
+<p>This one query tells you where the weight is. On WordPress the top of the list is usually <code>wp_options</code> (autoloaded option bloat), <code>wp_postmeta</code> (orphan meta from deleted plugins), and <code>wp_posts</code> (revisions). On Magento 1 the top is almost always <code>core_url_rewrite</code> and <code>log_url_info</code>, both of which mean nothing for users and everything for backups.</p>
+
+<p>For WordPress specifically, two follow-up queries tell you the rest of the story:</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM   wp_options
+WHERE  autoload = 'yes'
+ORDER  BY bytes DESC
+LIMIT  20;
+
+SELECT post_status, COUNT(*) FROM wp_posts GROUP BY post_status;
+</code></pre>
+
+<p>The first surfaces autoloaded options larger than a few kilobytes (usually a transient that forgot to expire, or a plugin storing its entire log inside <code>wp_options</code>). The second tells you whether the 80,000 rows in <code>wp_posts</code> are real content or 78,000 revisions.</p>
+
+<p>For Drupal, the equivalents are the <code>cache_*</code> table sizes and the <code>watchdog</code> table; for Magento, <code>log_*</code> and <code>report_event</code>. None of this needs fixing today. You are taking a measurement.</p>
+
+<h2>Hour three: capture the runtime</h2>
+
+<p>The site does things you cannot see from files alone. Two places hide the rest of the truth.</p>
+
+<h3>The .htaccess walk</h3>
+
+<p>Read every <code>.htaccess</code> from the document root down. The interesting ones are rarely at the top. A typical legacy WordPress will have a stock block at the root and a hand-rolled redirect map two directories deep that nobody documented:</p>
+
+<pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+RewriteEngine On
+RewriteRule ^old-product-([0-9]+)\.html$ /shop/?p=$1 [R=301,L]
+RewriteCond %{HTTP_HOST} ^www\.
+RewriteRule ^(.*)$ https://example.com/$1 [R=301,L]
+&lt;/IfModule&gt;
+
+# php_value upload_max_filesize 64M
+# php_value memory_limit 512M
+SetEnvIf Request_URI "\.(jpg|png|css|js)$" no-log
+</code></pre>
+
+<p>What you are looking for: redirect chains that double-hop, PHP overrides that conflict with what the host's PHP-FPM pool is doing, and IP allowlists that will lock the agency out the moment they switch office. Apache's <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">mod_rewrite documentation</a> is the reference if a rule looks suspicious.</p>
+
+<h3>Cron, queues, and error logs</h3>
+
+<p>Run <code>crontab -l</code> if you have shell. If not, look for the CMS-specific signatures:</p>
+
+<ul>
+<li>WordPress: <code>DISABLE_WP_CRON</code> in <code>wp-config.php</code> means a real system cron is hitting <code>wp-cron.php</code> somewhere. Find it.</li>
+<li>Drupal: <code>drush core:cron</code> from a system crontab, or a curl to <code>/cron/{key}</code>.</li>
+<li>Magento: <code>bin/magento cron:run</code>, or the older <code>cron.sh</code>.</li>
+</ul>
+
+<p>If cron is broken (and on legacy sites it usually is, because someone migrated hosts and never re-added the entry) you will see scheduled posts that never publish, transients that never expire, and queue tables that grow forever. Note it. Do not fix it.</p>
+
+<p>Then tail the last 200 lines of <code>wp-content/debug.log</code> or whatever <code>error_log</code> sits next to the script that crashes most. You will learn more about the site's actual health in two minutes than the agency learned in two years. Repeated stack traces from the same plugin are usually the headline of your handover document.</p>
+
+<aside class="callout">A live <code>error_log</code> at the document root is also one of the more common ways a site leaks paths, queries, and occasionally session tokens. If you find one served at <code>https://example.com/error_log</code>, note it as a P1 in the handover and tell the agency before you sign off for the day. Do not delete it yourself, the file is evidence.</aside>
+
+<h2>Hour four: freeze, summarise, hand back</h2>
+
+<p>You now have everything you need. Spend the last hour producing the two artefacts.</p>
+
+<p>The freeze:</p>
+
+<pre><code class="lang-bash">tar --exclude='wp-content/cache' \
+    --exclude='wp-content/uploads' \
+    -czf files-$(date +%F).tar.gz .
+</code></pre>
+
+<p>Excluding uploads is deliberate. You already have the database, you already have the code, and uploads are restorable from the live site if you ever need them. A 200 MB code archive plus a 50 MB database dump is a snapshot you can email. A 12 GB tarball is a snapshot that will sit on a drive and rot.</p>
+
+<p>The summary, in one page, with these headings exactly:</p>
+
+<ul>
+<li><strong>Stack</strong>: PHP version, MySQL version, web server, CMS and version.</li>
+<li><strong>Surface</strong>: file count, code size, upload size, top three directories by weight.</li>
+<li><strong>Database</strong>: total size, top five tables by weight, charset and collation.</li>
+<li><strong>Plugins or modules</strong>: count, names of the five with the most database rows or files.</li>
+<li><strong>Cron</strong>: present or absent, mechanism, last successful run if you can tell.</li>
+<li><strong>Risks</strong>: PHP EOL status, exposed files, redirect chains, anything in the error log that repeats.</li>
+<li><strong>Restore</strong>: where the snapshot lives, the one command to put it back.</li>
+</ul>
+
+<p>That is it. Send it. The agency now has something they can quote against, and you have a frozen point in time you can return to without re-discovering everything from scratch.</p>
+
+<h2>Where the playbook tends to bite you</h2>
+
+<p>Two things go wrong often enough to be worth naming.</p>
+
+<p>The first: <code>mysqldump</code> against a database with stored procedures or triggers will silently omit them unless you pass <code>--routines --triggers</code>. The site appears to restore cleanly and then breaks at the first checkout three days later. Always include both flags, even when you are sure the database has no procedures. You are not always sure.</p>
+
+<p>The second: file ownership. If you SFTP files back as your user, the web server (running as <code>www-data</code> or <code>nginx</code>) may not be able to read them. Note the ownership of a few representative files during your audit (<code>ls -la</code>) and document it. Restoring without that note is a recoverable mistake. Restoring without realising it is a Friday-evening mistake.</p>
+
+<p>When we built Pier we ran into this exact afternoon over and over, which is why the app opens an SFTP and a MySQL connection in the same window and keeps a <a href="/#features">version history</a> of every file and every row from the moment you connect. The first audit we ran with it took two hours instead of four, mostly because we stopped switching tabs between the <a href="/#database">MySQL editor</a> and the file tree.</p>
+
+<h2>The smallest thing to do today</h2>
+
+<p>Pick a site you already have credentials for and run just hour one. The four commands at the top of this post, against a site you think you know, will tell you something you did not know. That is the entire promise of a snapshot, and four commands is a small enough start to actually do before the day ends.</p>
+    </div>
+
+    <aside class="pullquote">A legacy site snapshot is a measurement, not a fix. Two artefacts in four hours: a restorable archive and a one-page summary of what is actually running.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Do I really need to dump the database before I read it?</p>
+      <p class="faq-a">Yes. A read-only audit can still trigger plugin behaviour, and a host can fail at any moment. A dump in your first ten minutes is the cheapest insurance you will ever buy.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if I don&#39;t have shell access, only SFTP?</p>
+      <p class="faq-a">The same playbook works over SFTP plus a MySQL client. You lose the speed of find and du, but the four artefacts (file list, DB dump, .htaccess, error log) are all reachable from a desktop client.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should the handover document be?</p>
+      <p class="faq-a">One page. Anything longer gets skimmed; anything shorter omits a risk. Bullet form, named headings, no narrative. The agency will paste from it directly into their quote.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What do I do about uploads if I excluded them from the archive?</p>
+      <p class="faq-a">Note the uploads directory size and last-modified date in the handover. If a restore is ever needed, rsync uploads from the live site at that point. Do not bake them into the snapshot.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 May 2026</span></span>
+      <h3>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h3>
+      <span class="pc-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/legacy-php-site-snapshot-playbook/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
