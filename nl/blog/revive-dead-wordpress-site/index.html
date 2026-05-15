@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Dode WordPress-site reanimeren: een 90-minuten playbook · Pier — Blog</title>
+<meta name="description" content="Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, htaccess, security, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Dode WordPress-site reanimeren: een 90-minuten playbook">
+<meta property="og:description" content="Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T11:38:05.249Z">
+<meta property="article:modified_time" content="2026-05-15T11:38:05.249Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Dode WordPress-site reanimeren: een 90-minuten playbook">
+<meta name="twitter:description" content="Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/hero.jpg">
+<meta name="twitter:image:alt" content="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/revive-dead-wordpress-site/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/revive-dead-wordpress-site/"},
+  "url":"https://pier.abn.company/nl/blog/revive-dead-wordpress-site/",
+  "headline":"Dode WordPress-site reanimeren: een 90-minuten playbook",
+  "description":"Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/revive-dead-wordpress-site/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht."
+  },
+  "datePublished":"2026-05-15T11:38:05.249Z",
+  "dateModified":"2026-05-15T11:38:05.249Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, mysql, htaccess, security, operations",
+  "wordCount":1716,
+  "articleSection":"WordPress",
+  "articleBody":"Een Nederlandse bureau-eigenaar stuurde ons vorige dinsdag om 23:41 een Loom. Twaalf seconden van hem die wp-admin ververst en de browser ziet hangen. De site, een WooCommerce-shop die ongeveer &euro;4k per dag draait, was &ldquo;gisteren nog prima&rdquo;. Vandaag: wit scherm, geen logs, geen SSH, alleen FTP en een phpMyAdmin-link uit 2019. Hij had in een ander tabblad een klantmail openstaan met de vraag waarom de checkout kapot was. Dit is het playbook dat we met hem doorliepen. Negentig minuten van wit scherm naar werkende checkout. De meeste &ldquo;dode&rdquo; WordPress-sites zijn niet echt dood; ze zijn op twee of drie plekken verkeerd geconfigureerd, en de fixes zijn deterministisch. De truc zit in de volgorde waarin je werkt. De eerste tien minuten: vaststellen waar je naar kijkt Voordat je iets aanraakt, noteer wat je van buitenaf kunt zien. Open de homepage. Open /wp-admin. Open /wp-login.php. Open /wp-cron.php in de browser. Noteer per pagina het exacte foutbeeld. Een wit scherm is niet hetzelfde als een 500, en een 500 is niet hetzelfde als een redirect loop, en een redirect loop is niet hetzelfde als &ldquo;database connection error&rdquo;. Elk wijst naar een ander orgaan. De vier foutbeelden die je tegenkomt, ruwweg op volgorde van frequentie: 500 Internal Server Error op elke URL. Bijna altijd een PHP-versie mismatch of een fatal in een plugin. Error establishing a database connection. De credentials in wp-config.php kloppen niet, de database ligt eruit, of de host heeft de socket hernoemd. White screen of death. Een PHP fatal met display_errors uit. De echte foutmelding staat in de log. Redirect loop op /wp-admin. Een mismatch tussen siteurl en home in wp_options, of een achterhaalde .htaccess. Trek /wp-config.php over FTP binnen en zet bovenaan, direct onder <?php , drie regels: define('WP_DEBUG', true); define('WP_DEBUG_LOG', true); define('WP_DEBUG_DISPLAY', false); Ververs de homepage &eacute;&eacute;n keer. WordPress schrijft nu naar /wp-content/debug.log . Trek dat bestand op. In negentig procent van de gevallen noemt de eerste fatal daarin het bestand en de regel die de site heeft gesloopt. De overige tien procent is de log leeg, wat op zichzelf ook een signaal is: de fout treedt op voordat WordPress boot. Dan zit het in .htaccess, de PHP-versie, of de database. Zet debug logging weer uit voordat je weggaat. WP_DEBUG_LOG schrijft standaard naar een publiek leesbaar pad. Vergeet dat, en je lekt stack traces met absolute serverpaden naar iedereen die /wp-content/debug.log gokt. Het bestandssysteem triagen Zodra je het foutbeeld kent, is het bestandssysteem de goedkoopste plek om te kijken. Drie dingen om in deze volgorde te controleren. PHP-versie tegenover de codebase De meeste hosts hebben hun standaard-PHP de afgelopen achttien maanden stilletjes geupgraded naar 8.2 of 8.3. WordPress core kan daar prima mee om. Plugins uit 2017 niet. Open het hostingpaneel en controleer de actieve PHP-versie. Kijk vervolgens naar de meest recent gewijzigde plugin in /wp-content/plugins/ . Als de site sinds 2019 niet is aangeraakt en PHP net naar 8.2 is gegaan, zullen de fatals in debug.log dingen noemen als Cannot use \"self\" when no class scope is active of de verwijderde each() -functie. De migratienotes op php.net zijn de canonieke lijst van wat 7.x-code breekt. De fix is om in het hostingpaneel &eacute;&eacute;n major version terug te zetten, te bevestigen dat de site weer laadt, en daarna een echte upgrade in te plannen. Probeer de plugin niet live om 23:41 te patchen. Plugins en themes chirurgisch uitschakelen Als debug.log een plugin noemt, deactiveer hem dan niet via wp-admin (daar kom je toch niet). Hernoem zijn map via FTP: mv /wp-content/plugins/broken-plugin \\ /wp-content/plugins/broken-plugin.off WordPress behandelt een ontbrekende map als een gedeactiveerde plugin en zal niet klagen. Dezelfde truc werkt op het actieve theme: hernoem het, en WordPress valt terug op het default theme (twentytwentyfour, twentytwentythree) dat nog ge&iuml;nstalleerd staat. Als er geen default ge&iuml;nstalleerd is, drop er dan eerst eentje via FTP in voordat je hernoemt. Bestandsrechten Als de host het account heeft gemigreerd of vanuit een back-up heeft hersteld, kunnen de permissies verkeerd terugkomen. De canonieke veilige set: find . -type d -exec chmod 755 {} \\; find . -type f -exec chmod 644 {} \\; chmod 600 wp-config.php Als je alleen FTP hebt, kan je client (Transmit, Cyberduck, FileZilla) deze recursief toepassen via het rechtsklikmenu. 600 op wp-config.php is geen paranoia; het voorkomt dat andere tenants op shared hosting je DB-credentials kunnen uitlezen. De database, het onderdeel waar iedereen bang voor is Als de homepage nu laadt maar /wp-admin oneindig blijft redirecten, of als de site online is maar elke link naar het verkeerde domein wijst, zit het probleem in wp_options . Twee rijen sturen vrijwel alles aan: siteurl en home . Open de database (phpMyAdmin als dat alles is wat je hebt, een fat",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/revive-dead-wordpress-site/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Dode WordPress-site reanimeren: een 90-minuten playbook","item":"https://pier.abn.company/nl/blog/revive-dead-wordpress-site/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat als WP_DEBUG_LOG een leeg bestand laat zien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een lege debug.log betekent meestal dat de fout optreedt voordat WordPress boot. Kijk dan eerst naar .htaccess, de PHP-versie, of de database-credentials in wp-config.php."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik niet gewoon siteurl en home in wp_options met SQL UPDATEn?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor die twee rijen specifiek: ja. Voor URL's in posts, postmeta, of widget-configs: nee. Die kolommen bevatten geserialiseerde PHP en vereisen een search-replace die de lengteprefixen herschrijft."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om xmlrpc.php geblokkeerd te laten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor de meeste sites wel. De Jetpack-app en een paar verouderde pingdiensten gebruiken hem nog. Als pingbacks falen of de WP-mobiele app weigert te verbinden, is dit blok de oorzaak."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/revive-dead-wordpress-site/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 022</span>
+      </div>
+      <p class="eyebrow"><span class="n">022 —</span>WordPress</p>
+      <h1 class="display-l post-title">Dode WordPress-site reanimeren: een 90-minuten playbook</h1>
+      <p class="lede post-lede">Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T11:38:05.249Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+      <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 022</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlandse bureau-eigenaar stuurde ons vorige dinsdag om 23:41 een Loom. Twaalf seconden van hem die wp-admin ververst en de browser ziet hangen. De site, een WooCommerce-shop die ongeveer &euro;4k per dag draait, was &ldquo;gisteren nog prima&rdquo;. Vandaag: wit scherm, geen logs, geen SSH, alleen FTP en een phpMyAdmin-link uit 2019. Hij had in een ander tabblad een klantmail openstaan met de vraag waarom de checkout kapot was.</p>
+<p>Dit is het playbook dat we met hem doorliepen. Negentig minuten van wit scherm naar werkende checkout. De meeste &ldquo;dode&rdquo; WordPress-sites zijn niet echt dood; ze zijn op twee of drie plekken verkeerd geconfigureerd, en de fixes zijn deterministisch. De truc zit in de volgorde waarin je werkt.</p>
+
+<h2>De eerste tien minuten: vaststellen waar je naar kijkt</h2>
+<p>Voordat je iets aanraakt, noteer wat je van buitenaf kunt zien. Open de homepage. Open /wp-admin. Open /wp-login.php. Open /wp-cron.php in de browser. Noteer per pagina het exacte foutbeeld. Een wit scherm is niet hetzelfde als een 500, en een 500 is niet hetzelfde als een redirect loop, en een redirect loop is niet hetzelfde als &ldquo;database connection error&rdquo;. Elk wijst naar een ander orgaan.</p>
+<p>De vier foutbeelden die je tegenkomt, ruwweg op volgorde van frequentie:</p>
+<ul>
+  <li><strong>500 Internal Server Error</strong> op elke URL. Bijna altijd een PHP-versie mismatch of een fatal in een plugin.</li>
+  <li><strong>Error establishing a database connection.</strong> De credentials in wp-config.php kloppen niet, de database ligt eruit, of de host heeft de socket hernoemd.</li>
+  <li><strong>White screen of death.</strong> Een PHP fatal met <code>display_errors</code> uit. De echte foutmelding staat in de log.</li>
+  <li><strong>Redirect loop op /wp-admin.</strong> Een mismatch tussen siteurl en home in wp_options, of een achterhaalde .htaccess.</li>
+</ul>
+<p>Trek /wp-config.php over FTP binnen en zet bovenaan, direct onder <code>&lt;?php</code>, drie regels:</p>
+<pre><code class="lang-php">define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+define('WP_DEBUG_DISPLAY', false);</code></pre>
+<p>Ververs de homepage &eacute;&eacute;n keer. WordPress schrijft nu naar <code>/wp-content/debug.log</code>. Trek dat bestand op. In negentig procent van de gevallen noemt de eerste fatal daarin het bestand en de regel die de site heeft gesloopt. De overige tien procent is de log leeg, wat op zichzelf ook een signaal is: de fout treedt op voordat WordPress boot. Dan zit het in .htaccess, de PHP-versie, of de database.</p>
+<aside class="callout">Zet debug logging weer uit voordat je weggaat. <code>WP_DEBUG_LOG</code> schrijft standaard naar een publiek leesbaar pad. Vergeet dat, en je lekt stack traces met absolute serverpaden naar iedereen die /wp-content/debug.log gokt.</aside>
+
+<h2>Het bestandssysteem triagen</h2>
+<p>Zodra je het foutbeeld kent, is het bestandssysteem de goedkoopste plek om te kijken. Drie dingen om in deze volgorde te controleren.</p>
+<h3>PHP-versie tegenover de codebase</h3>
+<p>De meeste hosts hebben hun standaard-PHP de afgelopen achttien maanden stilletjes geupgraded naar 8.2 of 8.3. WordPress core kan daar prima mee om. Plugins uit 2017 niet. Open het hostingpaneel en controleer de actieve PHP-versie. Kijk vervolgens naar de meest recent gewijzigde plugin in <code>/wp-content/plugins/</code>. Als de site sinds 2019 niet is aangeraakt en PHP net naar 8.2 is gegaan, zullen de fatals in debug.log dingen noemen als <code>Cannot use &quot;self&quot; when no class scope is active</code> of de verwijderde <code>each()</code>-functie. De <a href="https://www.php.net/manual/en/migration80.incompatible.php">migratienotes op php.net</a> zijn de canonieke lijst van wat 7.x-code breekt.</p>
+<p>De fix is om in het hostingpaneel &eacute;&eacute;n major version terug te zetten, te bevestigen dat de site weer laadt, en daarna een echte upgrade in te plannen. Probeer de plugin niet live om 23:41 te patchen.</p>
+<h3>Plugins en themes chirurgisch uitschakelen</h3>
+<p>Als debug.log een plugin noemt, deactiveer hem dan niet via wp-admin (daar kom je toch niet). Hernoem zijn map via FTP:</p>
+<pre><code class="lang-bash">mv /wp-content/plugins/broken-plugin \
+   /wp-content/plugins/broken-plugin.off</code></pre>
+<p>WordPress behandelt een ontbrekende map als een gedeactiveerde plugin en zal niet klagen. Dezelfde truc werkt op het actieve theme: hernoem het, en WordPress valt terug op het default theme (twentytwentyfour, twentytwentythree) dat nog ge&iuml;nstalleerd staat. Als er geen default ge&iuml;nstalleerd is, drop er dan eerst eentje via FTP in voordat je hernoemt.</p>
+<h3>Bestandsrechten</h3>
+<p>Als de host het account heeft gemigreerd of vanuit een back-up heeft hersteld, kunnen de permissies verkeerd terugkomen. De canonieke veilige set:</p>
+<pre><code class="lang-bash">find . -type d -exec chmod 755 {} \;
+find . -type f -exec chmod 644 {} \;
+chmod 600 wp-config.php</code></pre>
+<p>Als je alleen FTP hebt, kan je client (Transmit, Cyberduck, FileZilla) deze recursief toepassen via het rechtsklikmenu. 600 op wp-config.php is geen paranoia; het voorkomt dat andere tenants op shared hosting je DB-credentials kunnen uitlezen.</p>
+
+<h2>De database, het onderdeel waar iedereen bang voor is</h2>
+<p>Als de homepage nu laadt maar /wp-admin oneindig blijft redirecten, of als de site online is maar elke link naar het verkeerde domein wijst, zit het probleem in <code>wp_options</code>. Twee rijen sturen vrijwel alles aan: <code>siteurl</code> en <code>home</code>.</p>
+<p>Open de database (phpMyAdmin als dat alles is wat je hebt, een fatsoenlijke <a href="/#database">MySQL editor</a> als het kan) en draai:</p>
+<pre><code class="lang-sql">SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('siteurl', 'home');</code></pre>
+<p>Als die wijzen naar <code>http://staging.oldhost.com</code> en je live-domein is <code>https://shop.example.nl</code>, dan heb je je redirect loop. Doe niet zomaar een UPDATE op die twee rijen en loop weg. WordPress slaat de oude URL op in geserialiseerde PHP, verspreid over <code>wp_postmeta</code>, <code>wp_options</code>, en eventuele plugin-tabellen die menustructuren of widget-configs hebben gecachet. Een na&iuml;eve find-and-replace breekt de lengteprefixen van de serialisatie en corrumpeert de data ongemerkt.</p>
+<p>De juiste tool is wp-cli, als je SSH hebt:</p>
+<pre><code class="lang-bash">wp search-replace 'http://staging.oldhost.com' 'https://shop.example.nl' \
+  --all-tables --skip-columns=guid --dry-run</code></pre>
+<p>Haal <code>--dry-run</code> weg zodra het aantal hits realistisch oogt. Heb je geen SSH, gebruik dan <a href="https://interconnectit.com/products/search-and-replace-for-wordpress-databases/">Search Replace DB</a> van interconnect/it: zet hem bij voorkeur in een map buiten de webroot, draai hem &eacute;&eacute;n keer, verwijder hem. Laat dat script nooit op een live server staan.</p>
+<p>De vlag <code>--skip-columns=guid</code> is belangrijk. De <code>guid</code>-kolom in <code>wp_posts</code> is een permanente identifier en wordt niet gebruikt voor URL-routing, ook al ziet hij eruit als een URL. Hem herschrijven verwart RSS-lezers en breekt feed-deduplicatie voor iedereen die geabonneerd is.</p>
+<h3>Als de database zelf het probleem is</h3>
+<p>Als <code>wp_options</code> er prima uitziet maar je nog steeds &ldquo;Error establishing a database connection&rdquo; krijgt, controleer dan drie dingen, in volgorde. Eerst: de credentials in wp-config.php tegenover wat het hostingpaneel vandaag aangeeft. Hosts roteren DB-wachtwoorden bij planwijzigingen vaker dan ze toegeven. Twee: de waarde van <code>DB_HOST</code>. Sommige hosts zijn van <code>localhost</code> overgestapt op een socketpad zoals <code>localhost:/var/run/mysqld/mysqld10.sock</code> of een interne hostname zoals <code>db-internal.host.net</code>. Drie: draai een snelle reparatie:</p>
+<pre><code class="lang-php">define('WP_ALLOW_REPAIR', true);</code></pre>
+<p>Zet die regel in wp-config.php en bezoek <code>/wp-admin/maint/repair.php</code>. Klik op &ldquo;Repair and Optimize Database&rdquo;. Haal de regel weg als je klaar bent. Het endpoint is publiek toegankelijk zolang de vlag aanstaat, wat tien minuten prima is, maar geen week.</p>
+
+<h2>.htaccess en de rewrite-stack</h2>
+<p>Als de homepage laadt maar elke subpagina een 404 geeft, ontbreekt .htaccess, is hij afgekapt, of is hij vervangen tijdens een hostingmigratie. WordPress regenereert hem zodra je permalinks opslaat, maar daar heb je geen wp-admin voor nodig. Plak dit in de webroot:</p>
+<pre><code class="lang-apache"># BEGIN WordPress
+&lt;IfModule mod_rewrite.c&gt;
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+&lt;/IfModule&gt;
+# END WordPress</code></pre>
+<p>Draai je op nginx, dan doet dit blok niets, en staat het equivalent in de server-config (die je op shared hosting meestal niet kunt aanpassen). Op nginx-hosts vraag je support om te bevestigen dat de directive <code>try_files $uri $uri/ /index.php?$args;</code> aanwezig is. Die ene regel is op nginx het equivalent van het hele blok hierboven.</p>
+<p>Nu je toch in .htaccess zit, voeg twee dingen toe die op een productie-WordPress altijd thuishoren:</p>
+<pre><code class="lang-apache">&lt;Files wp-config.php&gt;
+  Require all denied
+&lt;/Files&gt;
+
+&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+<p>Het eerste blok voorkomt dat iemand wp-config.php kan downloaden als PHP ooit stopt met parsen (precies het foutbeeld dat je DB-wachtwoord lekt). Het tweede sluit xmlrpc.php af, al een decennium een doelwit voor brute-force amplification en in de praktijk door bijna niemand meer gebruikt. De <a href="https://httpd.apache.org/docs/2.4/mod/mod_authz_core.html">Apache mod_authz_core docs</a> behandelen de moderne Require-syntax als je nog op <code>Deny from all</code>-regels uit het 2.2-tijdperk zit.</p>
+
+<h2>Live krijgen en de perimeter dichtzetten</h2>
+<p>Zodra de homepage, wp-admin, en een steekproef van een product- of post-URL allemaal 200 retourneren, ben je nog niet klaar. De site leeft; hij is nog niet veilig. Twintig minuten werk voorkomt het volgende telefoontje.</p>
+<p>Reset het admin-wachtwoord vanuit de database, want je weet niet wie het nog kent:</p>
+<pre><code class="lang-sql">UPDATE wp_users
+SET user_pass = MD5('temp-pwd-rotate-now')
+WHERE user_login = 'admin';</code></pre>
+<p>WordPress hasht bij de eerste login automatisch om naar phpass. Dwing elke andere gebruiker om opnieuw in te loggen door de auth salts in wp-config.php te wijzigen. Het <a href="https://api.wordpress.org/secret-key/1.1/salt/">salt-endpoint van WordPress</a> geeft je een vers blok; plak het over de bestaande acht <code>define()</code>-regels. Elke sessietoken in de database is daarmee ongeldig.</p>
+<p>Daarna een audit van de pluginlijst. Alles wat in achttien maanden niet is geupdatet, is een kandidaat om weg te halen. De <a href="https://wpscan.com/">WPScan vulnerability database</a> vertelt je welke van de actieve plugins bekende CVE&rsquo;s hebben tegen de ge&iuml;nstalleerde versie. Draai hem &eacute;&eacute;n keer, schrijf de drie ergste op, pak ze deze week aan. Het saaie patroon op elke dode WordPress-site die we hebben gezien: een oud contactformulier, een oude caching-plugin, een oude SEO-plugin. Het patroon is saai, en juist daardoor werkt het.</p>
+<p>Maak ten slotte een snapshot van de werkende staat. Tar de webroot en dump de database, voordat je iets anders verandert:</p>
+<pre><code class="lang-bash">tar -czf wp-site-$(date +%F).tar.gz public_html/
+mysqldump -u user -p dbname &gt; wp-db-$(date +%F).sql</code></pre>
+<p>Als je alleen FTP hebt, trek de hele boom naar lokale schijf en exporteer de database via phpMyAdmin naar .sql.gz. Wat je ook doet: je wilt een werkende baseline v&oacute;&oacute;r de volgende wijziging.</p>
+
+<h2>Wat we hier uiteindelijk voor hebben gebouwd</h2>
+<p>We liepen deze precieze negentig-minuten-loop vaak genoeg tegen om er het grootste deel van ons consultingwerk aan <a href="/">legacy site</a>-onderhoud van te maken. Het trage stuk was nooit de fix; het was de FTP-edit-reload-grep-debug.log-cyclus, plus dat moment van angst als je een rij in <code>wp_options</code> UPDATEt zonder undo. Tijdens het bouwen van Pier liepen we precies hier tegenaan, en wat we er uiteindelijk van maakten was een gedockte FTP- en MySQL-werkomgeving waarin elke bestandsbewaring en elke SQL-schrijfactie in een <a href="/#features">version history</a> belandt die je met &eacute;&eacute;n klik kunt terugrollen. Hetzelfde playbook, minder mailtjes om 02:00.</p>
+<p>Het kleinste wat je vandaag kunt doen: open de wp-config.php van &eacute;&eacute;n klantsite en plak het <code>WP_DEBUG_LOG</code>-blok hierboven erin, uitgecommentarieerd. Als het telefoontje komt, haal je drie regels uit de comments in plaats van in paniek wp-config.php te zitten lezen.</p>
+    </div>
+
+    <aside class="pullquote">De meeste &#39;dode&#39; WordPress-sites zijn op twee of drie plekken verkeerd geconfigureerd. Loop het foutbeeld, debug.log, het bestandssysteem, wp_options, en .htaccess af in die volgorde.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat als WP_DEBUG_LOG een leeg bestand laat zien?</p>
+      <p class="faq-a">Een lege debug.log betekent meestal dat de fout optreedt voordat WordPress boot. Kijk dan eerst naar .htaccess, de PHP-versie, of de database-credentials in wp-config.php.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik niet gewoon siteurl en home in wp_options met SQL UPDATEn?</p>
+      <p class="faq-a">Voor die twee rijen specifiek: ja. Voor URL&#39;s in posts, postmeta, of widget-configs: nee. Die kolommen bevatten geserialiseerde PHP en vereisen een search-replace die de lengteprefixen herschrijft.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om xmlrpc.php geblokkeerd te laten?</p>
+      <p class="faq-a">Voor de meeste sites wel. De Jetpack-app en een paar verouderde pingdiensten gebruiken hem nog. Als pingbacks falen of de WP-mobiele app weigert te verbinden, is dit blok de oorzaak.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Gehackte WordPress herkennen: de 5-minuten audit</h3>
+      <span class="pc-lede">Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/shared-cpanel-clients-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/shared-cpanel-clients-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/shared-cpanel-clients-field-guide/hero.jpg" alt="Houten kaartenbaklade half open op donker eiken bureau, messing labelhouder, ivoren kaarten, één met rood lintje." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Business</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Shared cPanel klanten: de vier soorten en wat ze nodig hebben</h3>
+      <span class="pc-lede">Vrijwel elk bureau heeft nog een staart aan shared cPanel klanten. Er leven er vier soorten op, en weten welke voor je zit scheelt een uur per gesprek.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/revive-dead-wordpress-site/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
