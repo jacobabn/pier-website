@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 1 in 2026: editing live without nuking the catalog cache · Pier — Blog</title>
+<meta name="description" content="A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 1 in 2026: editing live without nuking the catalog cache">
+<meta property="og:description" content="A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Wooden printer&#39;s type case open on dark oak workbench, brass handle, lead type sorted in compartments, red wax tag.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-15T03:52:02.727Z">
+<meta property="article:modified_time" content="2026-05-15T03:52:02.727Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 1 in 2026: editing live without nuking the catalog cache">
+<meta name="twitter:description" content="A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta name="twitter:image:alt" content="Wooden printer&#39;s type case open on dark oak workbench, brass handle, lead type sorted in compartments, red wax tag.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/"},
+  "url":"https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/",
+  "headline":"Magento 1 in 2026: editing live without nuking the catalog cache",
+  "description":"A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Wooden printer's type case open on dark oak workbench, brass handle, lead type sorted in compartments, red wax tag."
+  },
+  "datePublished":"2026-05-15T03:52:02.727Z",
+  "dateModified":"2026-05-15T03:52:02.727Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, php, mysql, operations, tooling",
+  "wordCount":1410,
+  "articleSection":"Magento",
+  "articleBody":"It was 23:41 on a Friday when the Loom landed in our inbox. A Dutch agency we work with, four developers, runs maintenance on a Magento 1.9.4.5 catalog for a B2B reseller doing about €11k a day in orders. The lead had recorded himself staring at a terminal: php -f shell/indexer.php reindexall had been running for nineteen minutes, the storefront was returning stale prices on roughly one in six product pages, and the client's buyer in Hamburg had just placed an order at the old price for 240 units. Magento 1 reached end-of-life in June 2020 . It is now May 2026. A surprising number of shops are still on it, usually because the replatform quote came in at €60k and the owner did the math against another two years of patching. If you maintain one of these, you already know the rules: you do not touch the catalog during business hours, you do not trust the admin cache flush button, and you never, ever edit a product attribute set on a live store without a plan. This post is the plan. It is the sequence we worked out with the agency that night, refined over the next six weeks of similar incidents, and now run as muscle memory whenever we have to edit a legacy site catalog without taking the storefront down. The thing that actually breaks People say \"the cache\" as if Magento 1 has one. It does not. A production install with the flat catalog enabled has at least six caches in flight at any moment, and they invalidate on different signals. var/cache/ , the file backend, unless you moved it to Redis or APC. var/full_page_cache/ , Enterprise FPC, or the Lesti_Fpc fork if you are on Community. catalog_product_flat_1 , catalog_product_flat_2 , and so on: one table per store view, regenerated by the flat catalog indexer. catalog_category_flat_store_1 , same idea for categories. The block HTML cache, which holds rendered product listing fragments per customer group. Varnish, if you are lucky enough to have it; the Turpentine VCL if you are unlucky enough to use Turpentine. The failure mode that took down the Hamburg order was the third one. The agency had edited a tier-price row directly in catalog_product_entity_tier_price via phpMyAdmin to fix a typo. That bypassed Magento's event observers, which meant the flat tables were never marked for reindex, which meant the storefront kept serving the old tier price for another forty-three minutes until the next scheduled cron.sh run picked up an unrelated change and triggered a full reindex. Direct SQL on a Magento 1 catalog table is the single most common way to break a live shop. The schema is normalised across EAV, the flat tables are denormalised copies, and the indexer is the only thing that knows how to reconcile them. The pre-flight checklist Before any catalog edit on a live store, we now run five checks. They take about ninety seconds and have saved us from incidents roughly once a month. First, confirm which indexers are in manual mode and which are scheduled. On a healthy install most should be \"Update on Save\", except the two flat indexers, which should be \"Manual\" if your catalog is over about 8,000 SKUs. php -f shell/indexer.php info php -f shell/indexer.php mode Second, check the size of the reindex queue. If index_process already has a row with status='working' , walk away and come back in ten minutes. Two reindexers running at once is how you end up with a half-populated catalog_product_flat_1 . SELECT process_id, indexer_code, status, started_at FROM index_process WHERE status IN ('working','require_reindex') ORDER BY started_at DESC; Third, look at the core_cache table for any tag matching CATALOG_PRODUCT or CATALOG_CATEGORY that is older than the last deploy. Stale entries here are the reason the admin \"Flush Cache Storage\" button often does nothing useful. Fourth, confirm cron is actually running. On about a third of the legacy Magento 1 shops we audit, cron.sh has been silently dead for months because someone moved the document root and the crontab path never got updated. tail -n 50 var/log/cron.log and check the timestamps. Fifth, take a snapshot. Not a full database dump (those take twenty minutes on a real catalog), just the two or three tables you are about to touch. mysqldump --single-transaction with the table list, gzipped, parked next to the deploy. The edit window Once the checklist is clean, the edit itself follows a fixed order. The order matters because the event system is fragile and any deviation tends to leave one of the caches in a state that is neither valid nor explicitly invalidated. Set the two flat indexers to \"Manual\" if they are not already. Make the edit through the admin UI, not through SQL. If the admin UI cannot make the edit (a bulk attribute change across 4,000 SKUs, say), write a one-off PHP script that bootstraps Mage and uses Mage::getModel('catalog/product')->load($id)->setData(...)->save() . The save event fires the observers; raw SQL does not. Reindex only the affected indexers, one at a time, in dependency order: catalog",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 1 in 2026: editing live without nuking the catalog cache","item":"https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Magento 1 safe to run in 2026?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not officially. OpenMage LTS keeps it patched and the PHP 8.2 path works, but you are running unsupported software and your PCI scope grows every quarter. Treat it as a bridge, not a destination."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I edit the Magento 1 database directly with SQL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only on tables Magento does not index. Touching catalog_product_entity, tier prices, or stock items via raw SQL bypasses the observers and leaves the flat tables out of sync until the next full reindex."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the admin Flush Cache button often not work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It clears tagged entries in core_cache, but does not touch the flat catalog tables, the block HTML cache, or any upstream Varnish/CDN layer. You need to flush each layer explicitly, in order."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the safest order to reindex Magento 1?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Attributes first, then prices, then product flat, then category flat, then category-product. Running them out of order can leave flat tables referencing attribute values that no longer exist."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 011</span>
+      </div>
+      <p class="eyebrow"><span class="n">011 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 1 in 2026: editing live without nuking the catalog cache</h1>
+      <p class="lede post-lede">A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T03:52:02.727Z">15 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp">
+      <img src="/blog/magento-1-live-edit-catalog-cache/hero.jpg" alt="Wooden printer&#39;s type case open on dark oak workbench, brass handle, lead type sorted in compartments, red wax tag." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 011</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It was 23:41 on a Friday when the Loom landed in our inbox. A Dutch agency we work with, four developers, runs maintenance on a Magento 1.9.4.5 catalog for a B2B reseller doing about €11k a day in orders. The lead had recorded himself staring at a terminal: <code>php -f shell/indexer.php reindexall</code> had been running for nineteen minutes, the storefront was returning stale prices on roughly one in six product pages, and the client's buyer in Hamburg had just placed an order at the old price for 240 units.</p>
+<p><a href="https://business.adobe.com/blog/perspectives/preparing-magento-1-end-of-life">Magento 1 reached end-of-life in June 2020</a>. It is now May 2026. A surprising number of shops are still on it, usually because the replatform quote came in at €60k and the owner did the math against another two years of patching. If you maintain one of these, you already know the rules: you do not touch the catalog during business hours, you do not trust the admin cache flush button, and you never, ever edit a product attribute set on a live store without a plan.</p>
+<p>This post is the plan. It is the sequence we worked out with the agency that night, refined over the next six weeks of similar incidents, and now run as muscle memory whenever we have to edit a <a href="/">legacy site</a> catalog without taking the storefront down.</p>
+<h2>The thing that actually breaks</h2>
+<p>People say "the cache" as if Magento 1 has one. It does not. A production install with the flat catalog enabled has at least six caches in flight at any moment, and they invalidate on different signals.</p>
+<ul>
+<li><code>var/cache/</code>, the file backend, unless you moved it to Redis or APC.</li>
+<li><code>var/full_page_cache/</code>, Enterprise FPC, or the Lesti_Fpc fork if you are on Community.</li>
+<li><code>catalog_product_flat_1</code>, <code>catalog_product_flat_2</code>, and so on: one table per store view, regenerated by the flat catalog indexer.</li>
+<li><code>catalog_category_flat_store_1</code>, same idea for categories.</li>
+<li>The block HTML cache, which holds rendered product listing fragments per customer group.</li>
+<li>Varnish, if you are lucky enough to have it; the Turpentine VCL if you are unlucky enough to use Turpentine.</li>
+</ul>
+<p>The failure mode that took down the Hamburg order was the third one. The agency had edited a tier-price row directly in <code>catalog_product_entity_tier_price</code> via phpMyAdmin to fix a typo. That bypassed Magento's event observers, which meant the flat tables were never marked for reindex, which meant the storefront kept serving the old tier price for another forty-three minutes until the next scheduled <code>cron.sh</code> run picked up an unrelated change and triggered a full reindex.</p>
+<p>Direct SQL on a Magento 1 catalog table is the single most common way to break a live shop. The schema is normalised across EAV, the flat tables are denormalised copies, and the indexer is the only thing that knows how to reconcile them.</p>
+<h2>The pre-flight checklist</h2>
+<p>Before any catalog edit on a live store, we now run five checks. They take about ninety seconds and have saved us from incidents roughly once a month.</p>
+<p>First, confirm which indexers are in manual mode and which are scheduled. On a healthy install most should be "Update on Save", except the two flat indexers, which should be "Manual" if your catalog is over about 8,000 SKUs.</p>
+<pre><code class="lang-bash">php -f shell/indexer.php info
+php -f shell/indexer.php mode</code></pre>
+<p>Second, check the size of the reindex queue. If <code>index_process</code> already has a row with <code>status='working'</code>, walk away and come back in ten minutes. Two reindexers running at once is how you end up with a half-populated <code>catalog_product_flat_1</code>.</p>
+<pre><code class="lang-sql">SELECT process_id, indexer_code, status, started_at
+FROM index_process
+WHERE status IN ('working','require_reindex')
+ORDER BY started_at DESC;</code></pre>
+<p>Third, look at the <code>core_cache</code> table for any tag matching <code>CATALOG_PRODUCT</code> or <code>CATALOG_CATEGORY</code> that is older than the last deploy. Stale entries here are the reason the admin "Flush Cache Storage" button often does nothing useful.</p>
+<p>Fourth, confirm cron is actually running. On about a third of the legacy Magento 1 shops we audit, <code>cron.sh</code> has been silently dead for months because someone moved the document root and the crontab path never got updated. <code>tail -n 50 var/log/cron.log</code> and check the timestamps.</p>
+<p>Fifth, take a snapshot. Not a full database dump (those take twenty minutes on a real catalog), just the two or three tables you are about to touch. <code>mysqldump --single-transaction</code> with the table list, gzipped, parked next to the deploy.</p>
+<h2>The edit window</h2>
+<p>Once the checklist is clean, the edit itself follows a fixed order. The order matters because the event system is fragile and any deviation tends to leave one of the caches in a state that is neither valid nor explicitly invalidated.</p>
+<ol>
+<li>Set the two flat indexers to "Manual" if they are not already.</li>
+<li>Make the edit through the admin UI, not through SQL. If the admin UI cannot make the edit (a bulk attribute change across 4,000 SKUs, say), write a one-off PHP script that bootstraps Mage and uses <code>Mage::getModel('catalog/product')-&gt;load($id)-&gt;setData(...)-&gt;save()</code>. The save event fires the observers; raw SQL does not.</li>
+<li>Reindex only the affected indexers, one at a time, in dependency order: <code>catalog_product_attribute</code>, then <code>catalog_product_price</code>, then <code>catalog_product_flat</code>, then <code>catalog_category_flat</code>, then <code>catalog_category_product</code>.</li>
+<li>Flush the block HTML cache and the full page cache, in that order. Not the other way around.</li>
+<li>Hit three representative product URLs with <code>curl -I</code> and check the <code>X-Magento-Cache-Debug</code> header reads <code>MISS</code> on first hit and <code>HIT</code> on the second.</li>
+</ol>
+<p>That last step is the one most engineers skip and it is the one that catches the silent failures. If a product page is still returning <code>HIT</code> on the first request after a flush, something upstream of Magento (Varnish, CloudFront, a CDN edge) is serving a stale copy and your edit will appear to have done nothing.</p>
+<h2>The PHP 8.2 problem looming over all of this</h2>
+<p>Magento 1 was never officially supported on PHP 7.2, let alone anything newer. The community patches from <a href="https://github.com/OpenMage/magento-lts">OpenMage LTS</a> have kept it running on PHP 7.4 and 8.0, and the latest OpenMage 20.x branch claims PHP 8.2 compatibility. In practice we have found three classes of breakage on the 8.2 upgrade.</p>
+<p><a href="https://wiki.php.net/rfc/deprecate_dynamic_properties">Dynamic property creation is now a deprecation warning</a>, and the <code>Varien_Object</code> base class uses dynamic properties everywhere. The OpenMage patches add <code>#[\AllowDynamicProperties]</code> where it matters, but third-party modules from 2014 do not, and the warnings flood <code>var/log/system.log</code> until the disk fills up.</p>
+<p><code>each()</code> is gone. <code>create_function()</code> is gone. <code>mb_strrpos()</code> with negative offsets behaves differently. If you have any module that has not been touched since 2018, grep for these before you upgrade PHP, not after.</p>
+<aside class="callout"><strong>The gotcha that bit the agency:</strong> the <code>Zend_Db_Adapter_Pdo_Mysql</code> driver on PHP 8.2 with MySQL 8.0 returns <code>tinyint(1)</code> columns as booleans instead of integers. Any code doing <code>if ($product-&gt;getStatus() === 1)</code> silently fails because <code>true === 1</code> is false. Use <code>== 1</code> or cast. We found 47 instances of this in one client's custom modules.</aside>
+<h2>What we actually ship to the client</h2>
+<p>The deliverable at the end of an incident like the Friday-night one is never "we fixed it". It is a one-page runbook that the agency's developers can follow at 23:41 on the next Friday, when the senior engineer is asleep in another timezone. The runbook has the five pre-flight checks, the five-step edit window, and a list of the specific cache tags and indexer codes that matter for that client's catalog.</p>
+<p>We also leave behind a versioned record of every file and database row we touched. On a Magento 1 store, where a single bad attribute edit can corrupt a flat table that takes thirty minutes to rebuild, being able to point at the exact change that caused the problem is the difference between a ten-minute rollback and a four-hour incident.</p>
+<p>When we built Pier we ran into this exact thing with the agency above: every catalog edit needed to be auditable, reversible, and tied to the developer who made it, without bolting a deployment pipeline onto a 2014 codebase. The way we ended up handling it was a per-file <a href="/#features">version history</a> on the FTP side and snapshot diffs on the <a href="/#database">MySQL editor</a>, so the rollback is one click whether the change lived in <code>app/code/local/</code> or in <code>core_config_data</code>.</p>
+<p>If you maintain a Magento 1 shop, the smallest useful thing to do today is run <code>php -f shell/indexer.php info</code> on it and write down which indexers are in manual mode. Tape it to the monitor. The next time someone edits the catalog, that note is what stops the cache from eating the storefront.</p>
+    </div>
+
+    <aside class="pullquote">On Magento 1 in 2026, the catalog cache is six caches in a trenchcoat; edit through the admin or a Mage-bootstrapped script, never raw SQL, and reindex in dependency order.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is Magento 1 safe to run in 2026?</p>
+      <p class="faq-a">Not officially. OpenMage LTS keeps it patched and the PHP 8.2 path works, but you are running unsupported software and your PCI scope grows every quarter. Treat it as a bridge, not a destination.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I edit the Magento 1 database directly with SQL?</p>
+      <p class="faq-a">Only on tables Magento does not index. Touching catalog_product_entity, tier prices, or stock items via raw SQL bypasses the observers and leaves the flat tables out of sync until the next full reindex.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does the admin Flush Cache button often not work?</p>
+      <p class="faq-a">It clears tagged entries in core_cache, but does not touch the flat catalog tables, the block HTML cache, or any upstream Varnish/CDN layer. You need to flush each layer explicitly, in order.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the safest order to reindex Magento 1?</p>
+      <p class="faq-a">Attributes first, then prices, then product flat, then category flat, then category-product. Running them out of order can leave flat tables referencing attribute values that no longer exist.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 May 2026</span></span>
+      <h3>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h3>
+      <span class="pc-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

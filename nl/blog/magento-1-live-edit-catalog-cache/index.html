@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 1 in 2026: live bewerken zonder cache te slopen · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 1 in 2026: live bewerken zonder cache te slopen">
+<meta property="og:description" content="Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Houten letterkast open op donkere eiken werkbank, koperen handvat, loden letters in vakjes, rood verzegeld kaartje.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T03:52:02.727Z">
+<meta property="article:modified_time" content="2026-05-15T03:52:02.727Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 1 in 2026: live bewerken zonder cache te slopen">
+<meta name="twitter:description" content="Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/hero.jpg">
+<meta name="twitter:image:alt" content="Houten letterkast open op donkere eiken werkbank, koperen handvat, loden letters in vakjes, rood verzegeld kaartje.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/"},
+  "url":"https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/",
+  "headline":"Magento 1 in 2026: live bewerken zonder cache te slopen",
+  "description":"Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Houten letterkast open op donkere eiken werkbank, koperen handvat, loden letters in vakjes, rood verzegeld kaartje."
+  },
+  "datePublished":"2026-05-15T03:52:02.727Z",
+  "dateModified":"2026-05-15T03:52:02.727Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, php, mysql, operations, tooling",
+  "wordCount":1423,
+  "articleSection":"Magento",
+  "articleBody":"Het was 23:41 op een vrijdag toen de Loom in onze inbox belandde. Een Nederlands bureau waar we mee werken, vier developers, doet onderhoud op een Magento 1.9.4.5-catalogus voor een B2B-reseller die ongeveer €11k per dag aan orders draait. De lead had zichzelf opgenomen terwijl hij naar een terminal staarde: php -f shell/indexer.php reindexall draaide al negentien minuten, de storefront serveerde verouderde prijzen op ongeveer één op de zes productpagina's, en de inkoper van de klant in Hamburg had net een bestelling van 240 stuks tegen de oude prijs geplaatst. Magento 1 bereikte end-of-life in juni 2020 . We zitten inmiddels in mei 2026. Een verrassend aantal shops draait er nog op, meestal omdat de offerte voor een replatform binnenkwam op €60k en de eigenaar de rekensom maakte tegenover nog twee jaar patchen. Als je er een onderhoudt, ken je de regels al: je raakt de catalogus niet aan tijdens kantooruren, je vertrouwt de cache flush-knop in de admin niet, en je past nooit, maar dan ook nooit, een product attribute set aan op een live shop zonder plan. Dit artikel is dat plan. Het is de volgorde die we die avond met het bureau hebben uitgewerkt, verfijnd over de zes weken erna met vergelijkbare incidenten, en die we inmiddels op de automatische piloot draaien als we de catalogus van een legacy site moeten bewerken zonder de storefront plat te leggen. Wat er daadwerkelijk stuk gaat Mensen praten over 'de cache' alsof Magento 1 er één heeft. Dat is niet zo. Een productie-installatie met de flat catalog aan heeft op elk moment minstens zes caches in de lucht, en ze worden op verschillende signalen geïnvalideerd. var/cache/ , de file backend, tenzij je die naar Redis of APC hebt verhuisd. var/full_page_cache/ , Enterprise FPC, of de Lesti_Fpc-fork als je op Community draait. catalog_product_flat_1 , catalog_product_flat_2 , enzovoort: één tabel per store view, opnieuw opgebouwd door de flat catalog-indexer. catalog_category_flat_store_1 , idem voor categorieën. De block HTML-cache, die gerenderde productlist-fragmenten per customer group bevat. Varnish, als je het geluk hebt dat je het draait; de Turpentine VCL als je de pech hebt om Turpentine te gebruiken. De failure mode die de Hamburg-bestelling onderuit haalde, was de derde. Het bureau had een rij met tier-prices direct in catalog_product_entity_tier_price aangepast via phpMyAdmin om een typo te fixen. Dat ging om de event observers van Magento heen, waardoor de flat tables nooit werden gemarkeerd voor reindex, waardoor de storefront nog drieënveertig minuten lang de oude tier-prijs bleef serveren tot de volgende geplande cron.sh -run een ongerelateerde wijziging oppikte en een volledige reindex triggerde. Directe SQL op een Magento 1-catalogus-tabel is veruit de meest gangbare manier om een live shop kapot te maken. Het schema is genormaliseerd over EAV, de flat tables zijn gedenormaliseerde kopieën, en de indexer is het enige onderdeel dat weet hoe het beide met elkaar moet rijmen. De pre-flight checklist Voor elke catalogus-wijziging op een live shop draaien we nu vijf checks. Ze kosten ongeveer negentig seconden en hebben ons ongeveer één keer per maand voor een incident behoed. Eén: controleer welke indexers op manual mode staan en welke scheduled zijn. Op een gezonde installatie horen de meeste op 'Update on Save' te staan, behalve de twee flat indexers, die op 'Manual' horen als je catalogus groter is dan zo'n 8.000 SKU's. php -f shell/indexer.php info php -f shell/indexer.php mode Twee: kijk naar de grootte van de reindex-queue. Heeft index_process al een rij met status='working' , loop dan weg en kom over tien minuten terug. Twee reindexers tegelijk laten draaien is precies hoe je eindigt met een half gevulde catalog_product_flat_1 . SELECT process_id, indexer_code, status, started_at FROM index_process WHERE status IN ('working','require_reindex') ORDER BY started_at DESC; Drie: zoek in de core_cache -tabel naar tags met CATALOG_PRODUCT of CATALOG_CATEGORY die ouder zijn dan de laatste deploy. Verouderde entries hier zijn de reden dat de 'Flush Cache Storage'-knop in de admin vaak niets nuttigs doet. Vier: bevestig dat cron echt draait. Op zo'n derde van de legacy Magento 1-shops die we auditen, ligt cron.sh al maanden stilletjes dood omdat iemand de document root heeft verplaatst en het crontab-pad nooit is bijgewerkt. tail -n 50 var/log/cron.log en bekijk de timestamps. Vijf: maak een snapshot. Geen volledige database dump (die duren twintig minuten op een echte catalogus), alleen de twee of drie tabellen die je gaat aanraken. mysqldump --single-transaction met de tabellijst, gzipped, naast de deploy geparkeerd. Het edit-window Zodra de checklist schoon is, volgt de bewerking zelf een vaste volgorde. Die volgorde maakt uit, want het event-systeem is fragiel en elke afwijking laat doorgaans een van de caches achter in een staat die noch geldig noch expliciet geïnvalideerd is. Zet de twee flat indexers op 'Manual' als dat nog niet zo is. Voer ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 1 in 2026: live bewerken zonder cache te slopen","item":"https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Magento 1 veilig om in 2026 te draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Officieel niet. OpenMage LTS houdt het gepatched en het PHP 8.2-pad werkt, maar je draait niet-ondersteunde software en je PCI-scope groeit elk kwartaal. Behandel het als brug, niet als bestemming."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mag ik de Magento 1-database direct met SQL bewerken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen op tabellen die Magento niet indexeert. Aan catalog_product_entity, tier-prices of stock items komen via ruwe SQL omzeilt de observers en laat de flat tables uit sync tot de volgende volledige reindex."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom werkt de Flush Cache-knop in de admin vaak niet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hij wist getagde entries in core_cache, maar raakt de flat catalog-tabellen, de block HTML-cache of bovenliggende Varnish/CDN-lagen niet aan. Je moet elke laag expliciet flushen, in volgorde."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 011</span>
+      </div>
+      <p class="eyebrow"><span class="n">011 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 1 in 2026: live bewerken zonder cache te slopen</h1>
+      <p class="lede post-lede">Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T03:52:02.727Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp">
+      <img src="/blog/magento-1-live-edit-catalog-cache/hero.jpg" alt="Houten letterkast open op donkere eiken werkbank, koperen handvat, loden letters in vakjes, rood verzegeld kaartje." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 011</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het was 23:41 op een vrijdag toen de Loom in onze inbox belandde. Een Nederlands bureau waar we mee werken, vier developers, doet onderhoud op een Magento 1.9.4.5-catalogus voor een B2B-reseller die ongeveer €11k per dag aan orders draait. De lead had zichzelf opgenomen terwijl hij naar een terminal staarde: <code>php -f shell/indexer.php reindexall</code> draaide al negentien minuten, de storefront serveerde verouderde prijzen op ongeveer één op de zes productpagina's, en de inkoper van de klant in Hamburg had net een bestelling van 240 stuks tegen de oude prijs geplaatst.</p>
+<p><a href="https://business.adobe.com/blog/perspectives/preparing-magento-1-end-of-life">Magento 1 bereikte end-of-life in juni 2020</a>. We zitten inmiddels in mei 2026. Een verrassend aantal shops draait er nog op, meestal omdat de offerte voor een replatform binnenkwam op €60k en de eigenaar de rekensom maakte tegenover nog twee jaar patchen. Als je er een onderhoudt, ken je de regels al: je raakt de catalogus niet aan tijdens kantooruren, je vertrouwt de cache flush-knop in de admin niet, en je past nooit, maar dan ook nooit, een product attribute set aan op een live shop zonder plan.</p>
+<p>Dit artikel is dat plan. Het is de volgorde die we die avond met het bureau hebben uitgewerkt, verfijnd over de zes weken erna met vergelijkbare incidenten, en die we inmiddels op de automatische piloot draaien als we de catalogus van een <a href="/">legacy site</a> moeten bewerken zonder de storefront plat te leggen.</p>
+<h2>Wat er daadwerkelijk stuk gaat</h2>
+<p>Mensen praten over 'de cache' alsof Magento 1 er één heeft. Dat is niet zo. Een productie-installatie met de flat catalog aan heeft op elk moment minstens zes caches in de lucht, en ze worden op verschillende signalen geïnvalideerd.</p>
+<ul>
+<li><code>var/cache/</code>, de file backend, tenzij je die naar Redis of APC hebt verhuisd.</li>
+<li><code>var/full_page_cache/</code>, Enterprise FPC, of de Lesti_Fpc-fork als je op Community draait.</li>
+<li><code>catalog_product_flat_1</code>, <code>catalog_product_flat_2</code>, enzovoort: één tabel per store view, opnieuw opgebouwd door de flat catalog-indexer.</li>
+<li><code>catalog_category_flat_store_1</code>, idem voor categorieën.</li>
+<li>De block HTML-cache, die gerenderde productlist-fragmenten per customer group bevat.</li>
+<li>Varnish, als je het geluk hebt dat je het draait; de Turpentine VCL als je de pech hebt om Turpentine te gebruiken.</li>
+</ul>
+<p>De failure mode die de Hamburg-bestelling onderuit haalde, was de derde. Het bureau had een rij met tier-prices direct in <code>catalog_product_entity_tier_price</code> aangepast via phpMyAdmin om een typo te fixen. Dat ging om de event observers van Magento heen, waardoor de flat tables nooit werden gemarkeerd voor reindex, waardoor de storefront nog drieënveertig minuten lang de oude tier-prijs bleef serveren tot de volgende geplande <code>cron.sh</code>-run een ongerelateerde wijziging oppikte en een volledige reindex triggerde.</p>
+<p>Directe SQL op een Magento 1-catalogus-tabel is veruit de meest gangbare manier om een live shop kapot te maken. Het schema is genormaliseerd over EAV, de flat tables zijn gedenormaliseerde kopieën, en de indexer is het enige onderdeel dat weet hoe het beide met elkaar moet rijmen.</p>
+<h2>De pre-flight checklist</h2>
+<p>Voor elke catalogus-wijziging op een live shop draaien we nu vijf checks. Ze kosten ongeveer negentig seconden en hebben ons ongeveer één keer per maand voor een incident behoed.</p>
+<p>Eén: controleer welke indexers op manual mode staan en welke scheduled zijn. Op een gezonde installatie horen de meeste op 'Update on Save' te staan, behalve de twee flat indexers, die op 'Manual' horen als je catalogus groter is dan zo'n 8.000 SKU's.</p>
+<pre><code class="lang-bash">php -f shell/indexer.php info
+php -f shell/indexer.php mode</code></pre>
+<p>Twee: kijk naar de grootte van de reindex-queue. Heeft <code>index_process</code> al een rij met <code>status='working'</code>, loop dan weg en kom over tien minuten terug. Twee reindexers tegelijk laten draaien is precies hoe je eindigt met een half gevulde <code>catalog_product_flat_1</code>.</p>
+<pre><code class="lang-sql">SELECT process_id, indexer_code, status, started_at
+FROM index_process
+WHERE status IN ('working','require_reindex')
+ORDER BY started_at DESC;</code></pre>
+<p>Drie: zoek in de <code>core_cache</code>-tabel naar tags met <code>CATALOG_PRODUCT</code> of <code>CATALOG_CATEGORY</code> die ouder zijn dan de laatste deploy. Verouderde entries hier zijn de reden dat de 'Flush Cache Storage'-knop in de admin vaak niets nuttigs doet.</p>
+<p>Vier: bevestig dat cron echt draait. Op zo'n derde van de legacy Magento 1-shops die we auditen, ligt <code>cron.sh</code> al maanden stilletjes dood omdat iemand de document root heeft verplaatst en het crontab-pad nooit is bijgewerkt. <code>tail -n 50 var/log/cron.log</code> en bekijk de timestamps.</p>
+<p>Vijf: maak een snapshot. Geen volledige database dump (die duren twintig minuten op een echte catalogus), alleen de twee of drie tabellen die je gaat aanraken. <code>mysqldump --single-transaction</code> met de tabellijst, gzipped, naast de deploy geparkeerd.</p>
+<h2>Het edit-window</h2>
+<p>Zodra de checklist schoon is, volgt de bewerking zelf een vaste volgorde. Die volgorde maakt uit, want het event-systeem is fragiel en elke afwijking laat doorgaans een van de caches achter in een staat die noch geldig noch expliciet geïnvalideerd is.</p>
+<ol>
+<li>Zet de twee flat indexers op 'Manual' als dat nog niet zo is.</li>
+<li>Voer de wijziging door via de admin-UI, niet via SQL. Kan de admin-UI de wijziging niet aan (bijvoorbeeld een bulk-attribuutwijziging over 4.000 SKU's), schrijf dan een eenmalig PHP-script dat Mage bootstrapt en <code>Mage::getModel('catalog/product')-&gt;load($id)-&gt;setData(...)-&gt;save()</code> gebruikt. Het save-event triggert de observers; ruwe SQL niet.</li>
+<li>Reindex alleen de betreffende indexers, één voor één, in dependency-volgorde: <code>catalog_product_attribute</code>, dan <code>catalog_product_price</code>, dan <code>catalog_product_flat</code>, dan <code>catalog_category_flat</code>, dan <code>catalog_category_product</code>.</li>
+<li>Flush de block HTML-cache en daarna de full page cache, in die volgorde. Niet andersom.</li>
+<li>Doe drie representatieve product-URL's met <code>curl -I</code> en controleer dat de <code>X-Magento-Cache-Debug</code>-header <code>MISS</code> retourneert bij de eerste hit en <code>HIT</code> bij de tweede.</li>
+</ol>
+<p>Die laatste stap is de stap die de meeste engineers overslaan en juist de stap die de stille faalmomenten oppikt. Geeft een productpagina nog steeds <code>HIT</code> op het eerste request na een flush, dan zit er ergens boven Magento (Varnish, CloudFront, een CDN edge) een verouderde kopie te serveren en lijkt het alsof je wijziging niets gedaan heeft.</p>
+<h2>Het PHP 8.2-probleem dat boven dit alles hangt</h2>
+<p>Magento 1 werd nooit officieel ondersteund op PHP 7.2, laat staan iets nieuwers. De community-patches van <a href="https://github.com/OpenMage/magento-lts">OpenMage LTS</a> houden het draaiende op PHP 7.4 en 8.0, en de laatste OpenMage 20.x-branch claimt PHP 8.2-compatibiliteit. In de praktijk komen we drie categorieën breakage tegen bij de 8.2-upgrade.</p>
+<p><a href="https://wiki.php.net/rfc/deprecate_dynamic_properties">Dynamische property creation geeft nu een deprecation warning</a>, en de <code>Varien_Object</code>-basisklasse gebruikt overal dynamic properties. De OpenMage-patches voegen <code>#[\AllowDynamicProperties]</code> toe waar het nodig is, maar third-party modules uit 2014 doen dat niet, en de warnings overspoelen <code>var/log/system.log</code> tot de schijf vol staat.</p>
+<p><code>each()</code> is weg. <code>create_function()</code> is weg. <code>mb_strrpos()</code> met negatieve offsets gedraagt zich anders. Heb je een module die sinds 2018 niet is aangeraakt, grep er dan op vóór je PHP upgradet, niet erna.</p>
+<aside class="callout"><strong>De valkuil die het bureau te grazen nam:</strong> de <code>Zend_Db_Adapter_Pdo_Mysql</code>-driver op PHP 8.2 met MySQL 8.0 geeft <code>tinyint(1)</code>-kolommen terug als booleans in plaats van integers. Elke code die <code>if ($product-&gt;getStatus() === 1)</code> doet, faalt stilletjes omdat <code>true === 1</code> false is. Gebruik <code>== 1</code> of cast expliciet. We vonden 47 gevallen hiervan in de custom modules van één klant.</aside>
+<h2>Wat we daadwerkelijk bij de klant afleveren</h2>
+<p>De oplevering aan het einde van een incident als die vrijdagavond is nooit 'we hebben het opgelost'. Het is een runbook van één pagina dat de developers van het bureau om 23:41 op de volgende vrijdag kunnen volgen, als de senior engineer in een andere tijdzone ligt te slapen. Het runbook bevat de vijf pre-flight checks, het edit-window in vijf stappen, en een lijst met de specifieke cache-tags en indexer codes die voor de catalogus van die klant relevant zijn.</p>
+<p>We laten ook een versie-historie achter van elk bestand en elke databaserij die we hebben aangeraakt. Op een Magento 1-shop, waar één foute attribuut-wijziging een flat table kan corrumperen die er dertig minuten over doet om opnieuw op te bouwen, is het verschil tussen een rollback van tien minuten en een incident van vier uur of je kunt aanwijzen welke wijziging het probleem veroorzaakt heeft.</p>
+<p>Toen we Pier bouwden, liepen we met dit bureau precies hiertegenaan: elke catalogus-wijziging moest auditeerbaar zijn, terug te draaien, en gekoppeld aan de developer die hem doorvoerde, zonder een deployment-pipeline op een codebase uit 2014 te schroeven. Hoe we het uiteindelijk hebben opgelost is een <a href="/#features">version history</a> per bestand aan de FTP-kant en snapshot-diffs in de <a href="/#database">MySQL editor</a>, zodat de rollback één klik is, of de wijziging nu in <code>app/code/local/</code> zat of in <code>core_config_data</code>.</p>
+<p>Onderhoud je een Magento 1-shop, dan is het kleinste nuttige dat je vandaag kunt doen <code>php -f shell/indexer.php info</code> erop draaien en noteren welke indexers in manual mode staan. Plak het op de monitor. De volgende keer dat iemand de catalogus bewerkt, is dat briefje wat voorkomt dat de cache de storefront opvreet.</p>
+    </div>
+
+    <aside class="pullquote">Op Magento 1 in 2026 is de catalog cache eigenlijk zes caches in een trenchcoat; bewerk via de admin of een Mage-gebootstrapt script, nooit ruwe SQL, en reindex in dependency-volgorde.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is Magento 1 veilig om in 2026 te draaien?</p>
+      <p class="faq-a">Officieel niet. OpenMage LTS houdt het gepatched en het PHP 8.2-pad werkt, maar je draait niet-ondersteunde software en je PCI-scope groeit elk kwartaal. Behandel het als brug, niet als bestemming.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Mag ik de Magento 1-database direct met SQL bewerken?</p>
+      <p class="faq-a">Alleen op tabellen die Magento niet indexeert. Aan catalog_product_entity, tier-prices of stock items komen via ruwe SQL omzeilt de observers en laat de flat tables uit sync tot de volgende volledige reindex.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom werkt de Flush Cache-knop in de admin vaak niet?</p>
+      <p class="faq-a">Hij wist getagde entries in core_cache, maar raakt de flat catalog-tabellen, de block HTML-cache of bovenliggende Varnish/CDN-lagen niet aan. Je moet elke laag expliciet flushen, in volgorde.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/nl/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Web root: zeven bestanden die je nooit publiek serveert</h3>
+      <span class="pc-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
