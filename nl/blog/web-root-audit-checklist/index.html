@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Web root: zeven bestanden die je nooit publiek serveert · Pier — Blog</title>
+<meta name="description" content="Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, wordpress, php, htaccess, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Web root: zeven bestanden die je nooit publiek serveert">
+<meta property="og:description" content="Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/web-root-audit-checklist/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/web-root-audit-checklist/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-15T03:12:36.099Z">
+<meta property="article:modified_time" content="2026-05-15T03:12:36.099Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Web root: zeven bestanden die je nooit publiek serveert">
+<meta name="twitter:description" content="Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/web-root-audit-checklist/hero.jpg">
+<meta name="twitter:image:alt" content="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/web-root-audit-checklist/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/web-root-audit-checklist/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/web-root-audit-checklist/"},
+  "url":"https://pier.abn.company/nl/blog/web-root-audit-checklist/",
+  "headline":"Web root: zeven bestanden die je nooit publiek serveert",
+  "description":"Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/web-root-audit-checklist/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel."
+  },
+  "datePublished":"2026-05-15T03:12:36.099Z",
+  "dateModified":"2026-05-15T03:12:36.099Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"security, wordpress, php, htaccess, operations, workflow",
+  "wordCount":1263,
+  "articleSection":"Security",
+  "articleBody":"Een klein Amsterdams bureau stuurde vorige maand om 23:41 een Loom op. De WordPress-installatie van hun klant, sinds 2014 in de lucht, had net een keurig geformuleerde sommatie van Cloudflare ontvangen. Het forensisch rapport wees de site zelf aan als bron. Iemand had wp-config.php.bak uit de document root meegenomen, de salts ontsleuteld en de database stilletjes gebruikt voor een credential-stuffing setup. Het bureau had de site achttien maanden eerder overgenomen. Het backup-bestand stond er sinds de laatste edit van de oorspronkelijke developer in 2018. Niets aan dat incident is bijzonder. Elke legacy site die wij auditen, heeft minstens één van de zeven bestandstypes hieronder gewoon zichtbaar in de publieke web root staan. Voor geen ervan heb je een kwetsbaarheid nodig om ze te lezen. Het zijn simpele HTTP GET-requests. De audit van zeven minuten De audit is mechanisch. Vanaf een laptop, met de hostname van de site in $DOMAIN , draai je een kort setje curl -I requests en lees je de statuscode af. Alles wat 200 teruggeeft is een vinding. 403 of 404 betekent dat het bestand er niet staat of al op serverniveau geblokkeerd is. Voor deze pass heb je geen interne toegang nodig. Dat is precies het punt: een aanvaller ook niet. DOMAIN=\"example.com\" for path in .env .git/config wp-config.php.bak backup.sql phpinfo.php \\ composer.lock wp-content/debug.log; do printf \"%-30s \" \"$path\" curl -s -o /dev/null -w \"%{http_code}\\n\" \"https://$DOMAIN/$path\" done Die loop van zeven regels is de hele audit. De rest van deze post gaat over wat elke 200 betekent en hoe je er voor het einde van de dag een 404 van maakt. .env en de dotenv-familie Moderne Laravel-, Symfony- en Bedrock-stijl WordPress-installaties leveren een .env -bestand in de project root voor database-credentials, app keys en API-tokens van derden. Op zich een prima conventie. Het ongeluk gebeurt als de project root tegelijk de document root is, wat op cPanel en shared hosting standaard zo is. Een request naar https://example.com/.env geeft het bestand dan letterlijk terug, omdat Apache out-of-the-box buiten .htaccess en .htpasswd geen dotfiles blokkeert. De fix is twee regels in je virtual host of top-level .htaccess : <FilesMatch \"^\\.env\"> Require all denied </FilesMatch> Voor Nginx, het equivalent binnen het server-block: location ~ /\\.env { deny all; return 404; } Verplaats het bestand vervolgens helemaal uit de document root als je stack dat toelaat. De meeste moderne PHP-frameworks ondersteunen een expliciet env-pad in hun bootstrap. De .git-directory Een blootgestelde .git/ -folder is de ergste vinding op deze lijst, omdat het bijna altijd de hele source tree oplevert: credentials, migratiebestanden en elk secret dat ooit gecommit en later \"verwijderd\" is. Tools als git-dumper reconstrueren de repo binnen een minuut uit .git/config , .git/HEAD en de pack files. Test het: curl -s \"https://example.com/.git/config\" | head -n 3 Zie je [core] , dan is de hele history te downloaden. De remediatie volgt hetzelfde patroon als bij .env : RedirectMatch 404 /\\.git De betere fix is om nooit via git pull op productie te deployen. Bouw het artefact ergens anders en rsync alleen de bestanden die je daadwerkelijk wilt serveren. De .htaccess-gids van het Apache-project is hier het herlezen waard voor de precedence-regels. Een 403 op /.git/ is niet hetzelfde als een fix. Veel servers blokkeren de directory listing maar serveren losse bestanden erin alsnog. Bevestig door rechtstreeks /.git/HEAD op te vragen. Komt daar 200 uit, dan ben je nog steeds blootgesteld. SQL-dumps in /backup/ en /old/ De senior developer uit 2018 die de oude site hernoemde naar /old/ en een backup.sql in /backup/ dumpte vóór de migratie, is statistisch de grootste enkele bron van credential-leaks die we in audits tegenkomen. De dumps bevatten gehashte admin-wachtwoorden (op echt oude installs vaak unsalted MD5), e-mailadressen en klantgegevens. De lijst paden om te controleren is kort en bijna altijd hetzelfde: /backup.sql , /dump.sql , /database.sql /backup/ , /backups/ , /old/ , /tmp/ /site_2018.tar.gz , /wp_backup.zip Verwijder ze. Er is geen variant waarin zo'n bestand het verdient om in de publieke web root te blijven staan. Scratch files van editors en het OS Drie smaken, allemaal te voorkomen. Vim laat .swp - en .swo -bestanden achter als een editor crasht. Veel editors en FTP-clients schrijven bij opslaan filename~ of filename.bak . macOS strooit .DS_Store in elke directory die het aanraakt. Dat laatste wordt het meest onderschat: het bevat de volledige directory listing als binary blob, en tools als ds_store_exp zetten dat binnen seconden weer om in een pad-overzicht. Eén block dekt alle drie: <FilesMatch \"(\\.(bak|old|orig|swp|swo)|~|\\.DS_Store|Thumbs\\.db)$\"> Require all denied </FilesMatch> Dezelfde regex vertaald voor Nginx werkt net zo goed. De kosten zijn één config-block. De besparing is elk \"ik heb wp-config even snel via FTP aangepast\"-incident dat erop volgt. Diagnostische script",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/web-root-audit-checklist/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Web root: zeven bestanden die je nooit publiek serveert","item":"https://pier.abn.company/nl/blog/web-root-audit-checklist/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom serveert Apache standaard .env-bestanden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Apache blokkeert out-of-the-box alleen .htaccess en .htpasswd. Elk ander dotfile, inclusief .env en .git, wordt geserveerd tenzij je een expliciete FilesMatch-regel toevoegt in je config of top-level .htaccess."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is een 403 op /.git/ genoeg om de directory veilig te noemen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Veel servers blokkeren de directory listing maar serveren losse bestanden erbinnen alsnog, wat voor git-dumper voldoende is om de repo te reconstrueren. Verifieer door specifiek /.git/HEAD op te vragen en te bevestigen dat er een 404 terugkomt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waar horen debug logs te staan als niet in de web root?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Volledig buiten de document root. Op Linux werkt /var/log/wp/site.log met de web user als eigenaar en mode 0640 prima. Zet in WordPress WP_DEBUG_LOG op het absolute pad in plaats van het op true te laten."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/web-root-audit-checklist/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 010</span>
+      </div>
+      <p class="eyebrow"><span class="n">010 —</span>Security</p>
+      <h1 class="display-l post-title">Web root: zeven bestanden die je nooit publiek serveert</h1>
+      <p class="lede post-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-15T03:12:36.099Z">15 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+      <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 010</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een klein Amsterdams bureau stuurde vorige maand om 23:41 een Loom op. De WordPress-installatie van hun klant, sinds 2014 in de lucht, had net een keurig geformuleerde sommatie van Cloudflare ontvangen. Het forensisch rapport wees de site zelf aan als bron. Iemand had <code>wp-config.php.bak</code> uit de document root meegenomen, de salts ontsleuteld en de database stilletjes gebruikt voor een credential-stuffing setup. Het bureau had de site achttien maanden eerder overgenomen. Het backup-bestand stond er sinds de laatste edit van de oorspronkelijke developer in 2018.</p><p>Niets aan dat incident is bijzonder. Elke <a href="/">legacy site</a> die wij auditen, heeft minstens één van de zeven bestandstypes hieronder gewoon zichtbaar in de publieke web root staan. Voor geen ervan heb je een kwetsbaarheid nodig om ze te lezen. Het zijn simpele HTTP GET-requests.</p><h2>De audit van zeven minuten</h2><p>De audit is mechanisch. Vanaf een laptop, met de hostname van de site in <code>$DOMAIN</code>, draai je een kort setje <code>curl -I</code> requests en lees je de statuscode af. Alles wat <code>200</code> teruggeeft is een vinding. <code>403</code> of <code>404</code> betekent dat het bestand er niet staat of al op serverniveau geblokkeerd is. Voor deze pass heb je geen interne toegang nodig. Dat is precies het punt: een aanvaller ook niet.</p><pre><code class="lang-bash">DOMAIN="example.com"
+for path in .env .git/config wp-config.php.bak backup.sql phpinfo.php \
+            composer.lock wp-content/debug.log; do
+  printf "%-30s " "$path"
+  curl -s -o /dev/null -w "%{http_code}\n" "https://$DOMAIN/$path"
+done</code></pre><p>Die loop van zeven regels is de hele audit. De rest van deze post gaat over wat elke <code>200</code> betekent en hoe je er voor het einde van de dag een <code>404</code> van maakt.</p><h2>.env en de dotenv-familie</h2><p>Moderne Laravel-, Symfony- en Bedrock-stijl WordPress-installaties leveren een <code>.env</code>-bestand in de project root voor database-credentials, app keys en API-tokens van derden. Op zich een prima conventie. Het ongeluk gebeurt als de project root tegelijk de document root is, wat op cPanel en shared hosting standaard zo is. Een request naar <code>https://example.com/.env</code> geeft het bestand dan letterlijk terug, omdat Apache out-of-the-box buiten <code>.htaccess</code> en <code>.htpasswd</code> geen dotfiles blokkeert.</p><p>De fix is twee regels in je virtual host of top-level <code>.htaccess</code>:</p><pre><code class="lang-apache">&lt;FilesMatch "^\.env"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre><p>Voor Nginx, het equivalent binnen het server-block:</p><pre><code class="lang-nginx">location ~ /\.env { deny all; return 404; }</code></pre><p>Verplaats het bestand vervolgens helemaal uit de document root als je stack dat toelaat. De meeste moderne PHP-frameworks ondersteunen een expliciet env-pad in hun bootstrap.</p><h2>De .git-directory</h2><p>Een blootgestelde <code>.git/</code>-folder is de ergste vinding op deze lijst, omdat het bijna altijd de hele source tree oplevert: credentials, migratiebestanden en elk secret dat ooit gecommit en later "verwijderd" is. Tools als <code>git-dumper</code> reconstrueren de repo binnen een minuut uit <code>.git/config</code>, <code>.git/HEAD</code> en de pack files.</p><p>Test het:</p><pre><code class="lang-bash">curl -s "https://example.com/.git/config" | head -n 3</code></pre><p>Zie je <code>[core]</code>, dan is de hele history te downloaden. De remediatie volgt hetzelfde patroon als bij <code>.env</code>:</p><pre><code class="lang-apache">RedirectMatch 404 /\.git</code></pre><p>De betere fix is om nooit via <code>git pull</code> op productie te deployen. Bouw het artefact ergens anders en rsync alleen de bestanden die je daadwerkelijk wilt serveren. De <a href="https://httpd.apache.org/docs/current/howto/htaccess.html">.htaccess-gids</a> van het Apache-project is hier het herlezen waard voor de precedence-regels.</p><aside class="callout">Een <code>403</code> op <code>/.git/</code> is niet hetzelfde als een fix. Veel servers blokkeren de directory listing maar serveren losse bestanden erin alsnog. Bevestig door rechtstreeks <code>/.git/HEAD</code> op te vragen. Komt daar <code>200</code> uit, dan ben je nog steeds blootgesteld.</aside><h2>SQL-dumps in /backup/ en /old/</h2><p>De senior developer uit 2018 die de oude site hernoemde naar <code>/old/</code> en een <code>backup.sql</code> in <code>/backup/</code> dumpte vóór de migratie, is statistisch de grootste enkele bron van credential-leaks die we in audits tegenkomen. De dumps bevatten gehashte admin-wachtwoorden (op echt oude installs vaak unsalted MD5), e-mailadressen en klantgegevens.</p><p>De lijst paden om te controleren is kort en bijna altijd hetzelfde:</p><ul><li><code>/backup.sql</code>, <code>/dump.sql</code>, <code>/database.sql</code></li><li><code>/backup/</code>, <code>/backups/</code>, <code>/old/</code>, <code>/tmp/</code></li><li><code>/site_2018.tar.gz</code>, <code>/wp_backup.zip</code></li></ul><p>Verwijder ze. Er is geen variant waarin zo'n bestand het verdient om in de publieke web root te blijven staan.</p><h2>Scratch files van editors en het OS</h2><p>Drie smaken, allemaal te voorkomen. Vim laat <code>.swp</code>- en <code>.swo</code>-bestanden achter als een editor crasht. Veel editors en FTP-clients schrijven bij opslaan <code>filename~</code> of <code>filename.bak</code>. macOS strooit <code>.DS_Store</code> in elke directory die het aanraakt. Dat laatste wordt het meest onderschat: het bevat de volledige directory listing als binary blob, en tools als <code>ds_store_exp</code> zetten dat binnen seconden weer om in een pad-overzicht.</p><p>Eén block dekt alle drie:</p><pre><code class="lang-apache">&lt;FilesMatch "(\.(bak|old|orig|swp|swo)|~|\.DS_Store|Thumbs\.db)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre><p>Dezelfde regex vertaald voor Nginx werkt net zo goed. De kosten zijn één config-block. De besparing is elk "ik heb wp-config even snel via FTP aangepast"-incident dat erop volgt.</p><h2>Diagnostische scripts</h2><p>Het <code>phpinfo.php</code>-bestand dat de vorige developer in 2019 achterliet om "even te checken of mod_rewrite geladen was", staat er nog steeds. Het geeft de volledige output van <a href="https://www.php.net/manual/en/function.phpinfo.php">phpinfo()</a> terug, inclusief de document root, het pad naar de PHP-binary, elke geladen extensie, elke environment variable en regelmatig een database-wachtwoord als dat via <code>SetEnv</code> is gezet. Varianten die we in audits zien: <code>info.php</code>, <code>test.php</code>, <code>i.php</code>, <code>pi.php</code>, <code>adminer.php</code>, <code>db.php</code>.</p><p>De check:</p><pre><code class="lang-bash">for f in phpinfo.php info.php test.php adminer.php; do
+  curl -s -o /dev/null -w "$f: %{http_code}\n" "https://example.com/$f"
+done</code></pre><p>De fix is verwijderen. Er is geen productiereden waarom deze bestanden in een publieke web root horen. Heb je echt een server-info endpoint nodig, plaats het dan achter HTTP basic auth op serverniveau en zet het op een niet voor de hand liggend pad.</p><h2>Lockfiles en versiemanifesten</h2><p>Deze is minder voor de hand liggend exploiteerbaar, maar hoort wel op de lijst. Een publieke <code>composer.lock</code> of <code>package-lock.json</code> vertelt iedereen met een CVE-feed precies welke versies van welke packages je draait. Vandaar is het één zoekopdracht naar een bekende ongepatchte kwetsbaarheid. Hetzelfde geldt voor <code>composer.json</code>, <code>package.json</code> en <code>yarn.lock</code>.</p><p>Geen van deze bestanden hoort door een browser gedownload te worden. Het zijn build-time artefacten. Blokkeer ze op bestandsnaam, of zet de project root boven de document root en laat het framework ze daar laden.</p><h2>Debug logs</h2><p>De zevende en laatste is degene die veroudert en vergeten wordt. WordPress' <code>WP_DEBUG_LOG</code> schrijft standaard naar <code>wp-content/debug.log</code>. Drupals <code>error_log</code> kan in <code>sites/default/files/</code> belanden. Magento 1 liet in default installs zijn <code>var/log/</code>-directory wagenwijd open onder de document root staan. Elk van deze bestanden stapelt SQL queries, stack traces met volledige bestandspaden en af en toe credentials die onderweg gelogd zijn.</p><p>Zet debug logging uit in productie. Zet een developer het aan om iets specifieks te onderzoeken, dan hoort het log-pad buiten de web root te staan. De <a href="https://wordpress.org/documentation/article/debugging-in-wordpress/">debugging-documentatie van WordPress zelf</a> behandelt de relevante constanten. Het schoonste patroon is <code>define('WP_DEBUG_LOG', '/var/log/wp/example-com.log');</code> met de directory in eigendom van de web user en onleesbaar voor al het andere.</p><h2>Na de audit</h2><p>De output van de zeven-minuten-curl-loop hoort na één middag opruimen zeven schone <code>404</code>'s te zijn. Borg die staat door dezelfde loop wekelijks vanaf een cron-job te draaien en de diff te mailen. De audit is goedkoop. De nalatigheid is wat geld kost.</p><p>Toen we Pier bouwden voor het bewerken van legacy sites via FTP en SFTP, deden we precies deze audit op elk project met de hand, dus hebben we hem als one-click sweep ingebouwd naast de <a href="/#database">MySQL editor</a>. Elke verwijdering loopt via dezelfde <a href="/#features">version history</a> als elke andere edit, zodat een te enthousiaste opruimactie één klik van ongedaan maken verwijderd is.</p><p>Het kleinste dat je vandaag kunt doen: plak de curl-loop bovenaan deze post in een terminal, richt hem op één site die je beheert en lees de statuscodes. Wat <code>200</code> teruggeeft, schrijf je op. Morgen is voor fixen.</p>
+    </div>
+
+    <aside class="pullquote">Geeft een request naar /.env, /.git/config of /backup.sql een 200 terug op een site die jij beheert, dan heb je een middag werk, geen rapport van een vulnerability scanner.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom serveert Apache standaard .env-bestanden?</p>
+      <p class="faq-a">Apache blokkeert out-of-the-box alleen .htaccess en .htpasswd. Elk ander dotfile, inclusief .env en .git, wordt geserveerd tenzij je een expliciete FilesMatch-regel toevoegt in je config of top-level .htaccess.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is een 403 op /.git/ genoeg om de directory veilig te noemen?</p>
+      <p class="faq-a">Nee. Veel servers blokkeren de directory listing maar serveren losse bestanden erbinnen alsnog, wat voor git-dumper voldoende is om de repo te reconstrueren. Verifieer door specifiek /.git/HEAD op te vragen en te bevestigen dat er een 404 terugkomt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waar horen debug logs te staan als niet in de web root?</p>
+      <p class="faq-a">Volledig buiten de document root. Op Linux werkt /var/log/wp/site.log met de web user als eigenaar en mode 0640 prima. Zet in WordPress WP_DEBUG_LOG op het absolute pad in plaats van het op true te laten.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-live-edit-procedure/hero.jpg" alt="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 mei 2026</span></span>
+      <h3>wp-config.php in productie: een veilige edit-procedure</h3>
+      <span class="pc-lede">wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/legacy-php-reinfection-htaccess-wall/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-php-reinfection-htaccess-wall/hero.jpg" alt="Messing hangslot op papieren kaart met lakzegel, geteerd touw en rood lint op eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>21 april 2026</span></span>
+      <h3>Legacy PHP herbesmetting: de .htaccess-muur die houdt</h3>
+      <span class="pc-lede">De WordPress van een klant werd om de paar dagen opnieuw besmet. Bestanden opschonen hielp niet. Dit is het .htaccess-patroon dat het stopte.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/web-root-audit-checklist/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
