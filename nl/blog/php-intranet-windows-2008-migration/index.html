@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Custom PHP-intranet van Windows 2008 af in één weekend · Pier — Blog</title>
+<meta name="description" content="Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, mysql, migration, htaccess, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-intranet-windows-2008-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-intranet-windows-2008-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Custom PHP-intranet van Windows 2008 af in één weekend">
+<meta property="og:description" content="Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Inktzwarte messing plaat met WIN2008 op gevouwen draaiboek over CUTOVER-millimeterpapier, manilamap, rood waxzegel, linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-19T06:46:50.293Z">
+<meta property="article:modified_time" content="2026-05-19T06:46:50.293Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Custom PHP-intranet van Windows 2008 af in één weekend">
+<meta name="twitter:description" content="Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Inktzwarte messing plaat met WIN2008 op gevouwen draaiboek over CUTOVER-millimeterpapier, manilamap, rood waxzegel, linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-intranet-windows-2008-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/"},
+  "url":"https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/",
+  "headline":"Custom PHP-intranet van Windows 2008 af in één weekend",
+  "description":"Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Inktzwarte messing plaat met WIN2008 op gevouwen draaiboek over CUTOVER-millimeterpapier, manilamap, rood waxzegel, linnen."
+  },
+  "datePublished":"2026-05-19T06:46:50.293Z",
+  "dateModified":"2026-05-19T06:46:50.293Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, mysql, migration, htaccess, operations",
+  "wordCount":2364,
+  "articleSection":"Migration",
+  "articleBody":"De Loom kwam binnen om 23:41 op een donderdag. Een tweekoppig ops-team bij een logistiek bedrijf waar we mee werken had net te horen gekregen dat hun Windows Server 2008 R2-machine maandagochtend uit het rack zou gaan. De pandeigenaar ontmantelde de communicatieruimte, er kwam geen verlenging, en op die machine stond een custom PHP-intranet, rond 2011 gebouwd, dat elke planner gebruikte om ladingen te loggen, ritlijsten te printen en chauffeurscertificeringen te controleren. Geen leverancier. Geen documentatie. De oorspronkelijke ontwikkelaar was al zes jaar weg. Ze hadden één weekend om het volledig van Windows af te halen. Dit is een doorloop van die PHP-intranetmigratie van begin tot cutover, inclusief de dingen die Windows tien jaar lang stilletjes had verborgen. Niets hiervan is exotisch. Dat het in een weekend past, komt doordat het werk grotendeels mechanisch is zodra je weet waar de lijken liggen, en de enige stap die data kan verliezen zonder weg terug is de stap die bijna iedereen onderschat. De vrijdaginventaris Je kunt geen PHP-intranetmigratie plannen die je niet hebt gemeten. De eerste twee uur waren RDP erin, geen aanpassingen, alleen kijken. De vorm die terugkwam was de vorm van duizend interne apps uit dat tijdperk: PHP 5.4 via FastCGI op IIS 7.5, app-root op C:\\inetpub\\wwwroot\\intranet . MySQL 5.5, één database, tabellen gedeclareerd als latin1 maar zichtbaar gevuld met UTF-8-bytes. Authenticatie tegen Active Directory over plain LDAP naar een domeincontroller op het LAN. Drie Windows Task Scheduler-taken die op een timer php.exe aanriepen voor nachtelijke syncs. Geüploade documenten weggeschreven naar een mapped drive, in code aangeduid als D:\\shares\\intranet-docs . URL-routing afgehandeld door een stapel rewrite -regels in web.config . Microsoft beëindigde de extended support voor Windows Server 2008 R2 in januari 2020 , dus niets hiervan was een verrassing. Het punt van de inventaris is geen oordeel, het is de migratiechecklist die zichzelf schrijft. Elk item hierboven is iets dat op Linux en PHP 8 op een specifieke, voorspelbare manier breekt. Die lijst vastleggen is zelf al deel van het werk, want de helft ervan is onzichtbaar vanuit het bestandssysteem. De geplande taken in het bijzonder zitten helemaal niet in de codebase; ze leven in de Task Scheduler-boom, en de enige veilige manier om ze van een machine te lezen die je gaat verliezen, is ze te exporteren voordat je iets aanraakt: schtasks /query /fo LIST /v > C:\\tasks-dump.txt schtasks /query /tn \"\\IntranetSync\" /xml > C:\\task-sync.xml De XML doet er meer toe dan het lijkt. Hij legt vast in welke werkdirectory elke taak draaide, en een verrassende hoeveelheid oude PHP gaat uit van de directory die Task Scheduler toevallig meegaf in plaats van een absoluut pad. Die aanname is de meest voorkomende reden dat een taak die &ldquo;hetzelfde commando is&rdquo; op de nieuwe machine stilletjes niets doet. De Linux-doelmachine opzetten We zetten een schone Debian 12-VM op infrastructuur waar het team al voor betaalde, en kozen Apache plus PHP-FPM in plaats van nginx. De reden was beperkt en praktisch: de rewrite-logica uit web.config mapt vrijwel regel voor regel op mod_rewrite , en op een klok van 48 uur wil je geen routing-semantiek opnieuw zitten afleiden in een nieuwe engine. apt update apt install -y apache2 php8.2 php8.2-fpm php8.2-mysql \\ php8.2-ldap php8.2-mbstring php8.2-curl php8.2-gd mysql-server a2enmod rewrite proxy_fcgi setenvif a2enconf php8.2-fpm systemctl restart apache2 Twee php.ini-waarden werden ingesteld voordat er code draaide, omdat hun afwezigheid ruis produceert die de echte fouten maskeert: date.timezone = Europe/Amsterdam en display_errors = Off met log_errors = On verwijzend naar een bestand dat we konden tail -f 'en. Vanaf PHP 7.0 is een niet-ingestelde timezone een warning bij elke date() -aanroep, en een scherm vol warnings verbergt de ene fatal die er echt toe doet. Nog één ding voordat er code draait: ownership. IIS draaide de app als een service-identiteit waar al jaren niemand aan had gedacht; op de nieuwe machine draait PHP-FPM als www-data , en de uploaddirectory moet schrijfbaar zijn voor precies die gebruiker en niets ruimer. Een chown -R www-data:www-data /srv/intranet-docs plus een find . -type f -exec chmod 644 {} + -veegactie is dertig seconden werk dat de klasse &ldquo;het werkt via SSH maar niet in de browser&rdquo;-verwarring voorkomt die anders een uur opslokt op het slechtst denkbare moment. De PHP porten die Windows had verborgen Dit is het deel van elke custom PHP-intranetmigratie dat de meeste tijd opslokt, en bijna alles ervan is een van drie soorten falen. Hoofdlettergevoeligheid, de stille Windows maakt het niet uit of je require 'Includes/Config.php' of includes/config.php schreef. Linux maakt het absoluut uit. De eerste pagina-load op de nieuwe machine gaf terug: PHP Warning: include(includes/Config.php): Failed to open stream: No such file or directory in /var/www/intranet/bootstrap.",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Custom PHP-intranet van Windows 2008 af in één weekend","item":"https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kun je een custom PHP-intranet echt in één weekend van Windows Server 2008 af migreren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Als de app één codebase met één database is, ja. Het werk is mechanisch: hoofdlettergevoelige includes, verwijderde mysql_-functies, charset-afhandeling en het vertalen van rewrite-regels. Het risico zit in de datastap, niet in de tijd."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom raken geaccentueerde tekens dubbel encoded bij het verplaatsen van de MySQL-database?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Tabellen die als latin1 zijn gedeclareerd maar UTF-8-bytes bevatten, worden bij het dumpen geconverteerd. Verifieer eerst met HEX() op de bron, dump in de charset waarin de bytes echt staan, en doe pas na de import ALTER TABLE naar utf8mb4."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is een compatibiliteitsshim van mysql_ naar mysqli veilig om uit te rollen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Als tijdelijke maatregel onder deadline wel, mits hij het escape-gedrag behoudt. Behandel hem als gelogde technische schuld en verwijder hem na de cutover. Het is een noodverband, geen oplossing."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/php-intranet-windows-2008-migration/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 027</span>
+      </div>
+      <p class="eyebrow"><span class="n">027 —</span>Migration</p>
+      <h1 class="display-l post-title">Custom PHP-intranet van Windows 2008 af in één weekend</h1>
+      <p class="lede post-lede">Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-19T06:46:50.293Z">19 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-intranet-windows-2008-migration/hero.webp" type="image/webp">
+      <img src="/blog/php-intranet-windows-2008-migration/hero.jpg" alt="Inktzwarte messing plaat met WIN2008 op gevouwen draaiboek over CUTOVER-millimeterpapier, manilamap, rood waxzegel, linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 027</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom kwam binnen om 23:41 op een donderdag. Een tweekoppig ops-team bij een logistiek bedrijf waar we mee werken had net te horen gekregen dat hun Windows Server 2008 R2-machine maandagochtend uit het rack zou gaan. De pandeigenaar ontmantelde de communicatieruimte, er kwam geen verlenging, en op die machine stond een custom PHP-intranet, rond 2011 gebouwd, dat elke planner gebruikte om ladingen te loggen, ritlijsten te printen en chauffeurscertificeringen te controleren. Geen leverancier. Geen documentatie. De oorspronkelijke ontwikkelaar was al zes jaar weg. Ze hadden één weekend om het volledig van Windows af te halen.</p><p>Dit is een doorloop van die PHP-intranetmigratie van begin tot cutover, inclusief de dingen die Windows tien jaar lang stilletjes had verborgen. Niets hiervan is exotisch. Dat het in een weekend past, komt doordat het werk grotendeels mechanisch is zodra je weet waar de lijken liggen, en de enige stap die data kan verliezen zonder weg terug is de stap die bijna iedereen onderschat.</p><h2>De vrijdaginventaris</h2><p>Je kunt geen PHP-intranetmigratie plannen die je niet hebt gemeten. De eerste twee uur waren RDP erin, geen aanpassingen, alleen kijken. De vorm die terugkwam was de vorm van duizend interne apps uit dat tijdperk:</p><ul><li>PHP 5.4 via FastCGI op IIS 7.5, app-root op <code>C:\inetpub\wwwroot\intranet</code>.</li><li>MySQL 5.5, één database, tabellen gedeclareerd als <code>latin1</code> maar zichtbaar gevuld met UTF-8-bytes.</li><li>Authenticatie tegen Active Directory over plain LDAP naar een domeincontroller op het LAN.</li><li>Drie Windows Task Scheduler-taken die op een timer <code>php.exe</code> aanriepen voor nachtelijke syncs.</li><li>Geüploade documenten weggeschreven naar een mapped drive, in code aangeduid als <code>D:\shares\intranet-docs</code>.</li><li>URL-routing afgehandeld door een stapel <code>rewrite</code>-regels in <code>web.config</code>.</li></ul><p>Microsoft beëindigde de extended support voor Windows Server 2008 R2 in <a href="https://learn.microsoft.com/en-us/lifecycle/products/windows-server-2008-r2">januari 2020</a>, dus niets hiervan was een verrassing. Het punt van de inventaris is geen oordeel, het is de migratiechecklist die zichzelf schrijft. Elk item hierboven is iets dat op Linux en PHP 8 op een specifieke, voorspelbare manier breekt.</p><p>Die lijst vastleggen is zelf al deel van het werk, want de helft ervan is onzichtbaar vanuit het bestandssysteem. De geplande taken in het bijzonder zitten helemaal niet in de codebase; ze leven in de Task Scheduler-boom, en de enige veilige manier om ze van een machine te lezen die je gaat verliezen, is ze te exporteren voordat je iets aanraakt:</p><pre><code class="lang-bat">schtasks /query /fo LIST /v &gt; C:\tasks-dump.txt
+schtasks /query /tn "\IntranetSync" /xml &gt; C:\task-sync.xml</code></pre><p>De XML doet er meer toe dan het lijkt. Hij legt vast in welke werkdirectory elke taak draaide, en een verrassende hoeveelheid oude PHP gaat uit van de directory die Task Scheduler toevallig meegaf in plaats van een absoluut pad. Die aanname is de meest voorkomende reden dat een taak die &ldquo;hetzelfde commando is&rdquo; op de nieuwe machine stilletjes niets doet.</p><h2>De Linux-doelmachine opzetten</h2><p>We zetten een schone Debian 12-VM op infrastructuur waar het team al voor betaalde, en kozen Apache plus PHP-FPM in plaats van nginx. De reden was beperkt en praktisch: de rewrite-logica uit <code>web.config</code> mapt vrijwel regel voor regel op <code>mod_rewrite</code>, en op een klok van 48 uur wil je geen routing-semantiek opnieuw zitten afleiden in een nieuwe engine.</p><pre><code class="lang-bash">apt update
+apt install -y apache2 php8.2 php8.2-fpm php8.2-mysql \
+  php8.2-ldap php8.2-mbstring php8.2-curl php8.2-gd mysql-server
+a2enmod rewrite proxy_fcgi setenvif
+a2enconf php8.2-fpm
+systemctl restart apache2</code></pre><p>Twee php.ini-waarden werden ingesteld voordat er code draaide, omdat hun afwezigheid ruis produceert die de echte fouten maskeert: <code>date.timezone = Europe/Amsterdam</code> en <code>display_errors = Off</code> met <code>log_errors = On</code> verwijzend naar een bestand dat we konden <code>tail -f</code>'en. Vanaf PHP 7.0 is een niet-ingestelde timezone een warning bij elke <code>date()</code>-aanroep, en een scherm vol warnings verbergt de ene fatal die er echt toe doet.</p><p>Nog één ding voordat er code draait: ownership. IIS draaide de app als een service-identiteit waar al jaren niemand aan had gedacht; op de nieuwe machine draait PHP-FPM als <code>www-data</code>, en de uploaddirectory moet schrijfbaar zijn voor precies die gebruiker en niets ruimer. Een <code>chown -R www-data:www-data /srv/intranet-docs</code> plus een <code>find . -type f -exec chmod 644 {} +</code>-veegactie is dertig seconden werk dat de klasse &ldquo;het werkt via SSH maar niet in de browser&rdquo;-verwarring voorkomt die anders een uur opslokt op het slechtst denkbare moment.</p><h2>De PHP porten die Windows had verborgen</h2><p>Dit is het deel van elke custom PHP-intranetmigratie dat de meeste tijd opslokt, en bijna alles ervan is een van drie soorten falen.</p><h3>Hoofdlettergevoeligheid, de stille</h3><p>Windows maakt het niet uit of je <code>require 'Includes/Config.php'</code> of <code>includes/config.php</code> schreef. Linux maakt het absoluut uit. De eerste pagina-load op de nieuwe machine gaf terug:</p><pre><code class="lang-text">PHP Warning:  include(includes/Config.php): Failed to open stream:
+No such file or directory in /var/www/intranet/bootstrap.php on line 12</code></pre><p>De oplossing is niet om bestanden willekeurig te hernoemen tot het laadt. Zoek elke include en require, en breng dan de letterlijke string in lijn met de echte bestandsnaam op schijf:</p><pre><code class="lang-bash">grep -rnoE "(include|require)(_once)?[^;]+" /var/www/intranet \
+  | grep -iE "\\.php" | sort -u</code></pre><p>In deze app waren er elf mismatches, allemaal ontstaan over jaren waarin iemand op Windows de casing-drift niet opmerkte. We pasten de aanroepplekken aan, niet de bestandsnamen, zodat de versiegeschiedenis leesbaar bleef.</p><h3>Dode extensies en dode functies</h3><p>Het intranet stond vol met <code>mysql_query()</code>. De <code>ext/mysql</code>-extensie werd in PHP 5.5 deprecated en <a href="https://www.php.net/manual/en/function.mysql-connect.php">in PHP 7.0 volledig verwijderd</a>, dus op PHP 8.2 krijg je een harde stop:</p><pre><code class="lang-text">PHP Fatal error:  Uncaught Error: Call to undefined function mysql_connect()</code></pre><p>Er waren 340 aanroepplekken. Elk daarvan in een weekend met de hand herschrijven is hoe je om 04:00 SQL-injectie introduceert. In plaats daarvan schreven we een dunne compatibiliteitslaag boven <code>mysqli</code> die de oude signatures behield, lieten die in de bootstrap vallen, en veranderden verder niets:</p><pre><code class="lang-php">&lt;?php
+// compat/mysql.php — temporary shim, scheduled for removal post-cutover
+$GLOBALS['__db'] = null;
+
+function mysql_connect($h, $u, $p) {
+    $GLOBALS['__db'] = mysqli_connect($h, $u, $p);
+    return $GLOBALS['__db'];
+}
+function mysql_select_db($name) {
+    return mysqli_select_db($GLOBALS['__db'], $name);
+}
+function mysql_query($sql) {
+    return mysqli_query($GLOBALS['__db'], $sql);
+}
+function mysql_fetch_assoc($r) { return mysqli_fetch_assoc($r); }
+function mysql_num_rows($r)    { return mysqli_num_rows($r); }
+function mysql_real_escape_string($s) {
+    return mysqli_real_escape_string($GLOBALS['__db'], $s);
+}
+function mysql_error() { return mysqli_error($GLOBALS['__db']); }</code></pre><p>Een shim is een schuld, geen oplossing, en we logden hem als zodanig. Maar het leverde een werkende app op zaterdagmiddag op in plaats van zondagnacht, wat op een harde deadline het hele spel is. Dezelfde triage gold voor een <code>mcrypt_encrypt()</code>-fatal (de extensie verdween in PHP 7.2): één token-signing-functie herschreven op <code>openssl</code>, de rest met rust gelaten. Hardgecodeerde <code>dirname(__FILE__) . '\\config.php'</code>-padcombinaties werden naar forward slashes geveegd, die Linux accepteert en Windows altijd ook al deed.</p><h2>De PHP 8-wijzigingen die geen warning geven</h2><p>Verwijderde functies kondigen zichzelf aan: de pagina sterft met een duidelijke fatal en je gaat het fixen. De migraties die pijn doen, zijn de gedragsmatige, die veranderen wat werkende code doet zonder iets op te werpen waar je op zou denken te grep'en. Twee op deze app waren de tijd waard die ze kostten.</p><p>De eerste was <code>mysqli</code>-foutrapportage. Vanaf PHP 8.1 werd de standaard report-modus <code>MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT</code>, wat betekent dat een mislukte query <a href="https://www.php.net/manual/en/mysqli-driver.report-mode.php">een <code>mysqli_sql_exception</code> gooit</a> in plaats van <code>false</code> te retourneren. Een codebase uit 2011 verwachtte dat nooit; die controleerde returnwaarden met de hand en ging door. Pagina's die jarenlang hadden gestrompeld op een query die stilletjes faalde, stierven nu regelrecht. De oplossing is niet om elke aanroepplek na te jagen maar om één bewuste keuze te maken op de shim-grens:</p><pre><code class="lang-php">mysqli_report(MYSQLI_REPORT_OFF); // restore pre-8.1 return-value behaviour</code></pre><p>Dat is ook een schuldpost, opgeschreven naast de shim: de foutafhandeling van de oude code is echt fout, maar een migratieweekend is niet het moment om driehonderd aanroepplekken ervan te herschrijven. De tweede klasse was string- en array-semantiek. Toegang tot strings met accolades (<code>$s{0}</code>) werd in PHP 8.0 verwijderd, en <code>each()</code> en <code>create_function()</code> gingen mee. Dat zijn fatals, dus ze komen snel boven bij een volledige doorklik, wat precies de reden is dat de zaterdagmiddag-doorloop met een planner bestaat: een mens die elk scherm aftikt vindt de fatals die geen enkele statische grep vindt, omdat ze alleen afgaan op die ene rapportage waarvan niemand bedacht had die in de test te draaien.</p><h2>De data verplaatsen zonder dubbele encoding</h2><p>De database leek de makkelijkste stap en is degene die migraties stilletjes ruïneert. De tabellen waren gedeclareerd als <code>latin1</code> maar de applicatie schreef er al jaren UTF-8 in, dus de bytes op schijf waren al correcte UTF-8 die in een kolom zat die beweerde iets anders te zijn.</p><p>De verkeerde zet is dumpen met <code>--default-character-set=utf8mb4</code> en importeren in een utf8mb4-schema. MySQL converteert behulpzaam onderweg naar buiten, en je krijgt het schoolvoorbeeld van dubbele encoding: elke <code>é</code> wordt <code>Ã©</code>, elke <code>ö</code> wordt <code>Ã¶</code>. Het veilige pad is dumpen in de charset waarin de data fysiek was opgeslagen, ongewijzigd importeren, en dan het schema ter plekke converteren zodra de bytes thuis zijn:</p><pre><code class="lang-bash"># on the Windows box, dump in the charset the bytes actually are
+mysqldump --default-character-set=latin1 --skip-set-charset \
+  -u root -p intranet &gt; intranet.sql
+
+# on Linux, import untouched, then convert each table
+mysql -u root -p intranet &lt; intranet.sql</code></pre><pre><code class="lang-sql">ALTER TABLE drivers     CONVERT TO CHARACTER SET utf8mb4;
+ALTER TABLE loads       CONVERT TO CHARACTER SET utf8mb4;
+ALTER TABLE certs       CONVERT TO CHARACTER SET utf8mb4;</code></pre><aside class="callout"><p><strong>Controleer de encoding vóór je dumpt, niet erna.</strong> Draai <code>SELECT name, HEX(name) FROM drivers WHERE name LIKE '%ö%' LIMIT 5;</code> op de bron. Als één <code>ö</code> verschijnt als de twee bytes <code>C3 B6</code>, is de data echte UTF-8 met een latin1-label en klopt het recept hierboven. Verschijnt het als de enkele byte <code>F6</code>, dan is het echt latin1 en converteer je bij het dumpen. Hier gokken is hoe je elk geaccentueerd teken in de database corrumpeert, zonder weg terug behalve de back-up.</p></aside><h2>Rewrite-regels, cron en Active Directory op de nieuwe machine</h2><p>De routing uit <code>web.config</code> vertaalde vrijwel mechanisch. Een IIS-regel als deze:</p><pre><code class="lang-xml">&lt;rule name="Report"&gt;
+  &lt;match url="^report/([0-9]+)/?$" /&gt;
+  &lt;action type="Rewrite" url="report.php?id={R:1}" /&gt;
+&lt;/rule&gt;</code></pre><p>wordt één regel <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite</a> in een <code>.htaccess</code> in de app-root:</p><pre><code class="lang-apache">RewriteEngine On
+RewriteRule ^report/([0-9]+)/?$ report.php?id=$1 [L,QSA]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [L,QSA]</code></pre><p>De drie Task Scheduler-taken werden drie crontab-regels, met de output naar een log gevangen in plaats van te verdwijnen zoals output van geplande taken pleegt te doen:</p><pre><code class="lang-bash">*/15 * * * * /usr/bin/php8.2 /var/www/intranet/cron/sync.php \
+  &gt;&gt; /var/log/intranet-sync.log 2&gt;&amp;1</code></pre><p>Die redirect is niet cosmetisch. Task Scheduler slokte stdout en stderr op, dus jarenlang kon de nachtelijke sync falen zonder dat iemand het zag; beide streams vangen is de eerste keer dat iemand in dit team de vraag &ldquo;heeft de run van vannacht gewerkt&rdquo; kon beantwoorden zonder in te loggen. De andere helft van de fix is het absolute pad. De cron-omgeving heeft vrijwel geen <code>PATH</code> en een home-directory die je niet koos, dus alles wat de oude taak gratis kreeg van zijn Task Scheduler-werkdirectory moet expliciet gemaakt worden, en daarom kreeg <code>sync.php</code> één <code>chdir(__DIR__)</code> bovenaan in plaats van te vertrouwen op waar cron het ook liet vallen.</p><p>Active Directory was de ene plek waar we verbeterden in plaats van porten. De oude code deed <code>ldap_connect('dc01')</code> in cleartext op het LAN. De nieuwe machine praat met dezelfde domeincontroller over TLS, wat twee gewijzigde regels is en het verschil tussen credentials over de lijn of niet:</p><pre><code class="lang-php">$ds = ldap_connect('ldaps://dc01.corp.local', 636);
+ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);</code></pre><p>Twee gewijzigde regels is de gelukkige versie. Wat bijt is certificaatvertrouwen: <code>ldaps://</code> betekent dat het PHP-proces nu het certificaat van de domeincontroller valideert, en een interne CA die elke domain-joined Windows-machine impliciet vertrouwt zit niet in de trust store van de Linux-machine. Voeg óf de corporate root toe aan <code>/usr/local/share/ca-certificates</code> en draai <code>update-ca-certificates</code>, óf, als je de CA-bundle echt niet voor maandag kunt krijgen, stel de trust-eis bewust in en schrijf hem op als de schuld die het is, in plaats van een stille <code>ldap_bind</code>-fout midden in de cutover te ontdekken:</p><pre><code class="lang-php">// only if the corporate CA cannot be installed in time — logged as debt
+ldap_set_option(NULL, LDAP_OPT_X_TLS_REQUIRE_CERT, LDAP_OPT_X_TLS_NEVER);</code></pre><p>De documentenshare verhuisde van een Windows mapped drive naar een gemount pad, en de enige hardgecodeerde <code>D:\shares\intranet-docs</code>-constante in <code>config.php</code> werd <code>/srv/intranet-docs</code>. Eén regel, want de oorspronkelijke ontwikkelaar had dat tenminste gecentraliseerd.</p><h2>De cutover, en wat we hielden</h2><p>Zondagmiddag draaiden we het intranet op de nieuwe machine achter een hosts-file-override op twee laptops, liepen een planner door een volledige dienst met echte taken, en zagen het foutenlog stil blijven. Het DNS A-record klapte om 18:00 om, met een TTL die op de vrijdag al naar 300 seconden was verlaagd, wat het goedkoopste is op deze hele lijst en datgene wat mensen vergeten tot ze om 22:00 op een stale record zitten te wachten. De oude machine bleef aan maar werd met een firewall afgeschermd en read-only gezet, onaangeroerd tot het team twee schone werkdagen had, en verliet daarna op schema het rack.</p><p>Het rollback-plan was één zin, geschreven vóór de DNS-wijziging in plaats van erna geïmproviseerd: de oude machine bleef aan, met een firewall alleen open naar de twee ops-laptops, met zijn MySQL read-only vastgezet via <code>SET GLOBAL read_only = ON</code> zodat niets per ongeluk naar de dode kopie kon schrijven en twee uiteenlopende databases achterlaten. Was de nieuwe machine maandagochtend gefaald, dan was het herstel één A-record terugklappen en een cache van 300 seconden leegmaken, geen restore. Een migratie zonder een uitgesproken rollback die iemand in paniek kan uitvoeren, is niet af, die is alleen ongetest.</p><p>Toen we Pier bouwden, liepen we steeds tegen exact dit weekend aan: het deel dat een ongedocumenteerde <a href="/">legacy site</a>-migratie eng maakt, is niet het werk, het is niet weten of de wijziging die je net in een live database deed omkeerbaar is. Hoe we het uiteindelijk aanpakten, was elke aanpassing door een <a href="/#features">version history</a> laten lopen en de <a href="/#database">MySQL editor</a> dezelfde één-klik-undo geven als de bestanden, zodat een beslissing om 04:00 nooit een eenrichtingsdeur is.</p><p>Het kleinste wat je vandaag kunt doen, voordat iemand je een deadline geeft, is twee greps over je eigen intranet draaien: één voor <code>mysql_</code>-aanroepen en korte <code>&lt;?</code>-open-tags, en één die elke <code>include</code>- en <code>require</code>-string tegen de echte bestandsnamen op schijf legt. Die twee outputs zijn het grootste deel van het weekend, en je kunt ze op een rustige dinsdag lezen in plaats van ze op een zaterdag te vinden.</p>
+    </div>
+
+    <aside class="pullquote">Een PHP-intranetmigratie in een weekend is grotendeels mechanisch; de enige stap die data onomkeerbaar kan corrumperen is de charset, dus verifieer de encoding met HEX() voordat je dumpt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kun je een custom PHP-intranet echt in één weekend van Windows Server 2008 af migreren?</p>
+      <p class="faq-a">Als de app één codebase met één database is, ja. Het werk is mechanisch: hoofdlettergevoelige includes, verwijderde mysql_-functies, charset-afhandeling en het vertalen van rewrite-regels. Het risico zit in de datastap, niet in de tijd.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom raken geaccentueerde tekens dubbel encoded bij het verplaatsen van de MySQL-database?</p>
+      <p class="faq-a">Tabellen die als latin1 zijn gedeclareerd maar UTF-8-bytes bevatten, worden bij het dumpen geconverteerd. Verifieer eerst met HEX() op de bron, dump in de charset waarin de bytes echt staan, en doe pas na de import ALTER TABLE naar utf8mb4.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is een compatibiliteitsshim van mysql_ naar mysqli veilig om uit te rollen?</p>
+      <p class="faq-a">Als tijdelijke maatregel onder deadline wel, mits hij het escape-gedrag behoudt. Behandel hem als gelogde technische schuld en verwijder hem na de cutover. Het is een noodverband, geen oplossing.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/nl/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Dode WordPress-site reanimeren: een 90-minuten playbook</h3>
+      <span class="pc-lede">Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/php-intranet-windows-2008-migration/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
