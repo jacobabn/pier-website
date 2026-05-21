@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>AI-suggested edits: a four-step check before you apply · Pier — Blog</title>
+<meta name="description" content="The chat returns a one-line SQL diff you didn&#39;t write and only half recognize. Before you apply it on a live site, run it through four steps.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="ai, mysql, databases, workflow, wordpress">
+
+<link rel="canonical" href="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/sanity-check-ai-suggested-edits/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="AI-suggested edits: a four-step check before you apply">
+<meta property="og:description" content="The chat returns a one-line SQL diff you didn&#39;t write and only half recognize. Before you apply it on a live site, run it through four steps.">
+<meta property="og:url" content="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/">
+<meta property="og:image" content="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Graph-paper run-sheet headed REVIEW, a printed SQL diff slip, a brass stamp and a clay-red APPLY tag on bone linen">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-21T09:24:10.794Z">
+<meta property="article:modified_time" content="2026-05-21T09:24:10.794Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="wordpress">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="AI-suggested edits: a four-step check before you apply">
+<meta name="twitter:description" content="The chat returns a one-line SQL diff you didn&#39;t write and only half recognize. Before you apply it on a live site, run it through four steps.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/hero.jpg">
+<meta name="twitter:image:alt" content="Graph-paper run-sheet headed REVIEW, a printed SQL diff slip, a brass stamp and a clay-red APPLY tag on bone linen">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/sanity-check-ai-suggested-edits/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/sanity-check-ai-suggested-edits/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/sanity-check-ai-suggested-edits/"},
+  "url":"https://pier.abn.company/blog/sanity-check-ai-suggested-edits/",
+  "headline":"AI-suggested edits: a four-step check before you apply",
+  "description":"The chat returns a one-line SQL diff you didn't write and only half recognize. Before you apply it on a live site, run it through four steps.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/sanity-check-ai-suggested-edits/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Graph-paper run-sheet headed REVIEW, a printed SQL diff slip, a brass stamp and a clay-red APPLY tag on bone linen"
+  },
+  "datePublished":"2026-05-21T09:24:10.794Z",
+  "dateModified":"2026-05-21T09:24:10.794Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"ai, mysql, databases, workflow, wordpress",
+  "wordCount":858,
+  "articleSection":"AI",
+  "articleBody":"The chat panel returns a diff. You asked why the shop's product archive takes four seconds to render, and the answer is one line of SQL you didn't write and only half recognize. It looks plausible. It also touches a table with 480,000 rows on a live legacy site . Applying an AI-suggested edit you don't fully understand is how a Tuesday afternoon becomes a Tuesday evening. The reflex is to either apply it on faith or reject it on principle. Both are wrong. An AI-suggested edit is a hypothesis, and hypotheses get tested before they ship. Here is the four-step check we run before applying anything we can't explain from memory. Restate the edit in your own words Before anything runs, write the edit back in plain language. If you can't, you don't understand it yet, and that is the whole signal. Say the suggestion is: ALTER TABLE wp_postmeta ADD INDEX meta_key_value (meta_key(191), meta_value(100)); The plain-language restatement: \"add a composite index so lookups filtering on meta_key and meta_value together stop scanning the whole table.\" Now the parts you glossed over surface on their own. Why 191 ? Why 100 ? The 191 is the utf8mb4 prefix-length ceiling under the older 767-byte index limit. The 100 is an arbitrary prefix on a longtext column that can't be indexed in full. Those aren't trivia. They change what the index can actually do. An AI-suggested edit phrased as a confident one-liner hides its assumptions. Restating it is how you make them visible. Reproduce the bug before you trust the fix An edit fixes something. Confirm that something is real, and that it is the thing you think it is. For a slow query, that means running EXPLAIN before you touch anything: EXPLAIN SELECT post_id FROM wp_postmeta WHERE meta_key = '_wc_average_rating' AND meta_value > '4'; The output that matters: type: ALL possible_keys: meta_key rows: 481204 Extra: Using where type: ALL and 481,204 rows scanned confirms the full-table scan. The AI-suggested edit now has a problem it is demonstrably solving. Worth noting in passing: meta_value is text, so > '4' is a string comparison, not a numeric one. That is a second bug the index won't fix, and you only see it because you read the query closely enough to reproduce it. If the EXPLAIN had shown type: ref and a few hundred rows, the edit would be solving a problem you don't have, and you'd have caught it here for the cost of one read-only query. Reproduction is cheap. Regret is not. Trace what else touches the change A change has a blast radius. Find it before you apply, not after. Start with what already exists: SHOW INDEX FROM wp_postmeta; WordPress ships wp_postmeta with indexes on post_id and meta_key already, as the database description spells out. A new composite index is not free: every INSERT and UPDATE to the table now maintains another B-tree, and on a write-heavy store that cost is real and permanent. You are trading write speed for read speed. That trade might be correct here. The point is to make it knowingly. The same step applies outside the database. If the AI-suggested edit is a rewrite rule in .htaccess , ask what other rules sit above it and whether the order changes. If it is a line in wp-config.php , ask which plugins read that constant. The discipline is identical: name everything downstream of the change before it lands. On MySQL 5.6 and earlier, or on any table still using MyISAM, ALTER TABLE ... ADD INDEX copies the entire table and blocks writes for the duration. On a 480k-row wp_postmeta that can mean the storefront throwing errors for a minute or more. Check the engine and version first. MySQL's online DDL is what makes this operation safe, and it is not universal. Apply with an exit already in place The first three steps are about understanding the edit. The fourth is about surviving it being wrong anyway. Before you run the change, make sure you can undo it without thinking. For a schema change, that means a snapshot of the table definition and a written DROP INDEX rollback line, kept next to the ALTER . For a file edit, it means a copy of the original committed somewhere you trust, not a .bak you'll forget exists. An exit you have to improvise under pressure is not an exit. The time to write the rollback is while you are calm, before the edit goes near production. When we built Pier we ran into this exact thing. The way we ended up handling it was to make every edit, AI-suggested or hand-typed, land as an entry in version history , so the revert is one click and the diff stays readable. The MySQL editor shows the EXPLAIN plan and the existing indexes in the same panel as the suggestion, which is mostly steps two and three with less tab-switching. Next time the chat hands you a line you can't read, run step one on its own: restate the edit in plain language before you do anything else. If the sentence won't come, you have found your answer for free.",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/sanity-check-ai-suggested-edits/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"AI-suggested edits: a four-step check before you apply","item":"https://pier.abn.company/blog/sanity-check-ai-suggested-edits/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I ever apply an AI-suggested edit without checking it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For a read-only query or a throwaway staging site, the cost of being wrong is low. On a live database or production config, run the four steps. The check takes minutes; an outage doesn't."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which of the four steps is the fastest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Restating the edit in plain language. It needs no terminal and catches the most. If you can't say what the change does, you've found the problem before running anything."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I reproduce a bug an AI says it is fixing?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For SQL, run EXPLAIN on the slow query first. For PHP or .htaccess, trigger the broken behaviour and capture the error. If you can't reproduce it, the edit may be solving a problem you don't have."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/sanity-check-ai-suggested-edits/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 028</span>
+      </div>
+      <p class="eyebrow"><span class="n">028 —</span>AI</p>
+      <h1 class="display-l post-title">AI-suggested edits: a four-step check before you apply</h1>
+      <p class="lede post-lede">The chat returns a one-line SQL diff you didn&#39;t write and only half recognize. Before you apply it on a live site, run it through four steps.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-21T09:24:10.794Z">21 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/sanity-check-ai-suggested-edits/hero.webp" type="image/webp">
+      <img src="/blog/sanity-check-ai-suggested-edits/hero.jpg" alt="Graph-paper run-sheet headed REVIEW, a printed SQL diff slip, a brass stamp and a clay-red APPLY tag on bone linen" width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 028</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The chat panel returns a diff. You asked why the shop's product archive takes four seconds to render, and the answer is one line of SQL you didn't write and only half recognize. It looks plausible. It also touches a table with 480,000 rows on a live <a href="/">legacy site</a>. Applying an AI-suggested edit you don't fully understand is how a Tuesday afternoon becomes a Tuesday evening.</p><p>The reflex is to either apply it on faith or reject it on principle. Both are wrong. An AI-suggested edit is a hypothesis, and hypotheses get tested before they ship. Here is the four-step check we run before applying anything we can't explain from memory.</p><h2>Restate the edit in your own words</h2><p>Before anything runs, write the edit back in plain language. If you can't, you don't understand it yet, and that is the whole signal. Say the suggestion is:</p><pre><code class="lang-sql">ALTER TABLE wp_postmeta
+  ADD INDEX meta_key_value (meta_key(191), meta_value(100));</code></pre><p>The plain-language restatement: "add a composite index so lookups filtering on <code>meta_key</code> and <code>meta_value</code> together stop scanning the whole table." Now the parts you glossed over surface on their own. Why <code>191</code>? Why <code>100</code>? The <code>191</code> is the utf8mb4 prefix-length ceiling under the older 767-byte index limit. The <code>100</code> is an arbitrary prefix on a <code>longtext</code> column that can't be indexed in full. Those aren't trivia. They change what the index can actually do.</p><p>An AI-suggested edit phrased as a confident one-liner hides its assumptions. Restating it is how you make them visible.</p><h2>Reproduce the bug before you trust the fix</h2><p>An edit fixes something. Confirm that something is real, and that it is the thing you think it is. For a slow query, that means running <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">EXPLAIN</a> before you touch anything:</p><pre><code class="lang-sql">EXPLAIN SELECT post_id FROM wp_postmeta
+WHERE meta_key = '_wc_average_rating' AND meta_value &gt; '4';</code></pre><p>The output that matters:</p><pre><code class="lang-text">type: ALL
+possible_keys: meta_key
+rows: 481204
+Extra: Using where</code></pre><p><code>type: ALL</code> and 481,204 rows scanned confirms the full-table scan. The AI-suggested edit now has a problem it is demonstrably solving. Worth noting in passing: <code>meta_value</code> is text, so <code>&gt; '4'</code> is a string comparison, not a numeric one. That is a second bug the index won't fix, and you only see it because you read the query closely enough to reproduce it.</p><p>If the EXPLAIN had shown <code>type: ref</code> and a few hundred rows, the edit would be solving a problem you don't have, and you'd have caught it here for the cost of one read-only query. Reproduction is cheap. Regret is not.</p><h2>Trace what else touches the change</h2><p>A change has a blast radius. Find it before you apply, not after. Start with what already exists:</p><pre><code class="lang-sql">SHOW INDEX FROM wp_postmeta;</code></pre><p>WordPress ships <code>wp_postmeta</code> with indexes on <code>post_id</code> and <code>meta_key</code> already, as the <a href="https://developer.wordpress.org/advanced-administration/wordpress/database-description/#table-wp_postmeta">database description</a> spells out. A new composite index is not free: every <code>INSERT</code> and <code>UPDATE</code> to the table now maintains another B-tree, and on a write-heavy store that cost is real and permanent. You are trading write speed for read speed. That trade might be correct here. The point is to make it knowingly.</p><p>The same step applies outside the database. If the AI-suggested edit is a rewrite rule in <code>.htaccess</code>, ask what other rules sit above it and whether the order changes. If it is a line in <code>wp-config.php</code>, ask which plugins read that constant. The discipline is identical: name everything downstream of the change before it lands.</p><aside class="callout">On MySQL 5.6 and earlier, or on any table still using MyISAM, <code>ALTER TABLE ... ADD INDEX</code> copies the entire table and blocks writes for the duration. On a 480k-row <code>wp_postmeta</code> that can mean the storefront throwing errors for a minute or more. Check the engine and version first. MySQL's <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl.html">online DDL</a> is what makes this operation safe, and it is not universal.</aside><h2>Apply with an exit already in place</h2><p>The first three steps are about understanding the edit. The fourth is about surviving it being wrong anyway. Before you run the change, make sure you can undo it without thinking. For a schema change, that means a snapshot of the table definition and a written <code>DROP INDEX</code> rollback line, kept next to the <code>ALTER</code>. For a file edit, it means a copy of the original committed somewhere you trust, not a <code>.bak</code> you'll forget exists.</p><p>An exit you have to improvise under pressure is not an exit. The time to write the rollback is while you are calm, before the edit goes near production.</p><p>When we built Pier we ran into this exact thing. The way we ended up handling it was to make every edit, AI-suggested or hand-typed, land as an entry in <a href="/#features">version history</a>, so the revert is one click and the diff stays readable. The <a href="/#database">MySQL editor</a> shows the EXPLAIN plan and the existing indexes in the same panel as the suggestion, which is mostly steps two and three with less tab-switching.</p><p>Next time the chat hands you a line you can't read, run step one on its own: restate the edit in plain language before you do anything else. If the sentence won't come, you have found your answer for free.</p>
+    </div>
+
+    <aside class="pullquote">An AI-suggested edit is a hypothesis: restate it, reproduce the bug, trace the blast radius, then apply it with a one-click revert already in place.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Should I ever apply an AI-suggested edit without checking it?</p>
+      <p class="faq-a">For a read-only query or a throwaway staging site, the cost of being wrong is low. On a live database or production config, run the four steps. The check takes minutes; an outage doesn&#39;t.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Which of the four steps is the fastest?</p>
+      <p class="faq-a">Restating the edit in plain language. It needs no terminal and catches the most. If you can&#39;t say what the change does, you&#39;ve found the problem before running anything.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I reproduce a bug an AI says it is fixing?</p>
+      <p class="faq-a">For SQL, run EXPLAIN on the slow query first. For PHP or .htaccess, trigger the broken behaviour and capture the error. If you can&#39;t reproduce it, the edit may be solving a problem you don&#39;t have.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=ai">#ai</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/phpmyadmin-alternatives-native-client/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/phpmyadmin-alternatives-native-client/hero.webp" type="image/webp">
+        <img src="/blog/phpmyadmin-alternatives-native-client/hero.jpg" alt="Half-open oak drawer with brass pulls, bone-handled engraver&#39;s tools on felt, one tag with red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Tooling</span><span>·</span><span>15 May 2026</span></span>
+      <h3>phpMyAdmin alternatives in 2026: when a native client wins</h3>
+      <span class="pc-lede">phpMyAdmin still ships with every cPanel on earth. That doesn&#39;t make it the right place to run an UPDATE against 180,000 wp_postmeta rows at five past eleven on a Friday.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/backups-that-arent-backups-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/backups-that-arent-backups-audit/hero.webp" type="image/webp">
+        <img src="/blog/backups-that-arent-backups-audit/hero.jpg" alt="Antique brass balance scale on scarred oak, one pan holding a cream envelope with clay-red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Backups that aren&#39;t really backups: a seven-point audit</h3>
+      <span class="pc-lede">An agency lead sent a Loom at 23:41: the restore file was 11 MB, the database is 4.7 GB. Here&#39;s how that happens, and how to make sure it doesn&#39;t to you.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/sanity-check-ai-suggested-edits/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
