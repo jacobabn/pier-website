@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>wp-login.php brute force: the .htaccess block that works · Pier — Blog</title>
+<meta name="description" content="The bots have been hammering wp-login.php every two seconds for three days. Here is the .htaccess block that stops them and the reason it does not break the dashboard.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, htaccess, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="wp-login.php brute force: the .htaccess block that works">
+<meta property="og:description" content="The bots have been hammering wp-login.php every two seconds for three days. Here is the .htaccess block that stops them and the reason it does not break the dashboard.">
+<meta property="og:url" content="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<meta property="og:image" content="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: aged .htaccess sheet, access-log strip, manila BLOCK tab, brass HTACCESS plate, red pencil, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T19:07:15.077Z">
+<meta property="article:modified_time" content="2026-05-26T19:07:15.077Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="wp-login.php brute force: the .htaccess block that works">
+<meta name="twitter:description" content="The bots have been hammering wp-login.php every two seconds for three days. Here is the .htaccess block that stops them and the reason it does not break the dashboard.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: aged .htaccess sheet, access-log strip, manila BLOCK tab, brass HTACCESS plate, red pencil, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-login-htaccess-brute-force-block/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/"},
+  "url":"https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/",
+  "headline":"wp-login.php brute force: the .htaccess block that works",
+  "description":"The bots have been hammering wp-login.php every two seconds for three days. Here is the .htaccess block that stops them and the reason it does not break the dashboard.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: aged .htaccess sheet, access-log strip, manila BLOCK tab, brass HTACCESS plate, red pencil, wax seal."
+  },
+  "datePublished":"2026-05-26T19:07:15.077Z",
+  "dateModified":"2026-05-26T19:07:15.077Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, security, htaccess, php, operations",
+  "wordCount":1114,
+  "articleSection":"Security",
+  "articleBody":"You SSH in to find out why the database load on a client's WordPress site is spiking. tail -f /var/log/apache2/access.log , and there it is: POST /wp-login.php , POST /wp-login.php , POST /wp-login.php , every two to four seconds, each line from a different IP. You have seen this pattern a thousand times. You will see it a thousand more. This post is the .htaccess block we paste into a legacy site the moment we see that pattern, plus a short walkthrough of why it does not break the dashboard, and what it deliberately does not catch. The shape of the traffic A modern WordPress brute force run is rarely one IP hammering one endpoint. It is distributed credential-stuffing. A few hundred IPs, often residential proxies, each making one or two POST requests with a guessed password. They scrape usernames from the author archive ( /author/admin/ , /author/editor/ ), they POST to wp-login.php and xmlrpc.php , and they grind until they get a 200 or until you stop them. Confirm the shape with one line: awk '$7 == \"/wp-login.php\" && $9 != 200 {print $1}' access.log \\ | sort | uniq -c | sort -rn | head -20 You will almost always see the same picture: the top twenty IPs each have between two and twelve failed POSTs. No single IP crosses a fail2ban threshold of, say, ten in five minutes. The aggregate volume is what is melting your database connections. The block The point is to refuse the request at the Apache layer, before PHP, before WordPress, before the database connection opens. The cheapest possible rejection. # /var/www/example.com/.htaccess # Block POST to wp-login.php unless the referer is this site itself. <IfModule mod_rewrite.c> RewriteEngine On RewriteCond %{REQUEST_METHOD} =POST RewriteCond %{REQUEST_URI} ^/wp-login\\.php$ RewriteCond %{HTTP_REFERER} !^https?://([^.]+\\.)?example\\.com/ [NC] RewriteRule ^ - [F,L] </IfModule> # Block xmlrpc.php entirely. If you actually use it (Jetpack, mobile # app), delete this block and lock it to specific IPs instead. <Files xmlrpc.php> Require all denied </Files> Replace example\\.com with your real domain, and keep the escaped dot. The block does four things: A POST to wp-login.php with no referer, or a foreign referer, returns 403 immediately. A POST to wp-login.php coming from your own domain passes through untouched. A GET to wp-login.php (the form load) is never affected. xmlrpc.php returns 403 for everyone. The reason it catches roughly nine in ten brute force POSTs is mundane. Volume scanners do not bother to spoof a per-site referer. They either send nothing, or they leak their own scanning origin. The handful of bots written specifically against your site will get through. That is fine. They are a different problem with a different fix. Why the dashboard keeps working Three things would normally break when you bolt an aggressive Apache rule onto a WordPress install. None of them do here. The login form itself. A real login is a GET /wp-login.php (the form renders), then a POST /wp-login.php (the credentials submit). The referer on the POST is https://example.com/wp-login.php . Our condition reads \"deny unless the referer host matches our domain\", so a real submit passes. admin-ajax.php. The dashboard heartbeat, the block editor's autosave, and almost every plugin's AJAX call live at /wp-admin/admin-ajax.php . That path never matches our rule. Untouched. Password reset. Lost-password submits a POST to /wp-login.php?action=lostpassword from your own form page. Same referer. Still works. What does break, the moment you save the file: Anything that POSTs to wp-login.php programmatically without a referer. ManageWP-style remote login, some uptime monitors, a handful of MU plugins. Add their IP above the rule with a RewriteCond %{REMOTE_ADDR} !^203\\.0\\.113\\.42$ , or move them to application passwords . XML-RPC clients (the WordPress mobile app, Jetpack, old desktop editors). If you use any of these, do not blanket-block xmlrpc.php . Limit it to the specific IPs that need it. If your own browser starts getting 403s after the block goes live, the cause is almost always a privacy extension stripping the Referer header. Add Header set Referrer-Policy \"same-origin\" to the same .htaccess and the browser will send the header on same-origin POSTs again. See the MDN entry on Referrer-Policy . What the block does not catch Be honest about scope. This rule stops cheap, loud, referer-less credential stuffing. It does not stop: A bot written specifically against your site that sets a matching referer. Trivial to do, rare in volume runs, because referer spoofing breaks the operator's own analytics on his own scan. Username enumeration via /?author=N or the REST API at /wp-json/wp/v2/users . Lock those down separately. The OWASP WordPress guideline has a short section on it. Compromised credentials from a paste dump. If the password is correct on the first try, the bot looks identical to a real user. Two-factor is the only real answer there. In rough order of effort, the next things to",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"wp-login.php brute force: the .htaccess block that works","item":"https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will this lock me out of my own wp-admin?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, as long as your browser sends a same-origin referer on the login POST, which it does by default. If a privacy extension strips it, set Referrer-Policy: same-origin in the same .htaccess."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this replace fail2ban or a WAF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It catches cheap, referer-less volume at the Apache layer. Targeted bots and credential reuse still need two-factor and rate limiting at a higher layer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the NGINX equivalent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A location = /wp-login.php block with an if ($http_referer !~* \"^https?://([^.]+\\.)?example\\.com/\") { return 403; } inside it. Same logic, different syntax."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I always block xmlrpc.php?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, unless you actively use Jetpack, the WordPress mobile app, or an old desktop blog editor. In those cases, allowlist the specific IPs instead of opening it to the world."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 043</span>
+      </div>
+      <p class="eyebrow"><span class="n">043 —</span>Security</p>
+      <h1 class="display-l post-title">wp-login.php brute force: the .htaccess block that works</h1>
+      <p class="lede post-lede">The bots have been hammering wp-login.php every two seconds for three days. Here is the .htaccess block that stops them and the reason it does not break the dashboard.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T19:07:15.077Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-login-htaccess-brute-force-block/hero.webp" type="image/webp">
+      <img src="/blog/wp-login-htaccess-brute-force-block/hero.jpg" alt="Overhead photo on bone linen: aged .htaccess sheet, access-log strip, manila BLOCK tab, brass HTACCESS plate, red pencil, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 043</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>You SSH in to find out why the database load on a client's WordPress site is spiking. <code>tail -f /var/log/apache2/access.log</code>, and there it is: <code>POST /wp-login.php</code>, <code>POST /wp-login.php</code>, <code>POST /wp-login.php</code>, every two to four seconds, each line from a different IP. You have seen this pattern a thousand times. You will see it a thousand more.</p>
+
+<p>This post is the .htaccess block we paste into a <a href="/">legacy site</a> the moment we see that pattern, plus a short walkthrough of why it does not break the dashboard, and what it deliberately does not catch.</p>
+
+<h2>The shape of the traffic</h2>
+
+<p>A modern WordPress brute force run is rarely one IP hammering one endpoint. It is distributed credential-stuffing. A few hundred IPs, often residential proxies, each making one or two POST requests with a guessed password. They scrape usernames from the author archive (<code>/author/admin/</code>, <code>/author/editor/</code>), they POST to <code>wp-login.php</code> and <code>xmlrpc.php</code>, and they grind until they get a 200 or until you stop them.</p>
+
+<p>Confirm the shape with one line:</p>
+
+<pre><code class="lang-bash">awk '$7 == "/wp-login.php" &amp;&amp; $9 != 200 {print $1}' access.log \
+  | sort | uniq -c | sort -rn | head -20</code></pre>
+
+<p>You will almost always see the same picture: the top twenty IPs each have between two and twelve failed POSTs. No single IP crosses a fail2ban threshold of, say, ten in five minutes. The aggregate volume is what is melting your database connections.</p>
+
+<h2>The block</h2>
+
+<p>The point is to refuse the request at the Apache layer, before PHP, before WordPress, before the database connection opens. The cheapest possible rejection.</p>
+
+<pre><code class="lang-apache"># /var/www/example.com/.htaccess
+# Block POST to wp-login.php unless the referer is this site itself.
+
+&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_METHOD} =POST
+  RewriteCond %{REQUEST_URI}    ^/wp-login\.php$
+  RewriteCond %{HTTP_REFERER}   !^https?://([^.]+\.)?example\.com/ [NC]
+  RewriteRule ^ - [F,L]
+&lt;/IfModule&gt;
+
+# Block xmlrpc.php entirely. If you actually use it (Jetpack, mobile
+# app), delete this block and lock it to specific IPs instead.
+&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+
+<p>Replace <code>example\.com</code> with your real domain, and keep the escaped dot. The block does four things:</p>
+
+<ul>
+  <li>A POST to <code>wp-login.php</code> with no referer, or a foreign referer, returns 403 immediately.</li>
+  <li>A POST to <code>wp-login.php</code> coming from your own domain passes through untouched.</li>
+  <li>A GET to <code>wp-login.php</code> (the form load) is never affected.</li>
+  <li><code>xmlrpc.php</code> returns 403 for everyone.</li>
+</ul>
+
+<p>The reason it catches roughly nine in ten brute force POSTs is mundane. Volume scanners do not bother to spoof a per-site referer. They either send nothing, or they leak their own scanning origin. The handful of bots written specifically against your site will get through. That is fine. They are a different problem with a different fix.</p>
+
+<h2>Why the dashboard keeps working</h2>
+
+<p>Three things would normally break when you bolt an aggressive Apache rule onto a WordPress install. None of them do here.</p>
+
+<p><strong>The login form itself.</strong> A real login is a <code>GET /wp-login.php</code> (the form renders), then a <code>POST /wp-login.php</code> (the credentials submit). The referer on the POST is <code>https://example.com/wp-login.php</code>. Our condition reads "deny unless the referer host matches our domain", so a real submit passes.</p>
+
+<p><strong>admin-ajax.php.</strong> The dashboard heartbeat, the block editor's autosave, and almost every plugin's AJAX call live at <code>/wp-admin/admin-ajax.php</code>. That path never matches our rule. Untouched.</p>
+
+<p><strong>Password reset.</strong> Lost-password submits a POST to <code>/wp-login.php?action=lostpassword</code> from your own form page. Same referer. Still works.</p>
+
+<p>What does break, the moment you save the file:</p>
+
+<ul>
+  <li>Anything that POSTs to <code>wp-login.php</code> programmatically without a referer. ManageWP-style remote login, some uptime monitors, a handful of MU plugins. Add their IP above the rule with a <code>RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.42$</code>, or move them to <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/">application passwords</a>.</li>
+  <li>XML-RPC clients (the WordPress mobile app, Jetpack, old desktop editors). If you use any of these, do not blanket-block <code>xmlrpc.php</code>. Limit it to the specific IPs that need it.</li>
+</ul>
+
+<aside class="callout">If your own browser starts getting 403s after the block goes live, the cause is almost always a privacy extension stripping the <code>Referer</code> header. Add <code>Header set Referrer-Policy "same-origin"</code> to the same .htaccess and the browser will send the header on same-origin POSTs again. See the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy">MDN entry on Referrer-Policy</a>.</aside>
+
+<h2>What the block does not catch</h2>
+
+<p>Be honest about scope. This rule stops cheap, loud, referer-less credential stuffing. It does not stop:</p>
+
+<ul>
+  <li>A bot written specifically against your site that sets a matching referer. Trivial to do, rare in volume runs, because referer spoofing breaks the operator's own analytics on his own scan.</li>
+  <li>Username enumeration via <code>/?author=N</code> or the REST API at <code>/wp-json/wp/v2/users</code>. Lock those down separately. The <a href="https://owasp.org/www-project-wordpress-security-implementation-guideline/">OWASP WordPress guideline</a> has a short section on it.</li>
+  <li>Compromised credentials from a paste dump. If the password is correct on the first try, the bot looks identical to a real user. Two-factor is the only real answer there.</li>
+</ul>
+
+<p>In rough order of effort, the next things to add once the .htaccess is live are: a redirect on <code>/?author=</code>, two-factor on every account with <code>manage_options</code>, and a non-default login URL for noise reduction. The last one is not security, but it cuts log volume by another order of magnitude.</p>
+
+<h2>Auditing the change</h2>
+
+<p>Once the block is live, leave a <code>tail -f</code> on the access log for an hour and watch three things:</p>
+
+<ol>
+  <li>Brute force POSTs returning 403 immediately, with no PHP invocation. Confirm by checking that the response time on those lines stays under 5 ms.</li>
+  <li>Your own logins returning 302 to <code>/wp-admin/</code>.</li>
+  <li>admin-ajax.php traffic unchanged in shape and volume.</li>
+</ol>
+
+<p>If all three hold for an hour, leave the block in. Anything that is going to break on this rule breaks inside the first ten minutes.</p>
+
+<h2>Treating server files like code</h2>
+
+<p>When we built <a href="/">Pier</a> we kept running into the same scene: the agency that inherited an old WordPress install has no idea which IPs the previous freelancer needed allowlisted, no inventory of which AJAX endpoints break under which Apache rule, and no easy way to roll back when a paste breaks the dashboard at 18:40 on a Friday. The way we ended up handling it was to treat every <code>.htaccess</code> edit the way you would treat a database migration: the file is snapshotted into <a href="/#features">version history</a> before the save commits, and an undo restores the previous version with a single keystroke. Same workflow for <code>wp-config.php</code> and any other server file you would otherwise be nervous about touching over SFTP.</p>
+
+<p>The smallest thing you can do today is run the awk one-liner above against your own access log. If the top twenty IPs hitting <code>wp-login.php</code> each have a hit count between two and twelve, you are looking at exactly the traffic this block was written for, and you can be done with it in five minutes.</p>
+    </div>
+
+    <aside class="pullquote">At the Apache layer, drop POSTs to wp-login.php that do not carry a same-origin referer. It costs nothing, ships in five lines, and never touches the dashboard.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Will this lock me out of my own wp-admin?</p>
+      <p class="faq-a">No, as long as your browser sends a same-origin referer on the login POST, which it does by default. If a privacy extension strips it, set Referrer-Policy: same-origin in the same .htaccess.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does this replace fail2ban or a WAF?</p>
+      <p class="faq-a">No. It catches cheap, referer-less volume at the Apache layer. Targeted bots and credential reuse still need two-factor and rate limiting at a higher layer.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the NGINX equivalent?</p>
+      <p class="faq-a">A location = /wp-login.php block with an if ($http_referer !~* &quot;^https?://([^.]+\.)?example\.com/&quot;) { return 403; } inside it. Same logic, different syntax.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I always block xmlrpc.php?</p>
+      <p class="faq-a">Yes, unless you actively use Jetpack, the WordPress mobile app, or an old desktop blog editor. In those cases, allowlist the specific IPs instead of opening it to the world.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/reading-inherited-htaccess-files/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp">
+        <img src="/blog/reading-inherited-htaccess-files/hero.jpg" alt="Top-down photo of aged .htaccess printout with crossed-out RewriteRule lines, brass plate, manila tab, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Reading inherited .htaccess files: a fundamentals guide</h3>
+      <span class="pc-lede">Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leather logbook with ribbon marker on dark oak, brass pen nib, red wax seal on folded paper, soft window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Reviving a dead WordPress site: a 90-minute playbook</h3>
+      <span class="pc-lede">A Dutch agency owner sent a Loom at 23:41: white screen, no logs, no SSH. Ninety minutes later the cart was live. Here is the order we work in.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

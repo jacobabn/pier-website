@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>wp-login.php brute force: het .htaccess-blok dat werkt · Pier — Blog</title>
+<meta name="description" content="De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, htaccess, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="wp-login.php brute force: het .htaccess-blok dat werkt">
+<meta property="og:description" content="De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van boven op linnen: oud .htaccess-vel, logstrook, manilla BLOCK-tab, messing HTACCESS-plaatje, rood potlood, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T19:07:15.077Z">
+<meta property="article:modified_time" content="2026-05-26T19:07:15.077Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="wp-login.php brute force: het .htaccess-blok dat werkt">
+<meta name="twitter:description" content="De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van boven op linnen: oud .htaccess-vel, logstrook, manilla BLOCK-tab, messing HTACCESS-plaatje, rood potlood, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-login-htaccess-brute-force-block/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/"},
+  "url":"https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/",
+  "headline":"wp-login.php brute force: het .htaccess-blok dat werkt",
+  "description":"De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van boven op linnen: oud .htaccess-vel, logstrook, manilla BLOCK-tab, messing HTACCESS-plaatje, rood potlood, lakzegel."
+  },
+  "datePublished":"2026-05-26T19:07:15.077Z",
+  "dateModified":"2026-05-26T19:07:15.077Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, security, htaccess, php, operations",
+  "wordCount":1123,
+  "articleSection":"Security",
+  "articleBody":"Je SSH't in om uit te zoeken waarom de database-belasting op de WordPress-site van een klant piekt. tail -f /var/log/apache2/access.log , en daar staat het: POST /wp-login.php , POST /wp-login.php , POST /wp-login.php , om de twee à vier seconden, elke regel van een ander IP. Dit patroon heb je duizend keer gezien. Je gaat het nog duizend keer zien. Deze post is het .htaccess-blok dat we in een legacy site plakken zodra we dat patroon zien, plus een korte uitleg waarom het dashboard blijft werken, en wat het bewust laat passeren. Hoe het verkeer eruitziet Een moderne brute force op WordPress is zelden één IP dat één endpoint platgooit. Het is gedistribueerde credential stuffing. Een paar honderd IP's, vaak residential proxies, die elk één of twee POST requests doen met een geraden wachtwoord. Ze schrapen usernames uit het author-archief ( /author/admin/ , /author/editor/ ), POSTen naar wp-login.php en xmlrpc.php , en blijven malen tot ze een 200 krijgen of tot jij ze stopt. Controleer het patroon met één regel: awk '$7 == \"/wp-login.php\" && $9 != 200 {print $1}' access.log \\ | sort | uniq -c | sort -rn | head -20 Je ziet bijna altijd hetzelfde beeld: de top twintig IP's hebben elk tussen de twee en twaalf gefaalde POSTs. Geen enkel IP komt boven een fail2ban-drempel van bijvoorbeeld tien in vijf minuten uit. Het is het totale volume dat je database-verbindingen smelt. Het blok Het doel is om het request te weigeren op het Apache-niveau, vóór PHP, vóór WordPress, vóór de databaseverbinding opengaat. De goedkoopst mogelijke afwijzing. # /var/www/example.com/.htaccess # Block POST to wp-login.php unless the referer is this site itself. <IfModule mod_rewrite.c> RewriteEngine On RewriteCond %{REQUEST_METHOD} =POST RewriteCond %{REQUEST_URI} ^/wp-login\\.php$ RewriteCond %{HTTP_REFERER} !^https?://([^.]+\\.)?example\\.com/ [NC] RewriteRule ^ - [F,L] </IfModule> # Block xmlrpc.php entirely. If you actually use it (Jetpack, mobile # app), delete this block and lock it to specific IPs instead. <Files xmlrpc.php> Require all denied </Files> Vervang example\\.com door je eigen domein, en laat de geëscapete punt staan. Het blok doet vier dingen: Een POST naar wp-login.php zonder referer, of met een vreemde referer, krijgt direct een 403. Een POST naar wp-login.php die van je eigen domein komt, gaat onaangeraakt door. Een GET naar wp-login.php (het laden van het formulier) wordt nooit geraakt. xmlrpc.php geeft voor iedereen een 403. De reden dat het ongeveer negen op de tien brute force POSTs vangt, is alledaags. Volume-scanners nemen niet de moeite om per site een referer te spoofen. Ze sturen niets, of ze lekken hun eigen scan-origin. De handvol bots die specifiek tegen jouw site is geschreven, komt erdoor. Dat is prima. Dat is een ander probleem met een andere oplossing. Waarom het dashboard blijft werken Er zijn drie dingen die normaal gesproken stukgaan zodra je een agressieve Apache-regel op een WordPress-installatie zet. Geen daarvan gebeurt hier. Het inlogformulier zelf. Een echte login is een GET /wp-login.php (het formulier laadt), daarna een POST /wp-login.php (de credentials worden verstuurd). De referer op de POST is https://example.com/wp-login.php . Onze conditie zegt 'weiger tenzij de referer-host ons domein is', dus een echte submit komt erdoor. admin-ajax.php. De dashboard-heartbeat, de autosave van de block editor, en bijna elke AJAX-call van een plugin draaien op /wp-admin/admin-ajax.php . Dat pad matcht onze regel nooit. Onaangeraakt. Wachtwoord resetten. Wachtwoord-vergeten verstuurt een POST naar /wp-login.php?action=lostpassword vanaf je eigen formulierpagina. Dezelfde referer. Werkt nog steeds. Wat wel stukgaat zodra je het bestand opslaat: Alles wat programmatisch naar wp-login.php POST zonder referer. ManageWP-achtige remote login, sommige uptime monitors, een handvol MU-plugins. Voeg hun IP toe boven de regel met een RewriteCond %{REMOTE_ADDR} !^203\\.0\\.113\\.42$ , of zet ze over op application passwords . XML-RPC clients (de WordPress mobile app, Jetpack, oude desktop-editors). Gebruik je hier iets van, blokkeer dan niet de hele xmlrpc.php . Beperk het tot de specifieke IP's die het nodig hebben. Krijgt je eigen browser na het live zetten van het blok ineens 403's, dan is de oorzaak bijna altijd een privacy-extensie die de Referer -header eraf haalt. Voeg Header set Referrer-Policy \"same-origin\" toe aan dezelfde .htaccess en de browser stuurt de header weer mee op same-origin POSTs. Zie de MDN-pagina over Referrer-Policy . Wat het blok niet vangt Wees eerlijk over de scope. Deze regel stopt goedkope, luidruchtige credential stuffing zonder referer. Hij stopt niet: Een bot die specifiek tegen jouw site is geschreven en een matchende referer meestuurt. Triviaal om te bouwen, zeldzaam bij volume-runs, want referer-spoofing helpt de eigen analytics van de operator op zijn eigen scan om zeep. Username-enumeratie via /?author=N of de REST API op /wp-json/wp/v2/users . Sluit die los af. De OWASP WordPre",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"wp-login.php brute force: het .htaccess-blok dat werkt","item":"https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Sluit dit mij buiten mijn eigen wp-admin?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee, zolang je browser bij de login-POST een same-origin referer meestuurt, en dat doet hij standaard. Strip een privacy-extensie hem alsnog, zet dan Referrer-Policy: same-origin in dezelfde .htaccess."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Vervangt dit fail2ban of een WAF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Het vangt goedkoop, referer-loos volume op het Apache-niveau af. Voor gerichte bots en hergebruikte credentials heb je nog steeds two-factor en rate limiting op een hogere laag nodig."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is het NGINX-equivalent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een location = /wp-login.php-blok met daarin een if ($http_referer !~* \"^https?://([^.]+\\.)?example\\.com/\") { return 403; }. Dezelfde logica, andere syntax."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 043</span>
+      </div>
+      <p class="eyebrow"><span class="n">043 —</span>Security</p>
+      <h1 class="display-l post-title">wp-login.php brute force: het .htaccess-blok dat werkt</h1>
+      <p class="lede post-lede">De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T19:07:15.077Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-login-htaccess-brute-force-block/hero.webp" type="image/webp">
+      <img src="/blog/wp-login-htaccess-brute-force-block/hero.jpg" alt="Foto van boven op linnen: oud .htaccess-vel, logstrook, manilla BLOCK-tab, messing HTACCESS-plaatje, rood potlood, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 043</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Je SSH't in om uit te zoeken waarom de database-belasting op de WordPress-site van een klant piekt. <code>tail -f /var/log/apache2/access.log</code>, en daar staat het: <code>POST /wp-login.php</code>, <code>POST /wp-login.php</code>, <code>POST /wp-login.php</code>, om de twee à vier seconden, elke regel van een ander IP. Dit patroon heb je duizend keer gezien. Je gaat het nog duizend keer zien.</p>
+
+<p>Deze post is het .htaccess-blok dat we in een <a href="/">legacy site</a> plakken zodra we dat patroon zien, plus een korte uitleg waarom het dashboard blijft werken, en wat het bewust laat passeren.</p>
+
+<h2>Hoe het verkeer eruitziet</h2>
+
+<p>Een moderne brute force op WordPress is zelden één IP dat één endpoint platgooit. Het is gedistribueerde credential stuffing. Een paar honderd IP's, vaak residential proxies, die elk één of twee POST requests doen met een geraden wachtwoord. Ze schrapen usernames uit het author-archief (<code>/author/admin/</code>, <code>/author/editor/</code>), POSTen naar <code>wp-login.php</code> en <code>xmlrpc.php</code>, en blijven malen tot ze een 200 krijgen of tot jij ze stopt.</p>
+
+<p>Controleer het patroon met één regel:</p>
+
+<pre><code class="lang-bash">awk '$7 == "/wp-login.php" &amp;&amp; $9 != 200 {print $1}' access.log \
+  | sort | uniq -c | sort -rn | head -20</code></pre>
+
+<p>Je ziet bijna altijd hetzelfde beeld: de top twintig IP's hebben elk tussen de twee en twaalf gefaalde POSTs. Geen enkel IP komt boven een fail2ban-drempel van bijvoorbeeld tien in vijf minuten uit. Het is het totale volume dat je database-verbindingen smelt.</p>
+
+<h2>Het blok</h2>
+
+<p>Het doel is om het request te weigeren op het Apache-niveau, vóór PHP, vóór WordPress, vóór de databaseverbinding opengaat. De goedkoopst mogelijke afwijzing.</p>
+
+<pre><code class="lang-apache"># /var/www/example.com/.htaccess
+# Block POST to wp-login.php unless the referer is this site itself.
+
+&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_METHOD} =POST
+  RewriteCond %{REQUEST_URI}    ^/wp-login\.php$
+  RewriteCond %{HTTP_REFERER}   !^https?://([^.]+\.)?example\.com/ [NC]
+  RewriteRule ^ - [F,L]
+&lt;/IfModule&gt;
+
+# Block xmlrpc.php entirely. If you actually use it (Jetpack, mobile
+# app), delete this block and lock it to specific IPs instead.
+&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+
+<p>Vervang <code>example\.com</code> door je eigen domein, en laat de geëscapete punt staan. Het blok doet vier dingen:</p>
+
+<ul>
+  <li>Een POST naar <code>wp-login.php</code> zonder referer, of met een vreemde referer, krijgt direct een 403.</li>
+  <li>Een POST naar <code>wp-login.php</code> die van je eigen domein komt, gaat onaangeraakt door.</li>
+  <li>Een GET naar <code>wp-login.php</code> (het laden van het formulier) wordt nooit geraakt.</li>
+  <li><code>xmlrpc.php</code> geeft voor iedereen een 403.</li>
+</ul>
+
+<p>De reden dat het ongeveer negen op de tien brute force POSTs vangt, is alledaags. Volume-scanners nemen niet de moeite om per site een referer te spoofen. Ze sturen niets, of ze lekken hun eigen scan-origin. De handvol bots die specifiek tegen jouw site is geschreven, komt erdoor. Dat is prima. Dat is een ander probleem met een andere oplossing.</p>
+
+<h2>Waarom het dashboard blijft werken</h2>
+
+<p>Er zijn drie dingen die normaal gesproken stukgaan zodra je een agressieve Apache-regel op een WordPress-installatie zet. Geen daarvan gebeurt hier.</p>
+
+<p><strong>Het inlogformulier zelf.</strong> Een echte login is een <code>GET /wp-login.php</code> (het formulier laadt), daarna een <code>POST /wp-login.php</code> (de credentials worden verstuurd). De referer op de POST is <code>https://example.com/wp-login.php</code>. Onze conditie zegt 'weiger tenzij de referer-host ons domein is', dus een echte submit komt erdoor.</p>
+
+<p><strong>admin-ajax.php.</strong> De dashboard-heartbeat, de autosave van de block editor, en bijna elke AJAX-call van een plugin draaien op <code>/wp-admin/admin-ajax.php</code>. Dat pad matcht onze regel nooit. Onaangeraakt.</p>
+
+<p><strong>Wachtwoord resetten.</strong> Wachtwoord-vergeten verstuurt een POST naar <code>/wp-login.php?action=lostpassword</code> vanaf je eigen formulierpagina. Dezelfde referer. Werkt nog steeds.</p>
+
+<p>Wat wel stukgaat zodra je het bestand opslaat:</p>
+
+<ul>
+  <li>Alles wat programmatisch naar <code>wp-login.php</code> POST zonder referer. ManageWP-achtige remote login, sommige uptime monitors, een handvol MU-plugins. Voeg hun IP toe boven de regel met een <code>RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.42$</code>, of zet ze over op <a href="https://make.wordpress.org/core/2020/11/05/application-passwords-integration-guide/">application passwords</a>.</li>
+  <li>XML-RPC clients (de WordPress mobile app, Jetpack, oude desktop-editors). Gebruik je hier iets van, blokkeer dan niet de hele <code>xmlrpc.php</code>. Beperk het tot de specifieke IP's die het nodig hebben.</li>
+</ul>
+
+<aside class="callout">Krijgt je eigen browser na het live zetten van het blok ineens 403's, dan is de oorzaak bijna altijd een privacy-extensie die de <code>Referer</code>-header eraf haalt. Voeg <code>Header set Referrer-Policy "same-origin"</code> toe aan dezelfde .htaccess en de browser stuurt de header weer mee op same-origin POSTs. Zie de <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy">MDN-pagina over Referrer-Policy</a>.</aside>
+
+<h2>Wat het blok niet vangt</h2>
+
+<p>Wees eerlijk over de scope. Deze regel stopt goedkope, luidruchtige credential stuffing zonder referer. Hij stopt niet:</p>
+
+<ul>
+  <li>Een bot die specifiek tegen jouw site is geschreven en een matchende referer meestuurt. Triviaal om te bouwen, zeldzaam bij volume-runs, want referer-spoofing helpt de eigen analytics van de operator op zijn eigen scan om zeep.</li>
+  <li>Username-enumeratie via <code>/?author=N</code> of de REST API op <code>/wp-json/wp/v2/users</code>. Sluit die los af. De <a href="https://owasp.org/www-project-wordpress-security-implementation-guideline/">OWASP WordPress-richtlijn</a> heeft daar een kort stuk over.</li>
+  <li>Gecompromitteerde credentials uit een paste-dump. Als het wachtwoord meteen klopt, is de bot niet te onderscheiden van een echte gebruiker. Daar is two-factor het enige echte antwoord op.</li>
+</ul>
+
+<p>Globaal in volgorde van moeite zijn de volgende stappen zodra de .htaccess draait: een redirect op <code>/?author=</code>, two-factor op elk account met <code>manage_options</code>, en een niet-standaard login-URL om de ruis terug te brengen. Dat laatste is geen security, maar het scheelt nog een ordegrootte aan log-volume.</p>
+
+<h2>De wijziging controleren</h2>
+
+<p>Zodra het blok live staat, laat dan een uur lang een <code>tail -f</code> op het access log staan en let op drie dingen:</p>
+
+<ol>
+  <li>Brute force POSTs die direct een 403 teruggeven, zonder dat PHP wordt aangeroepen. Te controleren door te kijken of de response time op die regels onder de 5 ms blijft.</li>
+  <li>Je eigen logins die een 302 teruggeven naar <code>/wp-admin/</code>.</li>
+  <li>admin-ajax.php-verkeer dat qua patroon en volume onveranderd blijft.</li>
+</ol>
+
+<p>Houden alle drie het een uur vol, laat het blok dan staan. Alles wat op deze regel stukgaat, gaat in de eerste tien minuten stuk.</p>
+
+<h2>Serverbestanden als code behandelen</h2>
+
+<p>Toen we <a href="/">Pier</a> bouwden, kwamen we steeds in dezelfde situatie terecht: het bureau dat een oude WordPress-installatie heeft overgenomen, weet niet welke IP's de vorige freelancer op de allowlist had staan, heeft geen overzicht van welke AJAX endpoints stukgaan onder welke Apache-regel, en heeft geen makkelijke manier om terug te draaien als een paste op vrijdag om 18:40 het dashboard plat legt. Wat we uiteindelijk hebben gedaan, is elke <code>.htaccess</code>-edit behandelen zoals je een database-migratie behandelt: het bestand wordt in <a href="/#features">version history</a> vastgelegd voordat de save doorgaat, en een undo zet de vorige versie terug met één toetsaanslag. Dezelfde workflow voor <code>wp-config.php</code> en elk ander serverbestand waar je anders zenuwachtig van wordt zodra je het via SFTP openzet.</p>
+
+<p>Het kleinste wat je vandaag kunt doen, is de awk-oneliner hierboven loslaten op je eigen access log. Hebben de top twintig IP's die <code>wp-login.php</code> raken elk tussen de twee en twaalf hits, dan kijk je precies naar het verkeer waar dit blok voor geschreven is, en ben je er in vijf minuten mee klaar.</p>
+    </div>
+
+    <aside class="pullquote">Drop op het Apache-niveau alle POSTs naar wp-login.php zonder same-origin referer. Kost niets, past in vijf regels, en raakt het dashboard niet aan.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Sluit dit mij buiten mijn eigen wp-admin?</p>
+      <p class="faq-a">Nee, zolang je browser bij de login-POST een same-origin referer meestuurt, en dat doet hij standaard. Strip een privacy-extensie hem alsnog, zet dan Referrer-Policy: same-origin in dezelfde .htaccess.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Vervangt dit fail2ban of een WAF?</p>
+      <p class="faq-a">Nee. Het vangt goedkoop, referer-loos volume op het Apache-niveau af. Voor gerichte bots en hergebruikte credentials heb je nog steeds two-factor en rate limiting op een hogere laag nodig.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is het NGINX-equivalent?</p>
+      <p class="faq-a">Een location = /wp-login.php-blok met daarin een if ($http_referer !~* &quot;^https?://([^.]+\.)?example\.com/&quot;) { return 403; }. Dezelfde logica, andere syntax.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp">
+        <img src="/nl/blog/reading-inherited-htaccess-files/hero.jpg" alt="Bovenaanzicht van vergeeld .htaccess-vel met doorgestreepte RewriteRule-regels, messing plaatje, manilla tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Een geërfde .htaccess lezen: blok voor blok zonder paniek</h3>
+      <span class="pc-lede">Een site geërfd waarvan de .htaccess begint met drie blokken dode RewriteRules in het Nederlands? Lees hem blok voor blok. Zo pakken wij dat aan.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/nl/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Dode WordPress-site reanimeren: een 90-minuten playbook</h3>
+      <span class="pc-lede">Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wp-login-htaccess-brute-force-block/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
