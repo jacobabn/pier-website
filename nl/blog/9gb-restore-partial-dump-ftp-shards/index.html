@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>9GB site herstellen: kapotte dump en drie FTP-shards · Pier — Blog</title>
+<meta name="description" content="Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, mysql, ftp, wordpress, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="9GB site herstellen: kapotte dump en drie FTP-shards">
+<meta property="og:description" content="Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T17:24:50.759Z">
+<meta property="article:modified_time" content="2026-05-26T17:24:50.759Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="9GB site herstellen: kapotte dump en drie FTP-shards">
+<meta name="twitter:description" content="Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/"},
+  "url":"https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/",
+  "headline":"9GB site herstellen: kapotte dump en drie FTP-shards",
+  "description":"Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop."
+  },
+  "datePublished":"2026-05-26T17:24:50.759Z",
+  "dateModified":"2026-05-26T17:24:50.759Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"operations, mysql, ftp, wordpress, databases, workflow",
+  "wordCount":2025,
+  "articleSection":"Operations",
+  "articleBody":"Het telefoontje van 14:12 Een studio in Utrecht waar we mee samenwerken belde ons net na de lunch met een herstel dat ze zelf niet rond kregen. Hun stagingkopie van de verouderde site van een klant was stilletjes de laatste werkende kopie van alles geworden. Een WordPress-installatie van 9GB, vastgeklikt aan WooCommerce, met een custom plugin die niemand sinds 2018 nog had durven aanraken. Productie was 's nachts read-only gegaan nadat de hosting halverwege een back-up tegen de schijfquota aanliep. De cron-aangestuurde mysqldump schreef nog af, het FTP-backupscript startte, en geen van beide rondde netjes af. Wat om 14:12 op onze gedeelde schijf landde, was een tar.gz met de naam db-2026-05-21.sql.gz die zonder klagen uitpakte en vervolgens halverwege de wp_postmeta -insert afbrak. Daarnaast stonden drie FTP-backupmappen van drie verschillende dagen, elk met andere ontbrekende stukken. Eén miste de complete wp-content/uploads/2024/ -tree. Eén miste wp-content/plugins/ . De derde had de plugins nog wel, maar de wp-config.php was een bestand van 0 bytes. De site moest om 18:00 weer online staan. We hadden drie uur en achtenveertig minuten. Eerst inventariseren, dan handelen Het eerste instinct wanneer er een herstel van 9GB op je laptop landt, is om meteen dingen te gaan fixen. Dat instinct klopt niet. Twintig minuten besteden aan precies in kaart brengen wat er stuk is, zijn twintig minuten die voorkomen dat je om 17:30 je eigen voortgang weer terugdraait. We pakten een kladblok en deden dit: gzip -t db-2026-05-21.sql.gz; echo $? # 0. De gzip-container is in orde. Het SQL erin is het probleem. zcat db-2026-05-21.sql.gz | tail -c 4096 # Laatste bytes midden in een statement: \"...VALUES (1842,'_edit_lock','1716\" zcat db-2026-05-21.sql.gz | wc -l # 1.204.883 regels zcat db-2026-05-21.sql.gz | grep -n \"^-- Table structure for\" | tail # Laatste gedumpte tabel: wp_postmeta. wp_posts klaar. wp_users klaar. # wp_woocommerce_order_items en consorten zijn nooit begonnen. We hadden dus structuur en data voor alles tot en met de eerste 60% van wp_postmeta , en niets daarna. De WooCommerce-ordertabellen, de sessietabel en de queue van action scheduler ontbraken volledig in de dump. Dat laatste was een kleine zegen: action scheduler is gebouwd om te herstellen van een leeggeveegde queue. We openden ook wp_options voor een snelle check. De siteurl - en home -waarden waren aanwezig, de active_plugins -array stond intact, en de woocommerce_db_version kwam overeen met die op de tweede node van de studio. Juist dat soort mismatch bijt je dinsdagochtend als een klant meldt dat productvariaties zich raar gedragen en je drie uur kwijt bent aan een probleem dat bij het herstel in de dump werd gebakken. Voor de bestandsboom draaiden we drie rsync -an --stats dry-runs tegen elke backup om een delta te krijgen tegenover wat productie zou moeten zijn. De output gaf ons een matrix: Backup A (19 mei): alle PHP intact, uploads/2024/ ontbreekt, uploads/2023/ aanwezig. Backup B (17 mei): alle uploads/ intact, plugins/ ontbreekt. Backup C (20 mei): plugins intact, wp-config.php nul bytes, mu-plugins ontbreken. Niets was onherstelbaar. Alle stukken bestonden ergens nog. Het werk was reassemblage. De database opnieuw opbouwen Je kunt een afgekapte mysqldump niet zomaar in MySQL inschuiven. De laatste INSERT geeft een error, en afhankelijk van hoe de dump geschreven is, krijg je ook daarvoor geen schone transactiegrenzen meer. De veilige aanpak is: knip de dump af bij het laatst bekende geldige statement, herstel dat, en bouw de ontbrekende tabellen daarna opnieuw op uit wat je verder nog hebt. We zochten het laatste complete statement door vanaf EOF terug te lopen naar een regel die eindigde op ; en gevolgd werd door een lege regel: zcat db-2026-05-21.sql.gz \\ | awk '/^);$/ {last=NR} END {print last}' # 1.204.612 zcat db-2026-05-21.sql.gz \\ | head -n 1204612 \\ > db-truncated-clean.sql Dat leverde een syntactisch geldig SQL-bestand op dat eindigde bij de laatst volledig geschreven INSERT . We laadden het in een verse lokale MySQL met --init-command=\"SET autocommit=0, foreign_key_checks=0, unique_checks=0;\" en een verstandige innodb_buffer_pool_size . De officiële documentatie over bulk loading van InnoDB is een bookmark waard; alleen de autocommit-toggle al halveerde onze hersteltijd op deze dataset ongeveer. Voor wp_postmeta , dat halverwege een insert was geëindigd, hadden we nu een gedeeltelijke tabel. Ongeveer 60% van de rijen aanwezig. De resterende 40% moest worden afgeleid. Twee bronnen hielpen: De plugin in Backup C had een interne cachetabel die postmeta voor SEO-velden spiegelde, beschreven door een hook die elke nacht draaide. WooCommerce slaat op wp_posts (post_type = 'product') en op de child-posts van variaties genoeg op om voorraad- en prijsmeta deterministisch te reconstrueren. We schreven twee herstel-queries en draaiden ze in die volgorde. De eerste speelde de SEO-cache terug in wp_postmeta met INSERT IGNORE , zodat de rijen ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"9GB site herstellen: kapotte dump en drie FTP-shards","item":"https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kun je een WordPress-site herstellen vanuit een afgekapte mysqldump?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, mits je de dump afknipt bij het laatste complete statement en ontbrekende tabellen opnieuw opbouwt uit andere bronnen. Reken op datagaten en documenteer ze, in plaats van ze te verstoppen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is de veilige manier om meerdere FTP-backups samen te voegen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kies er één als basis en gebruik rsync --ignore-existing om gaten op te vullen uit de andere. Het mengen van --update en --ignore-existing in één commando is hoe je het verkeerde overschrijft."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe weet ik of een gegzipte SQL-dump compleet is?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "gzip -t verifieert de container, maar het SQL erin kan alsnog afgekapt zijn. Doe een zcat op het bestand en tail de laatste paar KB om te controleren dat het laatste statement op een puntkomma eindigt."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 041</span>
+      </div>
+      <p class="eyebrow"><span class="n">041 —</span>Operations</p>
+      <h1 class="display-l post-title">9GB site herstellen: kapotte dump en drie FTP-shards</h1>
+      <p class="lede post-lede">Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T17:24:50.759Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp">
+      <img src="/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg" alt="Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 041</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>Het telefoontje van 14:12</h2>
+
+<p>Een studio in Utrecht waar we mee samenwerken belde ons net na de lunch met een herstel dat ze zelf niet rond kregen. Hun stagingkopie van de <a href="/">verouderde site</a> van een klant was stilletjes de laatste werkende kopie van alles geworden. Een WordPress-installatie van 9GB, vastgeklikt aan WooCommerce, met een custom plugin die niemand sinds 2018 nog had durven aanraken. Productie was 's nachts read-only gegaan nadat de hosting halverwege een back-up tegen de schijfquota aanliep. De cron-aangestuurde mysqldump schreef nog af, het FTP-backupscript startte, en geen van beide rondde netjes af.</p>
+
+<p>Wat om 14:12 op onze gedeelde schijf landde, was een tar.gz met de naam <code>db-2026-05-21.sql.gz</code> die zonder klagen uitpakte en vervolgens halverwege de <code>wp_postmeta</code>-insert afbrak. Daarnaast stonden drie FTP-backupmappen van drie verschillende dagen, elk met andere ontbrekende stukken. Eén miste de complete <code>wp-content/uploads/2024/</code>-tree. Eén miste <code>wp-content/plugins/</code>. De derde had de plugins nog wel, maar de <code>wp-config.php</code> was een bestand van 0 bytes. De site moest om 18:00 weer online staan. We hadden drie uur en achtenveertig minuten.</p>
+
+<h2>Eerst inventariseren, dan handelen</h2>
+
+<p>Het eerste instinct wanneer er een herstel van 9GB op je laptop landt, is om meteen dingen te gaan fixen. Dat instinct klopt niet. Twintig minuten besteden aan precies in kaart brengen wat er stuk is, zijn twintig minuten die voorkomen dat je om 17:30 je eigen voortgang weer terugdraait.</p>
+
+<p>We pakten een kladblok en deden dit:</p>
+
+<pre><code class="lang-bash">gzip -t db-2026-05-21.sql.gz; echo $?
+# 0. De gzip-container is in orde. Het SQL erin is het probleem.
+
+zcat db-2026-05-21.sql.gz | tail -c 4096
+# Laatste bytes midden in een statement: "...VALUES (1842,'_edit_lock','1716"
+
+zcat db-2026-05-21.sql.gz | wc -l
+# 1.204.883 regels
+
+zcat db-2026-05-21.sql.gz | grep -n "^-- Table structure for" | tail
+# Laatste gedumpte tabel: wp_postmeta. wp_posts klaar. wp_users klaar.
+# wp_woocommerce_order_items en consorten zijn nooit begonnen.</code></pre>
+
+<p>We hadden dus structuur en data voor alles tot en met de eerste 60% van <code>wp_postmeta</code>, en niets daarna. De WooCommerce-ordertabellen, de sessietabel en de queue van action scheduler ontbraken volledig in de dump. Dat laatste was een kleine zegen: action scheduler is gebouwd om te herstellen van een leeggeveegde queue.</p>
+
+<p>We openden ook <code>wp_options</code> voor een snelle check. De <code>siteurl</code>- en <code>home</code>-waarden waren aanwezig, de <code>active_plugins</code>-array stond intact, en de <code>woocommerce_db_version</code> kwam overeen met die op de tweede node van de studio. Juist dat soort mismatch bijt je dinsdagochtend als een klant meldt dat productvariaties zich raar gedragen en je drie uur kwijt bent aan een probleem dat bij het herstel in de dump werd gebakken.</p>
+
+<p>Voor de bestandsboom draaiden we drie <code>rsync -an --stats</code> dry-runs tegen elke backup om een delta te krijgen tegenover wat productie zou moeten zijn. De output gaf ons een matrix:</p>
+
+<ul>
+<li><strong>Backup A</strong> (19 mei): alle PHP intact, <code>uploads/2024/</code> ontbreekt, <code>uploads/2023/</code> aanwezig.</li>
+<li><strong>Backup B</strong> (17 mei): alle <code>uploads/</code> intact, <code>plugins/</code> ontbreekt.</li>
+<li><strong>Backup C</strong> (20 mei): plugins intact, <code>wp-config.php</code> nul bytes, mu-plugins ontbreken.</li>
+</ul>
+
+<p>Niets was onherstelbaar. Alle stukken bestonden ergens nog. Het werk was reassemblage.</p>
+
+<h2>De database opnieuw opbouwen</h2>
+
+<p>Je kunt een afgekapte mysqldump niet zomaar in MySQL inschuiven. De laatste <code>INSERT</code> geeft een error, en afhankelijk van hoe de dump geschreven is, krijg je ook daarvoor geen schone transactiegrenzen meer. De veilige aanpak is: knip de dump af bij het laatst bekende geldige statement, herstel dat, en bouw de ontbrekende tabellen daarna opnieuw op uit wat je verder nog hebt.</p>
+
+<p>We zochten het laatste complete statement door vanaf EOF terug te lopen naar een regel die eindigde op <code>;</code> en gevolgd werd door een lege regel:</p>
+
+<pre><code class="lang-bash">zcat db-2026-05-21.sql.gz \
+  | awk '/^);$/ {last=NR} END {print last}'
+# 1.204.612
+
+zcat db-2026-05-21.sql.gz \
+  | head -n 1204612 \
+  &gt; db-truncated-clean.sql</code></pre>
+
+<p>Dat leverde een syntactisch geldig SQL-bestand op dat eindigde bij de laatst volledig geschreven <code>INSERT</code>. We laadden het in een verse lokale MySQL met <code>--init-command="SET autocommit=0, foreign_key_checks=0, unique_checks=0;"</code> en een verstandige <code>innodb_buffer_pool_size</code>. De officiële documentatie over <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-bulk-data-loading.html">bulk loading van InnoDB</a> is een bookmark waard; alleen de autocommit-toggle al halveerde onze hersteltijd op deze dataset ongeveer.</p>
+
+<p>Voor <code>wp_postmeta</code>, dat halverwege een insert was geëindigd, hadden we nu een gedeeltelijke tabel. Ongeveer 60% van de rijen aanwezig. De resterende 40% moest worden afgeleid. Twee bronnen hielpen:</p>
+
+<ol>
+<li>De plugin in Backup C had een interne cachetabel die postmeta voor SEO-velden spiegelde, beschreven door een hook die elke nacht draaide.</li>
+<li>WooCommerce slaat op <code>wp_posts</code> (post_type = 'product') en op de child-posts van variaties genoeg op om voorraad- en prijsmeta deterministisch te reconstrueren.</li>
+</ol>
+
+<p>We schreven twee herstel-queries en draaiden ze in die volgorde. De eerste speelde de SEO-cache terug in <code>wp_postmeta</code> met <code>INSERT IGNORE</code>, zodat de rijen die al uit de dump bestonden bewaard bleven. De tweede liep door de productposts en re-emitteerde <code>_stock</code>, <code>_price</code> en <code>_regular_price</code> vanuit de variatietabel waar de rij van de parent ontbrak. Elke afgeleide rij logden we in een aparte audittabel, zodat we ze later konden nakijken.</p>
+
+<p>Voor we de database lieten rusten, draaiden we nog een snelle consistentiecheck. <code>SELECT COUNT(*) FROM wp_posts WHERE post_status NOT IN ('publish','draft','pending','private','trash','auto-draft','inherit','future');</code> gaf nul terug, dus er was niets in een half-geschreven staat blijven hangen. We controleerden <code>wp_postmeta</code> ook op orphans tegen <code>wp_posts</code> met één LEFT JOIN. Ongeveer veertigduizend rijen kwamen terug. Die waren normaal: meta van WooCommerce-variaties die nog op inmiddels verwijderde parents leven, het soort vuil dat elke oude shop met zich meedraagt. We logden het aantal en gingen door.</p>
+
+<p>Voor de WooCommerce-ordertabellen hadden we niets. De eigen logs van de plugin (die op disk leefden, niet in de database) gaven ons een lijst met order-ID's die in de laatste 36 uur waren aangemaakt. Die exporteerden we, we schreven een stub om ze als <code>on-hold</code> te markeren, en mailden de customer-success-persoon van de studio met het verzoek de betrokken kopers 's ochtends te bellen. De verleiding is groot om bij een gedeeltelijke dataset plausibele waarden in te vullen. Gegenereerde timestamps. Afgeleide klant-ID's. Niet doen. Elke verzonnen rij is een rij die je over zes maanden voor echt aanziet als je iets anders aan het debuggen bent. Schrijf de audittabel. Mail de success-persoon. Pak de telefoon.</p>
+
+<h2>De bestandsboom samenrapen</h2>
+
+<p>Met de database bijna compleet, ging onze aandacht naar het filesystem. De truc met drie half kapotte FTP-backups is om er één als basis te kiezen en de andere de gaten te laten vullen, in een vaste volgorde, zonder dat de basis overschreven wordt.</p>
+
+<p>We kozen Backup A als basis omdat de PHP-laag compleet was en aansloot op het schema dat we net hadden herbouwd. Daarna:</p>
+
+<pre><code class="lang-bash"># 1. Vul ontbrekende uploads aan vanuit Backup B.
+rsync -av --ignore-existing \
+  /backups/B/wp-content/uploads/ \
+  /restore/wp-content/uploads/
+
+# 2. Vul mu-plugins aan vanuit Backup B (A had ze, maar die van B waren nieuwer).
+rsync -av --update \
+  /backups/B/wp-content/mu-plugins/ \
+  /restore/wp-content/mu-plugins/
+
+# 3. Plugins: A heeft ze. C overslaan, wp-config daar is rommel.
+# 4. wp-config.php: die van A pakken. Voor de zekerheid diffen met C.
+diff /backups/A/wp-config.php /backups/C/wp-config.php
+# C is leeg. Overslaan.</code></pre>
+
+<p>De vlag <code>--ignore-existing</code> maakte dit veilig. Die garandeert dat de basis wint voor elk bestand dat in beide mappen voorkomt. <code>--update</code> doet juist het tegenovergestelde, en die gebruikten we in de mu-plugins-stap waar we wisten dat B nieuwer was. De twee combineren in één commando is hoe je om 17:50 per ongeluk het verkeerde overschrijft.</p>
+
+<p>De Apache-documentatie heeft de helderste referentie op de precedentieregels die gelden voor <a href="https://httpd.apache.org/docs/2.4/howto/htaccess.html">.htaccess</a> bij herstel. We legden de <code>.htaccess</code> van de basis naast de laatst bekende productie-regels van de klant en vonden één ontbrekend blok: een rewrite die een verouderde galerij-URL naar een nieuwere permalinkstructuur mapte. Die zetten we terug:</p>
+
+<pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteRule ^gallery/([^/]+)/?$ /portfolio/$1/ [R=301,L]
+&lt;/IfModule&gt;</code></pre>
+
+<p>Zonder dat zou de site weer online zijn gekomen, maar elke oude inbound-link vanuit Pinterest en oude nieuwsbrieven zou een 404 hebben gegeven. De klant had het binnen een uur gemerkt en wij hadden de avond op Slack gezeten.</p>
+
+<h2>De wp-config-landmijn</h2>
+
+<p>De <code>wp-config.php</code> in onze basis had de juiste databasecredentials voor staging, niet voor de productiereplica waarin we aan het herstellen waren. Erger nog: het bestand verwees naar twee constanten die de studio jaren eerder had toegevoegd en die nergens waren gedocumenteerd:</p>
+
+<pre><code class="lang-php">define('WP_CACHE_KEY_SALT', 'utrecht-prod-2021');
+define('UPLOADS', 'wp-content/uploads-cdn');</code></pre>
+
+<p>De eerste vonden we door de plugin-source te greppen op <code>WP_CACHE_KEY_SALT</code>. De tweede vonden we op de langzame manier: de site kwam om 17:34 online, alle afbeeldingen gaven 404, en een van ons zei "uploads-streepje-wat". De <code>UPLOADS</code>-constante overschrijft het standaardpad voor uploads, en de CDN-sync schreef al twee jaar naar <code>uploads-cdn/</code>. Een patch van twee regels in <code>wp-config.php</code> en één symlink loste het op:</p>
+
+<pre><code class="lang-bash">ln -s /var/www/site/wp-content/uploads-cdn \
+       /var/www/site/wp-content/uploads</code></pre>
+
+<aside class="callout">Als een herstelde WordPress-installatie HTML laadt maar elke afbeelding een 404 geeft, denk dan eerst aan <code>UPLOADS</code> of <code>WP_CONTENT_DIR</code> voor je naar bestandsrechten gaat kijken. Een grep door <code>wp-config.php</code> en de actieve mu-plugins kost tien seconden en bespaart twintig minuten.</aside>
+
+<h2>De diff-dans</h2>
+
+<p>Om 17:51 reageerde de site op de staginghostname en zag er goed uit. Dat is het moment waarop de verleiding om het klaar te noemen het sterkst is, en de discipline van nog één ronde het meest telt.</p>
+
+<p>We deden drie checks:</p>
+
+<ol>
+<li><code>wp db check</code> op elke tabel, om te bevestigen dat InnoDB er niet stilletjes eentje als crashed had gemarkeerd.</li>
+<li>Een diff op rij-aantallen tussen de herstelde database en het nachtelijke metrics-rapport van de studio van de week ervoor. Posts en gebruikers kwamen binnen 4 rijen overeen. Orders waren het bekende gat van 36 uur.</li>
+<li>Een <code>curl -I</code> op de top 50 URL's uit de analytics-export van de maand ervoor. Achtenveertig gaven 200 terug. Twee gaven een 301 naar dezelfde canonical, wat klopte.</li>
+</ol>
+
+<p>De derde check telt meer dan hij lijkt. Een site die op de homepage laadt is geen werkende site. WordPress in het bijzonder heeft tientallen rand-URL's (REST-endpoints, admin-ajax, de sitemap, feed-URL's) die stilletjes falen als een plugin of een constante niet klopt. We trokken de top 50 uit analytics in plaats van te gokken; die export is een proxy voor de URL's waar echte mensen op landen, en dat bepaalt of je de avond op Slack zit of niet.</p>
+
+<p>Om 17:58 zetten we het herstel naar productie en keken we tien minuten naar de access log. De eerste echte bestelling kwam binnen om 18:11. Het eerste telefoontje van de klant naar de studio kwam om 09:14 de volgende ochtend, met de vraag waarom twee bestellingen van dinsdagmiddag verdwenen waren. De success-persoon van de studio had de lijst al klaarliggen en belde de kopers terug.</p>
+
+<p>Action scheduler kwam om 18:03 weer in gang, draaide zijn inhaalslag, en stuurde de abandoned cart-mails alsnog uit die hij had gemist. Met één oog keken we de queue leeglopen in <code>wp_actionscheduler_actions</code>, met het andere beantwoordden we de vragen van de studio. Er lekte niets dubbel terug in de mailqueue, wat we wel hadden gevreesd na de reparatie van <code>wp_postmeta</code>. We bevestigden ook dat WP-Cron weer was opgepakt waar hij was gestopt, door vijf minuten <code>wp cron event list</code> te tailen en de next-run-timestamps vooruit te zien tikken.</p>
+
+<h2>Wat dit werk eigenlijk is</h2>
+
+<p>Een verouderde site herstellen vanuit kapotte backups is geen heldendaad. Het is inventariseren, dan reassembleren in een vaste volgorde, dan verifiëren. De fouten die uren kosten worden bijna altijd in de eerste twintig minuten gemaakt, wanneer je begint met fixen voordat je klaar bent met tellen.</p>
+
+<p>Toen we Pier bouwden, liepen we precies tegen dit patroon aan op sites van klanten en wilden we een snellere manier om de schade in kaart te brengen en stuk voor stuk terug te spelen. Met de <a href="/#database">MySQL-editor</a> in de app laden we een half kapotte dump in, lopen we hem tabel voor tabel door en draaien we de ontbrekende stukken opnieuw met een echte undo bij elke stap, en de <a href="/#features">versiegeschiedenis</a> betekent dat de vraag "wat hebben we om 17:34 veranderd" een antwoord heeft in plaats van een gok.</p>
+
+<p>Doe na het lezen vanavond één ding: voeg één regel toe aan je backup-cron en pipe de mysqldump-output door <code>tee &gt;(md5sum &gt; dump.md5)</code>, zodat de checksum naast de dump terechtkomt. Over een half jaar, als jou iets vergelijkbaars overkomt, weet je binnen tien seconden of het bestand dat je hebt ook het bestand is dat je geschreven hebt.</p>
+    </div>
+
+    <aside class="pullquote">Een kapotte site herstellen is inventariseren, dan reassembleren in een vaste volgorde, dan verifiëren. De fouten die uren kosten, vallen in de eerste twintig minuten.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kun je een WordPress-site herstellen vanuit een afgekapte mysqldump?</p>
+      <p class="faq-a">Ja, mits je de dump afknipt bij het laatste complete statement en ontbrekende tabellen opnieuw opbouwt uit andere bronnen. Reken op datagaten en documenteer ze, in plaats van ze te verstoppen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is de veilige manier om meerdere FTP-backups samen te voegen?</p>
+      <p class="faq-a">Kies er één als basis en gebruik rsync --ignore-existing om gaten op te vullen uit de andere. Het mengen van --update en --ignore-existing in één commando is hoe je het verkeerde overschrijft.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe weet ik of een gegzipte SQL-dump compleet is?</p>
+      <p class="faq-a">gzip -t verifieert de container, maar het SQL erin kan alsnog afgekapt zijn. Doe een zcat op het bestand en tail de laatste paar KB om te controleren dat het laatste statement op een puntkomma eindigt.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>40GB wp_options autoload: één nacht terug naar 800ms TTFB</h3>
+      <span class="pc-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/repair-crashed-myisam-table/hero.webp" type="image/webp">
+        <img src="/nl/blog/repair-crashed-myisam-table/hero.jpg" alt="Foto van bovenaf op linnen: papieren reparatielogboek wp_options, phpMyAdmin-print, MyISAM-schema, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Gecrashte MyISAM-tabel herstellen: een incidentverslag</h3>
+      <span class="pc-lede">Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

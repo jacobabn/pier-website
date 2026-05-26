@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>9GB site restore: a partial dump and three FTP shards · Pier — Blog</title>
+<meta name="description" content="An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, mysql, ftp, wordpress, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="9GB site restore: a partial dump and three FTP shards">
+<meta property="og:description" content="An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.">
+<meta property="og:url" content="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+<meta property="og:image" content="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead workbench shot of truncated mysqldump printout, three manila FTP folders, restore log, brass RESTORE plate, wax-sealed envelope.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T17:24:50.759Z">
+<meta property="article:modified_time" content="2026-05-26T17:24:50.759Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="9GB site restore: a partial dump and three FTP shards">
+<meta name="twitter:description" content="An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead workbench shot of truncated mysqldump printout, three manila FTP folders, restore log, brass RESTORE plate, wax-sealed envelope.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/"},
+  "url":"https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/",
+  "headline":"9GB site restore: a partial dump and three FTP shards",
+  "description":"An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead workbench shot of truncated mysqldump printout, three manila FTP folders, restore log, brass RESTORE plate, wax-sealed envelope."
+  },
+  "datePublished":"2026-05-26T17:24:50.759Z",
+  "dateModified":"2026-05-26T17:24:50.759Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"operations, mysql, ftp, wordpress, databases, workflow",
+  "wordCount":1949,
+  "articleSection":"Operations",
+  "articleBody":"The call at 14:12 A studio we work with in Utrecht pinged us just after lunch with a restore they could not run themselves. Their staging clone of a customer's legacy site had quietly become the last good copy of anything. A 9GB WordPress install bolted onto WooCommerce, with a custom plugin nobody had dared touch since 2018. Production had gone read-only overnight after the host hit a disk quota mid-backup. The cron-driven mysqldump finished writing, the FTP backup script started, and neither completed cleanly. What landed on our shared drive at 14:12 was a tar.gz called db-2026-05-21.sql.gz that decompressed without complaint and then truncated halfway through the wp_postmeta insert. Alongside it sat three FTP backup directories from three different days, each missing different things. One had the entire wp-content/uploads/2024/ tree gone. One was missing wp-content/plugins/ . The third had plugins intact but its wp-config.php was a 0-byte file. The site was due back online by 18:00. We had three hours and forty-eight minutes. Inventory before action The first instinct when a 9GB restore lands on your laptop is to start fixing things. The first instinct is wrong. Twenty minutes spent listing exactly what is broken is twenty minutes that prevents you from undoing your own progress at 17:30. We opened a scratchpad and did this: gzip -t db-2026-05-21.sql.gz; echo $? # 0. The gzip container is fine. The SQL inside is the problem. zcat db-2026-05-21.sql.gz | tail -c 4096 # Last bytes mid-statement: \"...VALUES (1842,'_edit_lock','1716\" zcat db-2026-05-21.sql.gz | wc -l # 1,204,883 lines zcat db-2026-05-21.sql.gz | grep -n \"^-- Table structure for\" | tail # Last table dumped: wp_postmeta. wp_posts done. wp_users done. # wp_woocommerce_order_items and friends never started. So we had structure and data for everything up to and including the first 60% of wp_postmeta , and nothing past it. The WooCommerce order tables, the session table, and the action scheduler queue were gone from the dump. That last one was a small mercy: action scheduler is built to recover from a wiped queue. We also opened wp_options with a quick check. The siteurl and home values were present, the active_plugins array was intact, and the woocommerce_db_version matched the running install on the studio's secondary node. That last one is the kind of mismatch that bites you on Tuesday morning when a customer reports product variations behaving oddly and you spend three hours chasing a problem that was baked in at restore time. For the file tree, we ran three rsync -an --stats dry-runs against each backup to get a delta against what production was supposed to look like. The output gave us a matrix: Backup A (May 19): all PHP intact, uploads/2024/ missing, uploads/2023/ present. Backup B (May 17): all uploads/ intact, plugins/ missing. Backup C (May 20): plugins intact, wp-config.php zero bytes, mu-plugins missing. Nothing was unrecoverable. The pieces all existed somewhere. The work was reassembly. Reconstructing the database You cannot stream a truncated mysqldump straight into MySQL. The last INSERT will error and, depending on how the dump was written, you may not get clean transaction boundaries before it. The safe approach is to cut the dump at the last known-good statement, restore that, and then rebuild the missing tables from whatever else you have. We found the last complete statement by walking backwards from EOF looking for a line ending in ; that was followed by an empty line: zcat db-2026-05-21.sql.gz \\ | awk '/^);$/ {last=NR} END {print last}' # 1,204,612 zcat db-2026-05-21.sql.gz \\ | head -n 1204612 \\ > db-truncated-clean.sql That gave us a syntactically valid SQL file ending at the last fully written INSERT . We loaded it into a fresh local MySQL with --init-command=\"SET autocommit=0, foreign_key_checks=0, unique_checks=0;\" and a sane innodb_buffer_pool_size . The official guidance on bulk loading InnoDB is worth bookmarking; the autocommit toggle alone cut our restore time roughly in half on this dataset. For wp_postmeta , which had ended mid-insert, we now had a partial table. About 60% of rows present. The remaining 40% had to be inferred. Two sources helped: The plugin in Backup C had an internal cache table that mirrored post meta for SEO fields, written by a hook that ran nightly. WooCommerce stores enough on wp_posts (post_type = 'product') and on the variation child posts to reconstruct stock and price meta deterministically. We wrote two restore queries and ran them in that order. The first replayed the SEO cache into wp_postmeta using INSERT IGNORE so the rows already present from the dump were preserved. The second walked product posts and re-emitted _stock , _price , _regular_price from the variation table where the parent's row was missing. We logged every inferred row to a separate audit table so we could review them later. Before we left the database alone we ran a quick consistency pass. SELECT COUNT(*) FROM wp_po",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"9GB site restore: a partial dump and three FTP shards","item":"https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you restore a WordPress site from a truncated mysqldump?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, if you cut the dump at the last complete statement and rebuild missing tables from other sources. Expect data gaps and document them rather than hide them."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the safe way to merge multiple FTP backups?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pick one as the spine and use rsync --ignore-existing to fill its gaps from the others. Mixing --update and --ignore-existing on one command is how you overwrite the wrong thing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I know if a gzipped SQL dump is complete?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "gzip -t verifies the container, but the SQL inside can still be truncated. zcat the file and tail the last few KB to confirm the final statement ends in a semicolon."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why did restored images return 404 after a WordPress restore?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually a custom UPLOADS or WP_CONTENT_DIR constant in wp-config.php pointing at a non-default path. Grep wp-config and active mu-plugins before blaming permissions."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 041</span>
+      </div>
+      <p class="eyebrow"><span class="n">041 —</span>Operations</p>
+      <h1 class="display-l post-title">9GB site restore: a partial dump and three FTP shards</h1>
+      <p class="lede post-lede">An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T17:24:50.759Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp">
+      <img src="/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg" alt="Overhead workbench shot of truncated mysqldump printout, three manila FTP folders, restore log, brass RESTORE plate, wax-sealed envelope." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 041</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The call at 14:12</h2>
+
+<p>A studio we work with in Utrecht pinged us just after lunch with a restore they could not run themselves. Their staging clone of a customer's <a href="/">legacy site</a> had quietly become the last good copy of anything. A 9GB WordPress install bolted onto WooCommerce, with a custom plugin nobody had dared touch since 2018. Production had gone read-only overnight after the host hit a disk quota mid-backup. The cron-driven mysqldump finished writing, the FTP backup script started, and neither completed cleanly.</p>
+
+<p>What landed on our shared drive at 14:12 was a tar.gz called <code>db-2026-05-21.sql.gz</code> that decompressed without complaint and then truncated halfway through the <code>wp_postmeta</code> insert. Alongside it sat three FTP backup directories from three different days, each missing different things. One had the entire <code>wp-content/uploads/2024/</code> tree gone. One was missing <code>wp-content/plugins/</code>. The third had plugins intact but its <code>wp-config.php</code> was a 0-byte file. The site was due back online by 18:00. We had three hours and forty-eight minutes.</p>
+
+<h2>Inventory before action</h2>
+
+<p>The first instinct when a 9GB restore lands on your laptop is to start fixing things. The first instinct is wrong. Twenty minutes spent listing exactly what is broken is twenty minutes that prevents you from undoing your own progress at 17:30.</p>
+
+<p>We opened a scratchpad and did this:</p>
+
+<pre><code class="lang-bash">gzip -t db-2026-05-21.sql.gz; echo $?
+# 0. The gzip container is fine. The SQL inside is the problem.
+
+zcat db-2026-05-21.sql.gz | tail -c 4096
+# Last bytes mid-statement: "...VALUES (1842,'_edit_lock','1716"
+
+zcat db-2026-05-21.sql.gz | wc -l
+# 1,204,883 lines
+
+zcat db-2026-05-21.sql.gz | grep -n "^-- Table structure for" | tail
+# Last table dumped: wp_postmeta. wp_posts done. wp_users done.
+# wp_woocommerce_order_items and friends never started.</code></pre>
+
+<p>So we had structure and data for everything up to and including the first 60% of <code>wp_postmeta</code>, and nothing past it. The WooCommerce order tables, the session table, and the action scheduler queue were gone from the dump. That last one was a small mercy: action scheduler is built to recover from a wiped queue.</p>
+
+<p>We also opened <code>wp_options</code> with a quick check. The <code>siteurl</code> and <code>home</code> values were present, the <code>active_plugins</code> array was intact, and the <code>woocommerce_db_version</code> matched the running install on the studio's secondary node. That last one is the kind of mismatch that bites you on Tuesday morning when a customer reports product variations behaving oddly and you spend three hours chasing a problem that was baked in at restore time.</p>
+
+<p>For the file tree, we ran three <code>rsync -an --stats</code> dry-runs against each backup to get a delta against what production was supposed to look like. The output gave us a matrix:</p>
+
+<ul>
+<li><strong>Backup A</strong> (May 19): all PHP intact, <code>uploads/2024/</code> missing, <code>uploads/2023/</code> present.</li>
+<li><strong>Backup B</strong> (May 17): all <code>uploads/</code> intact, <code>plugins/</code> missing.</li>
+<li><strong>Backup C</strong> (May 20): plugins intact, <code>wp-config.php</code> zero bytes, mu-plugins missing.</li>
+</ul>
+
+<p>Nothing was unrecoverable. The pieces all existed somewhere. The work was reassembly.</p>
+
+<h2>Reconstructing the database</h2>
+
+<p>You cannot stream a truncated mysqldump straight into MySQL. The last <code>INSERT</code> will error and, depending on how the dump was written, you may not get clean transaction boundaries before it. The safe approach is to cut the dump at the last known-good statement, restore that, and then rebuild the missing tables from whatever else you have.</p>
+
+<p>We found the last complete statement by walking backwards from EOF looking for a line ending in <code>;</code> that was followed by an empty line:</p>
+
+<pre><code class="lang-bash">zcat db-2026-05-21.sql.gz \
+  | awk '/^);$/ {last=NR} END {print last}'
+# 1,204,612
+
+zcat db-2026-05-21.sql.gz \
+  | head -n 1204612 \
+  &gt; db-truncated-clean.sql</code></pre>
+
+<p>That gave us a syntactically valid SQL file ending at the last fully written <code>INSERT</code>. We loaded it into a fresh local MySQL with <code>--init-command="SET autocommit=0, foreign_key_checks=0, unique_checks=0;"</code> and a sane <code>innodb_buffer_pool_size</code>. The official guidance on <a href="https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-bulk-data-loading.html">bulk loading InnoDB</a> is worth bookmarking; the autocommit toggle alone cut our restore time roughly in half on this dataset.</p>
+
+<p>For <code>wp_postmeta</code>, which had ended mid-insert, we now had a partial table. About 60% of rows present. The remaining 40% had to be inferred. Two sources helped:</p>
+
+<ol>
+<li>The plugin in Backup C had an internal cache table that mirrored post meta for SEO fields, written by a hook that ran nightly.</li>
+<li>WooCommerce stores enough on <code>wp_posts</code> (post_type = 'product') and on the variation child posts to reconstruct stock and price meta deterministically.</li>
+</ol>
+
+<p>We wrote two restore queries and ran them in that order. The first replayed the SEO cache into <code>wp_postmeta</code> using <code>INSERT IGNORE</code> so the rows already present from the dump were preserved. The second walked product posts and re-emitted <code>_stock</code>, <code>_price</code>, <code>_regular_price</code> from the variation table where the parent's row was missing. We logged every inferred row to a separate audit table so we could review them later.</p>
+
+<p>Before we left the database alone we ran a quick consistency pass. <code>SELECT COUNT(*) FROM wp_posts WHERE post_status NOT IN ('publish','draft','pending','private','trash','auto-draft','inherit','future');</code> returned zero, which meant nothing had been left in a half-written state. We also checked <code>wp_postmeta</code> for orphans against <code>wp_posts</code> with a single LEFT JOIN. About forty thousand rows came back. Those were normal: WooCommerce variation meta living on now-deleted parents, the kind of cruft every old store carries. We logged the count and moved on.</p>
+
+<p>For the WooCommerce order tables, we had nothing. The plugin's own logs (which lived on disk, not in the database) gave us a list of order IDs created in the last 36 hours. We exported those, wrote a stub to mark them as <code>on-hold</code>, and emailed the studio's customer success person to phone the affected buyers in the morning. The temptation when you have a partial dataset is to fill in plausible values. Generated timestamps. Inferred customer IDs. Don't. Every faked row is a row you will misread as real six months from now when you are debugging something else. Write the audit table. Email the success person. Pick up the phone.</p>
+
+<h2>Stitching the file tree</h2>
+
+<p>With the database close to whole, we turned to the filesystem. The trick with three half-broken FTP backups is to pick one as the spine and let the others fill its holes, in a defined order, with no overwrites of the spine.</p>
+
+<p>We picked Backup A as the spine because its PHP layer was complete and matched the schema we'd just rebuilt. Then:</p>
+
+<pre><code class="lang-bash"># 1. Fill missing uploads from Backup B.
+rsync -av --ignore-existing \
+  /backups/B/wp-content/uploads/ \
+  /restore/wp-content/uploads/
+
+# 2. Fill mu-plugins from Backup B (A had them, but B's were newer).
+rsync -av --update \
+  /backups/B/wp-content/mu-plugins/ \
+  /restore/wp-content/mu-plugins/
+
+# 3. Plugins: A has them. Skip C, its wp-config is junk.
+# 4. wp-config.php: take A's. Diff against C just in case.
+diff /backups/A/wp-config.php /backups/C/wp-config.php
+# C is empty. Skip.</code></pre>
+
+<p>The <code>--ignore-existing</code> flag is what made this safe. It guarantees the spine wins for any file that exists in both places. The <code>--update</code> flag does the opposite for the mu-plugins step where we knew B was newer. Mixing the two on the same command is how you accidentally overwrite the wrong thing at 17:50.</p>
+
+<p>The Apache documentation has the cleanest reference on the precedence rules that govern <a href="https://httpd.apache.org/docs/2.4/howto/htaccess.html">.htaccess</a> at restore time. We checked the spine's <code>.htaccess</code> against the customer's last known-good production rules and found one missing block: a rewrite that mapped a legacy gallery URL to a new permalink shape. We added it back:</p>
+
+<pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+  RewriteEngine On
+  RewriteRule ^gallery/([^/]+)/?$ /portfolio/$1/ [R=301,L]
+&lt;/IfModule&gt;</code></pre>
+
+<p>Without that, the site would have come back up but every old inbound link from Pinterest and old newsletter sends would have 404'd. The customer would have noticed within an hour and we would have spent the evening on Slack.</p>
+
+<h2>The wp-config landmine</h2>
+
+<p>The <code>wp-config.php</code> in our spine had the right database credentials for staging, not for the production replica we were restoring into. Worse, the file referenced two constants the studio had added years earlier and nobody had documented:</p>
+
+<pre><code class="lang-php">define('WP_CACHE_KEY_SALT', 'utrecht-prod-2021');
+define('UPLOADS', 'wp-content/uploads-cdn');</code></pre>
+
+<p>The first one we found by grepping the plugin source for <code>WP_CACHE_KEY_SALT</code>. The second one we found the slow way: the site came up at 17:34, all images returned 404, and one of us said "uploads dash what". The <code>UPLOADS</code> constant overrides the default uploads path, and the CDN sync had been writing to <code>uploads-cdn/</code> for two years. A two-line patch to <code>wp-config.php</code> and a single symlink fixed it:</p>
+
+<pre><code class="lang-bash">ln -s /var/www/site/wp-content/uploads-cdn \
+       /var/www/site/wp-content/uploads</code></pre>
+
+<aside class="callout">If a restored WordPress install loads HTML but every image 404s, suspect <code>UPLOADS</code> or <code>WP_CONTENT_DIR</code> before you suspect file permissions. A grep of <code>wp-config.php</code> and the active mu-plugins takes ten seconds and saves twenty minutes.</aside>
+
+<h2>The diff dance</h2>
+
+<p>At 17:51 the site responded on the staging hostname and looked correct. That is the moment where the temptation to call it done is strongest and the discipline of one more pass matters most.</p>
+
+<p>We ran three checks:</p>
+
+<ol>
+<li><code>wp db check</code> against every table to confirm InnoDB hadn't quietly marked any of them crashed.</li>
+<li>A row-count diff between the restored database and the studio's nightly metrics report from the prior week. Posts and users matched within 4 rows. Orders were the known 36-hour gap.</li>
+<li>A <code>curl -I</code> against the top 50 URLs from the prior month's analytics export. Forty-eight returned 200. Two returned 301 to the same canonical, which was correct.</li>
+</ol>
+
+<p>The third check matters more than it looks. A site that loads on its homepage is not a site that works. WordPress in particular has dozens of edge URLs (REST endpoints, admin-ajax, the sitemap, feed URLs) that fail silently if a plugin or a constant is wrong. We pulled the top 50 from analytics rather than guessing; the analytics export is a stand-in for the URLs real humans land on, which is what determines whether you spend the evening on Slack or not.</p>
+
+<p>We pushed the restore to production at 17:58 and watched the access log for ten minutes. The first real order came in at 18:11. The customer's first call to the studio was at 09:14 the next morning, asking why two orders placed Tuesday afternoon had vanished. The studio's success person already had a list ready and rang the buyers back.</p>
+
+<p>The action scheduler kicked back in at 18:03, ran its catch-up sweep, and re-emitted the abandoned cart emails it had missed. We watched the queue drain in <code>wp_actionscheduler_actions</code> with one eye while answering the studio's questions with the other. Nothing leaked back into the email queue twice, which we had worried about given the <code>wp_postmeta</code> repair. We also confirmed the WP-Cron tasks had picked up where they left off by tailing <code>wp cron event list</code> for five minutes and watching the next-run timestamps tick forward.</p>
+
+<h2>What this kind of work actually is</h2>
+
+<p>Restoring a legacy site from broken backups is not heroics. It is inventory, then reassembly in a defined order, then verification. The mistakes that cost hours are almost always made in the first twenty minutes, when you start fixing before you have finished counting.</p>
+
+<p>When we built Pier we kept running into this exact pattern on customer sites and wanted a faster way to inventory the damage and replay it back. The <a href="/#database">MySQL editor</a> in the app lets us load a half-broken dump, walk it table by table, and re-run the missing pieces with a real undo at every step, and the <a href="/#features">version history</a> means the "what did we change at 17:34" question has an answer instead of a guess.</p>
+
+<p>If you do nothing else after reading this, add one line to your backup cron tonight: pipe the mysqldump output through <code>tee &gt;(md5sum &gt; dump.md5)</code> and write the checksum next to the dump. Six months from now, when something like this happens to you, you will know within ten seconds whether the file you have is the file you wrote.</p>
+    </div>
+
+    <aside class="pullquote">Restoring a broken site is inventory, then reassembly in a defined order, then verification. The mistakes that cost hours happen in the first twenty minutes.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can you restore a WordPress site from a truncated mysqldump?</p>
+      <p class="faq-a">Yes, if you cut the dump at the last complete statement and rebuild missing tables from other sources. Expect data gaps and document them rather than hide them.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the safe way to merge multiple FTP backups?</p>
+      <p class="faq-a">Pick one as the spine and use rsync --ignore-existing to fill its gaps from the others. Mixing --update and --ignore-existing on one command is how you overwrite the wrong thing.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I know if a gzipped SQL dump is complete?</p>
+      <p class="faq-a">gzip -t verifies the container, but the SQL inside can still be truncated. zcat the file and tail the last few KB to confirm the final statement ends in a semicolon.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why did restored images return 404 after a WordPress restore?</p>
+      <p class="faq-a">Usually a custom UPLOADS or WP_CONTENT_DIR constant in wp-config.php pointing at a non-default path. Grep wp-config and active mu-plugins before blaming permissions.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 May 2026</span></span>
+      <h3>40GB wp_options autoload: the night we hit 800ms TTFB</h3>
+      <span class="pc-lede">A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/repair-crashed-myisam-table/hero.webp" type="image/webp">
+        <img src="/blog/repair-crashed-myisam-table/hero.jpg" alt="Overhead photo on bone linen: paper repair log for wp_options, phpMyAdmin printout, MyISAM schematic, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Recovering a corrupted MyISAM table: incident walkthrough</h3>
+      <span class="pc-lede">A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here&#39;s the incident in order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
