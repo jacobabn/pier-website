@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>40GB wp_options autoload: één nacht terug naar 800ms TTFB · Pier — Blog</title>
+<meta name="description" content="Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="40GB wp_options autoload: één nacht terug naar 800ms TTFB">
+<meta property="og:description" content="Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T12:07:10.883Z">
+<meta property="article:modified_time" content="2026-05-26T12:07:10.883Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="40GB wp_options autoload: één nacht terug naar 800ms TTFB">
+<meta name="twitter:description" content="Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/"},
+  "url":"https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/",
+  "headline":"40GB wp_options autoload: één nacht terug naar 800ms TTFB",
+  "description":"Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel."
+  },
+  "datePublished":"2026-05-26T12:07:10.883Z",
+  "dateModified":"2026-05-26T12:07:10.883Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, mysql, databases, php, operations, workflow",
+  "wordCount":1577,
+  "articleSection":"Databases",
+  "articleBody":"Dinsdag, 23:41 De Loom-link kwam binnen om 23:41. Een lead van een bureau in Utrecht waar we mee werken zat sinds net na het eten in een screenshare met de IT-manager van hun B2B-klant. De WooCommerce-shop van die klant, PHP 8.1, MariaDB 10.6, zo'n 14.000 SKU's, was de afgelopen twee weken steeds trager geworden. Die avond brak de boel. De TTFB van de homepage ging over de acht seconden. De salesafdeling stuurde screenshots door van de tollende favicon en vroeg wanneer dit ophield. Tegen middernacht wees de slow query log steeds naar één tabel: wp_options. De site zelf was bekend werk. Zes jaar oud, in die tijd door twee bureaus heen gegaan, het soort plugin-lijst dat in archeologische lagen groeit. New Relic wees naar MySQL. Het bureau had al een CDN geprobeerd, een nieuwe object cache die niet wilde warmlopen, en een spoed-tuningronde op PHP-FPM. Geen van die dingen had iets uitgemaakt. Het eerste dat we ze lieten draaien was de query op tabelgrootte. SELECT table_name, ROUND(((data_length + index_length) / 1024 / 1024 / 1024), 2) AS size_gb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY (data_length + index_length) DESC LIMIT 10; wp_options kwam terug op 40,2 GB. De volgende grootste tabel, wp_postmeta, was 1,1 GB. Wat er werkelijk in zat Een tabel van die omvang ontstaat niet langzaam. Het is het gevolg van één specifieke beslissing ergens in de codebase die al heel lang door niemand in twijfel is getrokken. De manier om die te vinden is sorteren op rijgrootte. SELECT option_name, LENGTH(option_value) AS bytes, autoload FROM wp_options ORDER BY LENGTH(option_value) DESC LIMIT 30; Bovenaan stond één enkele rij, autoload = yes, 4,1 GB groot. De naam droeg een custom integratie-prefix die de vorige inhouse-developer drie jaar eerder had gebruikt. Het bleek een queue-tabel te zijn die binnen wp_options was gebouwd in plaats van als eigen tabel. Elke mislukte call naar het ERP van de klant, elke payload, elke retry, was toegevoegd aan een serialized PHP-array opgeslagen onder één option-naam. De cron job die de queue moest leeghalen was sinds een PHP 8-upgrade stilletjes aan het falen. De overige 36 GB was makkelijker te verklaren. WordPress schrijft veel kleine dingen naar wp_options zonder ze ooit op te ruimen. De default transient cache leeft daar. Verlopen transients worden niet automatisch verwijderd. Een handvol bekende plugins schrijft hun session-, log- en rate-limit-data er ook in. We zijn dit tegengekomen bij Yoast indexable-rebuilds, bij Wordfence attack logs, bij WP Rocket cache-headers, en bij minstens twee membership-plugins die elke login-poging als eigen option-rij opslaan. De schade stapelt zich op door autoload. Bij elke WordPress-request, voordat er iets anders gebeurt, draait de functie wp_load_alloptions() één enkele query die alle rijen waar autoload = 'yes' staat in het PHP-geheugen trekt. Op een gezonde site is die result set een of twee megabyte. Op deze site was hij 6,4 GB. De query liep op elke pagina-load, elke admin-ajax-call, elk WP-CLI-commando. MySQL serveerde hem vanaf disk, decodeerde hem, en PHP unserialiseerde hem in process-geheugen voordat er ook maar besloten kon worden wat te renderen. Triage om één uur 's nachts Het plan dat we in het gedeelde document schreven had drie stappen en voor elke stap een rollback. Er ging niets gebeuren zonder een volledige mysqldump en een vastgelegde binlog-positie. Stap één: snapshot We maakten een logische back-up van alleen wp_options, niet de hele database. Een volledige dump van een tabel van 40 GB over het publieke netwerk zou langer duren dan we geduld voor hadden, dus we gebruikten eerst de snapshot-tooling van de host op volume-niveau, en daarna draaiden we een gerichte mysqldump van alleen de tabel naar een tweede schijf. mysqldump \\ --single-transaction \\ --quick \\ --skip-lock-tables \\ --default-character-set=utf8mb4 \\ --databases shop_prod --tables wp_options \\ | gzip > /backups/wp_options-pre-cleanup.sql.gz De dump kwam uit op 6,3 GB gecomprimeerd. Dat gaf ons een vertrouwd restore-punt dat niet afhing van het snapshot-beleid van de hostingprovider. Stap twee: het bloeden stelpen We verwijderden de queue-rij van 4,1 GB niet meteen. Verleidelijk, want dat zou de grootste zichtbare winst hebben opgeleverd, maar de integratie-code zou de rij bij de volgende cron-tick weer opbouwen. De eerste zet was autoload uitzetten, waarmee de rij uit het hot path van elke request verdwijnt zonder de data aan te raken. UPDATE wp_options SET autoload = 'no' WHERE option_name = 'acme_erp_queue'; Dat ene statement, om 01:14 uitgevoerd, bracht de TTFB van de homepage van 8,1 seconden terug naar 1,9 seconden. We keken tien minuten naar het monitoring-dashboard van het bureau voordat we iets anders deden. Hetzelfde principe geldt voor de long tail. Een rij in deze tabel is alleen duur als hij autoloadt. Plugins die hun options per ongeluk op autoload hebben gezet kun je in bulk corrigeren, met de nodige zorg. SELECT option",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"40GB wp_options autoload: één nacht terug naar 800ms TTFB","item":"https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom is wp_options zo bepalend voor de prestaties van WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bij elke request worden alle rijen waar autoload = 'yes' staat in het PHP-geheugen geladen voordat er gerenderd wordt. Is die set groot, dan betaalt elke pagina van de site de prijs bij elk bezoek."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om autoload op 'no' te zetten bij een bestaande rij?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor vrijwel elke rij die niet bij elke request gelezen wordt, ja. De option werkt nog steeds; hij wordt alleen on demand geladen. Test eerst op staging als de plugin-documentatie iets anders aangeeft."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik OPTIMIZE TABLE draaien na een grote DELETE?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen als je de schijfruimte terug nodig hebt. Na DELETEs hergebruikt InnoDB vrijgekomen pages voor nieuwe rijen. OPTIMIZE TABLE herschrijft het bestand en geeft ruimte terug aan het OS, met een write lock."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 035</span>
+      </div>
+      <p class="eyebrow"><span class="n">035 —</span>Databases</p>
+      <h1 class="display-l post-title">40GB wp_options autoload: één nacht terug naar 800ms TTFB</h1>
+      <p class="lede post-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T12:07:10.883Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+      <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 035</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>Dinsdag, 23:41</h2><p>De Loom-link kwam binnen om 23:41. Een lead van een bureau in Utrecht waar we mee werken zat sinds net na het eten in een screenshare met de IT-manager van hun B2B-klant. De WooCommerce-shop van die klant, PHP 8.1, MariaDB 10.6, zo'n 14.000 SKU's, was de afgelopen twee weken steeds trager geworden. Die avond brak de boel. De TTFB van de homepage ging over de acht seconden. De salesafdeling stuurde screenshots door van de tollende favicon en vroeg wanneer dit ophield. Tegen middernacht wees de slow query log steeds naar één tabel: wp_options.</p><p>De site zelf was bekend werk. Zes jaar oud, in die tijd door twee bureaus heen gegaan, het soort plugin-lijst dat in archeologische lagen groeit. New Relic wees naar MySQL. Het bureau had al een CDN geprobeerd, een nieuwe object cache die niet wilde warmlopen, en een spoed-tuningronde op PHP-FPM. Geen van die dingen had iets uitgemaakt.</p><p>Het eerste dat we ze lieten draaien was de query op tabelgrootte.</p><pre><code class="lang-sql">SELECT
+  table_name,
+  ROUND(((data_length + index_length) / 1024 / 1024 / 1024), 2) AS size_gb
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+ORDER BY (data_length + index_length) DESC
+LIMIT 10;</code></pre><p>wp_options kwam terug op 40,2 GB. De volgende grootste tabel, wp_postmeta, was 1,1 GB.</p><h2>Wat er werkelijk in zat</h2><p>Een tabel van die omvang ontstaat niet langzaam. Het is het gevolg van één specifieke beslissing ergens in de codebase die al heel lang door niemand in twijfel is getrokken. De manier om die te vinden is sorteren op rijgrootte.</p><pre><code class="lang-sql">SELECT
+  option_name,
+  LENGTH(option_value) AS bytes,
+  autoload
+FROM wp_options
+ORDER BY LENGTH(option_value) DESC
+LIMIT 30;</code></pre><p>Bovenaan stond één enkele rij, autoload = yes, 4,1 GB groot. De naam droeg een custom integratie-prefix die de vorige inhouse-developer drie jaar eerder had gebruikt. Het bleek een queue-tabel te zijn die binnen wp_options was gebouwd in plaats van als eigen tabel. Elke mislukte call naar het ERP van de klant, elke payload, elke retry, was toegevoegd aan een serialized PHP-array opgeslagen onder één option-naam. De cron job die de queue moest leeghalen was sinds een PHP 8-upgrade stilletjes aan het falen.</p><p>De overige 36 GB was makkelijker te verklaren. WordPress schrijft veel kleine dingen naar wp_options zonder ze ooit op te ruimen. De default transient cache leeft daar. Verlopen transients worden niet automatisch verwijderd. Een handvol bekende plugins schrijft hun session-, log- en rate-limit-data er ook in. We zijn dit tegengekomen bij Yoast indexable-rebuilds, bij Wordfence attack logs, bij WP Rocket cache-headers, en bij minstens twee membership-plugins die elke login-poging als eigen option-rij opslaan.</p><p>De schade stapelt zich op door autoload. Bij elke WordPress-request, voordat er iets anders gebeurt, draait de functie <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">wp_load_alloptions()</a> één enkele query die alle rijen waar autoload = 'yes' staat in het PHP-geheugen trekt. Op een gezonde site is die result set een of twee megabyte. Op deze site was hij 6,4 GB. De query liep op elke pagina-load, elke admin-ajax-call, elk WP-CLI-commando. MySQL serveerde hem vanaf disk, decodeerde hem, en PHP unserialiseerde hem in process-geheugen voordat er ook maar besloten kon worden wat te renderen.</p><h2>Triage om één uur 's nachts</h2><p>Het plan dat we in het gedeelde document schreven had drie stappen en voor elke stap een rollback. Er ging niets gebeuren zonder een volledige mysqldump en een vastgelegde binlog-positie.</p><h3>Stap één: snapshot</h3><p>We maakten een logische back-up van alleen wp_options, niet de hele database. Een volledige dump van een tabel van 40 GB over het publieke netwerk zou langer duren dan we geduld voor hadden, dus we gebruikten eerst de snapshot-tooling van de host op volume-niveau, en daarna draaiden we een gerichte mysqldump van alleen de tabel naar een tweede schijf.</p><pre><code class="lang-bash">mysqldump \
+  --single-transaction \
+  --quick \
+  --skip-lock-tables \
+  --default-character-set=utf8mb4 \
+  --databases shop_prod --tables wp_options \
+  | gzip &gt; /backups/wp_options-pre-cleanup.sql.gz</code></pre><p>De dump kwam uit op 6,3 GB gecomprimeerd. Dat gaf ons een vertrouwd restore-punt dat niet afhing van het snapshot-beleid van de hostingprovider.</p><h3>Stap twee: het bloeden stelpen</h3><p>We verwijderden de queue-rij van 4,1 GB niet meteen. Verleidelijk, want dat zou de grootste zichtbare winst hebben opgeleverd, maar de integratie-code zou de rij bij de volgende cron-tick weer opbouwen. De eerste zet was autoload uitzetten, waarmee de rij uit het hot path van elke request verdwijnt zonder de data aan te raken.</p><pre><code class="lang-sql">UPDATE wp_options
+SET autoload = 'no'
+WHERE option_name = 'acme_erp_queue';</code></pre><p>Dat ene statement, om 01:14 uitgevoerd, bracht de TTFB van de homepage van 8,1 seconden terug naar 1,9 seconden. We keken tien minuten naar het monitoring-dashboard van het bureau voordat we iets anders deden.</p><p>Hetzelfde principe geldt voor de long tail. Een rij in deze tabel is alleen duur als hij autoloadt. Plugins die hun options per ongeluk op autoload hebben gezet kun je in bulk corrigeren, met de nodige zorg.</p><pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+  AND LENGTH(option_value) &gt; 1048576
+ORDER BY bytes DESC;</code></pre><p>Alles boven een megabyte dat autoloadt is vrijwel zeker een fout. We liepen elke naam langs met de lead van het bureau. Die nacht gingen er nog drie rijen van autoload af: een Yoast indexable-cache, een Wordfence scan-log, en een interne "settings backup"-array die een vorige developer had gebouwd en daarna vergeten.</p><h3>Stap drie: de transient-sweep</h3><p>De transient-API van WordPress gebruikt wp_options als default opslag zolang er geen persistent object cache is geconfigureerd. Elke transient krijgt twee rijen, één voor de waarde en één voor de timeout. Wanneer transients verlopen, wordt geen van beide rijen verwijderd; de waarde wordt simpelweg genegeerd. Op een site die veel transients gebruikt en geen <a href="https://developer.wordpress.org/apis/transients/">object cache</a> heeft, hoopt dit zich lineair op tot in het oneindige.</p><p>De veilige opruimactie is om alleen verlopen transients te verwijderen, en het in batches te doen zodat de replicatie kan bijblijven.</p><pre><code class="lang-sql">DELETE a, b
+FROM wp_options a
+INNER JOIN wp_options b
+  ON b.option_name = CONCAT('_transient_timeout_', SUBSTRING(a.option_name, 12))
+WHERE a.option_name LIKE '\_transient\_%'
+  AND a.option_name NOT LIKE '\_transient\_timeout\_%'
+  AND b.option_value &lt; UNIX_TIMESTAMP()
+LIMIT 50000;</code></pre><p>We draaiden hem in een loop met een korte sleep tussen de batches. De transient-sweep alleen al verwijderde 18,7 miljoen rijen.</p><aside class="callout">Een DELETE op een grote InnoDB-tabel maakt het .ibd-bestand op disk niet kleiner. De vrije ruimte blijft binnen het tablespace tot je OPTIMIZE TABLE draait (of ALTER TABLE wp_options ENGINE=InnoDB, dat is dezelfde operatie). Op een tabel van 40 GB herschrijft dit het hele bestand en blokkeert writes voor zolang het duurt. Plan het in.</aside><h2>De schijfruimte terugwinnen</h2><p>Tegen 03:00 was de autoload-set teruggebracht naar 11 MB. De TTFB lag stabiel op 740 ms over tien koude homepage-requests. De site was, naar elke redelijke maatstaf, weer in orde. Maar het bestand wp_options.ibd was op disk nog steeds 40 GB, vol gaten van alle verwijderde rijen. MySQL zou die ruimte met plezier hergebruiken voor nieuwe inserts, maar uit zichzelf gaf het niets terug aan het filesystem.</p><p>We draaiden OPTIMIZE TABLE in het eerstvolgende onderhoudsvenster drie dagen later, met de site twaalf minuten in read-only stand.</p><pre><code class="lang-sql">OPTIMIZE TABLE wp_options;</code></pre><p>Het uiteindelijke bestand kwam uit op 92 MB. De MariaDB-documentatie over <a href="https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html">OPTIMIZE TABLE</a> is het waard om volledig door te lezen voor je hem op iets groots in productie draait; ze legt precies uit welke locks hij neemt en welke storage engines online operation ondersteunen.</p><h2>Wat de codebase verkeerd deed</h2><p>De fix hierboven is het soort werk dat een avond winst oplevert. De moeilijkere vraag is waarom een database überhaupt in deze staat terechtkwam, en wat er moet veranderen zodat het niet opnieuw gebeurt.</p><p>Het patroon van queue-in-options is de grootste boosdoener. WordPress maakt het al te makkelijk om <code>update_option()</code> aan te roepen met van alles, inclusief een megabyte JSON, en standaard staat die option op autoload. Een junior onder deadlinedruk grijpt liever naar update_option() dan dat hij een migratie schrijft voor een nieuwe tabel, elke keer weer. De fix is institutioneel: code review op elke nieuwe option-naam, en een harde regel dat data die met de tijd groeit een eigen tabel krijgt.</p><p>Het transient-probleem is structureel. Tot je een persistent object cache voor WordPress zet (Redis is het gebruikelijke antwoord; de <a href="https://wordpress.org/plugins/redis-cache/">Redis Object Cache</a>-plugin doet de bedrading), zal elke transient die je themes en plugins zetten voorgoed in de options-tabel blijven staan. Zelfs mét cache is een wekelijkse scheduled job die verlopen transients verwijdert goedkope verzekering.</p><p>De plugin-zondaars zijn lastiger in te dammen omdat ze standaard met autoload aan worden geleverd en de meeste site-eigenaren er nooit naar kijken. De audit is dezelfde query waarmee we begonnen, gesorteerd op autoloaded bytes, eens per kwartaal gedraaid en geplakt in het maandelijkse health log van het project.</p><h2>De aantekening die we steeds opnieuw schrijven</h2><p>Dit is de derde options-tabel van 30 GB-plus die we sinds januari zien. Het patroon is consistent genoeg dat we, toen we Pier bouwden voor het bewerken van dit soort <a href="/">verouderde sites</a>, de <a href="/#database">MySQL editor</a> hebben uitgerust met een opgeslagen query voor "autoloaded options boven 1 MB" en een één-klik-toggle op de autoload-kolom. Elke option-rij die je wijzigt loopt door dezelfde <a href="/#features">version history</a> als een bestandswijziging, dus als een plugin-update een gigantische array terugschrijft in een rij die jij had omgezet, zie je het gebeuren en draai je het terug zonder de hele tabel te hoeven restoren.</p><h2>Het kleinste dat je vandaag kunt doen</h2><p>Open de database van de drukste WordPress-site die je beheert en draai de query voor autoloaded rows boven 1 MB uit deze post. Komt er iets terug, dan heb je al een avond werk klaarliggen; komt er niets, voeg de query dan toe aan je maandelijkse checklist en ga verder.</p>
+    </div>
+
+    <aside class="pullquote">Een wp_options-rij is alleen duur als hij autoloadt. Audit elk kwartaal de autoload-set, niet de tabelgrootte.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom is wp_options zo bepalend voor de prestaties van WordPress?</p>
+      <p class="faq-a">Bij elke request worden alle rijen waar autoload = &#39;yes&#39; staat in het PHP-geheugen geladen voordat er gerenderd wordt. Is die set groot, dan betaalt elke pagina van de site de prijs bij elk bezoek.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om autoload op &#39;no&#39; te zetten bij een bestaande rij?</p>
+      <p class="faq-a">Voor vrijwel elke rij die niet bij elke request gelezen wordt, ja. De option werkt nog steeds; hij wordt alleen on demand geladen. Test eerst op staging als de plugin-documentatie iets anders aangeeft.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik OPTIMIZE TABLE draaien na een grote DELETE?</p>
+      <p class="faq-a">Alleen als je de schijfruimte terug nodig hebt. Na DELETEs hergebruikt InnoDB vrijgekomen pages voor nieuwe rijen. OPTIMIZE TABLE herschrijft het bestand en geeft ruimte terug aan het OS, met een write lock.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Plat overzicht: papieren waterval-grafiek met balken, koperen stopwatch op 2,3s, manila CHECKOUT-tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>WooCommerce checkout audit: de plugin van 2,3 seconden</h3>
+      <span class="pc-lede">Loom van een Nederlands bureau: WooCommerce checkout hangt drie seconden op elke postcodewijziging. De audit van twintig minuten die de plugin vindt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

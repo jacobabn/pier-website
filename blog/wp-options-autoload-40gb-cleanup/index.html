@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>40GB wp_options autoload: the night we hit 800ms TTFB · Pier — Blog</title>
+<meta name="description" content="A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="40GB wp_options autoload: the night we hit 800ms TTFB">
+<meta property="og:description" content="A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.">
+<meta property="og:url" content="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+<meta property="og:image" content="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T12:07:10.883Z">
+<meta property="article:modified_time" content="2026-05-26T12:07:10.883Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="40GB wp_options autoload: the night we hit 800ms TTFB">
+<meta name="twitter:description" content="A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/"},
+  "url":"https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/",
+  "headline":"40GB wp_options autoload: the night we hit 800ms TTFB",
+  "description":"A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal."
+  },
+  "datePublished":"2026-05-26T12:07:10.883Z",
+  "dateModified":"2026-05-26T12:07:10.883Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, mysql, databases, php, operations, workflow",
+  "wordCount":1596,
+  "articleSection":"Databases",
+  "articleBody":"23:41 on a Tuesday The Loom link came in at 23:41. A lead at an agency we work with in Utrecht had been on a shared screen since just after dinner with their B2B client's IT manager. The client's WooCommerce shop, PHP 8.1, MariaDB 10.6, around 14,000 SKUs, had spent the last fortnight getting steadily slower. That evening the line broke. Homepage TTFB crossed eight seconds. The sales team was forwarding screenshots of the spinning favicon, asking when this would stop. By midnight the slow query log kept pointing at one table: wp_options. The site itself was familiar work. Six years old, two agency owners deep, the kind of plugin list that grows in archaeological layers. New Relic was pointing at MySQL. The agency had already tried a CDN, a fresh object cache that would not warm, and an emergency PHP-FPM tuning pass. None of it had moved the dial. The first thing we asked them to run was the table size query. SELECT table_name, ROUND(((data_length + index_length) / 1024 / 1024 / 1024), 2) AS size_gb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY (data_length + index_length) DESC LIMIT 10; wp_options came back at 40.2 GB. The next largest table, wp_postmeta, was 1.1 GB. What was actually in there A table that size is not the sort of thing that happens slowly. It is the result of one specific decision somewhere in the codebase that nobody has questioned for a long time. The way to find it is to sort by row size. SELECT option_name, LENGTH(option_value) AS bytes, autoload FROM wp_options ORDER BY LENGTH(option_value) DESC LIMIT 30; The top result was a single row, autoload = yes, weighing 4.1 GB. Its name carried a custom integration prefix the previous in-house dev had used three years earlier. It turned out to be a queue table that had been built inside wp_options instead of as its own table. Every failed call to the client's ERP, every payload, every retry, had been appended to a serialized PHP array stored under one option name. The cron job that was supposed to drain the queue had been silently failing since a PHP 8 upgrade. The other 36 GB was easier to explain. WordPress writes a lot of small things to wp_options without ever cleaning them up. The default transient cache lives there. Expired transients are not removed automatically. A handful of well-known plugins write their session, log, and rate-limit data there too. We have seen this on Yoast indexable rebuilds, on Wordfence attack logs, on WP Rocket cache headers, and on at least two membership plugins that store every login attempt as its own option row. The damage compounds because of autoload. On every WordPress request, before anything else happens, the function wp_load_alloptions() runs a single query that pulls every row where autoload = 'yes' into PHP memory. On a healthy site that result set is one or two megabytes. On this site it was 6.4 GB. The query ran on every page load, every admin-ajax call, every WP-CLI command. MySQL was serving it from disk, decoding it, and PHP was unserialising it into process memory before it could even decide what to render. Triage at one in the morning The plan we wrote on the shared doc had three steps and a rollback for each. Nothing was going to be done without a full mysqldump and a binlog position recorded. Step one: snapshot We took a logical backup of wp_options on its own, not the whole database. A full dump of a 40 GB table over the public network was going to take longer than we had patience for, so we used the host's snapshot tooling at the volume level first, then ran a targeted mysqldump of just the table to a second disk. mysqldump \\ --single-transaction \\ --quick \\ --skip-lock-tables \\ --default-character-set=utf8mb4 \\ --databases shop_prod --tables wp_options \\ | gzip > /backups/wp_options-pre-cleanup.sql.gz The dump came in at 6.3 GB compressed. That gave us a known-good restore point that did not depend on the hosting provider's snapshot policy. Step two: stop the bleeding We did not delete the 4.1 GB queue row first. That was tempting, because it would have produced the largest visible win, but the integration code might have rebuilt the row on the next cron tick. The first move was to disable autoload on it, which removes it from the hot path of every request without touching the data. UPDATE wp_options SET autoload = 'no' WHERE option_name = 'acme_erp_queue'; That single statement, run at 01:14, cut TTFB on the homepage from 8.1 seconds to 1.9 seconds. We watched it on the agency's monitoring dashboard for ten minutes before doing anything else. The same principle applies to the long tail. A row in this table is only expensive if it autoloads. Plugins that flagged their options for autoload by mistake can be corrected in bulk, with care. SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' AND LENGTH(option_value) > 1048576 ORDER BY bytes DESC; Anything over a megabyte that is autoloaded is almost certainly a mistake. We reviewe",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"40GB wp_options autoload: the night we hit 800ms TTFB","item":"https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does wp_options matter so much for WordPress performance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Every request loads all rows where autoload = 'yes' into PHP memory before rendering. If that set is large, every page on the site pays the cost on every hit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to set autoload to 'no' on an existing row?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for almost any row that is not read on every request. The option still works; it just gets loaded on demand. Test on staging first if the plugin docs say otherwise."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I have to run OPTIMIZE TABLE after a big DELETE?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if you need the disk space back. After DELETEs, InnoDB reuses freed pages for new rows. OPTIMIZE TABLE rewrites the file and returns space to the OS, with a write lock."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will adding a persistent object cache fix this on its own?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It stops new transients from landing in wp_options, but it does not clean up what is already there or fix oversized autoloaded plugin rows. The audit still has to happen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 035</span>
+      </div>
+      <p class="eyebrow"><span class="n">035 —</span>Databases</p>
+      <h1 class="display-l post-title">40GB wp_options autoload: the night we hit 800ms TTFB</h1>
+      <p class="lede post-lede">A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T12:07:10.883Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+      <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 035</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>23:41 on a Tuesday</h2><p>The Loom link came in at 23:41. A lead at an agency we work with in Utrecht had been on a shared screen since just after dinner with their B2B client's IT manager. The client's WooCommerce shop, PHP 8.1, MariaDB 10.6, around 14,000 SKUs, had spent the last fortnight getting steadily slower. That evening the line broke. Homepage TTFB crossed eight seconds. The sales team was forwarding screenshots of the spinning favicon, asking when this would stop. By midnight the slow query log kept pointing at one table: wp_options.</p><p>The site itself was familiar work. Six years old, two agency owners deep, the kind of plugin list that grows in archaeological layers. New Relic was pointing at MySQL. The agency had already tried a CDN, a fresh object cache that would not warm, and an emergency PHP-FPM tuning pass. None of it had moved the dial.</p><p>The first thing we asked them to run was the table size query.</p><pre><code class="lang-sql">SELECT
+  table_name,
+  ROUND(((data_length + index_length) / 1024 / 1024 / 1024), 2) AS size_gb
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+ORDER BY (data_length + index_length) DESC
+LIMIT 10;</code></pre><p>wp_options came back at 40.2 GB. The next largest table, wp_postmeta, was 1.1 GB.</p><h2>What was actually in there</h2><p>A table that size is not the sort of thing that happens slowly. It is the result of one specific decision somewhere in the codebase that nobody has questioned for a long time. The way to find it is to sort by row size.</p><pre><code class="lang-sql">SELECT
+  option_name,
+  LENGTH(option_value) AS bytes,
+  autoload
+FROM wp_options
+ORDER BY LENGTH(option_value) DESC
+LIMIT 30;</code></pre><p>The top result was a single row, autoload = yes, weighing 4.1 GB. Its name carried a custom integration prefix the previous in-house dev had used three years earlier. It turned out to be a queue table that had been built inside wp_options instead of as its own table. Every failed call to the client's ERP, every payload, every retry, had been appended to a serialized PHP array stored under one option name. The cron job that was supposed to drain the queue had been silently failing since a PHP 8 upgrade.</p><p>The other 36 GB was easier to explain. WordPress writes a lot of small things to wp_options without ever cleaning them up. The default transient cache lives there. Expired transients are not removed automatically. A handful of well-known plugins write their session, log, and rate-limit data there too. We have seen this on Yoast indexable rebuilds, on Wordfence attack logs, on WP Rocket cache headers, and on at least two membership plugins that store every login attempt as its own option row.</p><p>The damage compounds because of autoload. On every WordPress request, before anything else happens, the function <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">wp_load_alloptions()</a> runs a single query that pulls every row where autoload = 'yes' into PHP memory. On a healthy site that result set is one or two megabytes. On this site it was 6.4 GB. The query ran on every page load, every admin-ajax call, every WP-CLI command. MySQL was serving it from disk, decoding it, and PHP was unserialising it into process memory before it could even decide what to render.</p><h2>Triage at one in the morning</h2><p>The plan we wrote on the shared doc had three steps and a rollback for each. Nothing was going to be done without a full mysqldump and a binlog position recorded.</p><h3>Step one: snapshot</h3><p>We took a logical backup of wp_options on its own, not the whole database. A full dump of a 40 GB table over the public network was going to take longer than we had patience for, so we used the host's snapshot tooling at the volume level first, then ran a targeted mysqldump of just the table to a second disk.</p><pre><code class="lang-bash">mysqldump \
+  --single-transaction \
+  --quick \
+  --skip-lock-tables \
+  --default-character-set=utf8mb4 \
+  --databases shop_prod --tables wp_options \
+  | gzip &gt; /backups/wp_options-pre-cleanup.sql.gz</code></pre><p>The dump came in at 6.3 GB compressed. That gave us a known-good restore point that did not depend on the hosting provider's snapshot policy.</p><h3>Step two: stop the bleeding</h3><p>We did not delete the 4.1 GB queue row first. That was tempting, because it would have produced the largest visible win, but the integration code might have rebuilt the row on the next cron tick. The first move was to disable autoload on it, which removes it from the hot path of every request without touching the data.</p><pre><code class="lang-sql">UPDATE wp_options
+SET autoload = 'no'
+WHERE option_name = 'acme_erp_queue';</code></pre><p>That single statement, run at 01:14, cut TTFB on the homepage from 8.1 seconds to 1.9 seconds. We watched it on the agency's monitoring dashboard for ten minutes before doing anything else.</p><p>The same principle applies to the long tail. A row in this table is only expensive if it autoloads. Plugins that flagged their options for autoload by mistake can be corrected in bulk, with care.</p><pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+  AND LENGTH(option_value) &gt; 1048576
+ORDER BY bytes DESC;</code></pre><p>Anything over a megabyte that is autoloaded is almost certainly a mistake. We reviewed each name with the agency lead. Three more rows came off autoload that night: a Yoast indexable cache, a Wordfence scan log, and an internal "settings backup" array a previous developer had built and then forgotten.</p><h3>Step three: the transient sweep</h3><p>WordPress's transient API uses wp_options as its default storage backend when no persistent object cache is configured. Every transient gets two rows, one for the value and one for the timeout. When transients expire, neither row is deleted; the value is just ignored. On a site that uses transients heavily and has no <a href="https://developer.wordpress.org/apis/transients/">object cache</a>, this accumulates linearly forever.</p><p>The safe cleanup is to delete only expired transients, and to do it in batches so replication keeps up.</p><pre><code class="lang-sql">DELETE a, b
+FROM wp_options a
+INNER JOIN wp_options b
+  ON b.option_name = CONCAT('_transient_timeout_', SUBSTRING(a.option_name, 12))
+WHERE a.option_name LIKE '\_transient\_%'
+  AND a.option_name NOT LIKE '\_transient\_timeout\_%'
+  AND b.option_value &lt; UNIX_TIMESTAMP()
+LIMIT 50000;</code></pre><p>We ran it in a loop with a small sleep between batches. The transient sweep alone removed 18.7 million rows.</p><aside class="callout">A DELETE on a large InnoDB table will not shrink the .ibd file on disk. The free space stays inside the tablespace until you run OPTIMIZE TABLE (or ALTER TABLE wp_options ENGINE=InnoDB, which is the same operation). On a 40 GB table this rewrites the whole file and will lock writes for as long as it takes. Schedule it.</aside><h2>Reclaiming the disk</h2><p>By 03:00 the autoload set was down to 11 MB. TTFB had settled at 740 ms across ten cold homepage requests. The site was, by any reasonable measure, fixed. But the wp_options.ibd file was still 40 GB on disk, full of holes from all the deleted rows. MySQL would happily reuse that space for new inserts, but it would not give it back to the filesystem on its own.</p><p>We ran OPTIMIZE TABLE during the next maintenance window three days later, with the site in read-only mode for the twelve minutes it took.</p><pre><code class="lang-sql">OPTIMIZE TABLE wp_options;</code></pre><p>The final file came in at 92 MB. The MariaDB documentation on <a href="https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html">OPTIMIZE TABLE</a> is worth reading in full before you run it on anything large in production; it explains exactly which locks it takes and which storage engines support online operation.</p><h2>What the codebase was doing wrong</h2><p>The fix above is the kind of work that buys an evening. The harder question is why a database ended up in that state in the first place, and what to change so it does not happen again.</p><p>The queue-in-options pattern is the worst offender. WordPress makes it trivially easy to call <code>update_option()</code> with anything, including a megabyte of JSON, and by default the option will autoload. A junior dev under deadline pressure will reach for update_option() rather than write a migration for a new table, every time. The fix is institutional: code review for any new option name, and a hard rule that any data that grows over time gets its own table.</p><p>The transient problem is structural. Until you put a persistent object cache in front of WordPress (Redis is the common answer; the <a href="https://wordpress.org/plugins/redis-cache/">Redis Object Cache</a> plugin does the wiring), every transient your themes and plugins set will live in the options table forever. Even with a cache in place, a scheduled job that runs the expired-transient delete weekly is cheap insurance.</p><p>The plugin offenders are harder to police because they ship with autoload on by default and most site owners never look. The audit is the same query we started with, sorted by autoloaded bytes, run once a quarter and pasted into the project's monthly health log.</p><h2>The note we keep finding ourselves writing</h2><p>This is the third 30 GB-plus options table we have seen since January. The pattern is consistent enough that when we built Pier for editing this kind of <a href="/">legacy site</a>, the <a href="/#database">MySQL editor</a> ships with a saved query for "autoloaded options over 1 MB" and a one-click toggle on the autoload column. Every option row you change goes through the same <a href="/#features">version history</a> as a file edit, so when a plugin update writes a giant array back into a row you flipped, you see it happen and revert without restoring the whole table.</p><h2>The smallest thing to do today</h2><p>Open the database for the busiest WordPress site you maintain and run the autoloaded-rows-over-1MB query from this post. If anything comes back, you already have an evening's work waiting; if nothing does, add the query to your monthly checklist and move on.</p>
+    </div>
+
+    <aside class="pullquote">A wp_options row is only expensive if it autoloads. Audit the autoload set every quarter, not the table size.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why does wp_options matter so much for WordPress performance?</p>
+      <p class="faq-a">Every request loads all rows where autoload = &#39;yes&#39; into PHP memory before rendering. If that set is large, every page on the site pays the cost on every hit.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to set autoload to &#39;no&#39; on an existing row?</p>
+      <p class="faq-a">Yes for almost any row that is not read on every request. The option still works; it just gets loaded on demand. Test on staging first if the plugin docs say otherwise.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I have to run OPTIMIZE TABLE after a big DELETE?</p>
+      <p class="faq-a">Only if you need the disk space back. After DELETEs, InnoDB reuses freed pages for new rows. OPTIMIZE TABLE rewrites the file and returns space to the OS, with a write lock.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will adding a persistent object cache fix this on its own?</p>
+      <p class="faq-a">It stops new transients from landing in wp_options, but it does not clean up what is already there or fix oversized autoloaded plugin rows. The audit still has to happen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 May 2026</span></span>
+      <h3>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h3>
+      <span class="pc-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Overhead flat-lay: paper waterfall chart with bars, brass stopwatch at 2.3s, manila CHECKOUT tab, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 May 2026</span></span>
+      <h3>WooCommerce checkout audit: hunting the 2.3s plugin</h3>
+      <span class="pc-lede">A Loom from a Dutch agency: WooCommerce checkout hanging three seconds on every postcode change. Here is the twenty-minute audit that finds the plugin.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
