@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Database as source of truth: refactor the data, not the code · Pier — Blog</title>
+<meta name="description" content="You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="architecture, mysql, wordpress, php, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/database-source-of-truth-refactor/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/database-source-of-truth-refactor/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/database-source-of-truth-refactor/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/database-source-of-truth-refactor/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Database as source of truth: refactor the data, not the code">
+<meta property="og:description" content="You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.">
+<meta property="og:url" content="https://pier.abn.company/blog/database-source-of-truth-refactor/">
+<meta property="og:image" content="https://pier.abn.company/blog/database-source-of-truth-refactor/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/database-source-of-truth-refactor/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper schematic labelled wp_options, manila folder, brass plate, red wax seal on linen ribbon.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T15:38:32.356Z">
+<meta property="article:modified_time" content="2026-05-26T15:38:32.356Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Architecture">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Database as source of truth: refactor the data, not the code">
+<meta name="twitter:description" content="You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/database-source-of-truth-refactor/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper schematic labelled wp_options, manila folder, brass plate, red wax seal on linen ribbon.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Architecture">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/database-source-of-truth-refactor/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/database-source-of-truth-refactor/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/database-source-of-truth-refactor/"},
+  "url":"https://pier.abn.company/blog/database-source-of-truth-refactor/",
+  "headline":"Database as source of truth: refactor the data, not the code",
+  "description":"You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/database-source-of-truth-refactor/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper schematic labelled wp_options, manila folder, brass plate, red wax seal on linen ribbon."
+  },
+  "datePublished":"2026-05-26T15:38:32.356Z",
+  "dateModified":"2026-05-26T15:38:32.356Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"architecture, mysql, wordpress, php, databases, workflow",
+  "wordCount":1097,
+  "articleSection":"Architecture",
+  "articleBody":"You inherit a 14-year-old WordPress site from a developer who left two contracts ago. You pull the repo, set up the local stack, and grep for the broken hero behaviour. Nothing. Two hours in, after dumping a row out of wp_options , you find a 4 KB serialized blob of Elementor settings overriding the template you have been editing all afternoon. On this site, as on most legacy PHP work, the database is the source of truth and the code is just a viewer. This is the part of legacy site work that does not show up in onboarding documents. A meaningful share of behaviour in WordPress, Drupal, Joomla, Magento, and most custom CMS work lives in MySQL rows, not in versioned files. If you refactor the repo without reading the database first, you are refactoring the wrong artefact. Where the logic actually lives A short tour of the usual suspects: WordPress. wp_options holds site config, but also the entire serialised state of every plugin that ever set autoload = 'yes' . wp_postmeta holds ACF fields, Yoast metadata, and (most painfully) full page-builder layouts as one giant string per post. Drupal 7. The variable table is a key-value dump of half the site. Views, blocks, and field configurations are read from cache_* tables at runtime. Drupal 8+. The config table holds active configuration as blobs. Code-in-files is only the import source. Magento 1 and 2. core_config_data drives payment methods, shipping, tax, currency, and most module toggles. EAV tables drive product structure. The PHP module is a renderer of these rows. Custom PHP. A settings table. A features table. A templates table where someone stored HTML rows in 2014 and forgot. If you treat the repo as the source of truth, you will spend a week tracing why a hook fires twice, when the answer is a row in a settings table you have not opened. The read-only sweep Before touching any PHP, do a data archaeology pass. The goal is to understand what the database is currently telling the code to do. On WordPress, the first query I run on a new site is the autoload audit: SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' ORDER BY bytes DESC LIMIT 20; Every WordPress request loads every autoloaded option into memory. A 2 MB row from a plugin that was deactivated three years ago is still being unserialised on every page view. I have found single rows over 8 MB in the wild. The wp_load_alloptions reference is worth re-reading before you assume the cache layer is the bottleneck. On Magento, the equivalent is: SELECT scope, scope_id, path, value FROM core_config_data WHERE path LIKE 'payment/%' OR path LIKE 'carriers/%'; You will usually find three payment methods enabled that the front-end has not exposed since 2019, plus a shipping rate hardcoded for a warehouse that closed. On Drupal 8+, dump the active config and diff it against whatever is in config/sync in the repo: drush config:export --destination=/tmp/config-snapshot diff -ruN config/sync /tmp/config-snapshot The delta is the gap between what the code thinks the site is and what the site actually is. That gap is the size of your real refactor. Refactoring with the database in the frame Once you accept the database as the source of truth, the order of operations on a destructive refactor changes. Removing a deprecated Magento payment module is no longer \"delete the files, deploy, hope\". It is: Snapshot. A mysqldump --single-transaction --quick of production, stored somewhere you trust. Map the rows. Which rows in which tables actually control the thing you want to change. Mutate the data with the same care you would mutate the code. Write the UPDATE, review the WHERE clause, run it inside a transaction, eyeball the affected row count before commit. Then, and only then, touch PHP. For the Magento case, that means a row update before the file deletion: START TRANSACTION; UPDATE core_config_data SET value = '0' WHERE path = 'payment/checkmo/active' AND scope = 'default'; -- inspect: should be exactly 1 row affected ROLLBACK; -- or COMMIT once you are sure If you skip the data step, you will deploy a release where the admin panel still advertises a payment method whose backing class no longer exists. The customer will hit checkout. The autoloader will fatal. The order will not place. You will see this at 23:41 on a Friday. A mysqldump taken without --single-transaction on a busy InnoDB site locks tables long enough to ruin somebody's afternoon. The flag costs nothing and avoids the call. Behaviour documented at dev.mysql.com . Treating SQL writes like code commits The hardest shift is treating SQL writes with the same review weight as PHP commits. A pull request that changes functions.php goes through review. A WP-CLI command that runs UPDATE wp_options SET option_value = ... on production usually does not. Both change site behaviour. Only one leaves a paper trail. The fix is operational, not technical. Write the SQL into a migration file, even a hand-rolled one. Commit it. Ta",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/database-source-of-truth-refactor/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Database as source of truth: refactor the data, not the code","item":"https://pier.abn.company/blog/database-source-of-truth-refactor/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I edit wp_options directly or always go through the WordPress API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For one-off corrective changes, direct SQL inside a transaction is fine. For anything you might need to reverse or repeat, write it as a migration file so it leaves a trail."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "We already use Drupal config sync. Do I still need to read the database?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The sync directory is the desired state. The active config table is the real state. They drift, especially across staging boundaries and after manual admin-UI edits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I diff two database states without drowning in noise?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Export the relevant rows as ordered SQL or as flat key-value dumps, then diff those text outputs. Schema diffs are noisy; row-level diffs are what you want for config tables."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is treating the database as source of truth specific to legacy stacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, but it is most visible there. Any system where admin UIs write back to the database (CMS, e-commerce, feature-flag tools) has the same property and benefits from the same workflow."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/database-source-of-truth-refactor/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 039</span>
+      </div>
+      <p class="eyebrow"><span class="n">039 —</span>Architecture</p>
+      <h1 class="display-l post-title">Database as source of truth: refactor the data, not the code</h1>
+      <p class="lede post-lede">You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T15:38:32.356Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/database-source-of-truth-refactor/hero.webp" type="image/webp">
+      <img src="/blog/database-source-of-truth-refactor/hero.jpg" alt="Overhead photo of paper schematic labelled wp_options, manila folder, brass plate, red wax seal on linen ribbon." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 039</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>You inherit a 14-year-old WordPress site from a developer who left two contracts ago. You pull the repo, set up the local stack, and grep for the broken hero behaviour. Nothing. Two hours in, after dumping a row out of <code>wp_options</code>, you find a 4 KB serialized blob of Elementor settings overriding the template you have been editing all afternoon. On this site, as on most legacy PHP work, the database is the source of truth and the code is just a viewer.</p>
+
+<p>This is the part of <a href="/">legacy site</a> work that does not show up in onboarding documents. A meaningful share of behaviour in WordPress, Drupal, Joomla, Magento, and most custom CMS work lives in MySQL rows, not in versioned files. If you refactor the repo without reading the database first, you are refactoring the wrong artefact.</p>
+
+<h2>Where the logic actually lives</h2>
+
+<p>A short tour of the usual suspects:</p>
+
+<ul>
+<li><strong>WordPress.</strong> <code>wp_options</code> holds site config, but also the entire serialised state of every plugin that ever set <code>autoload = 'yes'</code>. <code>wp_postmeta</code> holds ACF fields, Yoast metadata, and (most painfully) full page-builder layouts as one giant string per post.</li>
+<li><strong>Drupal 7.</strong> The <code>variable</code> table is a key-value dump of half the site. Views, blocks, and field configurations are read from <code>cache_*</code> tables at runtime.</li>
+<li><strong>Drupal 8+.</strong> The <code>config</code> table holds active configuration as blobs. Code-in-files is only the import source.</li>
+<li><strong>Magento 1 and 2.</strong> <code>core_config_data</code> drives payment methods, shipping, tax, currency, and most module toggles. EAV tables drive product structure. The PHP module is a renderer of these rows.</li>
+<li><strong>Custom PHP.</strong> A <code>settings</code> table. A <code>features</code> table. A <code>templates</code> table where someone stored HTML rows in 2014 and forgot.</li>
+</ul>
+
+<p>If you treat the repo as the source of truth, you will spend a week tracing why a hook fires twice, when the answer is a row in a settings table you have not opened.</p>
+
+<h2>The read-only sweep</h2>
+
+<p>Before touching any PHP, do a data archaeology pass. The goal is to understand what the database is currently telling the code to do. On WordPress, the first query I run on a new site is the autoload audit:</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM   wp_options
+WHERE  autoload = 'yes'
+ORDER  BY bytes DESC
+LIMIT  20;
+</code></pre>
+
+<p>Every WordPress request loads every autoloaded option into memory. A 2 MB row from a plugin that was deactivated three years ago is still being unserialised on every page view. I have found single rows over 8 MB in the wild. The <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">wp_load_alloptions reference</a> is worth re-reading before you assume the cache layer is the bottleneck.</p>
+
+<p>On Magento, the equivalent is:</p>
+
+<pre><code class="lang-sql">SELECT scope, scope_id, path, value
+FROM   core_config_data
+WHERE  path LIKE 'payment/%'
+   OR  path LIKE 'carriers/%';
+</code></pre>
+
+<p>You will usually find three payment methods enabled that the front-end has not exposed since 2019, plus a shipping rate hardcoded for a warehouse that closed.</p>
+
+<p>On Drupal 8+, dump the active config and diff it against whatever is in <code>config/sync</code> in the repo:</p>
+
+<pre><code class="lang-bash">drush config:export --destination=/tmp/config-snapshot
+diff -ruN config/sync /tmp/config-snapshot
+</code></pre>
+
+<p>The delta is the gap between what the code thinks the site is and what the site actually is. That gap is the size of your real refactor.</p>
+
+<h2>Refactoring with the database in the frame</h2>
+
+<p>Once you accept the database as the source of truth, the order of operations on a destructive refactor changes. Removing a deprecated Magento payment module is no longer "delete the files, deploy, hope". It is:</p>
+
+<ol>
+<li>Snapshot. A <code>mysqldump --single-transaction --quick</code> of production, stored somewhere you trust.</li>
+<li>Map the rows. Which rows in which tables actually control the thing you want to change.</li>
+<li>Mutate the data with the same care you would mutate the code. Write the UPDATE, review the WHERE clause, run it inside a transaction, eyeball the affected row count before commit.</li>
+<li>Then, and only then, touch PHP.</li>
+</ol>
+
+<p>For the Magento case, that means a row update before the file deletion:</p>
+
+<pre><code class="lang-sql">START TRANSACTION;
+
+UPDATE core_config_data
+SET    value = '0'
+WHERE  path  = 'payment/checkmo/active'
+  AND  scope = 'default';
+
+-- inspect: should be exactly 1 row affected
+ROLLBACK;  -- or COMMIT once you are sure
+</code></pre>
+
+<p>If you skip the data step, you will deploy a release where the admin panel still advertises a payment method whose backing class no longer exists. The customer will hit checkout. The autoloader will fatal. The order will not place. You will see this at 23:41 on a Friday.</p>
+
+<aside class="callout">A <code>mysqldump</code> taken without <code>--single-transaction</code> on a busy InnoDB site locks tables long enough to ruin somebody's afternoon. The flag costs nothing and avoids the call. Behaviour documented at <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html#option_mysqldump_single-transaction">dev.mysql.com</a>.</aside>
+
+<h2>Treating SQL writes like code commits</h2>
+
+<p>The hardest shift is treating SQL writes with the same review weight as PHP commits. A pull request that changes <code>functions.php</code> goes through review. A WP-CLI command that runs <code>UPDATE wp_options SET option_value = ...</code> on production usually does not. Both change site behaviour. Only one leaves a paper trail.</p>
+
+<p>The fix is operational, not technical. Write the SQL into a migration file, even a hand-rolled one. Commit it. Tag it. Run it through the same pipeline as the code change. If your CMS does not have a migrations system you trust (Drupal does, Magento sort of does, WordPress does not), keep a folder of dated <code>.sql</code> files and a small runner that records what ran where. Crude beats untracked, every time.</p>
+
+<p>The same logic applies to fixtures. A staging database that is six months behind production is not a staging database, it is a fiction. Snapshot production weekly, scrub the personal data, restore into staging. Otherwise your refactor is being validated against a site that does not exist any more.</p>
+
+<h2>Less time in the viewer</h2>
+
+<p>The practical consequence of all of this is that a real legacy refactor spends more hours in MySQL than in PHP. That feels wrong the first time, because the file editor is where the muscle memory is. It stops feeling wrong once the third Friday-evening fatal has been caused by a row nobody reviewed.</p>
+
+<p>When we built Pier we ran into this on every customer site, and we ended up putting the <a href="/#database">MySQL editor</a> next to the file editor with the same <a href="/#features">version history</a> applied to both. A row edit and a template edit now show up on the same timeline, which removes the worst class of "where did this come from" question from the work.</p>
+
+<p>The smallest thing to do today: open your production database, run the autoload-size query above, and look at the first three rows. They will tell you more about what your site is doing than the last three commits did.</p>
+    </div>
+
+    <aside class="pullquote">In most legacy PHP sites the code is a viewer and the database is the spec. Read the rows before you touch the files.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Should I edit wp_options directly or always go through the WordPress API?</p>
+      <p class="faq-a">For one-off corrective changes, direct SQL inside a transaction is fine. For anything you might need to reverse or repeat, write it as a migration file so it leaves a trail.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">We already use Drupal config sync. Do I still need to read the database?</p>
+      <p class="faq-a">Yes. The sync directory is the desired state. The active config table is the real state. They drift, especially across staging boundaries and after manual admin-UI edits.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I diff two database states without drowning in noise?</p>
+      <p class="faq-a">Export the relevant rows as ordered SQL or as flat key-value dumps, then diff those text outputs. Schema diffs are noisy; row-level diffs are what you want for config tables.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is treating the database as source of truth specific to legacy stacks?</p>
+      <p class="faq-a">No, but it is most visible there. Any system where admin UIs write back to the database (CMS, e-commerce, feature-flag tools) has the same property and benefits from the same workflow.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 May 2026</span></span>
+      <h3>40GB wp_options autoload: the night we hit 800ms TTFB</h3>
+      <span class="pc-lede">A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open wooden card-index drawer on oak desk, brass label holder, fanned index cards, red-sealed paper tag between two cards." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 May 2026</span></span>
+      <h3>WordPress MySQL queries: a legacy maintainer&#39;s cheatsheet</h3>
+      <span class="pc-lede">The half-dozen SQL statements that fix legacy WordPress sites at 17:40 on a Tuesday: URL pair, autoload audit, revisions purge, password reset, transient sweep.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/database-source-of-truth-refactor/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
