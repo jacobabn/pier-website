@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>AI-assisted SQL: when to trust the suggested JOIN clause · Pier — Blog</title>
+<meta name="description" content="AI will hand you a six-table JOIN in two seconds. Half of them are right. Here is how to tell which half before you press run on production.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="ai, mysql, wordpress, magento, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="AI-assisted SQL: when to trust the suggested JOIN clause">
+<meta property="og:description" content="AI will hand you a six-table JOIN in two seconds. Half of them are right. Here is how to tell which half before you press run on production.">
+<meta property="og:url" content="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<meta property="og:image" content="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of inked SQL JOIN diagram with table cards, pencil lines, red question marks, wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T18:15:46.114Z">
+<meta property="article:modified_time" content="2026-05-26T18:15:46.114Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="AI-assisted SQL: when to trust the suggested JOIN clause">
+<meta name="twitter:description" content="AI will hand you a six-table JOIN in two seconds. Half of them are right. Here is how to tell which half before you press run on production.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of inked SQL JOIN diagram with table cards, pencil lines, red question marks, wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/ai-assisted-sql-suggested-join/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/ai-assisted-sql-suggested-join/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/ai-assisted-sql-suggested-join/"},
+  "url":"https://pier.abn.company/blog/ai-assisted-sql-suggested-join/",
+  "headline":"AI-assisted SQL: when to trust the suggested JOIN clause",
+  "description":"AI will hand you a six-table JOIN in two seconds. Half of them are right. Here is how to tell which half before you press run on production.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/ai-assisted-sql-suggested-join/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of inked SQL JOIN diagram with table cards, pencil lines, red question marks, wax seal on linen."
+  },
+  "datePublished":"2026-05-26T18:15:46.114Z",
+  "dateModified":"2026-05-26T18:15:46.114Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"ai, mysql, wordpress, magento, databases, workflow",
+  "wordCount":1314,
+  "articleSection":"AI",
+  "articleBody":"A Dutch agency we work with sent over a Loom at 23:41 on a Sunday. The lead developer had asked an AI assistant for a query that returned every order in the last 90 days with the customer's billing email and the SKUs they bought, against a Magento 1.9 database inherited from a previous freelancer. The AI-assisted SQL came back as a confident eight-table JOIN. It ran. It returned 412,000 rows. The store had done about 9,000 orders that quarter. This post is about the gap between ran and correct . AI-assisted SQL is genuinely useful against a legacy site schema (WordPress, Drupal, Joomla, Magento, the bespoke PHP CRM somebody's cousin built in 2014), but the suggestions fail in a specific, predictable way. Once you can spot the failure pattern you can keep the speed without the 412,000-row surprise. The shape of a wrong JOIN Almost every bad AI-suggested SQL query against a legacy schema fails for one of three reasons, and they're worth naming because they look identical at a glance. The first is a cardinality blowout . The assistant joined a one-to-many onto another one-to-many without a deduplication step, and you got the cartesian product of both. That's what happened to the Magento query above: sales_flat_order_item joined to sales_flat_order_payment joined to sales_flat_order_address with no WHERE address_type = 'billing' filter. Three rows per order on the address side, four to six on the items side, multiplied across 9,000 orders. The second is a silently wrong key . WordPress is the canonical example. An assistant will happily write: SELECT p.post_title, u.user_email FROM wp_posts p JOIN wp_users u ON u.ID = p.post_author WHERE p.post_status = 'publish'; That looks fine. It runs. It returns sensible-looking data. But if the site uses a membership plugin that stores authorship in wp_postmeta under _original_author after an editorial workflow, every byline is wrong by one editor. The assistant has no way to know that, and the query gives no warning. The third is the EAV trap , which is mostly a Magento and Drupal 7 problem. The assistant writes a clean JOIN against catalog_product_entity and then pulls name from a column that doesn't exist, because the name lives in catalog_product_entity_varchar keyed by attribute_id from eav_attribute . You either get nulls everywhere or, if the assistant tries to compensate, a fourteen-line subquery that's almost right and silently drops products with no default-store value. The two-minute audit Before running any AI-suggested JOIN against a production database, walk it through this. It takes about two minutes and catches roughly 80% of what would otherwise embarrass you. Count the source tables. Take the query, list each table on the FROM and JOIN lines, and write the expected cardinality next to each one. If you can't say in plain English \"this is one row per order\" or \"this is many rows per product\", you don't understand the schema well enough to run the query. Stop and read the table. Run it with COUNT(*) first. Wrap the whole thing: SELECT COUNT(*) FROM ( -- paste the AI's query here, but SELECT 1 instead of the columns ) AS audit; Compare the count to what you'd estimate from memory. For the Magento case, the developer knew the quarter had about 9,000 orders. 412,000 is a 45x overshoot. That number alone tells you the JOIN is wrong before you've read a single line of it. Look for a missing DISTINCT or GROUP BY. If the assistant joined onto anything with \"items\", \"meta\", \"address\", \"option\", or \"variant\" in the name and the outer query doesn't aggregate, you probably have row multiplication. Either add GROUP BY on the parent key or restructure as a subquery. Read the WHERE clause backwards. Start with the most specific filter and work outward. Most silently-wrong queries are missing a single condition: address_type = 'billing' , store_id = 0 , meta_key = '_customer_user' , language = 'en' . The assistant rarely volunteers these. You have to know they exist. What to write yourself, every time Some categories of query are not worth asking an AI for, because the cost of getting them subtly wrong dwarfs the time saved. Write these by hand. Anything that writes. UPDATE, DELETE, INSERT, ALTER. An assistant that hallucinates a column in a SELECT just gives you an error. An assistant that hallucinates a column in a WHERE on an UPDATE silently updates every row in the table. OWASP's SQL injection page is worth re-reading for the same reason: assistant or not, the failure modes for write queries are catastrophic where read queries are merely annoying. Anything that touches money. Order totals, invoice line items, tax calculations, refunds. The Magento sales_flat_order table has columns called grand_total , base_grand_total , total_paid , total_refunded , and base_total_invoiced , and they mean five different things in five different currencies. An assistant will pick whichever one was most common in its training data. That's a coin flip you don't want to take. Anything in",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/ai-assisted-sql-suggested-join/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"AI-assisted SQL: when to trust the suggested JOIN clause","item":"https://pier.abn.company/blog/ai-assisted-sql-suggested-join/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is it safe to let an AI write SQL against a production database?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reads, with a COUNT(*) wrapper and a quick EXPLAIN first, usually fine. Writes, never without reading every clause yourself. Test on a recent dump or read replica."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does AI get Magento and Drupal queries wrong more often than WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Both use EAV schemas where attribute values live in side tables keyed by attribute_id. Assistants miss the join to eav_attribute and either return nulls or silently filter rows."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the fastest way to spot a cartesian product in an AI-suggested JOIN?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wrap the query in SELECT COUNT(*) FROM (...) AS audit and compare to the row count you'd estimate from memory. A 10x overshoot means a missing filter or DISTINCT."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I use AI to write UPDATE or DELETE statements?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A hallucinated column in a SELECT throws an error; a hallucinated column in a WHERE on an UPDATE quietly updates every row. The failure modes are not symmetric."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 042</span>
+      </div>
+      <p class="eyebrow"><span class="n">042 —</span>AI</p>
+      <h1 class="display-l post-title">AI-assisted SQL: when to trust the suggested JOIN clause</h1>
+      <p class="lede post-lede">AI will hand you a six-table JOIN in two seconds. Half of them are right. Here is how to tell which half before you press run on production.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T18:15:46.114Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/ai-assisted-sql-suggested-join/hero.webp" type="image/webp">
+      <img src="/blog/ai-assisted-sql-suggested-join/hero.jpg" alt="Overhead photo of inked SQL JOIN diagram with table cards, pencil lines, red question marks, wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 042</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with sent over a Loom at 23:41 on a Sunday. The lead developer had asked an AI assistant for a query that returned every order in the last 90 days with the customer's billing email and the SKUs they bought, against a Magento 1.9 database inherited from a previous freelancer. The AI-assisted SQL came back as a confident eight-table JOIN. It ran. It returned 412,000 rows. The store had done about 9,000 orders that quarter.</p><p>This post is about the gap between <em>ran</em> and <em>correct</em>. AI-assisted SQL is genuinely useful against a <a href="/">legacy site</a> schema (WordPress, Drupal, Joomla, Magento, the bespoke PHP CRM somebody's cousin built in 2014), but the suggestions fail in a specific, predictable way. Once you can spot the failure pattern you can keep the speed without the 412,000-row surprise.</p><h2>The shape of a wrong JOIN</h2><p>Almost every bad AI-suggested SQL query against a legacy schema fails for one of three reasons, and they're worth naming because they look identical at a glance.</p><p>The first is a <strong>cardinality blowout</strong>. The assistant joined a one-to-many onto another one-to-many without a deduplication step, and you got the cartesian product of both. That's what happened to the Magento query above: <code>sales_flat_order_item</code> joined to <code>sales_flat_order_payment</code> joined to <code>sales_flat_order_address</code> with no <code>WHERE address_type = 'billing'</code> filter. Three rows per order on the address side, four to six on the items side, multiplied across 9,000 orders.</p><p>The second is a <strong>silently wrong key</strong>. WordPress is the canonical example. An assistant will happily write:</p><pre><code class="lang-sql">SELECT p.post_title, u.user_email
+FROM wp_posts p
+JOIN wp_users u ON u.ID = p.post_author
+WHERE p.post_status = 'publish';</code></pre><p>That looks fine. It runs. It returns sensible-looking data. But if the site uses a membership plugin that stores authorship in <code>wp_postmeta</code> under <code>_original_author</code> after an editorial workflow, every byline is wrong by one editor. The assistant has no way to know that, and the query gives no warning.</p><p>The third is the <strong>EAV trap</strong>, which is mostly a Magento and Drupal 7 problem. The assistant writes a clean JOIN against <code>catalog_product_entity</code> and then pulls <code>name</code> from a column that doesn't exist, because the name lives in <code>catalog_product_entity_varchar</code> keyed by <code>attribute_id</code> from <code>eav_attribute</code>. You either get nulls everywhere or, if the assistant tries to compensate, a fourteen-line subquery that's almost right and silently drops products with no default-store value.</p><h2>The two-minute audit</h2><p>Before running any AI-suggested JOIN against a production database, walk it through this. It takes about two minutes and catches roughly 80% of what would otherwise embarrass you.</p><p><strong>Count the source tables.</strong> Take the query, list each table on the FROM and JOIN lines, and write the expected cardinality next to each one. If you can't say in plain English "this is one row per order" or "this is many rows per product", you don't understand the schema well enough to run the query. Stop and read the table.</p><p><strong>Run it with COUNT(*) first.</strong> Wrap the whole thing:</p><pre><code class="lang-sql">SELECT COUNT(*) FROM (
+  -- paste the AI's query here, but SELECT 1 instead of the columns
+) AS audit;</code></pre><p>Compare the count to what you'd estimate from memory. For the Magento case, the developer knew the quarter had about 9,000 orders. 412,000 is a 45x overshoot. That number alone tells you the JOIN is wrong before you've read a single line of it.</p><p><strong>Look for a missing DISTINCT or GROUP BY.</strong> If the assistant joined onto anything with "items", "meta", "address", "option", or "variant" in the name and the outer query doesn't aggregate, you probably have row multiplication. Either add <code>GROUP BY</code> on the parent key or restructure as a subquery.</p><p><strong>Read the WHERE clause backwards.</strong> Start with the most specific filter and work outward. Most silently-wrong queries are missing a single condition: <code>address_type = 'billing'</code>, <code>store_id = 0</code>, <code>meta_key = '_customer_user'</code>, <code>language = 'en'</code>. The assistant rarely volunteers these. You have to know they exist.</p><h2>What to write yourself, every time</h2><p>Some categories of query are not worth asking an AI for, because the cost of getting them subtly wrong dwarfs the time saved. Write these by hand.</p><p><strong>Anything that writes.</strong> UPDATE, DELETE, INSERT, ALTER. An assistant that hallucinates a column in a SELECT just gives you an error. An assistant that hallucinates a column in a WHERE on an UPDATE silently updates every row in the table. <a href="https://owasp.org/www-community/attacks/SQL_Injection">OWASP's SQL injection page</a> is worth re-reading for the same reason: assistant or not, the failure modes for write queries are catastrophic where read queries are merely annoying.</p><p><strong>Anything that touches money.</strong> Order totals, invoice line items, tax calculations, refunds. The Magento <a href="https://devdocs.magento.com/guides/m1x/api/soap/sales/salesOrder/sales_order.list.html">sales_flat_order</a> table has columns called <code>grand_total</code>, <code>base_grand_total</code>, <code>total_paid</code>, <code>total_refunded</code>, and <code>base_total_invoiced</code>, and they mean five different things in five different currencies. An assistant will pick whichever one was most common in its training data. That's a coin flip you don't want to take.</p><p><strong>Anything involving soft-deletes or status flags.</strong> WordPress's <code>post_status</code> can be <code>publish</code>, <code>draft</code>, <code>private</code>, <code>trash</code>, <code>auto-draft</code>, <code>inherit</code>, or whatever a plugin invented. Drupal's <code>node_field_data.status</code> is 0 or 1 but the meaning depends on whether the node is also published in the moderation workflow. If the assistant doesn't ask which states you want, it picked one. You have to verify which.</p><h2>What to let the AI do</h2><p>The flip side is that there's a real category of work where AI-assisted SQL is faster than writing it yourself, and refusing to use it is just stubbornness.</p><p>Boilerplate joins where the schema is well-known and the keys are obvious: <code>wp_posts</code> to <code>wp_postmeta</code> on <code>post_id</code>, <code>users</code> to <code>orders</code> on <code>customer_id</code>, the standard Drupal node-to-field-table pattern. Pivot queries where the SQL is annoying to write but easy to verify. Date-bucketing with <code>DATE_FORMAT</code> or window functions where you'd otherwise have to look up the syntax. Translating a schema you've already read into a query you've already imagined. That's where it earns its keep.</p><p>The rule of thumb: if you could write the query in five minutes but you can't be bothered, the assistant is fine. If you'd need to read the schema first to write it, the assistant probably needs to read it too, and it can't.</p><h2>A workflow that survives Monday morning</h2><p>The agency from the opening scene now runs every AI-suggested query through a three-step ritual before it touches production. EXPLAIN first, to see what the planner is actually going to do and catch the cartesian product before it costs anything. COUNT(*) wrapped around the query, to sanity-check the row count against memory. Then the real query, but on a read replica or a recent dump first, never the live database, even for SELECTs. A badly-shaped JOIN against a 40GB orders table will pin the box for ten minutes whether or not it's read-only.</p><p>None of this is new advice. <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">EXPLAIN</a> has been in MySQL since before any of us were writing PHP for a living. What's new is that the volume of queries you're tempted to run has gone up, because the friction of writing them has gone down. The discipline has to scale with the throughput.</p><p>When we built Pier we ran into this exact thing. The chat suggests a JOIN, we run it, the result is wrong in a way that takes ten minutes to debug. The way we ended up handling it was to show row counts and EXPLAIN output inline inside the <a href="/#database">MySQL editor</a> before a statement commits, and to keep every executed query in <a href="/#features">version history</a> so a wrong UPDATE is one click back.</p><p>The smallest thing you can do today: open whichever legacy database you're closest to, write down the cardinality of its three biggest tables on a sticky note, and stick it next to your monitor. Next time the assistant hands you a query, you'll catch the blowout before you press run.</p>
+    </div>
+
+    <aside class="pullquote">AI-suggested JOINs against legacy schemas fail in three predictable ways: cardinality blowouts, silently wrong keys, and EAV traps. A two-minute audit catches most of them.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to let an AI write SQL against a production database?</p>
+      <p class="faq-a">Reads, with a COUNT(*) wrapper and a quick EXPLAIN first, usually fine. Writes, never without reading every clause yourself. Test on a recent dump or read replica.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does AI get Magento and Drupal queries wrong more often than WordPress?</p>
+      <p class="faq-a">Both use EAV schemas where attribute values live in side tables keyed by attribute_id. Assistants miss the join to eav_attribute and either return nulls or silently filter rows.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What&#39;s the fastest way to spot a cartesian product in an AI-suggested JOIN?</p>
+      <p class="faq-a">Wrap the query in SELECT COUNT(*) FROM (...) AS audit and compare to the row count you&#39;d estimate from memory. A 10x overshoot means a missing filter or DISTINCT.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I use AI to write UPDATE or DELETE statements?</p>
+      <p class="faq-a">No. A hallucinated column in a SELECT throws an error; a hallucinated column in a WHERE on an UPDATE quietly updates every row. The failure modes are not symmetric.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=ai">#ai</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/sanity-check-ai-suggested-edits/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/sanity-check-ai-suggested-edits/hero.webp" type="image/webp">
+        <img src="/blog/sanity-check-ai-suggested-edits/hero.jpg" alt="Graph-paper run-sheet headed REVIEW, a printed SQL diff slip, a brass stamp and a clay-red APPLY tag on bone linen" loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>21 May 2026</span></span>
+      <h3>AI-suggested edits: a four-step check before you apply</h3>
+      <span class="pc-lede">The chat returns a one-line SQL diff you didn&#39;t write and only half recognize. Before you apply it on a live site, run it through four steps.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/9gb-restore-partial-dump-ftp-shards/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp">
+        <img src="/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg" alt="Overhead workbench shot of truncated mysqldump printout, three manila FTP folders, restore log, brass RESTORE plate, wax-sealed envelope." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>27 May 2026</span></span>
+      <h3>9GB site restore: a partial dump and three FTP shards</h3>
+      <span class="pc-lede">An afternoon spent stitching a 9GB WordPress site back together from one truncated mysqldump and three half-broken FTP backups. Here is the restore log.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

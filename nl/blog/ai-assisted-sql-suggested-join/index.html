@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen? · Pier — Blog</title>
+<meta name="description" content="Een AI schrijft in twee seconden een JOIN over zes tabellen. De helft daarvan klopt. Zo zie je welke helft klopt, voordat je &#39;run&#39; drukt op productie.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="ai, mysql, wordpress, magento, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen?">
+<meta property="og:description" content="Een AI schrijft in twee seconden een JOIN over zes tabellen. De helft daarvan klopt. Zo zie je welke helft klopt, voordat je &#39;run&#39; drukt op productie.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van inkt SQL JOIN-diagram met tabelkaarten, potloodlijnen, rode vraagtekens en waszegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T18:15:46.114Z">
+<meta property="article:modified_time" content="2026-05-26T18:15:46.114Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen?">
+<meta name="twitter:description" content="Een AI schrijft in twee seconden een JOIN over zes tabellen. De helft daarvan klopt. Zo zie je welke helft klopt, voordat je &#39;run&#39; drukt op productie.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van inkt SQL JOIN-diagram met tabelkaarten, potloodlijnen, rode vraagtekens en waszegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/ai-assisted-sql-suggested-join/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/"},
+  "url":"https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/",
+  "headline":"AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen?",
+  "description":"Een AI schrijft in twee seconden een JOIN over zes tabellen. De helft daarvan klopt. Zo zie je welke helft klopt, voordat je 'run' drukt op productie.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van inkt SQL JOIN-diagram met tabelkaarten, potloodlijnen, rode vraagtekens en waszegel op linnen."
+  },
+  "datePublished":"2026-05-26T18:15:46.114Z",
+  "dateModified":"2026-05-26T18:15:46.114Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"ai, mysql, wordpress, magento, databases, workflow",
+  "wordCount":1353,
+  "articleSection":"AI",
+  "articleBody":"Een Nederlands bureau waarmee we werken stuurde zondagavond om 23:41 een Loom door. De lead developer had aan een AI-assistent gevraagd om een query die alle orders van de afgelopen 90 dagen ophaalde, met het factuuremailadres van de klant en de gekochte SKU's, tegen een Magento 1.9-database die was overgenomen van een vorige freelancer. De AI-SQL kwam terug als een zelfverzekerde JOIN over acht tabellen. Hij draaide. Hij gaf 412.000 rijen terug. De winkel had dat kwartaal ongeveer 9.000 orders gedaan. Dit stuk gaat over het gat tussen draaide en klopt . AI-gegenereerde SQL is echt nuttig tegen het schema van een verouderde site (WordPress, Drupal, Joomla, Magento, het op maat gebouwde PHP-CRM dat iemands neef in 2014 in elkaar zette), maar de suggesties falen op een specifieke, voorspelbare manier. Zodra je dat patroon herkent, houd je de snelheid zonder de verrassing van 412.000 rijen. De vorm van een foute JOIN Bijna elke slechte AI-SQL-query tegen een verouderd schema gaat om één van drie redenen mis, en die zijn het waard om te benoemen omdat ze op het eerste gezicht identiek lijken. De eerste is een cardinality blowout . De assistent heeft een one-to-many op een andere one-to-many gejoind zonder ontdubbelingsstap, en je krijgt het cartesisch product van beide. Dat is wat er gebeurde met de Magento-query hierboven: sales_flat_order_item gejoind met sales_flat_order_payment gejoind met sales_flat_order_address zonder filter WHERE address_type = 'billing' . Drie rijen per order aan de adreskant, vier tot zes aan de items-kant, vermenigvuldigd over 9.000 orders. De tweede is een stiekem foute key . WordPress is het schoolvoorbeeld. Een assistent schrijft vrolijk: SELECT p.post_title, u.user_email FROM wp_posts p JOIN wp_users u ON u.ID = p.post_author WHERE p.post_status = 'publish'; Dat ziet er prima uit. Het draait. Het geeft data terug die er redelijk uitziet. Maar als de site een membership-plugin gebruikt die het auteurschap na een redactieworkflow opslaat in wp_postmeta onder _original_author , dan toont elke byline de redacteur in plaats van de auteur. De assistent kan dat onmogelijk weten, en de query geeft geen waarschuwing. De derde is de EAV-val , en die speelt vooral bij Magento en Drupal 7. De assistent schrijft een nette JOIN tegen catalog_product_entity en haalt vervolgens name uit een kolom die niet bestaat, omdat de naam in catalog_product_entity_varchar staat, gekoppeld via attribute_id uit eav_attribute . Je krijgt of overal NULL's terug, of, als de assistent probeert te compenseren, een veertien regels lange subquery die bijna goed is en stilletjes producten zonder default-store-waarde weglaat. De audit van twee minuten Voordat je een AI-voorgestelde JOIN op een productiedatabase loslaat, loop je hem hierdoor. Het duurt ongeveer twee minuten en vangt ruwweg 80% van de fouten die je anders pas op productie zou ontdekken. Tel de brontabellen. Pak de query, zet elke tabel op de FROM- en JOIN-regels op een rij, en schrijf de verwachte cardinaliteit ernaast. Als je niet in gewone taal kunt zeggen \"dit is één rij per order\" of \"dit zijn meerdere rijen per product\", dan ken je het schema niet goed genoeg om de query te draaien. Stop en lees de tabel. Draai hem eerst met COUNT(*). Wikkel het geheel in: SELECT COUNT(*) FROM ( -- plak de AI-query hier, maar SELECT 1 in plaats van de kolommen ) AS audit; Vergelijk de telling met wat je uit het hoofd zou schatten. In het Magento-geval wist de ontwikkelaar dat het kwartaal ongeveer 9.000 orders had. 412.000 is 45 keer te hoog. Dat getal alleen al vertelt je dat de JOIN fout is voordat je één regel hebt gelezen. Let op een ontbrekende DISTINCT of GROUP BY. Als de assistent iets heeft gejoind met 'items', 'meta', 'address', 'option' of 'variant' in de naam en de buitenste query aggregeert niet, dan heb je waarschijnlijk rijvermenigvuldiging. Voeg GROUP BY op de parent key toe, of herstructureer als subquery. Lees de WHERE-clausule van achter naar voren. Begin bij het meest specifieke filter en werk naar buiten. De meeste stiekem foute queries missen één enkele voorwaarde: address_type = 'billing' , store_id = 0 , meta_key = '_customer_user' , language = 'en' . De assistent komt daar zelden uit zichzelf mee. Je moet weten dat ze bestaan. Wat je altijd zelf schrijft Sommige soorten queries zijn het niet waard om aan een AI te vragen, omdat de kosten van een subtiele fout veel hoger zijn dan de tijdwinst. Schrijf deze met de hand. Alles dat schrijft. UPDATE, DELETE, INSERT, ALTER. Een assistent die in een SELECT een kolom hallucineert geeft je gewoon een foutmelding. Een assistent die in de WHERE van een UPDATE een kolom hallucineert update stilletjes elke rij in de tabel. De OWASP-pagina over SQL-injection is om diezelfde reden de moeite van het herlezen waard: assistent of niet, de failure modes voor write-queries zijn catastrofaal waar die voor read-queries enkel vervelend zijn. Alles dat geld raakt. Ordertotalen, factuurregels, btw-berekeningen, ter",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen?","item":"https://pier.abn.company/nl/blog/ai-assisted-sql-suggested-join/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is het veilig om een AI SQL te laten schrijven tegen een productiedatabase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reads met een COUNT(*) eromheen en eerst een snelle EXPLAIN: meestal prima. Writes: nooit zonder elke clausule zelf te lezen. Test op een recente dump of read replica."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom gaan Magento- en Drupal-queries vaker fout dan WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Beide gebruiken EAV-schema's waarin attribuutwaarden in zijtabellen staan, gekoppeld via attribute_id. Assistenten missen de join naar eav_attribute en geven of NULL's terug of filteren rijen stilletjes weg."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is de snelste manier om een cartesisch product in een AI-JOIN te herkennen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wikkel de query in SELECT COUNT(*) FROM (...) AS audit en vergelijk met het rijaantal dat je uit het hoofd zou schatten. Een tienvoudige overshoot betekent een ontbrekend filter of DISTINCT."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 042</span>
+      </div>
+      <p class="eyebrow"><span class="n">042 —</span>AI</p>
+      <h1 class="display-l post-title">AI-SQL: wanneer mag je de voorgestelde JOIN vertrouwen?</h1>
+      <p class="lede post-lede">Een AI schrijft in twee seconden een JOIN over zes tabellen. De helft daarvan klopt. Zo zie je welke helft klopt, voordat je &#39;run&#39; drukt op productie.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T18:15:46.114Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/ai-assisted-sql-suggested-join/hero.webp" type="image/webp">
+      <img src="/blog/ai-assisted-sql-suggested-join/hero.jpg" alt="Bovenaanzicht van inkt SQL JOIN-diagram met tabelkaarten, potloodlijnen, rode vraagtekens en waszegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 042</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waarmee we werken stuurde zondagavond om 23:41 een Loom door. De lead developer had aan een AI-assistent gevraagd om een query die alle orders van de afgelopen 90 dagen ophaalde, met het factuuremailadres van de klant en de gekochte SKU's, tegen een Magento 1.9-database die was overgenomen van een vorige freelancer. De AI-SQL kwam terug als een zelfverzekerde JOIN over acht tabellen. Hij draaide. Hij gaf 412.000 rijen terug. De winkel had dat kwartaal ongeveer 9.000 orders gedaan.</p><p>Dit stuk gaat over het gat tussen <em>draaide</em> en <em>klopt</em>. AI-gegenereerde SQL is echt nuttig tegen het schema van een <a href="/">verouderde site</a> (WordPress, Drupal, Joomla, Magento, het op maat gebouwde PHP-CRM dat iemands neef in 2014 in elkaar zette), maar de suggesties falen op een specifieke, voorspelbare manier. Zodra je dat patroon herkent, houd je de snelheid zonder de verrassing van 412.000 rijen.</p><h2>De vorm van een foute JOIN</h2><p>Bijna elke slechte AI-SQL-query tegen een verouderd schema gaat om één van drie redenen mis, en die zijn het waard om te benoemen omdat ze op het eerste gezicht identiek lijken.</p><p>De eerste is een <strong>cardinality blowout</strong>. De assistent heeft een one-to-many op een andere one-to-many gejoind zonder ontdubbelingsstap, en je krijgt het cartesisch product van beide. Dat is wat er gebeurde met de Magento-query hierboven: <code>sales_flat_order_item</code> gejoind met <code>sales_flat_order_payment</code> gejoind met <code>sales_flat_order_address</code> zonder filter <code>WHERE address_type = 'billing'</code>. Drie rijen per order aan de adreskant, vier tot zes aan de items-kant, vermenigvuldigd over 9.000 orders.</p><p>De tweede is een <strong>stiekem foute key</strong>. WordPress is het schoolvoorbeeld. Een assistent schrijft vrolijk:</p><pre><code class="lang-sql">SELECT p.post_title, u.user_email
+FROM wp_posts p
+JOIN wp_users u ON u.ID = p.post_author
+WHERE p.post_status = 'publish';</code></pre><p>Dat ziet er prima uit. Het draait. Het geeft data terug die er redelijk uitziet. Maar als de site een membership-plugin gebruikt die het auteurschap na een redactieworkflow opslaat in <code>wp_postmeta</code> onder <code>_original_author</code>, dan toont elke byline de redacteur in plaats van de auteur. De assistent kan dat onmogelijk weten, en de query geeft geen waarschuwing.</p><p>De derde is de <strong>EAV-val</strong>, en die speelt vooral bij Magento en Drupal 7. De assistent schrijft een nette JOIN tegen <code>catalog_product_entity</code> en haalt vervolgens <code>name</code> uit een kolom die niet bestaat, omdat de naam in <code>catalog_product_entity_varchar</code> staat, gekoppeld via <code>attribute_id</code> uit <code>eav_attribute</code>. Je krijgt of overal NULL's terug, of, als de assistent probeert te compenseren, een veertien regels lange subquery die bijna goed is en stilletjes producten zonder default-store-waarde weglaat.</p><h2>De audit van twee minuten</h2><p>Voordat je een AI-voorgestelde JOIN op een productiedatabase loslaat, loop je hem hierdoor. Het duurt ongeveer twee minuten en vangt ruwweg 80% van de fouten die je anders pas op productie zou ontdekken.</p><p><strong>Tel de brontabellen.</strong> Pak de query, zet elke tabel op de FROM- en JOIN-regels op een rij, en schrijf de verwachte cardinaliteit ernaast. Als je niet in gewone taal kunt zeggen "dit is één rij per order" of "dit zijn meerdere rijen per product", dan ken je het schema niet goed genoeg om de query te draaien. Stop en lees de tabel.</p><p><strong>Draai hem eerst met COUNT(*).</strong> Wikkel het geheel in:</p><pre><code class="lang-sql">SELECT COUNT(*) FROM (
+  -- plak de AI-query hier, maar SELECT 1 in plaats van de kolommen
+) AS audit;</code></pre><p>Vergelijk de telling met wat je uit het hoofd zou schatten. In het Magento-geval wist de ontwikkelaar dat het kwartaal ongeveer 9.000 orders had. 412.000 is 45 keer te hoog. Dat getal alleen al vertelt je dat de JOIN fout is voordat je één regel hebt gelezen.</p><p><strong>Let op een ontbrekende DISTINCT of GROUP BY.</strong> Als de assistent iets heeft gejoind met 'items', 'meta', 'address', 'option' of 'variant' in de naam en de buitenste query aggregeert niet, dan heb je waarschijnlijk rijvermenigvuldiging. Voeg <code>GROUP BY</code> op de parent key toe, of herstructureer als subquery.</p><p><strong>Lees de WHERE-clausule van achter naar voren.</strong> Begin bij het meest specifieke filter en werk naar buiten. De meeste stiekem foute queries missen één enkele voorwaarde: <code>address_type = 'billing'</code>, <code>store_id = 0</code>, <code>meta_key = '_customer_user'</code>, <code>language = 'en'</code>. De assistent komt daar zelden uit zichzelf mee. Je moet weten dat ze bestaan.</p><h2>Wat je altijd zelf schrijft</h2><p>Sommige soorten queries zijn het niet waard om aan een AI te vragen, omdat de kosten van een subtiele fout veel hoger zijn dan de tijdwinst. Schrijf deze met de hand.</p><p><strong>Alles dat schrijft.</strong> UPDATE, DELETE, INSERT, ALTER. Een assistent die in een SELECT een kolom hallucineert geeft je gewoon een foutmelding. Een assistent die in de WHERE van een UPDATE een kolom hallucineert update stilletjes elke rij in de tabel. <a href="https://owasp.org/www-community/attacks/SQL_Injection">De OWASP-pagina over SQL-injection</a> is om diezelfde reden de moeite van het herlezen waard: assistent of niet, de failure modes voor write-queries zijn catastrofaal waar die voor read-queries enkel vervelend zijn.</p><p><strong>Alles dat geld raakt.</strong> Ordertotalen, factuurregels, btw-berekeningen, terugbetalingen. De Magento <a href="https://devdocs.magento.com/guides/m1x/api/soap/sales/salesOrder/sales_order.list.html">sales_flat_order</a>-tabel heeft kolommen die <code>grand_total</code>, <code>base_grand_total</code>, <code>total_paid</code>, <code>total_refunded</code> en <code>base_total_invoiced</code> heten, en ze betekenen vijf verschillende dingen in vijf verschillende valuta. Een assistent kiest degene die in zijn trainingsdata het meest voorkwam. Dat is een muntje opgooien dat je niet wilt doen.</p><p><strong>Alles met soft deletes of statusvlaggen.</strong> WordPress' <code>post_status</code> kan <code>publish</code>, <code>draft</code>, <code>private</code>, <code>trash</code>, <code>auto-draft</code>, <code>inherit</code> of wat een plugin ook heeft verzonnen zijn. Drupal's <code>node_field_data.status</code> is 0 of 1, maar de betekenis hangt ervan af of de node ook in de moderatieworkflow gepubliceerd is. Als de assistent niet vraagt welke statussen je wilt, heeft hij er één gekozen. Jij moet verifiëren welke.</p><h2>Wat je de AI wel laat doen</h2><p>De andere kant van de medaille: er is een reëel gebied waar AI-SQL sneller is dan zelf schrijven, en weigeren om het te gebruiken is gewoon koppigheid.</p><p>Standaard joins waar het schema bekend is en de keys voor de hand liggen: <code>wp_posts</code> aan <code>wp_postmeta</code> op <code>post_id</code>, <code>users</code> aan <code>orders</code> op <code>customer_id</code>, het standaard Drupal-patroon van node naar veldtabel. Pivotqueries waar de SQL vervelend is om te schrijven maar makkelijk te verifiëren. Date-bucketing met <code>DATE_FORMAT</code> of window-functies waarvoor je anders de syntax moet opzoeken. Een schema dat je al hebt gelezen vertalen naar een query die je al voor je zag. Daar verdient het zijn brood.</p><p>De vuistregel: als je de query in vijf minuten zou kunnen schrijven maar geen zin hebt, is de assistent prima. Als je eerst het schema moet lezen om hem te schrijven, moet de assistent dat waarschijnlijk ook, en dat kan hij niet.</p><h2>Een werkwijze die maandagochtend overleeft</h2><p>Het bureau uit het openingsverhaal haalt nu elke AI-voorgestelde query door een ritueel van drie stappen voordat hij de productie raakt. Eerst EXPLAIN, om te zien wat de planner echt gaat doen en het cartesisch product te onderscheppen voordat het iets kost. COUNT(*) eromheen, om de telling tegen je geheugen te checken. Dan de echte query, maar eerst op een read replica of een recente dump, nooit op de live database, zelfs niet voor SELECTs. Een slecht gevormde JOIN op een orders-tabel van 40 GB legt de machine tien minuten plat, of hij nu read-only is of niet.</p><p>Niets van dit alles is nieuws. <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">EXPLAIN</a> zit al in MySQL sinds voordat een van ons PHP schreef voor zijn brood. Wat nieuw is, is dat het volume aan queries dat je in de verleiding komt te draaien is gegroeid, omdat de moeite van het schrijven is verdwenen. De discipline moet meegroeien met de doorstroom.</p><p>Toen we Pier bouwden liepen we precies hiertegenaan. De chat stelt een JOIN voor, we runnen hem, het resultaat is op een manier fout die tien minuten kost om te debuggen. Hoe we dat uiteindelijk hebben opgelost: rijaantallen en EXPLAIN-output inline tonen in de <a href="/#database">MySQL editor</a> voordat een statement commit, en elke uitgevoerde query bewaren in <a href="/#features">versiegeschiedenis</a> zodat een foute UPDATE één klik terug is.</p><p>Het kleinste wat je vandaag kunt doen: open de verouderde database die het dichtst bij je staat, schrijf de cardinaliteit van de drie grootste tabellen op een geeltje, en plak het naast je monitor. De volgende keer dat de assistent je een query aanreikt, vang je de blowout vóór je op run drukt.</p>
+    </div>
+
+    <aside class="pullquote">AI-voorgestelde JOINs tegen verouderde schema&#39;s falen op drie voorspelbare manieren: cardinality blowouts, stiekem foute keys, en EAV-vallen. Een audit van twee minuten ondervangt de meeste.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om een AI SQL te laten schrijven tegen een productiedatabase?</p>
+      <p class="faq-a">Reads met een COUNT(*) eromheen en eerst een snelle EXPLAIN: meestal prima. Writes: nooit zonder elke clausule zelf te lezen. Test op een recente dump of read replica.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom gaan Magento- en Drupal-queries vaker fout dan WordPress?</p>
+      <p class="faq-a">Beide gebruiken EAV-schema&#39;s waarin attribuutwaarden in zijtabellen staan, gekoppeld via attribute_id. Assistenten missen de join naar eav_attribute en geven of NULL&#39;s terug of filteren rijen stilletjes weg.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is de snelste manier om een cartesisch product in een AI-JOIN te herkennen?</p>
+      <p class="faq-a">Wikkel de query in SELECT COUNT(*) FROM (...) AS audit en vergelijk met het rijaantal dat je uit het hoofd zou schatten. Een tienvoudige overshoot betekent een ontbrekend filter of DISTINCT.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=ai">#ai</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/sanity-check-ai-suggested-edits/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/sanity-check-ai-suggested-edits/hero.webp" type="image/webp">
+        <img src="/nl/blog/sanity-check-ai-suggested-edits/hero.jpg" alt="Ruitjespapier-werkblad met REVIEW, een geprint SQL-diffstrookje, een messing stempel en een kleirood APPLY-label op linnen" loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>21 mei 2026</span></span>
+      <h3>AI-suggesties: controleer in vier stappen voor je ze toepast</h3>
+      <span class="pc-lede">De chat geeft je een SQL-diff van één regel die je niet zelf schreef en maar half herkent. Voor je hem op een live site toepast: vier stappen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp">
+        <img src="/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg" alt="Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>9GB site herstellen: kapotte dump en drie FTP-shards</h3>
+      <span class="pc-lede">Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/ai-assisted-sql-suggested-join/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
