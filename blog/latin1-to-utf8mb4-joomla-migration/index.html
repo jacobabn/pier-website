@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration · Pier — Blog</title>
+<meta name="description" content="A Dutch agency we work with inherited a 2011 Joomla site. The articles looked fine until somebody searched for an accented name. Here is the routine we used to fix it without mojibake.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="migration, mysql, databases, joomla, php">
+
+<link rel="canonical" href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration">
+<meta property="og:description" content="A Dutch agency we work with inherited a 2011 Joomla site. The articles looked fine until somebody searched for an accented name. Here is the routine we used to fix it without mojibake.">
+<meta property="og:url" content="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<meta property="og:image" content="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of SQL script with utf8mb4 commands, mojibake correction, brass plate, loupe, wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T23:28:01.371Z">
+<meta property="article:modified_time" content="2026-05-26T23:28:01.371Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration">
+<meta name="twitter:description" content="A Dutch agency we work with inherited a 2011 Joomla site. The articles looked fine until somebody searched for an accented name. Here is the routine we used to fix it without mojibake.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of SQL script with utf8mb4 commands, mojibake correction, brass plate, loupe, wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/latin1-to-utf8mb4-joomla-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/"},
+  "url":"https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/",
+  "headline":"Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration",
+  "description":"A Dutch agency we work with inherited a 2011 Joomla site. The articles looked fine until somebody searched for an accented name. Here is the routine we used to fix it without mojibake.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of SQL script with utf8mb4 commands, mojibake correction, brass plate, loupe, wax seal on linen."
+  },
+  "datePublished":"2026-05-26T23:28:01.371Z",
+  "dateModified":"2026-05-26T23:28:01.371Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"migration, mysql, databases, joomla, php",
+  "wordCount":1091,
+  "articleSection":"Migration",
+  "articleBody":"A Dutch agency we work with sent a Loom at 23:41 on a Tuesday. The screen showed a Joomla 3.10 article preview with the headline \"Café Plein 12, Nîmes, ouvert le dimanche\" rendered as \"Café Plein 12, NÃ®mes, ouvert le dimanche\". The database had been carried forward, byte for byte, since the original 2011 install on Joomla 1.7 and MySQL 5.1. Every accented character was now a Latin-1 garbage pair. The site needed to move to utf8mb4 before a PHP 8.2 upgrade. Doing it wrong twice in production is how you end up with three layers of mojibake and no rollback. Here is the routine we use, step by step, to convert a latin1 Joomla database to utf8mb4 without losing a single character. Reading the actual bytes Joomla tables that look like latin1_swedish_ci in phpMyAdmin almost never contain Swedish. On a 2011 install, the column declared latin1 was usually being written by a PHP layer sending UTF-8 bytes over a connection that did not SET NAMES . MySQL stored the raw bytes without converting them. The column is mislabelled, not miscoded. Before touching anything, dump one row in hex and look at it: SELECT HEX(title), title FROM jos_content WHERE id = 412; If \"café\" stores as 63 61 66 C3 A9 , the bytes are valid UTF-8 wearing a latin1 label. That is the easy case. If it stores as 63 61 66 C3 83 C2 A9 , somebody already ran a half-broken conversion and the data is double-encoded. Fix the double-encoding first by reversing the extra pass, otherwise everything that follows will compound the damage. The safe export The whole trick is to read the bytes out in the same charset they were written under, not in the charset MySQL thinks they are in. mysqldump with --default-character-set=latin1 tells the server \"do not transcode anything, just hand me the raw bytes\". The output file is then UTF-8 byte-for-byte, even though the dump header still claims latin1. mysqldump \\ --default-character-set=latin1 \\ --skip-set-charset \\ --single-transaction \\ --routines --triggers \\ -u root -p \\ joomla_prod > joomla_latin1.sql --skip-set-charset drops the SET NAMES latin1 line from the dump header. --single-transaction keeps you out of trouble on InnoDB without locking the tables. The mysqldump manual covers the remaining flags if you need to slice by database. Take a second dump with the default utf8mb4 handling and keep it. If the byte-for-byte plan turns out wrong because somebody really did write Latin-1 text into one column (a comment author named \"Müller\" entered via a 2010 form, say), you will need the transcoded version to splice that column back in. Disk is cheap; a do-over against a live site is not. Rewriting and reimporting Now rewrite the dump's character set declarations and collations. The file body is already valid UTF-8; only the metadata needs to change. sed -i.bak \\ -e 's/CHARSET=latin1/CHARSET=utf8mb4/g' \\ -e 's/COLLATE=latin1_swedish_ci/COLLATE=utf8mb4_unicode_ci/g' \\ -e 's/ DEFAULT CHARACTER SET latin1/ DEFAULT CHARACTER SET utf8mb4/g' \\ joomla_latin1.sql mv joomla_latin1.sql joomla_utf8mb4.sql Create a fresh empty database with the right defaults, then import into it: CREATE DATABASE joomla_new CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; mysql \\ --default-character-set=utf8mb4 \\ -u root -p \\ joomla_new < joomla_utf8mb4.sql Query a known accented row in the new database. It should read clean. The byte-for-byte logic You are not asking MySQL to convert anything. You read raw bytes that happened to be valid UTF-8, declared them as such on the way back in, and the labels finally match the contents. Mathias Bynens' write-up remains the clearest reference on why utf8mb4 (not utf8) is the only correct target on MySQL. The Joomla index length trap The reimport will fail on at least one table with ERROR 1071: Specified key was too long; max key length is 767 bytes . utf8mb4 is four bytes per character, so a VARCHAR(255) index hits 1020 bytes. The fix depends on your MySQL version. On MySQL 5.7+ and MariaDB 10.2+ with InnoDB, the limit becomes 3072 bytes if three conditions hold: innodb_file_per_table = ON innodb_file_format = Barracuda (5.7 only; 8.0 removed the toggle) The table is created with ROW_FORMAT=DYNAMIC or COMPRESSED The dump from a 2011 Joomla install will be full of ROW_FORMAT=COMPACT or no row format at all. Patch the dump before importing: sed -i \\ -e 's/ENGINE=InnoDB/ENGINE=InnoDB ROW_FORMAT=DYNAMIC/g' \\ joomla_utf8mb4.sql If a stray ALTER still trips on a key, the Joomla-specific offenders are usually #__session.session_id and #__update_sites.location . Both can be shortened to VARCHAR(191) without breaking anything Joomla does at runtime. Configuration and verification Point Joomla at the new database in configuration.php : public $dbtype = 'mysqli'; public $host = 'localhost'; public $user = 'joomla'; public $password = '...'; public $db = 'joomla_new'; public $dbprefix = 'jos_'; Joomla itself did not set a connection charset before 3.5; on older sites, either add an explicit mysqli_set_charset($conn,",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration","item":"https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why utf8mb4 and not utf8?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MySQL's 'utf8' is a three-byte subset that cannot store emoji or some CJK characters. utf8mb4 is real four-byte UTF-8 and is the only correct target on MySQL."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need to take the site offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only for the cutover. The export, rewrite and reimport happen on a copy. When the new database verifies clean, switch configuration.php and flush Joomla's cache."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if HEX() shows the double-encoded pattern?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reverse one pass first. Run a transcoded export, then convert latin1 to utf8 once on the offending column before applying the routine. Test on one column first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will this work on MariaDB?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. MariaDB 10.2+ defaults to ROW_FORMAT=DYNAMIC and supports the 3072-byte key limit out of the box, so the ROW_FORMAT patch step is usually a no-op there."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 048</span>
+      </div>
+      <p class="eyebrow"><span class="n">048 —</span>Migration</p>
+      <h1 class="display-l post-title">Latin1 to utf8mb4 on legacy Joomla: a no-mojibake migration</h1>
+      <p class="lede post-lede">A Dutch agency we work with inherited a 2011 Joomla site. The articles looked fine until somebody searched for an accented name. Here is the routine we used to fix it without mojibake.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T23:28:01.371Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/latin1-to-utf8mb4-joomla-migration/hero.webp" type="image/webp">
+      <img src="/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg" alt="Overhead photo of SQL script with utf8mb4 commands, mojibake correction, brass plate, loupe, wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 048</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with sent a Loom at 23:41 on a Tuesday. The screen showed a Joomla 3.10 article preview with the headline "Café Plein 12, Nîmes, ouvert le dimanche" rendered as "Café Plein 12, NÃ®mes, ouvert le dimanche". The database had been carried forward, byte for byte, since the original 2011 install on Joomla 1.7 and MySQL 5.1. Every accented character was now a Latin-1 garbage pair.</p>
+
+<p>The site needed to move to utf8mb4 before a PHP 8.2 upgrade. Doing it wrong twice in production is how you end up with three layers of mojibake and no rollback. Here is the routine we use, step by step, to convert a latin1 Joomla database to utf8mb4 without losing a single character.</p>
+
+<h2>Reading the actual bytes</h2>
+
+<p>Joomla tables that look like <code>latin1_swedish_ci</code> in phpMyAdmin almost never contain Swedish. On a 2011 install, the column declared latin1 was usually being written by a PHP layer sending UTF-8 bytes over a connection that did not <code>SET NAMES</code>. MySQL stored the raw bytes without converting them. The column is mislabelled, not miscoded.</p>
+
+<p>Before touching anything, dump one row in hex and look at it:</p>
+
+<pre><code class="lang-sql">SELECT HEX(title), title
+FROM jos_content
+WHERE id = 412;</code></pre>
+
+<p>If "café" stores as <code>63 61 66 C3 A9</code>, the bytes are valid UTF-8 wearing a latin1 label. That is the easy case. If it stores as <code>63 61 66 C3 83 C2 A9</code>, somebody already ran a half-broken conversion and the data is double-encoded. Fix the double-encoding first by reversing the extra pass, otherwise everything that follows will compound the damage.</p>
+
+<h2>The safe export</h2>
+
+<p>The whole trick is to read the bytes out in the same charset they were written under, not in the charset MySQL thinks they are in. <code>mysqldump</code> with <code>--default-character-set=latin1</code> tells the server "do not transcode anything, just hand me the raw bytes". The output file is then UTF-8 byte-for-byte, even though the dump header still claims latin1.</p>
+
+<pre><code class="lang-bash">mysqldump \
+  --default-character-set=latin1 \
+  --skip-set-charset \
+  --single-transaction \
+  --routines --triggers \
+  -u root -p \
+  joomla_prod &gt; joomla_latin1.sql</code></pre>
+
+<p><code>--skip-set-charset</code> drops the <code>SET NAMES latin1</code> line from the dump header. <code>--single-transaction</code> keeps you out of trouble on InnoDB without locking the tables. <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">The mysqldump manual</a> covers the remaining flags if you need to slice by database.</p>
+
+<aside class="callout">Take a second dump with the default utf8mb4 handling and keep it. If the byte-for-byte plan turns out wrong because somebody really did write Latin-1 text into one column (a comment author named "Müller" entered via a 2010 form, say), you will need the transcoded version to splice that column back in. Disk is cheap; a do-over against a live site is not.</aside>
+
+<h2>Rewriting and reimporting</h2>
+
+<p>Now rewrite the dump's character set declarations and collations. The file body is already valid UTF-8; only the metadata needs to change.</p>
+
+<pre><code class="lang-bash">sed -i.bak \
+  -e 's/CHARSET=latin1/CHARSET=utf8mb4/g' \
+  -e 's/COLLATE=latin1_swedish_ci/COLLATE=utf8mb4_unicode_ci/g' \
+  -e 's/ DEFAULT CHARACTER SET latin1/ DEFAULT CHARACTER SET utf8mb4/g' \
+  joomla_latin1.sql
+
+mv joomla_latin1.sql joomla_utf8mb4.sql</code></pre>
+
+<p>Create a fresh empty database with the right defaults, then import into it:</p>
+
+<pre><code class="lang-sql">CREATE DATABASE joomla_new
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;</code></pre>
+
+<pre><code class="lang-bash">mysql \
+  --default-character-set=utf8mb4 \
+  -u root -p \
+  joomla_new &lt; joomla_utf8mb4.sql</code></pre>
+
+<p>Query a known accented row in the new database. It should read clean.</p>
+
+<h3>The byte-for-byte logic</h3>
+
+<p>You are not asking MySQL to convert anything. You read raw bytes that happened to be valid UTF-8, declared them as such on the way back in, and the labels finally match the contents. <a href="https://mathiasbynens.be/notes/mysql-utf8mb4">Mathias Bynens' write-up</a> remains the clearest reference on why utf8mb4 (not utf8) is the only correct target on MySQL.</p>
+
+<h2>The Joomla index length trap</h2>
+
+<p>The reimport will fail on at least one table with <code>ERROR 1071: Specified key was too long; max key length is 767 bytes</code>. utf8mb4 is four bytes per character, so a <code>VARCHAR(255)</code> index hits 1020 bytes. The fix depends on your MySQL version.</p>
+
+<p>On MySQL 5.7+ and MariaDB 10.2+ with InnoDB, the limit becomes 3072 bytes if three conditions hold:</p>
+
+<ul>
+  <li><code>innodb_file_per_table = ON</code></li>
+  <li><code>innodb_file_format = Barracuda</code> (5.7 only; 8.0 removed the toggle)</li>
+  <li>The table is created with <code>ROW_FORMAT=DYNAMIC</code> or <code>COMPRESSED</code></li>
+</ul>
+
+<p>The dump from a 2011 Joomla install will be full of <code>ROW_FORMAT=COMPACT</code> or no row format at all. Patch the dump before importing:</p>
+
+<pre><code class="lang-bash">sed -i \
+  -e 's/ENGINE=InnoDB/ENGINE=InnoDB ROW_FORMAT=DYNAMIC/g' \
+  joomla_utf8mb4.sql</code></pre>
+
+<p>If a stray ALTER still trips on a key, the Joomla-specific offenders are usually <code>#__session.session_id</code> and <code>#__update_sites.location</code>. Both can be shortened to <code>VARCHAR(191)</code> without breaking anything Joomla does at runtime.</p>
+
+<h2>Configuration and verification</h2>
+
+<p>Point Joomla at the new database in <code>configuration.php</code>:</p>
+
+<pre><code class="lang-php">public $dbtype = 'mysqli';
+public $host = 'localhost';
+public $user = 'joomla';
+public $password = '...';
+public $db = 'joomla_new';
+public $dbprefix = 'jos_';</code></pre>
+
+<p>Joomla itself did not set a connection charset before 3.5; on older sites, either add an explicit <code>mysqli_set_charset($conn, 'utf8mb4')</code> call in <code>libraries/joomla/database/driver/mysqli.php</code> or upgrade. Modern Joomla does it automatically when the server supports it.</p>
+
+<p>Spot-check three things after the cutover:</p>
+
+<ol>
+  <li>An article with an accent, a curly quote, and an emoji round-trips through the editor and saves identically.</li>
+  <li><code>SHOW CREATE TABLE jos_content;</code> shows <code>CHARSET=utf8mb4</code> on every table you migrated.</li>
+  <li>A row-count comparison between old and new databases matches exactly.</li>
+</ol>
+
+<pre><code class="lang-sql">SELECT table_name, table_collation
+FROM information_schema.tables
+WHERE table_schema = 'joomla_new'
+  AND table_collation NOT LIKE 'utf8mb4%';</code></pre>
+
+<p>If that query returns rows, those tables were missed by the sed pass. Convert them in place with <code>ALTER TABLE ... CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</code> and re-run the check.</p>
+
+<h2>What this saves you on the next site</h2>
+
+<p>The most common way this work goes sideways is doing the conversion live, one ALTER TABLE at a time, on the production database. MySQL happily transcodes already-UTF-8 bytes a second time, which is how you end up reading "café" where you wrote "café". The export, rewrite, reimport routine above does the conversion on a copy and lets you verify before cutting over.</p>
+
+<p>When we built Pier we hit this exact problem on a Magento 1.9 audit and a Drupal 6 cleanup in the same week. The way we ended up handling it inside the app was to surface the actual stored bytes alongside the rendered text in the <a href="/#database">MySQL editor</a>, so you can spot a mislabelled column before writing a single ALTER, and roll back through <a href="/#features">version history</a> if a conversion goes wrong.</p>
+
+<p>If you have a <a href="/">legacy site</a> sitting on latin1, the smallest useful thing to do today is run that <code>HEX()</code> query on one accented row. The byte pattern will tell you, in thirty seconds, whether you are looking at the easy case or the double-encoded one.</p>
+    </div>
+
+    <aside class="pullquote">Read the actual bytes with HEX() before you touch anything. The pattern tells you whether the data is mislabelled UTF-8 or already double-encoded.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why utf8mb4 and not utf8?</p>
+      <p class="faq-a">MySQL&#39;s &#39;utf8&#39; is a three-byte subset that cannot store emoji or some CJK characters. utf8mb4 is real four-byte UTF-8 and is the only correct target on MySQL.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I need to take the site offline?</p>
+      <p class="faq-a">Only for the cutover. The export, rewrite and reimport happen on a copy. When the new database verifies clean, switch configuration.php and flush Joomla&#39;s cache.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if HEX() shows the double-encoded pattern?</p>
+      <p class="faq-a">Reverse one pass first. Run a transcoded export, then convert latin1 to utf8 once on the offending column before applying the routine. Test on one column first.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will this work on MariaDB?</p>
+      <p class="faq-a">Yes. MariaDB 10.2+ defaults to ROW_FORMAT=DYNAMIC and supports the 3072-byte key limit out of the box, so the ROW_FORMAT patch step is usually a no-op there.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/joomla-migration-seo-case-study/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/joomla-migration-seo-case-study/hero.webp" type="image/webp">
+        <img src="/blog/joomla-migration-seo-case-study/hero.jpg" alt="Rolled antique nautical chart on oak with brass dividers and a small red wax seal on a paper tag." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>23 April 2026</span></span>
+      <h3>Joomla migration without SEO loss: a 12-year-old case study</h3>
+      <span class="pc-lede">A 12-year-old Joomla 2.5 site, three SEF plugins deep, moving to PHP 8.2 hosting. Here&#39;s how the redirects, the database, and the rankings survived the week.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+        <img src="/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Two pinned character-set sheets on bone linen, loupe over mismatched glyph, brass MySQL plate, red wax seal, pen, ruler." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>27 May 2026</span></span>
+      <h3>MySQL collation mismatches: a field guide to empty results</h3>
+      <span class="pc-lede">Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="migration, mysql, databases, joomla, php">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren">
+<meta property="og:description" content="Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht SQL-script met utf8mb4-commando&#39;s, mojibake-correctie, messing plaatje, loep en lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T23:28:01.371Z">
+<meta property="article:modified_time" content="2026-05-26T23:28:01.371Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren">
+<meta name="twitter:description" content="Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht SQL-script met utf8mb4-commando&#39;s, mojibake-correctie, messing plaatje, loep en lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/latin1-to-utf8mb4-joomla-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/"},
+  "url":"https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/",
+  "headline":"Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren",
+  "description":"Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht SQL-script met utf8mb4-commando's, mojibake-correctie, messing plaatje, loep en lakzegel op linnen."
+  },
+  "datePublished":"2026-05-26T23:28:01.371Z",
+  "dateModified":"2026-05-26T23:28:01.371Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"migration, mysql, databases, joomla, php",
+  "wordCount":1127,
+  "articleSection":"Migration",
+  "articleBody":"Een Nederlands bureau waar we mee samenwerken stuurde dinsdag om 23:41 een Loom. Op het scherm stond een artikelpreview in Joomla 3.10 met als kop \"Café Plein 12, Nîmes, ouvert le dimanche\", weergegeven als \"Café Plein 12, NÃ®mes, ouvert le dimanche\". De database was sinds de oorspronkelijke installatie in 2011 (Joomla 1.7, MySQL 5.1) byte voor byte meegenomen. Elk teken met een accent was inmiddels een Latin-1 vuilnispaar. De site moest naar utf8mb4 voor een upgrade naar PHP 8.2. Het twee keer fout doen in productie is de snelste manier om drie lagen mojibake te krijgen zonder rollback. Hier is de routine die wij gebruiken, stap voor stap, om een latin1-Joomla-database te converteren naar utf8mb4 zonder één teken te verliezen. De echte bytes lezen Joomla-tabellen die er in phpMyAdmin uitzien als latin1_swedish_ci bevatten bijna nooit Zweeds. Op een installatie uit 2011 werd de als latin1 gedeclareerde kolom meestal beschreven door een PHP-laag die UTF-8 bytes verstuurde over een connectie zonder SET NAMES . MySQL bewaarde die rauwe bytes zonder ze te converteren. De kolom heeft een verkeerd label, geen verkeerde codering. Voor je iets aanpast: dump één rij in hex en bekijk hem: SELECT HEX(title), title FROM jos_content WHERE id = 412; Staat \"café\" opgeslagen als 63 61 66 C3 A9 , dan zijn de bytes geldige UTF-8 met een latin1-label. Dat is het makkelijke geval. Staat het opgeslagen als 63 61 66 C3 83 C2 A9 , dan heeft iemand al een half kapotte conversie gedraaid en is de data dubbel ge-encodeerd. Repareer die dubbele encoding eerst door de extra slag terug te draaien, anders maakt alles wat hierna komt de schade alleen maar erger. De veilige export De truc zit hem in het uitlezen van de bytes in de charset waarin ze zijn geschreven, niet in de charset waarvan MySQL denkt dat ze die hebben. mysqldump met --default-character-set=latin1 zegt tegen de server: \"converteer niets, geef me alleen de rauwe bytes\". Het uitvoerbestand is dan byte voor byte UTF-8, ook al beweert de dump-header nog steeds latin1. mysqldump \\ --default-character-set=latin1 \\ --skip-set-charset \\ --single-transaction \\ --routines --triggers \\ -u root -p \\ joomla_prod > joomla_latin1.sql --skip-set-charset haalt de regel SET NAMES latin1 uit de dump-header. --single-transaction houdt je uit de problemen op InnoDB zonder dat tabellen gelockt worden. De mysqldump-handleiding behandelt de overige flags als je per database wilt splitsen. Maak een tweede dump met de standaard utf8mb4-afhandeling en bewaar die. Als het byte-voor-byte-plan toch verkeerd uitpakt omdat er ergens écht Latin-1 tekst in één kolom staat (een reactie van ene \"Müller\", ingevoerd via een formulier uit 2010), dan heb je de getranscodeerde versie nodig om die kolom terug te plaatsen. Schijfruimte is goedkoop; opnieuw beginnen op een live site niet. Herschrijven en opnieuw importeren Herschrijf nu de charset-declaraties en collations in de dump. De inhoud van het bestand is al geldige UTF-8; alleen de metadata moet aangepast worden. sed -i.bak \\ -e 's/CHARSET=latin1/CHARSET=utf8mb4/g' \\ -e 's/COLLATE=latin1_swedish_ci/COLLATE=utf8mb4_unicode_ci/g' \\ -e 's/ DEFAULT CHARACTER SET latin1/ DEFAULT CHARACTER SET utf8mb4/g' \\ joomla_latin1.sql mv joomla_latin1.sql joomla_utf8mb4.sql Maak een nieuwe lege database met de juiste defaults en importeer daarin: CREATE DATABASE joomla_new CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; mysql \\ --default-character-set=utf8mb4 \\ -u root -p \\ joomla_new < joomla_utf8mb4.sql Query een bekende rij met accenten in de nieuwe database. Die hoort schoon ingelezen te worden. De byte-voor-byte logica Je vraagt MySQL niets te converteren. Je leest rauwe bytes uit die toevallig geldige UTF-8 waren, declareert ze ook zo bij het importeren, en de labels komen eindelijk overeen met de inhoud. De uitleg van Mathias Bynens blijft de helderste referentie over waarom utf8mb4 (niet utf8) de enige juiste keuze is op MySQL. De index-lengtevalkuil van Joomla De herimport faalt op minstens één tabel met ERROR 1071: Specified key was too long; max key length is 767 bytes . utf8mb4 is vier bytes per teken, dus een VARCHAR(255) -index komt uit op 1020 bytes. De oplossing hangt af van je MySQL-versie. Op MySQL 5.7+ en MariaDB 10.2+ met InnoDB wordt de limiet 3072 bytes als aan drie voorwaarden is voldaan: innodb_file_per_table = ON innodb_file_format = Barracuda (alleen 5.7; in 8.0 is de schakelaar verdwenen) De tabel is aangemaakt met ROW_FORMAT=DYNAMIC of COMPRESSED De dump van een Joomla-installatie uit 2011 staat vol met ROW_FORMAT=COMPACT , of helemaal geen row format. Patch de dump voor het importeren: sed -i \\ -e 's/ENGINE=InnoDB/ENGINE=InnoDB ROW_FORMAT=DYNAMIC/g' \\ joomla_utf8mb4.sql Struikelt er nog een verdwaalde ALTER over een sleutel, dan zijn de Joomla-specifieke boosdoeners meestal #__session.session_id en #__update_sites.location . Beide kunnen verkort worden naar VARCHAR(191) zonder dat er iets in de runtime van Joomla stuk gaat. Configuratie en ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren","item":"https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom utf8mb4 en niet utf8?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De 'utf8' van MySQL is een drie-byte subset die geen emoji of sommige CJK-tekens kan opslaan. utf8mb4 is echte vier-byte UTF-8 en is de enige juiste keuze op MySQL."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik de site offline halen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen voor de overstap. De export, herschrijving en herimport gebeuren op een kopie. Zodra de nieuwe database schoon verifieert, wissel je configuration.php en leeg je de cache van Joomla."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als HEX() het dubbel ge-encodeerde patroon laat zien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai eerst één slag terug. Doe een getranscodeerde export en converteer dan latin1 één keer naar utf8 op de betreffende kolom, voor je de routine toepast. Test eerst op één kolom."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 048</span>
+      </div>
+      <p class="eyebrow"><span class="n">048 —</span>Migration</p>
+      <h1 class="display-l post-title">Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren</h1>
+      <p class="lede post-lede">Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T23:28:01.371Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/latin1-to-utf8mb4-joomla-migration/hero.webp" type="image/webp">
+      <img src="/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg" alt="Bovenaanzicht SQL-script met utf8mb4-commando&#39;s, mojibake-correctie, messing plaatje, loep en lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 048</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waar we mee samenwerken stuurde dinsdag om 23:41 een Loom. Op het scherm stond een artikelpreview in Joomla 3.10 met als kop "Café Plein 12, Nîmes, ouvert le dimanche", weergegeven als "Café Plein 12, NÃ®mes, ouvert le dimanche". De database was sinds de oorspronkelijke installatie in 2011 (Joomla 1.7, MySQL 5.1) byte voor byte meegenomen. Elk teken met een accent was inmiddels een Latin-1 vuilnispaar.</p>
+
+<p>De site moest naar utf8mb4 voor een upgrade naar PHP 8.2. Het twee keer fout doen in productie is de snelste manier om drie lagen mojibake te krijgen zonder rollback. Hier is de routine die wij gebruiken, stap voor stap, om een latin1-Joomla-database te converteren naar utf8mb4 zonder één teken te verliezen.</p>
+
+<h2>De echte bytes lezen</h2>
+
+<p>Joomla-tabellen die er in phpMyAdmin uitzien als <code>latin1_swedish_ci</code> bevatten bijna nooit Zweeds. Op een installatie uit 2011 werd de als latin1 gedeclareerde kolom meestal beschreven door een PHP-laag die UTF-8 bytes verstuurde over een connectie zonder <code>SET NAMES</code>. MySQL bewaarde die rauwe bytes zonder ze te converteren. De kolom heeft een verkeerd label, geen verkeerde codering.</p>
+
+<p>Voor je iets aanpast: dump één rij in hex en bekijk hem:</p>
+
+<pre><code class="lang-sql">SELECT HEX(title), title
+FROM jos_content
+WHERE id = 412;</code></pre>
+
+<p>Staat "café" opgeslagen als <code>63 61 66 C3 A9</code>, dan zijn de bytes geldige UTF-8 met een latin1-label. Dat is het makkelijke geval. Staat het opgeslagen als <code>63 61 66 C3 83 C2 A9</code>, dan heeft iemand al een half kapotte conversie gedraaid en is de data dubbel ge-encodeerd. Repareer die dubbele encoding eerst door de extra slag terug te draaien, anders maakt alles wat hierna komt de schade alleen maar erger.</p>
+
+<h2>De veilige export</h2>
+
+<p>De truc zit hem in het uitlezen van de bytes in de charset waarin ze zijn geschreven, niet in de charset waarvan MySQL denkt dat ze die hebben. <code>mysqldump</code> met <code>--default-character-set=latin1</code> zegt tegen de server: "converteer niets, geef me alleen de rauwe bytes". Het uitvoerbestand is dan byte voor byte UTF-8, ook al beweert de dump-header nog steeds latin1.</p>
+
+<pre><code class="lang-bash">mysqldump \
+  --default-character-set=latin1 \
+  --skip-set-charset \
+  --single-transaction \
+  --routines --triggers \
+  -u root -p \
+  joomla_prod &gt; joomla_latin1.sql</code></pre>
+
+<p><code>--skip-set-charset</code> haalt de regel <code>SET NAMES latin1</code> uit de dump-header. <code>--single-transaction</code> houdt je uit de problemen op InnoDB zonder dat tabellen gelockt worden. <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">De mysqldump-handleiding</a> behandelt de overige flags als je per database wilt splitsen.</p>
+
+<aside class="callout">Maak een tweede dump met de standaard utf8mb4-afhandeling en bewaar die. Als het byte-voor-byte-plan toch verkeerd uitpakt omdat er ergens écht Latin-1 tekst in één kolom staat (een reactie van ene "Müller", ingevoerd via een formulier uit 2010), dan heb je de getranscodeerde versie nodig om die kolom terug te plaatsen. Schijfruimte is goedkoop; opnieuw beginnen op een live site niet.</aside>
+
+<h2>Herschrijven en opnieuw importeren</h2>
+
+<p>Herschrijf nu de charset-declaraties en collations in de dump. De inhoud van het bestand is al geldige UTF-8; alleen de metadata moet aangepast worden.</p>
+
+<pre><code class="lang-bash">sed -i.bak \
+  -e 's/CHARSET=latin1/CHARSET=utf8mb4/g' \
+  -e 's/COLLATE=latin1_swedish_ci/COLLATE=utf8mb4_unicode_ci/g' \
+  -e 's/ DEFAULT CHARACTER SET latin1/ DEFAULT CHARACTER SET utf8mb4/g' \
+  joomla_latin1.sql
+
+mv joomla_latin1.sql joomla_utf8mb4.sql</code></pre>
+
+<p>Maak een nieuwe lege database met de juiste defaults en importeer daarin:</p>
+
+<pre><code class="lang-sql">CREATE DATABASE joomla_new
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;</code></pre>
+
+<pre><code class="lang-bash">mysql \
+  --default-character-set=utf8mb4 \
+  -u root -p \
+  joomla_new &lt; joomla_utf8mb4.sql</code></pre>
+
+<p>Query een bekende rij met accenten in de nieuwe database. Die hoort schoon ingelezen te worden.</p>
+
+<h3>De byte-voor-byte logica</h3>
+
+<p>Je vraagt MySQL niets te converteren. Je leest rauwe bytes uit die toevallig geldige UTF-8 waren, declareert ze ook zo bij het importeren, en de labels komen eindelijk overeen met de inhoud. <a href="https://mathiasbynens.be/notes/mysql-utf8mb4">De uitleg van Mathias Bynens</a> blijft de helderste referentie over waarom utf8mb4 (niet utf8) de enige juiste keuze is op MySQL.</p>
+
+<h2>De index-lengtevalkuil van Joomla</h2>
+
+<p>De herimport faalt op minstens één tabel met <code>ERROR 1071: Specified key was too long; max key length is 767 bytes</code>. utf8mb4 is vier bytes per teken, dus een <code>VARCHAR(255)</code>-index komt uit op 1020 bytes. De oplossing hangt af van je MySQL-versie.</p>
+
+<p>Op MySQL 5.7+ en MariaDB 10.2+ met InnoDB wordt de limiet 3072 bytes als aan drie voorwaarden is voldaan:</p>
+
+<ul>
+  <li><code>innodb_file_per_table = ON</code></li>
+  <li><code>innodb_file_format = Barracuda</code> (alleen 5.7; in 8.0 is de schakelaar verdwenen)</li>
+  <li>De tabel is aangemaakt met <code>ROW_FORMAT=DYNAMIC</code> of <code>COMPRESSED</code></li>
+</ul>
+
+<p>De dump van een Joomla-installatie uit 2011 staat vol met <code>ROW_FORMAT=COMPACT</code>, of helemaal geen row format. Patch de dump voor het importeren:</p>
+
+<pre><code class="lang-bash">sed -i \
+  -e 's/ENGINE=InnoDB/ENGINE=InnoDB ROW_FORMAT=DYNAMIC/g' \
+  joomla_utf8mb4.sql</code></pre>
+
+<p>Struikelt er nog een verdwaalde ALTER over een sleutel, dan zijn de Joomla-specifieke boosdoeners meestal <code>#__session.session_id</code> en <code>#__update_sites.location</code>. Beide kunnen verkort worden naar <code>VARCHAR(191)</code> zonder dat er iets in de runtime van Joomla stuk gaat.</p>
+
+<h2>Configuratie en verificatie</h2>
+
+<p>Wijs Joomla naar de nieuwe database in <code>configuration.php</code>:</p>
+
+<pre><code class="lang-php">public $dbtype = 'mysqli';
+public $host = 'localhost';
+public $user = 'joomla';
+public $password = '...';
+public $db = 'joomla_new';
+public $dbprefix = 'jos_';</code></pre>
+
+<p>Joomla zelf zette voor versie 3.5 geen connection-charset; op oudere sites moet je expliciet een <code>mysqli_set_charset($conn, 'utf8mb4')</code> toevoegen in <code>libraries/joomla/database/driver/mysqli.php</code>, of upgraden. Moderne Joomla doet het automatisch als de server het ondersteunt.</p>
+
+<p>Controleer na de overstap drie dingen:</p>
+
+<ol>
+  <li>Een artikel met een accent, een typografisch aanhalingsteken en een emoji gaat door de editor en wordt identiek opgeslagen.</li>
+  <li><code>SHOW CREATE TABLE jos_content;</code> toont <code>CHARSET=utf8mb4</code> op elke tabel die je hebt gemigreerd.</li>
+  <li>Een vergelijking van het aantal rijen tussen oude en nieuwe database klopt exact.</li>
+</ol>
+
+<pre><code class="lang-sql">SELECT table_name, table_collation
+FROM information_schema.tables
+WHERE table_schema = 'joomla_new'
+  AND table_collation NOT LIKE 'utf8mb4%';</code></pre>
+
+<p>Geeft die query rijen terug, dan zijn die tabellen overgeslagen door de sed-stap. Converteer ze ter plekke met <code>ALTER TABLE ... CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;</code> en draai de check opnieuw.</p>
+
+<h2>Wat dit je bespaart bij de volgende site</h2>
+
+<p>Het meest voorkomende moment waarop dit werk uit de hand loopt, is wanneer de conversie live wordt gedaan, één ALTER TABLE tegelijk, op de productiedatabase. MySQL transcodeert vrolijk al-UTF-8-bytes nog een tweede keer, en zo lees je "café" terug waar je "café" hebt geschreven. De export-, herschrijf- en herimport-routine hierboven doet de conversie op een kopie en geeft je de kans om te verifiëren voor je overstapt.</p>
+
+<p>Toen we Pier bouwden, liepen we in dezelfde week tegen precies dit probleem aan op een Magento 1.9-audit en een Drupal 6-opruiming. Hoe we het uiteindelijk in de app hebben opgelost: door de daadwerkelijk opgeslagen bytes naast de gerenderde tekst te tonen in de <a href="/#database">MySQL editor</a>, zodat je een verkeerd gelabelde kolom kunt herkennen voor je één ALTER schrijft, en terug kunt rollen via de <a href="/#features">version history</a> als een conversie misgaat.</p>
+
+<p>Heb je een <a href="/">legacy site</a> die nog op latin1 draait, dan is het kleinste zinvolle wat je vandaag kunt doen: die <code>HEX()</code>-query draaien op één rij met een accent. Het bytepatroon vertelt je binnen dertig seconden of je naar het makkelijke geval kijkt, of naar de dubbel ge-encodeerde variant.</p>
+    </div>
+
+    <aside class="pullquote">Lees met HEX() de echte bytes voor je iets aanpast. Het patroon vertelt je of de data verkeerd gelabelde UTF-8 is, of al dubbel ge-encodeerd.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom utf8mb4 en niet utf8?</p>
+      <p class="faq-a">De &#39;utf8&#39; van MySQL is een drie-byte subset die geen emoji of sommige CJK-tekens kan opslaan. utf8mb4 is echte vier-byte UTF-8 en is de enige juiste keuze op MySQL.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik de site offline halen?</p>
+      <p class="faq-a">Alleen voor de overstap. De export, herschrijving en herimport gebeuren op een kopie. Zodra de nieuwe database schoon verifieert, wissel je configuration.php en leeg je de cache van Joomla.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als HEX() het dubbel ge-encodeerde patroon laat zien?</p>
+      <p class="faq-a">Draai eerst één slag terug. Doe een getranscodeerde export en converteer dan latin1 één keer naar utf8 op de betreffende kolom, voor je de routine toepast. Test eerst op één kolom.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-migration-seo-case-study/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-migration-seo-case-study/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-migration-seo-case-study/hero.jpg" alt="Opgerolde oude zeekaart op eiken met koperen passer en een klein rood lakzegel op een papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>23 april 2026</span></span>
+      <h3>Joomla-migratie zonder SEO-verlies: een case na 12 jaar</h3>
+      <span class="pc-lede">Een Joomla 2.5-site van 12 jaar oud, drie lagen SEF-plugins diep, naar PHP 8.2-hosting. Zo overleefden de redirects, de database en de rankings.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>MySQL collation-mismatches: een veldgids voor lege resultaten</h3>
+      <span class="pc-lede">Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/latin1-to-utf8mb4-joomla-migration/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
