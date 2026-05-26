@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Fake plugin updates in wp-content: seven signatures to audit · Pier — Blog</title>
+<meta name="description" content="A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, php, mysql, htaccess, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Fake plugin updates in wp-content: seven signatures to audit">
+<meta property="og:description" content="A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.">
+<meta property="og:url" content="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<meta property="og:image" content="https://pier.abn.company/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of opened manila folder, grep cheat-sheet, plugin listing, SQL run-sheet, brass key, red wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T14:49:12.582Z">
+<meta property="article:modified_time" content="2026-05-26T14:49:12.582Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Fake plugin updates in wp-content: seven signatures to audit">
+<meta name="twitter:description" content="A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of opened manila folder, grep cheat-sheet, plugin listing, SQL run-sheet, brass key, red wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/fake-plugin-updates-wp-content/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/fake-plugin-updates-wp-content/"},
+  "url":"https://pier.abn.company/blog/fake-plugin-updates-wp-content/",
+  "headline":"Fake plugin updates in wp-content: seven signatures to audit",
+  "description":"A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/fake-plugin-updates-wp-content/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of opened manila folder, grep cheat-sheet, plugin listing, SQL run-sheet, brass key, red wax seal on linen."
+  },
+  "datePublished":"2026-05-26T14:49:12.582Z",
+  "dateModified":"2026-05-26T14:49:12.582Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, security, php, mysql, htaccess, tooling",
+  "wordCount":1626,
+  "articleSection":"Security",
+  "articleBody":"A freelance developer opened a client's wp-content/plugins/woocommerce/ at 23:14 on a Sunday because the staging Hotjar replay showed the cart page spawning JavaScript that nobody on the team had written. The plugin's version string read 8.6.1, matching the WordPress.org repo exactly. But two files inside includes/ had been touched four days after every other file in the directory. Neither was mentioned in the changelog. The shape of a fake plugin update is usually exactly this: a real release, mostly intact, with one or two extra files no one shipped. That is the new face of the WordPress supply-chain attack: not a brute-force, not a known CVE, not a stolen FTP password, but a fake plugin update that looks legitimate enough to pass a five-second glance. It arrives via a compromised maintainer account, a typosquatted plugin clone, or a paid plugin that quietly changed hands to an SEO spammer. The seven signatures below are the things we actually check, in the order we check them, on a legacy site we have just inherited. Why wp-content became the default landing spot Three things converged. WordPress core got harder to attack: automatic updates closed the long tail of installs running 4.x, and modern hardening guides have got most agencies blocking direct PHP execution under wp-includes . The plugin economy, meanwhile, is built on thousands of small, unfunded maintainers, where a two-factor reset on an author's personal email is often the entire attack chain. And the plugin update mechanism itself trusts whatever the .org repo serves, which in turn trusts whatever a maintainer pushes. The result: wp-content is now both the easiest place to land code and the place admins look at last. The seven signatures below are ordered by how cheap they are to check. Run them top to bottom on a site you suspect, or wire them into a weekly cron on a site you have inherited. None of them require a paid scanner. Signature 1: mtime mismatch inside a single plugin The cleanest tell is timing. A real plugin update touches every file in the bundle within the same second, because under the hood it is an unzip operation. A fake plugin update injected after that unzip leaves exactly the fingerprint you want: a single file modified hours or days after the rest. cd wp-content/plugins/woocommerce find . -type f -newer readme.txt -mtime -30 -ls | sort -k 8 Read the output by date. Three hundred files dated 2026-05-12 and one file dated 2026-05-16 is the shape you are looking for. The outlier is where to start. If the host strips timestamps on deploy (some managed-WordPress providers do), fall back to comparing checksums against a fresh download of the same plugin version from the .org repo. Signature 2: obfuscated PHP in a file that should be readable Plugin source is supposed to be readable. Real PHP rarely needs eval() wrapped around base64_decode() to do its job, and the legitimate exceptions (a vendored Composer dependency, an inlined CSS compiler) almost never appear in a plugin's includes/ directory unannounced. grep -rEn --include=\"*.php\" \\ \"(eval\\(base64_decode|eval\\(gzinflate|eval\\(gzuncompress|str_rot13\\(base64)\" \\ wp-content/ A nested obfuscation stack like eval(gzuncompress(base64_decode(str_rot13(...)))) is essentially never written by a benign developer. Each layer is there to defeat a different scanner. If you see three or more wrappers around a string literal, treat the file as malware until you can prove otherwise. Signature 3: executable PHP under wp-content/uploads The uploads directory is supposed to be inert. Images, PDFs, the occasional CSV export. PHP should not execute from there, ever. The most common post-compromise persistence trick is to drop a .php file (or a .png containing PHP, served via a permissive handler) into a year-month folder where no one looks. find wp-content/uploads -type f \\( -name \"*.php\" -o -name \"*.phtml\" -o -name \"*.php5\" -o -name \"*.phar\" \\) -ls find wp-content/uploads -type f -name \"*.png\" -size +50k \\ -exec grep -l \"<?php\" {} \\; The hardening goes in wp-content/uploads/.htaccess : <FilesMatch \"\\.(php|phtml|php5|phar)$\"> Require all denied </FilesMatch> If the site is on Nginx, the equivalent lives in the server block, not a per-directory file. The Apache documentation on .htaccess scope and AllowOverride is worth re-reading the first time you write one of these, because a denied FilesMatch that lives in a context where AllowOverride is off does nothing. Signature 4: mu-plugins entries nobody added WordPress auto-loads every PHP file in wp-content/mu-plugins/ . They do not appear in the Plugins admin screen. They cannot be deactivated from the dashboard. They run on every request. The official documentation describes them as a deployment convenience, which they are, and also as a perfect malware hiding place, which they also are. ls -la wp-content/mu-plugins/ 2>/dev/null On a clean install this directory either does not exist or contains a single file you put there yourself. On a compro",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/fake-plugin-updates-wp-content/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Fake plugin updates in wp-content: seven signatures to audit","item":"https://pier.abn.company/blog/fake-plugin-updates-wp-content/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How is a fake plugin update different from a CVE exploit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A CVE exploits a known bug in a current version. A fake plugin update replaces or appends to the plugin's own code with attacker-controlled PHP, usually via a compromised maintainer account or a typosquatted clone on the .org repo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will reinstalling WordPress core remove wp-content malware?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The core reinstaller only touches wp-admin and wp-includes. Anything under wp-content, mu-plugins, or autoloaded rows in wp_options survives the reinstall completely untouched."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is a .htaccess deny rule enough to stop PHP execution in uploads?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On Apache it is, provided AllowOverride is on for that directory. On Nginx the equivalent goes in the server block. Either way, also block dangerous extensions at upload time."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which of the seven signatures is the fastest to check?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Signature 1, the mtime mismatch. One find command, no database access, runs in under a second on most plugins, and it catches the largest share of injected backdoors."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 038</span>
+      </div>
+      <p class="eyebrow"><span class="n">038 —</span>Security</p>
+      <h1 class="display-l post-title">Fake plugin updates in wp-content: seven signatures to audit</h1>
+      <p class="lede post-lede">A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T14:49:12.582Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp">
+      <img src="/blog/fake-plugin-updates-wp-content/hero.jpg" alt="Overhead photo of opened manila folder, grep cheat-sheet, plugin listing, SQL run-sheet, brass key, red wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 038</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A freelance developer opened a client's <code>wp-content/plugins/woocommerce/</code> at 23:14 on a Sunday because the staging Hotjar replay showed the cart page spawning JavaScript that nobody on the team had written. The plugin's version string read 8.6.1, matching the WordPress.org repo exactly. But two files inside <code>includes/</code> had been touched four days after every other file in the directory. Neither was mentioned in the changelog. The shape of a fake plugin update is usually exactly this: a real release, mostly intact, with one or two extra files no one shipped.</p>
+
+<p>That is the new face of the WordPress supply-chain attack: not a brute-force, not a known CVE, not a stolen FTP password, but a fake plugin update that looks legitimate enough to pass a five-second glance. It arrives via a compromised maintainer account, a typosquatted plugin clone, or a paid plugin that quietly changed hands to an SEO spammer. The seven signatures below are the things we actually check, in the order we check them, on a <a href="/">legacy site</a> we have just inherited.</p>
+
+<h2>Why wp-content became the default landing spot</h2>
+
+<p>Three things converged. WordPress core got harder to attack: automatic updates closed the long tail of installs running 4.x, and modern hardening guides have got most agencies blocking direct PHP execution under <code>wp-includes</code>. The plugin economy, meanwhile, is built on thousands of small, unfunded maintainers, where a two-factor reset on an author's personal email is often the entire attack chain. And the plugin update mechanism itself trusts whatever the .org repo serves, which in turn trusts whatever a maintainer pushes. The result: wp-content is now both the easiest place to land code and the place admins look at last.</p>
+
+<p>The seven signatures below are ordered by how cheap they are to check. Run them top to bottom on a site you suspect, or wire them into a weekly cron on a site you have inherited. None of them require a paid scanner.</p>
+
+<h2>Signature 1: mtime mismatch inside a single plugin</h2>
+
+<p>The cleanest tell is timing. A real plugin update touches every file in the bundle within the same second, because under the hood it is an unzip operation. A fake plugin update injected after that unzip leaves exactly the fingerprint you want: a single file modified hours or days after the rest.</p>
+
+<pre><code class="lang-bash">cd wp-content/plugins/woocommerce
+find . -type f -newer readme.txt -mtime -30 -ls | sort -k 8</code></pre>
+
+<p>Read the output by date. Three hundred files dated 2026-05-12 and one file dated 2026-05-16 is the shape you are looking for. The outlier is where to start. If the host strips timestamps on deploy (some managed-WordPress providers do), fall back to comparing checksums against a fresh download of the same plugin version from the .org repo.</p>
+
+<h2>Signature 2: obfuscated PHP in a file that should be readable</h2>
+
+<p>Plugin source is supposed to be readable. Real PHP rarely needs <a href="https://www.php.net/manual/en/function.eval.php">eval()</a> wrapped around <code>base64_decode()</code> to do its job, and the legitimate exceptions (a vendored Composer dependency, an inlined CSS compiler) almost never appear in a plugin's <code>includes/</code> directory unannounced.</p>
+
+<pre><code class="lang-bash">grep -rEn --include="*.php" \
+  "(eval\(base64_decode|eval\(gzinflate|eval\(gzuncompress|str_rot13\(base64)" \
+  wp-content/</code></pre>
+
+<aside class="callout">A nested obfuscation stack like <code>eval(gzuncompress(base64_decode(str_rot13(...))))</code> is essentially never written by a benign developer. Each layer is there to defeat a different scanner. If you see three or more wrappers around a string literal, treat the file as malware until you can prove otherwise.</aside>
+
+<h2>Signature 3: executable PHP under wp-content/uploads</h2>
+
+<p>The uploads directory is supposed to be inert. Images, PDFs, the occasional CSV export. PHP should not execute from there, ever. The most common post-compromise persistence trick is to drop a <code>.php</code> file (or a <code>.png</code> containing PHP, served via a permissive handler) into a year-month folder where no one looks.</p>
+
+<pre><code class="lang-bash">find wp-content/uploads -type f \( -name "*.php" -o -name "*.phtml" -o -name "*.php5" -o -name "*.phar" \) -ls
+find wp-content/uploads -type f -name "*.png" -size +50k \
+  -exec grep -l "&lt;?php" {} \;</code></pre>
+
+<p>The hardening goes in <code>wp-content/uploads/.htaccess</code>:</p>
+
+<pre><code class="lang-apache">&lt;FilesMatch "\.(php|phtml|php5|phar)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<p>If the site is on Nginx, the equivalent lives in the server block, not a per-directory file. The Apache documentation on <a href="https://httpd.apache.org/docs/2.4/howto/htaccess.html">.htaccess scope and AllowOverride</a> is worth re-reading the first time you write one of these, because a denied <code>FilesMatch</code> that lives in a context where AllowOverride is off does nothing.</p>
+
+<h2>Signature 4: mu-plugins entries nobody added</h2>
+
+<p>WordPress auto-loads every PHP file in <code>wp-content/mu-plugins/</code>. They do not appear in the Plugins admin screen. They cannot be deactivated from the dashboard. They run on every request. The <a href="https://wordpress.org/documentation/article/must-use-plugins/">official documentation</a> describes them as a deployment convenience, which they are, and also as a perfect malware hiding place, which they also are.</p>
+
+<pre><code class="lang-bash">ls -la wp-content/mu-plugins/ 2&gt;/dev/null</code></pre>
+
+<p>On a clean install this directory either does not exist or contains a single file you put there yourself. On a compromised site it often contains something innocent-looking: <code>wp-cache.php</code>, <code>index.php</code>, <code>db-health.php</code>. Read it line by line. If you did not write it and your hosting provider did not write it, that is the backdoor.</p>
+
+<h2>Signature 5: an admin user that wasn't created through the dashboard</h2>
+
+<p>This is a database signature rather than a filesystem one. Once an attacker has filesystem write access, the next move is usually persistence through a second admin account that survives a plugin reinstall. The dashboard creates these users with a normal <code>user_registered</code> timestamp and an email you would recognise. A direct SQL insert often leaves a placeholder email, a near-zero registered date, or a login that mimics a real one (<code>admln</code>, <code>wpadmin1</code>, <code>support_wp</code>).</p>
+
+<pre><code class="lang-sql">SELECT u.ID, u.user_login, u.user_email, u.user_registered
+FROM wp_users u
+JOIN wp_usermeta m ON m.user_id = u.ID
+WHERE m.meta_key LIKE '%_capabilities'
+  AND m.meta_value LIKE '%administrator%'
+ORDER BY u.user_registered DESC;</code></pre>
+
+<p>Mind the table prefix. If the install uses <code>wp_xy_users</code>, the meta key is <code>wp_xy_capabilities</code>. Run the query in your <a href="/#database">MySQL editor</a> of choice and read the registered dates. Anything created out of business hours, by no one in particular, is the row to investigate. Cross-reference against <code>wp_users.user_email</code>: an attacker often uses a free-mail address with a numeric suffix, or a domain you have never heard of.</p>
+
+<h2>Signature 6: autoloaded options carrying a serialised payload</h2>
+
+<p>The <code>wp_options</code> table is read on every request when <code>autoload</code> is <code>yes</code>. It is also a popular place to hide a payload, because most developers never query it. A 200KB autoloaded row is not automatically malicious. Some caching plugins do legitimately store fragments there. But it is always worth opening.</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes, autoload
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 25;</code></pre>
+
+<p>Open the top five by hand. Anything starting with <code>a:</code> or <code>O:</code> is a PHP-serialised array or object. If you cannot read it, paste the first 200 characters into a serialised-data unpacker and see what is inside. A real cache fragment is dull and self-explanatory. A malicious payload usually contains a URL, a base64 blob, or a list of admin emails being staged for exfiltration. The fake plugin update sometimes uses this row as its command-and-control channel rather than touching the filesystem at all.</p>
+
+<h2>Signature 7: plugin header version vs the .org repository</h2>
+
+<p>The last signature is the one most often skipped because it feels too obvious. The header at the top of a plugin's main file looks like this:</p>
+
+<pre><code class="lang-php">&lt;?php
+/**
+ * Plugin Name: WooCommerce
+ * Plugin URI:  https://woocommerce.com/
+ * Version:     8.6.1
+ * Author:      Automattic
+ */</code></pre>
+
+<p>Open the same plugin on WordPress.org. If the .org repo says 8.6.1 was released on a date the file's own mtime predates by weeks, the version string was hand-edited to disguise an older, vulnerable copy. The fake plugin update's header was edited to keep the displayed version number in step with the legitimate release, so the admin dashboard's update notice never fires. For paid plugins, compare against the developer's published release notes. A version number you cannot trace back to a release post is a version number an attacker wrote.</p>
+
+<h2>Combining the signals</h2>
+
+<p>No single signature is a death sentence. A mu-plugin can be a legitimate hosting addition. A 200KB autoloaded option can be a real cache fragment. An obfuscated string can be a poorly written but harmless third-party library. The point of the seven is that they cluster. A real backdoor almost always leaves at least three of them at once: an mtime outlier, an <code>eval</code> call, and either an mu-plugin entry or an autoloaded option. If you find two unrelated signatures in the same audit, treat it as a probable compromise and start a backup-and-diff workflow against a clean copy of every plugin. If you find one, file it and check again next week.</p>
+
+<h2>The smallest thing to do today</h2>
+
+<p>Pick one site you have not touched in over six months. Run the seven commands above in sequence. The whole audit fits inside fifteen minutes if nothing is wrong, an hour if something is. The two findings that come up most often, in our experience, are an old mu-plugin from a hosting migration and an autoloaded option from a long-uninstalled caching plugin. Both are easy to clean. The one that comes up rarely but matters enormously is signature 1: the single file with the wrong mtime. That is the one worth a recurring calendar reminder.</p>
+
+<p>When we built Pier we ran into this exact shape of problem more often than expected. Clients would ask us to clean up a compromised site, and the cleanup itself needed a safety net, because reverting a fake plugin update on a live store at 02:00 is not the moment for guesswork. The way we ended up handling it is that every edit Pier makes to a remote file is wrapped in a <a href="/#features">version history</a> snapshot, so reverting any change (yours or an attacker's) is a click rather than a database restore.</p>
+    </div>
+
+    <aside class="pullquote">A fake plugin update leaves seven specific traces in wp-content and the database; check the mtime mismatch first, it catches the most attacks for the least effort.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How is a fake plugin update different from a CVE exploit?</p>
+      <p class="faq-a">A CVE exploits a known bug in a current version. A fake plugin update replaces or appends to the plugin&#39;s own code with attacker-controlled PHP, usually via a compromised maintainer account or a typosquatted clone on the .org repo.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will reinstalling WordPress core remove wp-content malware?</p>
+      <p class="faq-a">No. The core reinstaller only touches wp-admin and wp-includes. Anything under wp-content, mu-plugins, or autoloaded rows in wp_options survives the reinstall completely untouched.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is a .htaccess deny rule enough to stop PHP execution in uploads?</p>
+      <p class="faq-a">On Apache it is, provided AllowOverride is on for that directory. On Nginx the equivalent goes in the server block. Either way, also block dangerous extensions at upload time.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Which of the seven signatures is the fastest to check?</p>
+      <p class="faq-a">Signature 1, the mtime mismatch. One find command, no database access, runs in under a second on most plugins, and it catches the largest share of injected backdoors.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leather logbook with ribbon marker on dark oak, brass pen nib, red wax seal on folded paper, soft window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Reviving a dead WordPress site: a 90-minute playbook</h3>
+      <span class="pc-lede">A Dutch agency owner sent a Loom at 23:41: white screen, no logs, no SSH. Ninety minutes later the cart was live. Here is the order we work in.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Spotting a hacked WordPress install: a 5-minute audit</h3>
+      <span class="pc-lede">You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Valse plugin-updates in wp-content: zeven audit-signalen · Pier — Blog</title>
+<meta name="description" content="Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, security, php, mysql, htaccess, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Valse plugin-updates in wp-content: zeven audit-signalen">
+<meta property="og:description" content="Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van manilamap, grep-spiekbriefje, pluginlijst, SQL-blad, messing sleutel en rode lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T14:49:12.582Z">
+<meta property="article:modified_time" content="2026-05-26T14:49:12.582Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Valse plugin-updates in wp-content: zeven audit-signalen">
+<meta name="twitter:description" content="Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van manilamap, grep-spiekbriefje, pluginlijst, SQL-blad, messing sleutel en rode lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/"},
+  "url":"https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/",
+  "headline":"Valse plugin-updates in wp-content: zeven audit-signalen",
+  "description":"Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van manilamap, grep-spiekbriefje, pluginlijst, SQL-blad, messing sleutel en rode lakzegel op linnen."
+  },
+  "datePublished":"2026-05-26T14:49:12.582Z",
+  "dateModified":"2026-05-26T14:49:12.582Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, security, php, mysql, htaccess, tooling",
+  "wordCount":1659,
+  "articleSection":"Security",
+  "articleBody":"Een freelance developer opende op zondag om 23:14 de map wp-content/plugins/woocommerce/ van een klant, omdat de staging-replay in Hotjar liet zien dat de cart-pagina JavaScript draaide dat niemand uit het team geschreven had. De versie-string van de plugin stond op 8.6.1, exact gelijk aan de WordPress.org-repo. Maar twee bestanden in includes/ waren vier dagen ná elk ander bestand in die map aangepast. Geen van beide kwam terug in de changelog. De vorm van een valse plugin-update is meestal precies dit: een echte release, grotendeels intact, met een of twee extra bestanden die niemand verstuurd heeft. Dat is het nieuwe gezicht van de WordPress supply-chain aanval: geen brute-force, geen bekende CVE, geen gestolen FTP-wachtwoord, maar een valse plugin-update die er legitiem genoeg uitziet om een blik van vijf seconden te doorstaan. Hij komt binnen via een gecompromitteerd maintainer-account, een typosquatted plugin-kloon, of een betaalde plugin die stilletjes verkocht is aan een SEO-spammer. De zeven signalen hieronder zijn de dingen die we daadwerkelijk controleren, in de volgorde waarin we ze controleren, op een verouderde site die we net hebben overgenomen. Waarom wp-content de standaard landingsplek werd Drie dingen kwamen samen. WordPress core werd lastiger aan te vallen: automatische updates sloten de long tail van installs op 4.x af, en moderne hardening-guides hebben de meeste bureaus zover gekregen om directe PHP-execution onder wp-includes te blokkeren. De plugin-economie draait ondertussen op duizenden kleine, onbetaalde maintainers, waar een 2FA-reset op het privé-mailadres van een auteur vaak de hele aanvalsketen is. En het plugin-update-mechanisme zelf vertrouwt blind op wat de .org-repo serveert, die op zijn beurt vertrouwt op wat een maintainer pusht. Resultaat: wp-content is nu zowel de makkelijkste plek om code te droppen als de plek waar beheerders het laatst kijken. De zeven signalen hieronder zijn gerangschikt op hoe goedkoop ze zijn om te controleren. Loop ze van boven naar beneden af op een site die je verdenkt, of zet ze in een wekelijkse cron op een site die je net hebt overgenomen. Geen van hen vereist een betaalde scanner. Signaal 1: mtime-mismatch binnen één plugin De duidelijkste verklikker is timing. Een echte plugin-update raakt elk bestand in de bundel binnen dezelfde seconde aan, want onder de motorkap is het een unzip-operatie. Een valse plugin-update die ná die unzip is geïnjecteerd laat precies de vingerafdruk achter die je wilt zien: één enkel bestand dat uren of dagen na de rest is aangepast. cd wp-content/plugins/woocommerce find . -type f -newer readme.txt -mtime -30 -ls | sort -k 8 Lees de output op datum. Driehonderd bestanden met datum 2026-05-12 en één bestand met datum 2026-05-16 is de vorm waar je naar zoekt. De uitschieter is je startpunt. Als de hosting bij deploy de timestamps strip (sommige managed-WordPress providers doen dat), val dan terug op checksums vergelijken tegen een verse download van dezelfde plugin-versie uit de .org-repo. Signaal 2: obfuscated PHP in een bestand dat leesbaar zou moeten zijn Plugin-source hoort leesbaar te zijn. Echte PHP heeft zelden eval() rond base64_decode() nodig om zijn werk te doen, en de legitieme uitzonderingen (een vendored Composer-dependency, een inline CSS-compiler) duiken bijna nooit onaangekondigd op in de includes/ -map van een plugin. grep -rEn --include=\"*.php\" \\ \"(eval\\(base64_decode|eval\\(gzinflate|eval\\(gzuncompress|str_rot13\\(base64)\" \\ wp-content/ Een geneste obfuscatie-stack zoals eval(gzuncompress(base64_decode(str_rot13(...)))) wordt in essentie nooit door een goedaardige developer geschreven. Elke laag zit erin om een andere scanner om te zeilen. Zie je drie of meer wrappers om een string-literal, behandel het bestand dan als malware tot je het tegendeel kunt bewijzen. Signaal 3: uitvoerbare PHP onder wp-content/uploads De uploads-map hoort inert te zijn. Afbeeldingen, PDF's, af en toe een CSV-export. PHP hoort daar nooit uit te voeren. De meest voorkomende post-compromise persistentie-truc is een .php -bestand droppen (of een .png met PHP erin, geserveerd via een te tolerante handler) in een jaar-maand-folder waar niemand kijkt. find wp-content/uploads -type f \\( -name \"*.php\" -o -name \"*.phtml\" -o -name \"*.php5\" -o -name \"*.phar\" \\) -ls find wp-content/uploads -type f -name \"*.png\" -size +50k \\ -exec grep -l \"<?php\" {} \\; De hardening hoort in wp-content/uploads/.htaccess : <FilesMatch \"\\.(php|phtml|php5|phar)$\"> Require all denied </FilesMatch> Draait de site op Nginx, dan hoort het equivalent in de server-block, niet in een per-directory-bestand. De Apache-documentatie over .htaccess scope en AllowOverride is de moeite waard om door te nemen de eerste keer dat je er een schrijft, want een denied FilesMatch in een context waar AllowOverride uitstaat doet helemaal niets. Signaal 4: mu-plugins-entries die niemand heeft toegevoegd WordPress laadt elk PHP-bestand in wp-content/mu-plugins/ automatisch. Z",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Valse plugin-updates in wp-content: zeven audit-signalen","item":"https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat is het verschil tussen een valse plugin-update en een CVE-exploit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een CVE-exploit gebruikt een bekende bug in een actuele versie. Een valse plugin-update vervangt of vult de code van de plugin zelf aan met PHP die de aanvaller controleert, meestal via een gecompromitteerd maintainer-account of een typosquatted kloon in de .org-repo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Haalt het opnieuw installeren van WordPress core de wp-content malware weg?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De core-reinstaller raakt alleen wp-admin en wp-includes aan. Alles onder wp-content, mu-plugins, of autoloaded rijen in wp_options overleeft de herinstallatie volledig onaangeroerd."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is een .htaccess deny-regel genoeg om PHP-execution in uploads te stoppen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op Apache wel, mits AllowOverride aan staat voor die map. Op Nginx hoort het equivalent in de server-block. Blokkeer in beide gevallen ook gevaarlijke extensies al op het moment van uploaden."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 038</span>
+      </div>
+      <p class="eyebrow"><span class="n">038 —</span>Security</p>
+      <h1 class="display-l post-title">Valse plugin-updates in wp-content: zeven audit-signalen</h1>
+      <p class="lede post-lede">Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T14:49:12.582Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp">
+      <img src="/blog/fake-plugin-updates-wp-content/hero.jpg" alt="Bovenaanzicht van manilamap, grep-spiekbriefje, pluginlijst, SQL-blad, messing sleutel en rode lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 038</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een freelance developer opende op zondag om 23:14 de map <code>wp-content/plugins/woocommerce/</code> van een klant, omdat de staging-replay in Hotjar liet zien dat de cart-pagina JavaScript draaide dat niemand uit het team geschreven had. De versie-string van de plugin stond op 8.6.1, exact gelijk aan de WordPress.org-repo. Maar twee bestanden in <code>includes/</code> waren vier dagen ná elk ander bestand in die map aangepast. Geen van beide kwam terug in de changelog. De vorm van een valse plugin-update is meestal precies dit: een echte release, grotendeels intact, met een of twee extra bestanden die niemand verstuurd heeft.</p>
+
+<p>Dat is het nieuwe gezicht van de WordPress supply-chain aanval: geen brute-force, geen bekende CVE, geen gestolen FTP-wachtwoord, maar een valse plugin-update die er legitiem genoeg uitziet om een blik van vijf seconden te doorstaan. Hij komt binnen via een gecompromitteerd maintainer-account, een typosquatted plugin-kloon, of een betaalde plugin die stilletjes verkocht is aan een SEO-spammer. De zeven signalen hieronder zijn de dingen die we daadwerkelijk controleren, in de volgorde waarin we ze controleren, op een <a href="/">verouderde site</a> die we net hebben overgenomen.</p>
+
+<h2>Waarom wp-content de standaard landingsplek werd</h2>
+
+<p>Drie dingen kwamen samen. WordPress core werd lastiger aan te vallen: automatische updates sloten de long tail van installs op 4.x af, en moderne hardening-guides hebben de meeste bureaus zover gekregen om directe PHP-execution onder <code>wp-includes</code> te blokkeren. De plugin-economie draait ondertussen op duizenden kleine, onbetaalde maintainers, waar een 2FA-reset op het privé-mailadres van een auteur vaak de hele aanvalsketen is. En het plugin-update-mechanisme zelf vertrouwt blind op wat de .org-repo serveert, die op zijn beurt vertrouwt op wat een maintainer pusht. Resultaat: wp-content is nu zowel de makkelijkste plek om code te droppen als de plek waar beheerders het laatst kijken.</p>
+
+<p>De zeven signalen hieronder zijn gerangschikt op hoe goedkoop ze zijn om te controleren. Loop ze van boven naar beneden af op een site die je verdenkt, of zet ze in een wekelijkse cron op een site die je net hebt overgenomen. Geen van hen vereist een betaalde scanner.</p>
+
+<h2>Signaal 1: mtime-mismatch binnen één plugin</h2>
+
+<p>De duidelijkste verklikker is timing. Een echte plugin-update raakt elk bestand in de bundel binnen dezelfde seconde aan, want onder de motorkap is het een unzip-operatie. Een valse plugin-update die ná die unzip is geïnjecteerd laat precies de vingerafdruk achter die je wilt zien: één enkel bestand dat uren of dagen na de rest is aangepast.</p>
+
+<pre><code class="lang-bash">cd wp-content/plugins/woocommerce
+find . -type f -newer readme.txt -mtime -30 -ls | sort -k 8</code></pre>
+
+<p>Lees de output op datum. Driehonderd bestanden met datum 2026-05-12 en één bestand met datum 2026-05-16 is de vorm waar je naar zoekt. De uitschieter is je startpunt. Als de hosting bij deploy de timestamps strip (sommige managed-WordPress providers doen dat), val dan terug op checksums vergelijken tegen een verse download van dezelfde plugin-versie uit de .org-repo.</p>
+
+<h2>Signaal 2: obfuscated PHP in een bestand dat leesbaar zou moeten zijn</h2>
+
+<p>Plugin-source hoort leesbaar te zijn. Echte PHP heeft zelden <a href="https://www.php.net/manual/en/function.eval.php">eval()</a> rond <code>base64_decode()</code> nodig om zijn werk te doen, en de legitieme uitzonderingen (een vendored Composer-dependency, een inline CSS-compiler) duiken bijna nooit onaangekondigd op in de <code>includes/</code>-map van een plugin.</p>
+
+<pre><code class="lang-bash">grep -rEn --include="*.php" \
+  "(eval\(base64_decode|eval\(gzinflate|eval\(gzuncompress|str_rot13\(base64)" \
+  wp-content/</code></pre>
+
+<aside class="callout">Een geneste obfuscatie-stack zoals <code>eval(gzuncompress(base64_decode(str_rot13(...))))</code> wordt in essentie nooit door een goedaardige developer geschreven. Elke laag zit erin om een andere scanner om te zeilen. Zie je drie of meer wrappers om een string-literal, behandel het bestand dan als malware tot je het tegendeel kunt bewijzen.</aside>
+
+<h2>Signaal 3: uitvoerbare PHP onder wp-content/uploads</h2>
+
+<p>De uploads-map hoort inert te zijn. Afbeeldingen, PDF's, af en toe een CSV-export. PHP hoort daar nooit uit te voeren. De meest voorkomende post-compromise persistentie-truc is een <code>.php</code>-bestand droppen (of een <code>.png</code> met PHP erin, geserveerd via een te tolerante handler) in een jaar-maand-folder waar niemand kijkt.</p>
+
+<pre><code class="lang-bash">find wp-content/uploads -type f \( -name "*.php" -o -name "*.phtml" -o -name "*.php5" -o -name "*.phar" \) -ls
+find wp-content/uploads -type f -name "*.png" -size +50k \
+  -exec grep -l "&lt;?php" {} \;</code></pre>
+
+<p>De hardening hoort in <code>wp-content/uploads/.htaccess</code>:</p>
+
+<pre><code class="lang-apache">&lt;FilesMatch "\.(php|phtml|php5|phar)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<p>Draait de site op Nginx, dan hoort het equivalent in de server-block, niet in een per-directory-bestand. De Apache-documentatie over <a href="https://httpd.apache.org/docs/2.4/howto/htaccess.html">.htaccess scope en AllowOverride</a> is de moeite waard om door te nemen de eerste keer dat je er een schrijft, want een denied <code>FilesMatch</code> in een context waar AllowOverride uitstaat doet helemaal niets.</p>
+
+<h2>Signaal 4: mu-plugins-entries die niemand heeft toegevoegd</h2>
+
+<p>WordPress laadt elk PHP-bestand in <code>wp-content/mu-plugins/</code> automatisch. Ze verschijnen niet op het Plugins-scherm in de admin. Ze kunnen niet vanuit het dashboard gedeactiveerd worden. Ze draaien op elke request. De <a href="https://wordpress.org/documentation/article/must-use-plugins/">officiële documentatie</a> omschrijft ze als een deploy-gemak, wat ze ook zijn, en tegelijk als een perfecte schuilplaats voor malware, wat ze óók zijn.</p>
+
+<pre><code class="lang-bash">ls -la wp-content/mu-plugins/ 2&gt;/dev/null</code></pre>
+
+<p>Op een schone install bestaat deze map niet, of bevat hij precies één bestand dat je er zelf in hebt gezet. Op een gecompromitteerde site bevat hij vaak iets onschuldig ogends: <code>wp-cache.php</code>, <code>index.php</code>, <code>db-health.php</code>. Lees het regel voor regel. Heb jij het niet geschreven en heeft je hostingmaatschappij het niet geschreven, dan is dát de backdoor.</p>
+
+<h2>Signaal 5: een admin-user die niet via het dashboard is aangemaakt</h2>
+
+<p>Dit is een database-signaal in plaats van een filesystem-signaal. Zodra een aanvaller schrijfrechten op het filesystem heeft, is de volgende zet meestal persistentie via een tweede admin-account dat een plugin-herinstallatie overleeft. Het dashboard maakt deze users aan met een normale <code>user_registered</code> timestamp en een mailadres dat je zou herkennen. Een directe SQL-insert laat vaak een placeholder-mailadres achter, een datum dichtbij nul, of een login die op een echte lijkt (<code>admln</code>, <code>wpadmin1</code>, <code>support_wp</code>).</p>
+
+<pre><code class="lang-sql">SELECT u.ID, u.user_login, u.user_email, u.user_registered
+FROM wp_users u
+JOIN wp_usermeta m ON m.user_id = u.ID
+WHERE m.meta_key LIKE '%_capabilities'
+  AND m.meta_value LIKE '%administrator%'
+ORDER BY u.user_registered DESC;</code></pre>
+
+<p>Let op de table-prefix. Gebruikt de install <code>wp_xy_users</code>, dan is de meta_key <code>wp_xy_capabilities</code>. Draai de query in je <a href="/#database">MySQL editor</a> naar keuze en lees de geregistreerde datums. Alles wat buiten kantooruren is aangemaakt, door niemand in het bijzonder, is de rij die je wilt onderzoeken. Kruisreferentie met <code>wp_users.user_email</code>: een aanvaller gebruikt vaak een gratis mailadres met een numeriek achtervoegsel, of een domein waar je nog nooit van gehoord hebt.</p>
+
+<h2>Signaal 6: autoloaded options met een serialized payload</h2>
+
+<p>De <code>wp_options</code>-tabel wordt bij elke request gelezen wanneer <code>autoload</code> op <code>yes</code> staat. Het is ook een populaire plek om een payload te verbergen, want de meeste developers queryen die tabel nooit. Een autoloaded rij van 200KB is niet automatisch malicious. Sommige cache-plugins slaan daar legitiem fragmenten op. Maar het is altijd de moeite waard om te openen.</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes, autoload
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 25;</code></pre>
+
+<p>Open de top vijf met de hand. Alles wat begint met <code>a:</code> of <code>O:</code> is een PHP-serialized array of object. Kun je het niet lezen, plak dan de eerste 200 karakters in een serialized-data unpacker en kijk wat erin zit. Een echt cache-fragment is saai en zelf-verklarend. Een malicious payload bevat meestal een URL, een base64-blob, of een lijst admin-mailadressen die klaargezet worden voor exfiltratie. De valse plugin-update gebruikt deze rij soms als zijn command-and-control-kanaal, in plaats van het filesystem überhaupt aan te raken.</p>
+
+<h2>Signaal 7: plugin header-versie tegenover de .org-repository</h2>
+
+<p>Het laatste signaal wordt het vaakst overgeslagen, omdat het te voor de hand liggend voelt. De header bovenaan het hoofdbestand van een plugin ziet er zo uit:</p>
+
+<pre><code class="lang-php">&lt;?php
+/**
+ * Plugin Name: WooCommerce
+ * Plugin URI:  https://woocommerce.com/
+ * Version:     8.6.1
+ * Author:      Automattic
+ */</code></pre>
+
+<p>Open dezelfde plugin op WordPress.org. Zegt de .org-repo dat 8.6.1 is uitgebracht op een datum die weken na de eigen mtime van het bestand ligt, dan is de versie-string met de hand bewerkt om een oudere, kwetsbare kopie te vermommen. De header van de valse plugin-update is bijgewerkt om het getoonde versienummer gelijk te houden met de legitieme release, zodat de update-melding in het admin-dashboard nooit afgaat. Voor betaalde plugins: vergelijk tegen de gepubliceerde release notes van de developer. Een versienummer dat je niet kunt herleiden naar een release-post is een versienummer dat een aanvaller heeft geschreven.</p>
+
+<h2>De signalen combineren</h2>
+
+<p>Geen enkel signaal op zich is een doodsvonnis. Een mu-plugin kan een legitieme toevoeging van de hostingmaatschappij zijn. Een autoloaded option van 200KB kan een echt cache-fragment zijn. Een obfuscated string kan een slecht geschreven maar onschadelijke third-party library zijn. De kracht van de zeven zit hem in clustering. Een echte backdoor laat bijna altijd drie ervan tegelijk achter: een mtime-uitschieter, een <code>eval</code>-call, en óf een mu-plugins-entry óf een autoloaded option. Vind je twee onafhankelijke signalen in dezelfde audit, behandel het dan als waarschijnlijke compromittering en start een backup-en-diff-workflow tegen een schone kopie van elke plugin. Vind je er één, leg het vast en kijk volgende week opnieuw.</p>
+
+<h2>Het kleinste dat je vandaag kunt doen</h2>
+
+<p>Pak één site die je in meer dan zes maanden niet hebt aangeraakt. Draai de zeven commando's hierboven achter elkaar. De hele audit past in vijftien minuten als er niks aan de hand is, een uur als er wel iets is. De twee dingen die we het vaakst tegenkomen zijn een oude mu-plugin uit een hosting-migratie en een autoloaded option van een al lang verwijderde cache-plugin. Beide zijn makkelijk op te ruimen. Wat zelden voorkomt maar enorm veel uitmaakt is signaal 1: het enkele bestand met de verkeerde mtime. Dát is degene die een terugkerende kalenderherinnering waard is.</p>
+
+<p>Toen we Pier bouwden, kwamen we precies deze vorm van probleem vaker tegen dan verwacht. Klanten vroegen ons om een gecompromitteerde site op te schonen, en die opschoning had zelf een vangnet nodig, want een valse plugin-update terugdraaien op een live webshop om 02:00 is niet het moment voor giswerk. Zoals wij het uiteindelijk hebben opgelost: elke wijziging die Pier op een remote bestand maakt wordt ingepakt in een <a href="/#features">version history</a> snapshot, zodat het terugdraaien van een wijziging (van jou of van een aanvaller) één klik is in plaats van een database-restore.</p>
+    </div>
+
+    <aside class="pullquote">Een valse plugin-update laat zeven specifieke sporen achter in wp-content en de database; check eerst de mtime-mismatch, die vangt de meeste aanvallen voor de minste moeite.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat is het verschil tussen een valse plugin-update en een CVE-exploit?</p>
+      <p class="faq-a">Een CVE-exploit gebruikt een bekende bug in een actuele versie. Een valse plugin-update vervangt of vult de code van de plugin zelf aan met PHP die de aanvaller controleert, meestal via een gecompromitteerd maintainer-account of een typosquatted kloon in de .org-repo.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Haalt het opnieuw installeren van WordPress core de wp-content malware weg?</p>
+      <p class="faq-a">Nee. De core-reinstaller raakt alleen wp-admin en wp-includes aan. Alles onder wp-content, mu-plugins, of autoloaded rijen in wp_options overleeft de herinstallatie volledig onaangeroerd.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is een .htaccess deny-regel genoeg om PHP-execution in uploads te stoppen?</p>
+      <p class="faq-a">Op Apache wel, mits AllowOverride aan staat voor die map. Op Nginx hoort het equivalent in de server-block. Blokkeer in beide gevallen ook gevaarlijke extensies al op het moment van uploaden.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/nl/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Dode WordPress-site reanimeren: een 90-minuten playbook</h3>
+      <span class="pc-lede">Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/nl/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Messing schuifmaat op crèmekleurig papier met potloodstreepjes en rood wasmerk, op donker eikenhouten oppervlak." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Gehackte WordPress herkennen: de 5-minuten audit</h3>
+      <span class="pc-lede">Je hebt FTP, het databasewachtwoord en misschien vijf minuten voordat de klant wakker wordt. Dit is de audit die je tot een oordeel brengt, ongeveer in deze volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
