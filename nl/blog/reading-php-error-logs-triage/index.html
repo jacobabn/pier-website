@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP error logs lezen als bloedonderzoek: een triage-gids · Pier — Blog</title>
+<meta name="description" content="Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH&#39;t in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, operations, workflow, mysql, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-php-error-logs-triage/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-php-error-logs-triage/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP error logs lezen als bloedonderzoek: een triage-gids">
+<meta property="og:description" content="Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH&#39;t in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van PHP-foutenlog met rode markeringen, ruitjesbloklijst, manillatab, messing plaatje, lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T13:02:59.956Z">
+<meta property="article:modified_time" content="2026-05-26T13:02:59.956Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP error logs lezen als bloedonderzoek: een triage-gids">
+<meta name="twitter:description" content="Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH&#39;t in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van PHP-foutenlog met rode markeringen, ruitjesbloklijst, manillatab, messing plaatje, lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-php-error-logs-triage/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/reading-php-error-logs-triage/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/reading-php-error-logs-triage/"},
+  "url":"https://pier.abn.company/nl/blog/reading-php-error-logs-triage/",
+  "headline":"PHP error logs lezen als bloedonderzoek: een triage-gids",
+  "description":"Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH't in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/reading-php-error-logs-triage/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van PHP-foutenlog met rode markeringen, ruitjesbloklijst, manillatab, messing plaatje, lakzegel op linnen."
+  },
+  "datePublished":"2026-05-26T13:02:59.956Z",
+  "dateModified":"2026-05-26T13:02:59.956Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, operations, workflow, mysql, tooling",
+  "wordCount":1578,
+  "articleSection":"PHP",
+  "articleBody":"Vrijdag, 16:47. Een bericht van een klant: \"De site geeft op de checkout-pagina soms 500s. Niet altijd. Kun je er voor het weekend nog naar kijken?\" Je SSH't in, tailt het log, en ziet ruwweg achthonderd regels rood. Een deel ervan is het echte probleem. Het meeste is ruis die er al maanden staat. Triage begint met weten wat wat is. Dit is het deel van het werk dat minder aandacht krijgt dan het verdient. Een PHP error log is een vitale-functies-paneel voor een draaiende site. Het vertelt je wat er stuk is, wat bijna stuk gaat, en wat al stuk was voordat je inlogde. Lees het zoals een arts bloedonderzoek leest: niet regel voor regel, maar op patroon, ernst en verandering over tijd. Zoek eerst het log De helft van het werk op een onbekende server is uitvinden waar PHP eigenlijk naartoe schrijft. Het geconfigureerde pad staat in de geladen php.ini. Vraag het PHP zelf: php -i | grep -E 'error_log|log_errors|display_errors' De output ziet er ongeveer zo uit: error_log => /var/log/php/error.log => /var/log/php/error.log log_errors => On => On display_errors => Off => Off Op een CMS-installatie is er meestal een tweede log. WordPress schrijft naar wp-content/debug.log als WP_DEBUG_LOG aanstaat. Drupal slaat entries standaard op in de watchdog -tabel, te bekijken op /admin/reports/dblog . Magento verdeelt over var/log/system.log , var/log/exception.log en var/log/debug.log . Tail ze allemaal tegelijk, anders mis je de helft van het verhaal: tail -F /var/log/php/error.log \\ /var/www/wp-content/debug.log \\ /var/log/nginx/error.log De severity-ladder PHP groepeert errors in categorieën die ertoe doen bij triage. Een PHP error log als één ongedifferentieerde brij behandelen is dezelfde fout als kijken naar een volledig bloedbeeld en alleen opmerken dat \"een paar waarden buiten de range vallen\". Elke categorie wijst op een ander soort falen. E_PARSE : het bestand compileerde niet. Een deploy ging fout. De site ligt hard plat. E_ERROR / E_FATAL : runtime gestopt. Ontbrekende class, undefined function, geheugen op, max execution time gehaald. Een deel van de requests geeft een 500. E_WARNING : PHP ging door, maar de operatie faalde. Bestand niet gevonden, database connection geweigerd, deling door nul op oudere versies. Vaak het eigenlijke signaal. E_NOTICE : undefined index, undefined variable. Meestal ruis, maar een vloedgolf ervan is een aanwijzing dat code state leest die nooit geschreven is. E_DEPRECATED : werkt vandaag, breekt op de volgende PHP-minor. Lees deze door voor elke 8.x-upgrade. E_USER_* : iemand riep trigger_error() aan in applicatiecode. Behandel als bewust geplaatst. De officiële constants-reference bevat de volledige lijst. Zet hem in je bookmarks. Tempo, niet absoluut aantal Eén fatal om 03:14 betekent één gebruiker, één bug, waarschijnlijk allang weg. Vierduizend warnings per uur betekent dat er iets in een hot path stuk is, en het is stuk sinds het tempo begon te stijgen. Het eerste wat je berekent bij het lezen van een PHP error log is het tempo, niet het aantal. awk '{print substr($0, 1, 13)}' /var/log/php/error.log \\ | sort | uniq -c | tail -24 Dat geeft je uurbuckets voor de afgelopen dag. Een regel als [26-May-2026 14 met 3812 ervoor is het uur waarop de piek begon. Vergelijk met het deploy-log, de cron-schedule en het traffic-dashboard. Negen van de tien keer valt de piek samen met één van die drie. Om de grootste vervuilers per bericht te vinden: grep -oE 'PHP [A-Z][a-z]+( [a-z]+)*:.*' /var/log/php/error.log \\ | sed 's/line [0-9]\\+/line N/' \\ | sort | uniq -c | sort -rn | head -20 De sed normaliseert regelnummers, zodat dezelfde error uit een templated loop in één bucket valt. Anders krijg je tachtig varianten van dezelfde warning en verdwijnt het signaal. Veelvoorkomende syndromen en wat ze betekenen Na een paar honderd sites worden bepaalde foutmeldingen diagnostische shortcuts. Net zoals een laag MCV plus laag ferritine vrij betrouwbaar op ijzergebreksanemie wijst, wijzen bepaalde PHP-meldingen betrouwbaar op één onderliggende oorzaak. Geheugen en tijd Allowed memory size of 268435456 bytes exhausted (tried to allocate 4194304 bytes) . Het getal tussen haakjes is de diagnose. Probeerde PHP bij het sneuvelen vier megabyte te allokeren, dan is het lek geleidelijk: een loop die objecten ophoopt, een recursieve walk die niets vrijgeeft. Probeerde hij in één klap 200MB te alloceren, dan laad je iets ongebreidelds in, meestal een query zonder LIMIT of een CSV die compleet in het geheugen wordt gelezen. Maximum execution time of 30 seconds exceeded . Meestal een trage query, soms een blokkerende HTTP-call naar een externe API die uit timing liep. De stack trace vertelt je welke van de twee. Eindigt het spoor in PDOStatement->execute() , dan is het de database. Eindigt het in stream_socket_client of curl_exec , dan is het het netwerk. Headers en output Cannot modify header information - headers already sent by (output started at /path/to/file.php:1) . Die \"line 1\" wijst bijna altijd op een UTF-8",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/reading-php-error-logs-triage/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP error logs lezen als bloedonderzoek: een triage-gids","item":"https://pier.abn.company/nl/blog/reading-php-error-logs-triage/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waar schrijft PHP eigenlijk zijn errorlog naartoe?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hangt af van de host. Draai php -i | grep error_log om het geconfigureerde pad te zien. Op WordPress check je ook wp-content/debug.log; op Magento var/log/system.log en var/log/exception.log."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om E_DEPRECATED in productie uit te zetten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor dagelijkse ruis ja, maar zet ze minstens zes maanden voor een PHP-major-upgrade weer aan. Deprecation-warnings zijn de goedkoopst denkbare upgrade-backlog."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom is mijn PHP errorlog leeg op een drukke site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Bijna altijd een schrijfrechten-probleem. Controleer of het geconfigureerde pad bestaat, of log_errors op On staat, en of de PHP-FPM-user het bestand kan schrijven. Een stil log is verdachter dan een rommelig log."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/reading-php-error-logs-triage/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 036</span>
+      </div>
+      <p class="eyebrow"><span class="n">036 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP error logs lezen als bloedonderzoek: een triage-gids</h1>
+      <p class="lede post-lede">Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH&#39;t in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T13:02:59.956Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-php-error-logs-triage/hero.webp" type="image/webp">
+      <img src="/blog/reading-php-error-logs-triage/hero.jpg" alt="Bovenaanzicht van PHP-foutenlog met rode markeringen, ruitjesbloklijst, manillatab, messing plaatje, lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 036</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Vrijdag, 16:47. Een bericht van een klant: "De site geeft op de checkout-pagina soms 500s. Niet altijd. Kun je er voor het weekend nog naar kijken?" Je SSH't in, tailt het log, en ziet ruwweg achthonderd regels rood. Een deel ervan is het echte probleem. Het meeste is ruis die er al maanden staat. Triage begint met weten wat wat is.</p>
+
+<p>Dit is het deel van het werk dat minder aandacht krijgt dan het verdient. Een PHP error log is een vitale-functies-paneel voor een draaiende site. Het vertelt je wat er stuk is, wat bijna stuk gaat, en wat al stuk was voordat je inlogde. Lees het zoals een arts bloedonderzoek leest: niet regel voor regel, maar op patroon, ernst en verandering over tijd.</p>
+
+<h2>Zoek eerst het log</h2>
+
+<p>De helft van het werk op een onbekende server is uitvinden waar PHP eigenlijk naartoe schrijft. Het geconfigureerde pad staat in de geladen php.ini. Vraag het PHP zelf:</p>
+
+<pre><code class="lang-bash">php -i | grep -E 'error_log|log_errors|display_errors'</code></pre>
+
+<p>De output ziet er ongeveer zo uit:</p>
+
+<pre><code class="lang-bash">error_log =&gt; /var/log/php/error.log =&gt; /var/log/php/error.log
+log_errors =&gt; On =&gt; On
+display_errors =&gt; Off =&gt; Off</code></pre>
+
+<p>Op een CMS-installatie is er meestal een tweede log. WordPress schrijft naar <code>wp-content/debug.log</code> als <code>WP_DEBUG_LOG</code> aanstaat. Drupal slaat entries standaard op in de <code>watchdog</code>-tabel, te bekijken op <code>/admin/reports/dblog</code>. Magento verdeelt over <code>var/log/system.log</code>, <code>var/log/exception.log</code> en <code>var/log/debug.log</code>. Tail ze allemaal tegelijk, anders mis je de helft van het verhaal:</p>
+
+<pre><code class="lang-bash">tail -F /var/log/php/error.log \
+  /var/www/wp-content/debug.log \
+  /var/log/nginx/error.log</code></pre>
+
+<h2>De severity-ladder</h2>
+
+<p>PHP groepeert errors in categorieën die ertoe doen bij triage. Een PHP error log als één ongedifferentieerde brij behandelen is dezelfde fout als kijken naar een volledig bloedbeeld en alleen opmerken dat "een paar waarden buiten de range vallen". Elke categorie wijst op een ander soort falen.</p>
+
+<ul>
+<li><strong>E_PARSE</strong>: het bestand compileerde niet. Een deploy ging fout. De site ligt hard plat.</li>
+<li><strong>E_ERROR / E_FATAL</strong>: runtime gestopt. Ontbrekende class, undefined function, geheugen op, max execution time gehaald. Een deel van de requests geeft een 500.</li>
+<li><strong>E_WARNING</strong>: PHP ging door, maar de operatie faalde. Bestand niet gevonden, database connection geweigerd, deling door nul op oudere versies. Vaak het eigenlijke signaal.</li>
+<li><strong>E_NOTICE</strong>: undefined index, undefined variable. Meestal ruis, maar een vloedgolf ervan is een aanwijzing dat code state leest die nooit geschreven is.</li>
+<li><strong>E_DEPRECATED</strong>: werkt vandaag, breekt op de volgende PHP-minor. Lees deze door voor elke 8.x-upgrade.</li>
+<li><strong>E_USER_*</strong>: iemand riep <code>trigger_error()</code> aan in applicatiecode. Behandel als bewust geplaatst.</li>
+</ul>
+
+<p>De <a href="https://www.php.net/manual/en/errorfunc.constants.php" rel="nofollow">officiële constants-reference</a> bevat de volledige lijst. Zet hem in je bookmarks.</p>
+
+<h2>Tempo, niet absoluut aantal</h2>
+
+<p>Eén fatal om 03:14 betekent één gebruiker, één bug, waarschijnlijk allang weg. Vierduizend warnings per uur betekent dat er iets in een hot path stuk is, en het is stuk sinds het tempo begon te stijgen. Het eerste wat je berekent bij het lezen van een PHP error log is het tempo, niet het aantal.</p>
+
+<pre><code class="lang-bash">awk '{print substr($0, 1, 13)}' /var/log/php/error.log \
+  | sort | uniq -c | tail -24</code></pre>
+
+<p>Dat geeft je uurbuckets voor de afgelopen dag. Een regel als <code>[26-May-2026 14</code> met <code>3812</code> ervoor is het uur waarop de piek begon. Vergelijk met het deploy-log, de cron-schedule en het traffic-dashboard. Negen van de tien keer valt de piek samen met één van die drie.</p>
+
+<p>Om de grootste vervuilers per bericht te vinden:</p>
+
+<pre><code class="lang-bash">grep -oE 'PHP [A-Z][a-z]+( [a-z]+)*:.*' /var/log/php/error.log \
+  | sed 's/line [0-9]\+/line N/' \
+  | sort | uniq -c | sort -rn | head -20</code></pre>
+
+<p>De <code>sed</code> normaliseert regelnummers, zodat dezelfde error uit een templated loop in één bucket valt. Anders krijg je tachtig varianten van dezelfde warning en verdwijnt het signaal.</p>
+
+<h2>Veelvoorkomende syndromen en wat ze betekenen</h2>
+
+<p>Na een paar honderd sites worden bepaalde foutmeldingen diagnostische shortcuts. Net zoals een laag MCV plus laag ferritine vrij betrouwbaar op ijzergebreksanemie wijst, wijzen bepaalde PHP-meldingen betrouwbaar op één onderliggende oorzaak.</p>
+
+<h3>Geheugen en tijd</h3>
+
+<p><code>Allowed memory size of 268435456 bytes exhausted (tried to allocate 4194304 bytes)</code>. Het getal tussen haakjes is de diagnose. Probeerde PHP bij het sneuvelen vier megabyte te allokeren, dan is het lek geleidelijk: een loop die objecten ophoopt, een recursieve walk die niets vrijgeeft. Probeerde hij in één klap 200MB te alloceren, dan laad je iets ongebreidelds in, meestal een query zonder <code>LIMIT</code> of een CSV die compleet in het geheugen wordt gelezen.</p>
+
+<p><code>Maximum execution time of 30 seconds exceeded</code>. Meestal een trage query, soms een blokkerende HTTP-call naar een externe API die uit timing liep. De stack trace vertelt je welke van de twee. Eindigt het spoor in <code>PDOStatement-&gt;execute()</code>, dan is het de database. Eindigt het in <code>stream_socket_client</code> of <code>curl_exec</code>, dan is het het netwerk.</p>
+
+<h3>Headers en output</h3>
+
+<p><code>Cannot modify header information - headers already sent by (output started at /path/to/file.php:1)</code>. Die "line 1" wijst bijna altijd op een UTF-8 BOM of whitespace vóór de openings-<code>&lt;?php</code>-tag. Open het bestand in een hex viewer als je het niet ziet:</p>
+
+<pre><code class="lang-bash">head -c 8 /path/to/file.php | xxd</code></pre>
+
+<p>Zijn de eerste drie bytes <code>ef bb bf</code>, dan heeft het bestand een BOM. Strip hem en de error is weg.</p>
+
+<h3>Database</h3>
+
+<p><code>MySQL server has gone away</code> betekent dat de connection halverwege de query stierf. Twee gangbare oorzaken: een query duurde langer dan <code>wait_timeout</code> (vaak 28800 seconden, maar veel managed hosts zetten het op 60), of de query overschreed <code>max_allowed_packet</code>. Het MySQL-errorlog op de databasehost vertelt je welke van de twee.</p>
+
+<p><code>SQLSTATE[HY000] [2002] No such file or directory</code> betekent dat PDO probeerde te verbinden via een Unix-socket die niet bestaat. De fix is wijzen naar <code>127.0.0.1</code> in plaats van <code>localhost</code>, of expliciet <code>unix_socket</code> in de DSN zetten. De <a href="https://www.php.net/manual/en/ref.pdo-mysql.connection.php" rel="nofollow">PDO MySQL DSN-reference</a> beschrijft het stap voor stap.</p>
+
+<h3>Classes en autoloading</h3>
+
+<p><code>Class "App\Foo\Bar" not found</code> op een site die gisteren nog werkte, betekent vrijwel altijd een Composer-autoload die na een deploy niet opnieuw is gegenereerd. Draai <code>composer dump-autoload -o</code> en het symptoom verdwijnt. Zo niet, dan ontbreekt het bestand echt, en moet je kijken naar wat het deploy-script deed, niet naar wat de applicatiecode doet.</p>
+
+<h2>Het triage-werkblad</h2>
+
+<p>Als het PHP error log overweldigend is, werk je deze vijf vragen op volgorde af. Sla niets over. Meestal valt het antwoord al bij stap twee of drie uit.</p>
+
+<ol>
+<li><strong>Verdeling per severity.</strong> Hoeveel fatals, warnings, notices in het laatste uur? Zijn er nul fatals, dan staat de site overeind en kijk je naar chronische ruis, niet naar een outage.</li>
+<li><strong>Clustering in tijd.</strong> Veranderde het tempo? Wanneer? Matchen tegen deploys en cron.</li>
+<li><strong>Clustering per URL.</strong> Leg het errorlog naast het access log op dezelfde timestamps. Welk endpoint faalt?</li>
+<li><strong>Clustering per gebruiker.</strong> Is het één gebruiker (kijk naar session-cookies of IP's in het access log) of iedereen? Eén gebruiker betekent meestal input die de code niet verwachtte.</li>
+<li><strong>Stack-trace-fingerprint.</strong> Delen drie traces dezelfde top-frame, dan heb je één bug, geen drie.</li>
+</ol>
+
+<aside class="callout">Een schoon errorlog op een drukke site is verdachter dan een rommelig log. Zie je niets na SSH'en, controleer dan of <code>log_errors</code> aanstaat en of het geconfigureerde pad beschrijfbaar is voor de PHP-FPM-user. Een stil log betekent meestal dat PHP niet kan schrijven, niet dat alles goed gaat.</aside>
+
+<h2>Wat je mag dempen, en wat nooit</h2>
+
+<p>Na een triage-sessie wil je de ruis wegpoetsen. Hou je in voorbij een bepaald punt. <code>error_reporting</code> in productie staat minstens op <code>E_ALL &amp; ~E_DEPRECATED &amp; ~E_STRICT</code>. <code>display_errors</code> blijft uit in productie. <code>log_errors</code> blijft aan. De <a href="https://www.php.net/manual/en/errorfunc.configuration.php" rel="nofollow">error handling configuration-reference</a> is de canonieke bron.</p>
+
+<p>Wat je nooit dempt:</p>
+
+<ul>
+<li>E_DEPRECATED in de zes maanden vóór een PHP-major-upgrade. Dit is de upgrade-backlog, gratis aangeleverd.</li>
+<li>E_WARNING uit database- of filesystem-aanroepen. Dat zijn de vroege signalen dat een credential, een pad of een permission stuk is.</li>
+<li>Alles uit <code>trigger_error()</code> in code die je zelf bezit. Je vroegere zelf zette die er met reden neer.</li>
+</ul>
+
+<p>Wat veilig te dempen is:</p>
+
+<ul>
+<li>E_NOTICE over undefined indexes in third-party-plugincode die je niet bezit en niet kunt patchen. Filter ze met een custom error handler, in plaats van de hele categorie globaal uit te zetten.</li>
+</ul>
+
+<h2>Het log bruikbaar houden over de tijd</h2>
+
+<p>Een errorlog van 2GB is een teken dat er al een jaar niemand naar gekeken heeft. Roteer hem. Op een Debian- of Ubuntu-host zet je een bestand in <code>/etc/logrotate.d/php</code>:</p>
+
+<pre><code class="lang-bash">/var/log/php/error.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 www-data adm
+    postrotate
+        /usr/sbin/service php8.2-fpm reload &gt; /dev/null 2&gt;&amp;1 || true
+    endscript
+}</code></pre>
+
+<p>Twee weken bewaartermijn is genoeg om met de meeste deploys te correleren. Heb je langer nodig, ship dan naar een centrale loghost in plaats van het bestand voorbij een gigabyte te laten groeien.</p>
+
+<p>Op een draaiende <a href="/">legacy site</a> is het PHP-errorlog ook de goedkoopst denkbare monitoring. Een nachtelijke cron die op nieuwe fatal-patronen grept en de diff mailt, vangt de trage afwijking op die een uptime-monitor nooit ziet, omdat de site nog netjes 200s blijft serveren.</p>
+
+<h2>Hoe wij dit zijn gaan oplossen</h2>
+
+<p>Toen we Pier bouwden, liepen we op klantsites precies hier tegenaan: bureaus die een PHP-applicatie erven met een log waar sinds het vertrek van de oorspronkelijke developer niemand meer naar gekeken heeft. Wat we uiteindelijk deden, is van het errorlog een eersteklas-paneel maken in de app, naast de <a href="/#database">MySQL editor</a> en de <a href="/#features">version history</a>, zodat een vrijdagmiddag-500 triëren geen drie SSH-sessies en een privé-cheatsheet meer vereist.</p>
+
+<h2>Eén klein ding dat je vandaag kunt doen</h2>
+
+<p>Open het PHP errorlog op één productiesite die je beheert. Draai de uurtempo-awk-oneliner hierboven. Heeft het hoogste uur in de laatste 24 meer dan honderd entries, dan heb je iets dat tien minuten onderzoek waard is voordat de week om is. Dat is de hele veldtest.</p>
+    </div>
+
+    <aside class="pullquote">Een PHP error log is een vitale-functies-paneel, geen transcript: lees op severity, tempo en clustering, niet regel voor regel.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waar schrijft PHP eigenlijk zijn errorlog naartoe?</p>
+      <p class="faq-a">Hangt af van de host. Draai php -i | grep error_log om het geconfigureerde pad te zien. Op WordPress check je ook wp-content/debug.log; op Magento var/log/system.log en var/log/exception.log.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om E_DEPRECATED in productie uit te zetten?</p>
+      <p class="faq-a">Voor dagelijkse ruis ja, maar zet ze minstens zes maanden voor een PHP-major-upgrade weer aan. Deprecation-warnings zijn de goedkoopst denkbare upgrade-backlog.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom is mijn PHP errorlog leeg op een drukke site?</p>
+      <p class="faq-a">Bijna altijd een schrijfrechten-probleem. Controleer of het geconfigureerde pad bestaat, of log_errors op On staat, en of de PHP-FPM-user het bestand kan schrijven. Een stil log is verdachter dan een rommelig log.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Plat overzicht: papieren waterval-grafiek met balken, koperen stopwatch op 2,3s, manila CHECKOUT-tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>WooCommerce checkout audit: de plugin van 2,3 seconden</h3>
+      <span class="pc-lede">Loom van een Nederlands bureau: WooCommerce checkout hangt drie seconden op elke postcodewijziging. De audit van twintig minuten die de plugin vindt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>40GB wp_options autoload: één nacht terug naar 800ms TTFB</h3>
+      <span class="pc-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/reading-php-error-logs-triage/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
