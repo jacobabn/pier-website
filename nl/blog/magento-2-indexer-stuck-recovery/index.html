@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 indexer vastgelopen: herstel zonder orderverlies · Pier — Blog</title>
+<meta name="description" content="Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, php, databases, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 indexer vastgelopen: herstel zonder orderverlies">
+<meta property="og:description" content="Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T13:55:57.070Z">
+<meta property="article:modified_time" content="2026-05-26T13:55:57.070Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 indexer vastgelopen: herstel zonder orderverlies">
+<meta name="twitter:description" content="Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/"},
+  "url":"https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/",
+  "headline":"Magento 2 indexer vastgelopen: herstel zonder orderverlies",
+  "description":"Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen."
+  },
+  "datePublished":"2026-05-26T13:55:57.070Z",
+  "dateModified":"2026-05-26T13:55:57.070Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, mysql, php, databases, operations, tooling",
+  "wordCount":1531,
+  "articleSection":"Magento",
+  "articleBody":"Vrijdag, 19:14. Een Nederlandse ops engineer pingt het on-call kanaal: orders in een Magento 2.4.6 shop gaan door met prijzen van vorige week. De promobanner toont de juiste korting, de productpagina toont de juiste korting, maar de cart en de bevestigingsmail tonen de oude €89,95 in plaats van de €69,95 uit de campagne. Klantenservice zit al aan de derde \"wat wordt er nu eigenlijk afgeschreven\"-mail van het uur. De oorzaak, zodra je inlogt en bin/magento indexer:status draait, is duidelijk: catalog_product_price staat al negen uur op Processing . Welke cron-run de reindex ook deed, hij is nooit teruggekomen. Dit is de failure mode die elke Magento 2-operator vroeg of laat erft. Het herstel zelf is mechanisch, maar de volgorde waarin je het doet telt, en hier een stap overslaan is hoe je op zondagochtend met dataverlies zit in plaats van een vrijdagavond-incidentrapport. Hieronder de sequentie die wij draaien als de Magento 2 indexer vastloopt. Controleer wat er echt vastzit Voordat je iets aanraakt: haal de feitelijke status op. SSH in op de productie-node, switch naar de Magento file-user (vaak www-data of een deploy-user), en draai: php bin/magento indexer:status Je ziet dan iets als: Customer Grid Ready Category Products Ready Product Categories Ready Product Price Processing Product EAV Ready Stock Ready Catalog Rule Product Reindex required Catalog Product Rule Ready Catalog Search Processing Twee states zijn hier belangrijk. Processing (in oudere patches weergegeven als working ) betekent dat een worker de indexer heeft geclaimd en hem nooit heeft vrijgegeven. Reindex required betekent dat de mview-queue wijzigingen klaar heeft staan en niemand ze consumeert. Het eerste is een lock-probleem; het tweede een backlog-probleem. Cross-check tegen de database. Open de MySQL editor die je tegen Magento gebruikt (of mysql vanuit de shell) en draai: SELECT indexer_id, status, updated FROM indexer_state WHERE status <> 'valid' ORDER BY updated; De kolom updated vertelt je of dit een lopende job is die meer tijd nodig heeft of een lijk uit eerder die week. Alles ouder dan de langste legitieme reindex die je op deze catalogus hebt gezien (meestal 20 tot 40 minuten voor een middelgrote shop) is een lijk. Check daarna de mview-queue: SELECT view_id, mode, status, updated FROM mview_state ORDER BY updated; Staat mode op enabled en status op working , dan denkt de materialised-view worker dat hij nog steeds de changelog aan het consumeren is. Is hij in werkelijkheid gecrasht, dan blijven de changelog-tabellen ( catalog_product_price_cl , catalogsearch_fulltext_cl en hun broertjes) groeien terwijl niemand ze leegtrekt. Vind het vastlopende proces voordat je de lock kapotmaakt Onderdruk de neiging om de indexer meteen te resetten. Is er nog een echt PHP-proces bezig met het werk, dan zit je na het resetten van de state-rij met twee processen die in dezelfde index-tabellen schrijven. Zo corrumpeer je catalog_product_index_price . Op de applicatieserver: ps -ef | grep -E 'indexer:reindex|cron:run' | grep -v grep En op de database-server: check op langlopende queries die rijen vasthouden: SELECT id, user, host, db, time, state, LEFT(info, 120) AS query FROM information_schema.processlist WHERE time > 300 ORDER BY time DESC; Zie je een Magento-proces dat al uren leeft maar daadwerkelijk voortgang maakt (CPU-gebruik, tabellen groeien, locks worden genomen en vrijgegeven), laat het staan. Is het PHP-proces verdwenen maar staat de rij nog op working , dan heb je een verweesde state en kun je beginnen met herstellen. Is een cron:run -proces het vastlopende, dan krijg je 60 seconden na het killen een nieuw exemplaar dat regelrecht weer in dezelfde lock loopt, tenzij je eerst cron uitzet. Schakel cron uit op OS-niveau ( crontab -e , comment de Magento-regels uit) voordat je indexer_state aanraakt. Reset de indexer-state veilig Zodra de orphan bevestigd is, reset alleen de specifieke indexers die vastzitten, niet de hele set. Alles resetten forceert een volledige rebuild die op een shop met 50.000 SKU's een uur kan duren, met een storefront die in de tussentijd stale data serveert. php bin/magento indexer:reset catalog_product_price catalogsearch_fulltext Dat zet die rijen in indexer_state terug op invalid zodat de volgende reindex-run ze oppakt. Bevestig: SELECT indexer_id, status FROM indexer_state WHERE indexer_id IN ('catalog_product_price','catalogsearch_fulltext'); Je wil invalid zien staan, niet working . Staat mview_state nog steeds op working , ruim dat dan ook op: UPDATE mview_state SET status = 'idle' WHERE view_id IN ('catalog_product_price','catalogsearch_fulltext') AND status = 'working'; Maak een back-up van deze twee rijen voordat je de UPDATE doet. Ze zijn klein, en je wil ze misschien later vergelijken als je de post-mortem schrijft. Rebuild in de juiste volgorde De indexers van Magento hebben impliciete afhankelijkheden. catalogsearch_fulltext leest uit de product-, categorie- en prijsindex. catalog_product_pr",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 indexer vastgelopen: herstel zonder orderverlies","item":"https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom is indexer:reset alleen niet genoeg om de indexer los te trekken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reset zet alleen de state-rij terug op invalid. Houdt er nog een PHP-worker de lock vast, of staat ook mview_state op working, dan moet je het orphan-proces apart killen en mview_state los bijwerken."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om de *_cl changelog-tabellen te truncaten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen na het invalideren van de bijbehorende indexer en het draaien van een volledige reindex. Truncaten zonder invalideren slaat queued wijzigingen over en laat permanent stale data in de index achter."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Update on save of schedule mode in productie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Schedule mode voor elke catalogus met regelmatige bulk-imports of prijsupdates. Update on save blokkeert storefront writes tijdens reindex en is de meest voorkomende oorzaak van vertraging midden in checkout."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 037</span>
+      </div>
+      <p class="eyebrow"><span class="n">037 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 indexer vastgelopen: herstel zonder orderverlies</h1>
+      <p class="lede post-lede">Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T13:55:57.070Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+      <img src="/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 037</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Vrijdag, 19:14. Een Nederlandse ops engineer pingt het on-call kanaal: orders in een Magento 2.4.6 shop gaan door met prijzen van vorige week. De promobanner toont de juiste korting, de productpagina toont de juiste korting, maar de cart en de bevestigingsmail tonen de oude €89,95 in plaats van de €69,95 uit de campagne. Klantenservice zit al aan de derde "wat wordt er nu eigenlijk afgeschreven"-mail van het uur.</p><p>De oorzaak, zodra je inlogt en <code>bin/magento indexer:status</code> draait, is duidelijk: <code>catalog_product_price</code> staat al negen uur op <code>Processing</code>. Welke cron-run de reindex ook deed, hij is nooit teruggekomen.</p><p>Dit is de failure mode die elke Magento 2-operator vroeg of laat erft. Het herstel zelf is mechanisch, maar de volgorde waarin je het doet telt, en hier een stap overslaan is hoe je op zondagochtend met dataverlies zit in plaats van een vrijdagavond-incidentrapport. Hieronder de sequentie die wij draaien als de Magento 2 indexer vastloopt.</p><h2>Controleer wat er echt vastzit</h2><p>Voordat je iets aanraakt: haal de feitelijke status op. SSH in op de productie-node, switch naar de Magento file-user (vaak <code>www-data</code> of een deploy-user), en draai:</p><pre><code class="lang-bash">php bin/magento indexer:status</code></pre><p>Je ziet dan iets als:</p><pre><code class="lang-bash">Customer Grid                              Ready
+Category Products                          Ready
+Product Categories                         Ready
+Product Price                              Processing
+Product EAV                                Ready
+Stock                                      Ready
+Catalog Rule Product                       Reindex required
+Catalog Product Rule                       Ready
+Catalog Search                             Processing</code></pre><p>Twee states zijn hier belangrijk. <code>Processing</code> (in oudere patches weergegeven als <code>working</code>) betekent dat een worker de indexer heeft geclaimd en hem nooit heeft vrijgegeven. <code>Reindex required</code> betekent dat de mview-queue wijzigingen klaar heeft staan en niemand ze consumeert. Het eerste is een lock-probleem; het tweede een backlog-probleem.</p><p>Cross-check tegen de database. Open de <a href="/#database">MySQL editor</a> die je tegen Magento gebruikt (of <code>mysql</code> vanuit de shell) en draai:</p><pre><code class="lang-sql">SELECT indexer_id, status, updated
+FROM indexer_state
+WHERE status &lt;&gt; 'valid'
+ORDER BY updated;</code></pre><p>De kolom <code>updated</code> vertelt je of dit een lopende job is die meer tijd nodig heeft of een lijk uit eerder die week. Alles ouder dan de langste legitieme reindex die je op deze catalogus hebt gezien (meestal 20 tot 40 minuten voor een middelgrote shop) is een lijk.</p><p>Check daarna de mview-queue:</p><pre><code class="lang-sql">SELECT view_id, mode, status, updated
+FROM mview_state
+ORDER BY updated;</code></pre><p>Staat <code>mode</code> op <code>enabled</code> en <code>status</code> op <code>working</code>, dan denkt de materialised-view worker dat hij nog steeds de changelog aan het consumeren is. Is hij in werkelijkheid gecrasht, dan blijven de changelog-tabellen (<code>catalog_product_price_cl</code>, <code>catalogsearch_fulltext_cl</code> en hun broertjes) groeien terwijl niemand ze leegtrekt.</p><h2>Vind het vastlopende proces voordat je de lock kapotmaakt</h2><p>Onderdruk de neiging om de indexer meteen te resetten. Is er nog een echt PHP-proces bezig met het werk, dan zit je na het resetten van de state-rij met twee processen die in dezelfde index-tabellen schrijven. Zo corrumpeer je <code>catalog_product_index_price</code>.</p><p>Op de applicatieserver:</p><pre><code class="lang-bash">ps -ef | grep -E 'indexer:reindex|cron:run' | grep -v grep</code></pre><p>En op de database-server: check op langlopende queries die rijen vasthouden:</p><pre><code class="lang-sql">SELECT id, user, host, db, time, state, LEFT(info, 120) AS query
+FROM information_schema.processlist
+WHERE time &gt; 300
+ORDER BY time DESC;</code></pre><p>Zie je een Magento-proces dat al uren leeft maar daadwerkelijk voortgang maakt (CPU-gebruik, tabellen groeien, locks worden genomen en vrijgegeven), laat het staan. Is het PHP-proces verdwenen maar staat de rij nog op <code>working</code>, dan heb je een verweesde state en kun je beginnen met herstellen.</p><aside class="callout">Is een <code>cron:run</code>-proces het vastlopende, dan krijg je 60 seconden na het killen een nieuw exemplaar dat regelrecht weer in dezelfde lock loopt, tenzij je eerst cron uitzet. Schakel cron uit op OS-niveau (<code>crontab -e</code>, comment de Magento-regels uit) voordat je <code>indexer_state</code> aanraakt.</aside><h2>Reset de indexer-state veilig</h2><p>Zodra de orphan bevestigd is, reset alleen de specifieke indexers die vastzitten, niet de hele set. Alles resetten forceert een volledige rebuild die op een shop met 50.000 SKU's een uur kan duren, met een storefront die in de tussentijd stale data serveert.</p><pre><code class="lang-bash">php bin/magento indexer:reset catalog_product_price catalogsearch_fulltext</code></pre><p>Dat zet die rijen in <code>indexer_state</code> terug op <code>invalid</code> zodat de volgende reindex-run ze oppakt. Bevestig:</p><pre><code class="lang-sql">SELECT indexer_id, status FROM indexer_state
+WHERE indexer_id IN ('catalog_product_price','catalogsearch_fulltext');</code></pre><p>Je wil <code>invalid</code> zien staan, niet <code>working</code>.</p><p>Staat <code>mview_state</code> nog steeds op <code>working</code>, ruim dat dan ook op:</p><pre><code class="lang-sql">UPDATE mview_state
+SET status = 'idle'
+WHERE view_id IN ('catalog_product_price','catalogsearch_fulltext')
+  AND status = 'working';</code></pre><p>Maak een back-up van deze twee rijen voordat je de <code>UPDATE</code> doet. Ze zijn klein, en je wil ze misschien later vergelijken als je de post-mortem schrijft.</p><h2>Rebuild in de juiste volgorde</h2><p>De indexers van Magento hebben impliciete afhankelijkheden. <code>catalogsearch_fulltext</code> leest uit de product-, categorie- en prijsindex. <code>catalog_product_price</code> leest uit stock- en rule-data. Fulltext eerder rebuilden dan price geeft je het komende half uur een zoekindex die naar de verkeerde prijzen wijst.</p><p>Draai ze in deze volgorde:</p><pre><code class="lang-bash">php bin/magento indexer:reindex cataloginventory_stock
+php bin/magento indexer:reindex catalogrule_rule
+php bin/magento indexer:reindex catalog_product_price
+php bin/magento indexer:reindex catalog_category_product
+php bin/magento indexer:reindex catalog_product_category
+php bin/magento indexer:reindex catalogsearch_fulltext</code></pre><p>Voor een grote catalogus: draai ze in aparte terminal-sessies of met <code>nohup</code>, zodat een afgebroken SSH-verbinding de reindex niet halverwege onderuit haalt. Let op het geheugen: de prijs-reindex op een multi-website shop kan pieken boven de 2 GB. Sterft PHP met een out-of-memory error, dan ben je terug bij af, dit keer met half opgebouwde tabellen.</p><p>Adobe documenteert de hele indexer-set in de <a href="https://experienceleague.adobe.com/en/docs/commerce-operations/configuration-guide/cli/manage-indexers">Adobe Commerce indexer reference</a> als je de namen tegen jouw versie wil verifiëren.</p><h2>Controleer of orders niet vervuild zijn</h2><p>Dit is de stap die elke recovery-gids overslaat. Terwijl de index vastzat serveerde de storefront stale prijzen, en de orders die in dat window geplaatst zijn staan in je database met wat de cart heeft uitgerekend. Sommige kloppen (de prijs is in die periode niet veranderd). Sommige staan op de oude prijs en de klant heeft het oude bedrag betaald. Sommige staan op de oude prijs maar de gateway heeft het nieuwe bedrag afgeschreven omdat de korting anders is toegepast. Je moet weten welke welke is.</p><p>Vind het verdachte window:</p><pre><code class="lang-sql">SELECT o.entity_id, o.increment_id, o.created_at,
+       i.sku, i.qty_ordered, i.price, i.original_price
+FROM sales_order o
+JOIN sales_order_item i ON i.order_id = o.entity_id
+WHERE o.created_at BETWEEN '2026-05-22 10:00:00' AND '2026-05-22 19:14:00'
+  AND i.sku IN (
+    SELECT sku FROM catalog_product_entity
+    WHERE entity_id IN (/* SKUs that were on promo */)
+  )
+ORDER BY o.created_at;</code></pre><p>Vergelijk <code>price</code> met de campagneprijs per regel. Alles wat op het verkeerde bedrag is doorgekomen, is een klantenservice-ticket dat staat te wachten. Restitueer het verschil pro-actief. Drie pre-emptieve refundmails van €20 op vrijdagavond kosten minder dan vijftig boze tweets op zaterdagochtend.</p><h2>Voorkom dat het weer gebeurt</h2><p>Een indexer loopt vast om één van vier redenen, en per oorzaak verschilt de fix.</p><h3>De cron-user is door OOM gekilled</h3><p>Check <code>dmesg</code> of <code>/var/log/syslog</code> op de out-of-memory killer van de kernel. De reindex van Magento op een grote catalogus heeft regelmatig 1,5 tot 2 GB nodig. Heeft je container of VM PHP gecapped op 512 MB, dan sterft hij midden in de job en blijft de rij op <code>working</code> staan. Verhoog <code>memory_limit</code> in de <a href="https://www.php.net/manual/en/ini.core.php#ini.memory-limit">PHP CLI-configuratie</a>, niet die van FPM, want cron gebruikt de CLI-binary.</p><h3>De database-verbinding is timed-out</h3><p>Kijk in <code>var/log/cron.log</code> naar <code>MySQL server has gone away</code>. Langlopende reindexes kunnen <code>wait_timeout</code> overleven. Verhoog hem aan MySQL-kant voor de deploy-user, of verklein de indexer-batchsize in <code>app/etc/env.php</code>:</p><pre><code class="lang-php">'indexer' =&gt; [
+    'batch_size' =&gt; [
+        'catalogsearch_fulltext' =&gt; [
+            'partial_reindex' =&gt; 100,
+            'mysql_get'       =&gt; 500,
+            'elastic_save'    =&gt; 500,
+        ],
+    ],
+],</code></pre><h3>Twee reindexes raceten</h3><p>Vuurden een deploy-script en een cronjob beide <code>indexer:reindex</code> tegelijk af, dan blokkeert de tweede op de locks van de eerste en time-out hij uiteindelijk met een verwarde state als gevolg. Zet reindex in je deploy-pipeline achter één enkele lock.</p><h3>De mview-changelog groeide sneller dan hij kon leegtrekken</h3><p>Kijk naar de backlog:</p><pre><code class="lang-sql">SELECT COUNT(*) FROM catalog_product_price_cl;
+SELECT COUNT(*) FROM catalogsearch_fulltext_cl;</code></pre><p>Staan die getallen in de miljoenen, dan heeft een import of bulk-update de mview-consumer overspoeld. Zet de betreffende indexers op <code>schedule</code>-mode en verwerk ze in aparte cron groups, zodat een prijsupdate voor 200.000 SKU's de zoekindex niet uithongert.</p><h2>Houd een papieren spoor bij</h2><p>Elke fix aan een vastgelopen indexer is óók een wijziging aan de database. De <code>UPDATE mview_state</code>, de row-backups, de tweak aan env.php: schrijf elk daarvan in je incident note terwijl je het doet. Twee weken later, als een soortgelijke vastloper op de staging-kloon optreedt, wil de persoon die dan oncall is precies weten wat je hebt gedaan en in welke volgorde. Een diff van het configbestand is meer waard dan een Slack-bericht.</p><p>Toen wij Pier bouwden voor dit soort werk aan <a href="/">legacy sites</a>, was het stuk van de workflow dat het meeste denkwerk vroeg precies dit. Elke SQL-statement die wij tegen de database van een klant draaien wordt vastgelegd, met one-click revert en een complete <a href="/#features">version history</a> per bestand. De Magento-operators die met ons getest hebben vroegen eerst om die audit log, voor ook maar één van de chat-features.</p><p>Het kleinste wat je vandaag kunt doen: draai <code>bin/magento indexer:status</code> op elke Magento 2-shop die je beheert, schiet een screenshot en pin het in je runbook naast de herstelcommando's hierboven. Als het telefoontje om 23:41 op een vrijdagavond komt, zit het verschil tussen een fix van 20 minuten en een outage van 4 uur erin of je de status kunt lezen zonder na te denken.</p>
+    </div>
+
+    <aside class="pullquote">Kill eerst het orphan-proces, reset alleen de rijen van de vastgelopen indexers, en rebuild dan op afhankelijkheidsvolgorde: stock, rules, price, categories, search.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom is indexer:reset alleen niet genoeg om de indexer los te trekken?</p>
+      <p class="faq-a">Reset zet alleen de state-rij terug op invalid. Houdt er nog een PHP-worker de lock vast, of staat ook mview_state op working, dan moet je het orphan-proces apart killen en mview_state los bijwerken.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om de *_cl changelog-tabellen te truncaten?</p>
+      <p class="faq-a">Alleen na het invalideren van de bijbehorende indexer en het draaien van een volledige reindex. Truncaten zonder invalideren slaat queued wijzigingen over en laat permanent stale data in de index achter.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Update on save of schedule mode in productie?</p>
+      <p class="faq-a">Schedule mode voor elke catalogus met regelmatige bulk-imports of prijsupdates. Update on save blokkeert storefront writes tijdens reindex en is de meest voorkomende oorzaak van vertraging midden in checkout.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-1-live-edit-catalog-cache/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-1-live-edit-catalog-cache/hero.jpg" alt="Houten letterkast open op donkere eiken werkbank, koperen handvat, loden letters in vakjes, rood verzegeld kaartje." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Magento 1 in 2026: live bewerken zonder cache te slopen</h3>
+      <span class="pc-lede">Een Nederlands bureau, een vastgelopen Magento 1-shop, vrijdag 23:41, en de catalog_product_flat-tabellen die bijna de storefront sloopten.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/reading-php-error-logs-triage/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/reading-php-error-logs-triage/hero.webp" type="image/webp">
+        <img src="/nl/blog/reading-php-error-logs-triage/hero.jpg" alt="Bovenaanzicht van PHP-foutenlog met rode markeringen, ruitjesbloklijst, manillatab, messing plaatje, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>PHP error logs lezen als bloedonderzoek: een triage-gids</h3>
+      <span class="pc-lede">Vrijdag 16:47, bericht binnen: de site geeft soms 500s. Je SSH&#39;t in, tailt het log, ziet achthonderd regels rood. Zo triage je ze op volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

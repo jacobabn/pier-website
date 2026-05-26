@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 indexer stuck: recovery without losing orders · Pier — Blog</title>
+<meta name="description" content="A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, php, databases, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 indexer stuck: recovery without losing orders">
+<meta property="og:description" content="A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T13:55:57.070Z">
+<meta property="article:modified_time" content="2026-05-26T13:55:57.070Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 indexer stuck: recovery without losing orders">
+<meta name="twitter:description" content="A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/"},
+  "url":"https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/",
+  "headline":"Magento 2 indexer stuck: recovery without losing orders",
+  "description":"A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen."
+  },
+  "datePublished":"2026-05-26T13:55:57.070Z",
+  "dateModified":"2026-05-26T13:55:57.070Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, mysql, php, databases, operations, tooling",
+  "wordCount":1536,
+  "articleSection":"Magento",
+  "articleBody":"Friday, 19:14. A Dutch ops engineer pings the on-call channel: orders on a Magento 2.4.6 store are going through with last week's prices. The promo banner shows the right discount, the product page shows the right discount, but the cart and the confirmation email show the old €89,95 instead of the campaign's €69,95. Customer service is already fielding the third \"what am I being charged\" email of the hour. The cause, once you log in and run bin/magento indexer:status , is obvious: catalog_product_price has been sitting in Processing for nine hours. Whatever cron run was doing the reindex never returned. This is the failure mode every Magento 2 operator inherits eventually. The recovery itself is mechanical, but the order in which you do it matters, and skipping a step here is how you end up with a Sunday morning data loss instead of a Friday night incident report. What follows is the sequence we run when the Magento 2 indexer is stuck. Confirm what is actually wedged Before touching anything, get the ground truth. SSH into the production node, switch to the Magento file user (often www-data or a deploy user), and run: php bin/magento indexer:status You will see something like: Customer Grid Ready Category Products Ready Product Categories Ready Product Price Processing Product EAV Ready Stock Ready Catalog Rule Product Reindex required Catalog Product Rule Ready Catalog Search Processing Two states matter here. Processing (rendered as working in older patches) means a worker claimed the indexer and never released it. Reindex required means the mview queue has changes waiting and nothing is consuming them. The first is a lock problem; the second is a backlog problem. Cross-check with the database. Open the MySQL editor you use against Magento (or mysql from the shell) and run: SELECT indexer_id, status, updated FROM indexer_state WHERE status <> 'valid' ORDER BY updated; The updated column tells you whether this is a current job that needs more time or a corpse from earlier in the week. Anything older than the longest legitimate reindex you have seen on this catalog (usually 20 to 40 minutes for a mid-sized store) is a corpse. Then check the mview queue: SELECT view_id, mode, status, updated FROM mview_state ORDER BY updated; If mode is enabled and status is working , the materialised-view worker thinks it is still consuming the changelog. If it actually crashed, the changelog tables ( catalog_product_price_cl , catalogsearch_fulltext_cl and friends) keep growing while nothing drains them. Find the stuck process before you kill the lock Resist the urge to immediately reset the indexer. If a real PHP process is still alive doing the work, resetting the state row will leave you with two processes both writing into the same index tables. That is how you corrupt catalog_product_index_price . On the application server: ps -ef | grep -E 'indexer:reindex|cron:run' | grep -v grep And on the database server, check for long-running queries holding rows: SELECT id, user, host, db, time, state, LEFT(info, 120) AS query FROM information_schema.processlist WHERE time > 300 ORDER BY time DESC; If you see a Magento process that has been alive for hours but is actually still making progress (CPU usage, table size growing, locks taken and released), leave it. If the PHP process is gone but the row says working , you have an orphaned state and you are clear to recover. If a cron:run process is the one stuck, killing it without first disabling the cron will get you a fresh one in 60 seconds that walks straight back into the same lock. Disable cron at the OS level ( crontab -e , comment out the Magento lines) before you touch indexer_state . Reset the indexer state safely Once the orphan is confirmed, reset only the specific indexers that are wedged, not the whole set. Resetting everything forces a full rebuild that on a 50,000-SKU store can take an hour, during which the storefront serves stale data. php bin/magento indexer:reset catalog_product_price catalogsearch_fulltext That flips those rows back to invalid in indexer_state so the next reindex run picks them up. Confirm: SELECT indexer_id, status FROM indexer_state WHERE indexer_id IN ('catalog_product_price','catalogsearch_fulltext'); You want invalid , not working . If mview_state is still claiming working , clear that too: UPDATE mview_state SET status = 'idle' WHERE view_id IN ('catalog_product_price','catalogsearch_fulltext') AND status = 'working'; Take a backup of these two rows before the UPDATE . They are tiny and you may want to compare states later when you are writing the post-mortem. Rebuild in the right order Magento's indexers have implicit dependencies. catalogsearch_fulltext reads from product, category and price indexes. catalog_product_price reads from stock and rule data. Rebuilding fulltext before price gives you a search index that points at the wrong prices for the next half hour. Run them in this sequence: php bin/magento indexer:reindex cataloginven",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 indexer stuck: recovery without losing orders","item":"https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does indexer:reset not unstick the indexer on its own?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reset only flips the state row to invalid. If a PHP worker still holds the lock, or mview_state is also in working, you must kill the orphan process and update mview_state separately."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to truncate the *_cl changelog tables?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only after invalidating the related indexer and running a full reindex. Truncating without invalidating skips queued changes and leaves stale data in the index permanently."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Update on save or schedule mode for production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Schedule mode for any catalog with regular bulk imports or price updates. Update on save locks storefront writes during reindex and is the most common cause of mid-checkout slowdowns."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should a full Magento 2 reindex take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On a 50k SKU store with reasonable hardware, catalogsearch_fulltext runs in 10 to 30 minutes and price in under 15. Past an hour usually points at memory_limit or batch_size."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 037</span>
+      </div>
+      <p class="eyebrow"><span class="n">037 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 indexer stuck: recovery without losing orders</h1>
+      <p class="lede post-lede">A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T13:55:57.070Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+      <img src="/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 037</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Friday, 19:14. A Dutch ops engineer pings the on-call channel: orders on a Magento 2.4.6 store are going through with last week's prices. The promo banner shows the right discount, the product page shows the right discount, but the cart and the confirmation email show the old €89,95 instead of the campaign's €69,95. Customer service is already fielding the third "what am I being charged" email of the hour.</p><p>The cause, once you log in and run <code>bin/magento indexer:status</code>, is obvious: <code>catalog_product_price</code> has been sitting in <code>Processing</code> for nine hours. Whatever cron run was doing the reindex never returned.</p><p>This is the failure mode every Magento 2 operator inherits eventually. The recovery itself is mechanical, but the order in which you do it matters, and skipping a step here is how you end up with a Sunday morning data loss instead of a Friday night incident report. What follows is the sequence we run when the Magento 2 indexer is stuck.</p><h2>Confirm what is actually wedged</h2><p>Before touching anything, get the ground truth. SSH into the production node, switch to the Magento file user (often <code>www-data</code> or a deploy user), and run:</p><pre><code class="lang-bash">php bin/magento indexer:status</code></pre><p>You will see something like:</p><pre><code class="lang-bash">Customer Grid                              Ready
+Category Products                          Ready
+Product Categories                         Ready
+Product Price                              Processing
+Product EAV                                Ready
+Stock                                      Ready
+Catalog Rule Product                       Reindex required
+Catalog Product Rule                       Ready
+Catalog Search                             Processing</code></pre><p>Two states matter here. <code>Processing</code> (rendered as <code>working</code> in older patches) means a worker claimed the indexer and never released it. <code>Reindex required</code> means the mview queue has changes waiting and nothing is consuming them. The first is a lock problem; the second is a backlog problem.</p><p>Cross-check with the database. Open the <a href="/#database">MySQL editor</a> you use against Magento (or <code>mysql</code> from the shell) and run:</p><pre><code class="lang-sql">SELECT indexer_id, status, updated
+FROM indexer_state
+WHERE status &lt;&gt; 'valid'
+ORDER BY updated;</code></pre><p>The <code>updated</code> column tells you whether this is a current job that needs more time or a corpse from earlier in the week. Anything older than the longest legitimate reindex you have seen on this catalog (usually 20 to 40 minutes for a mid-sized store) is a corpse.</p><p>Then check the mview queue:</p><pre><code class="lang-sql">SELECT view_id, mode, status, updated
+FROM mview_state
+ORDER BY updated;</code></pre><p>If <code>mode</code> is <code>enabled</code> and <code>status</code> is <code>working</code>, the materialised-view worker thinks it is still consuming the changelog. If it actually crashed, the changelog tables (<code>catalog_product_price_cl</code>, <code>catalogsearch_fulltext_cl</code> and friends) keep growing while nothing drains them.</p><h2>Find the stuck process before you kill the lock</h2><p>Resist the urge to immediately reset the indexer. If a real PHP process is still alive doing the work, resetting the state row will leave you with two processes both writing into the same index tables. That is how you corrupt <code>catalog_product_index_price</code>.</p><p>On the application server:</p><pre><code class="lang-bash">ps -ef | grep -E 'indexer:reindex|cron:run' | grep -v grep</code></pre><p>And on the database server, check for long-running queries holding rows:</p><pre><code class="lang-sql">SELECT id, user, host, db, time, state, LEFT(info, 120) AS query
+FROM information_schema.processlist
+WHERE time &gt; 300
+ORDER BY time DESC;</code></pre><p>If you see a Magento process that has been alive for hours but is actually still making progress (CPU usage, table size growing, locks taken and released), leave it. If the PHP process is gone but the row says <code>working</code>, you have an orphaned state and you are clear to recover.</p><aside class="callout">If a <code>cron:run</code> process is the one stuck, killing it without first disabling the cron will get you a fresh one in 60 seconds that walks straight back into the same lock. Disable cron at the OS level (<code>crontab -e</code>, comment out the Magento lines) before you touch <code>indexer_state</code>.</aside><h2>Reset the indexer state safely</h2><p>Once the orphan is confirmed, reset only the specific indexers that are wedged, not the whole set. Resetting everything forces a full rebuild that on a 50,000-SKU store can take an hour, during which the storefront serves stale data.</p><pre><code class="lang-bash">php bin/magento indexer:reset catalog_product_price catalogsearch_fulltext</code></pre><p>That flips those rows back to <code>invalid</code> in <code>indexer_state</code> so the next reindex run picks them up. Confirm:</p><pre><code class="lang-sql">SELECT indexer_id, status FROM indexer_state
+WHERE indexer_id IN ('catalog_product_price','catalogsearch_fulltext');</code></pre><p>You want <code>invalid</code>, not <code>working</code>.</p><p>If <code>mview_state</code> is still claiming <code>working</code>, clear that too:</p><pre><code class="lang-sql">UPDATE mview_state
+SET status = 'idle'
+WHERE view_id IN ('catalog_product_price','catalogsearch_fulltext')
+  AND status = 'working';</code></pre><p>Take a backup of these two rows before the <code>UPDATE</code>. They are tiny and you may want to compare states later when you are writing the post-mortem.</p><h2>Rebuild in the right order</h2><p>Magento's indexers have implicit dependencies. <code>catalogsearch_fulltext</code> reads from product, category and price indexes. <code>catalog_product_price</code> reads from stock and rule data. Rebuilding fulltext before price gives you a search index that points at the wrong prices for the next half hour.</p><p>Run them in this sequence:</p><pre><code class="lang-bash">php bin/magento indexer:reindex cataloginventory_stock
+php bin/magento indexer:reindex catalogrule_rule
+php bin/magento indexer:reindex catalog_product_price
+php bin/magento indexer:reindex catalog_category_product
+php bin/magento indexer:reindex catalog_product_category
+php bin/magento indexer:reindex catalogsearch_fulltext</code></pre><p>For a big catalog, run them in separate terminal sessions or with <code>nohup</code> so a dropped SSH connection does not kill the reindex halfway. Watch memory: the price reindex on a multi-website store can peak above 2 GB. If PHP dies with an out-of-memory error you are back where you started, this time with half-rebuilt tables.</p><p>Adobe documents the indexer set in the <a href="https://experienceleague.adobe.com/en/docs/commerce-operations/configuration-guide/cli/manage-indexers">Adobe Commerce indexer reference</a> if you need to cross-check names against your version.</p><h2>Verify orders did not get poisoned</h2><p>This is the step every recovery guide skips. While the index was stuck, the storefront was serving stale prices, and the orders placed during that window are in your database with whatever the cart calculated. Some are correct (the price did not change in that period). Some are at the old price and the customer paid the old amount. Some are at the old price and the gateway captured the new amount because the discount applied differently. You need to know which.</p><p>Find the suspect window:</p><pre><code class="lang-sql">SELECT o.entity_id, o.increment_id, o.created_at,
+       i.sku, i.qty_ordered, i.price, i.original_price
+FROM sales_order o
+JOIN sales_order_item i ON i.order_id = o.entity_id
+WHERE o.created_at BETWEEN '2026-05-22 10:00:00' AND '2026-05-22 19:14:00'
+  AND i.sku IN (
+    SELECT sku FROM catalog_product_entity
+    WHERE entity_id IN (/* SKUs that were on promo */)
+  )
+ORDER BY o.created_at;</code></pre><p>Compare <code>price</code> against the campaign price for each line. Anything that came through at the wrong number is a customer service ticket waiting to happen. Refund the difference proactively. Three pre-emptive €20 refund emails on a Friday night cost less than fifty angry tweets on a Saturday morning.</p><h2>Stop it happening again</h2><p>An indexer wedges for one of four reasons, and the fix differs for each.</p><h3>The cron user was OOM-killed</h3><p>Check <code>dmesg</code> or <code>/var/log/syslog</code> for the kernel out-of-memory killer. Magento's reindex on a large catalog regularly needs 1.5 to 2 GB. If your container or VM caps PHP at 512 MB it will die mid-job and leave the row at <code>working</code>. Raise <code>memory_limit</code> in the <a href="https://www.php.net/manual/en/ini.core.php#ini.memory-limit">PHP CLI configuration</a>, not the FPM one, since cron uses the CLI binary.</p><h3>The database connection timed out</h3><p>Look at <code>var/log/cron.log</code> for <code>MySQL server has gone away</code>. Long reindexes can outlive <code>wait_timeout</code>. Bump it on the MySQL side for the deploy user, or shorten the indexer batch size in <code>app/etc/env.php</code>:</p><pre><code class="lang-php">'indexer' =&gt; [
+    'batch_size' =&gt; [
+        'catalogsearch_fulltext' =&gt; [
+            'partial_reindex' =&gt; 100,
+            'mysql_get'       =&gt; 500,
+            'elastic_save'    =&gt; 500,
+        ],
+    ],
+],</code></pre><h3>Two reindexes raced</h3><p>If a deploy script and a cron job both fired <code>indexer:reindex</code> at once, the second blocks on the first's locks and eventually times out leaving state confused. Gate reindex behind a single lock in your deploy pipeline.</p><h3>The mview changelog grew faster than it could drain</h3><p>Look at the backlog:</p><pre><code class="lang-sql">SELECT COUNT(*) FROM catalog_product_price_cl;
+SELECT COUNT(*) FROM catalogsearch_fulltext_cl;</code></pre><p>If those numbers are in the millions, an import or a mass update overwhelmed the mview consumer. Switch the affected indexers to <code>schedule</code> mode and process them in dedicated cron groups so a price update for 200,000 SKUs does not starve the search index.</p><h2>Keep a paper trail</h2><p>Every fix to a stuck indexer is also a change to the database. The <code>UPDATE mview_state</code>, the row backups, the env.php tweak: write each into the incident note while you make it. Two weeks later when a similar wedge happens on the staging clone, the person on call will want to know exactly what you did and in what order. A diff of the config file is worth more than a Slack message.</p><p>When we built Pier for this kind of <a href="/">legacy site work</a>, the part of the workflow that needed the most thought was here. Every SQL statement we run against a customer's database is recorded, with a one-click revert and a full <a href="/#features">version history</a> per file. The Magento operators we tested it with asked for that audit log first, before any of the chat features.</p><p>The smallest thing to do today: run <code>bin/magento indexer:status</code> on every Magento 2 store you operate, screenshot the output, and pin it to the runbook next to the recovery commands above. When the call comes at 23:41 on a Friday, the difference between a 20-minute fix and a 4-hour outage is whether you can read the status without thinking.</p>
+    </div>
+
+    <aside class="pullquote">Kill the orphan process first, reset only the wedged indexer rows, then rebuild in dependency order: stock, rules, price, categories, search.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why does indexer:reset not unstick the indexer on its own?</p>
+      <p class="faq-a">Reset only flips the state row to invalid. If a PHP worker still holds the lock, or mview_state is also in working, you must kill the orphan process and update mview_state separately.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to truncate the *_cl changelog tables?</p>
+      <p class="faq-a">Only after invalidating the related indexer and running a full reindex. Truncating without invalidating skips queued changes and leaves stale data in the index permanently.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Update on save or schedule mode for production?</p>
+      <p class="faq-a">Schedule mode for any catalog with regular bulk imports or price updates. Update on save locks storefront writes during reindex and is the most common cause of mid-checkout slowdowns.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should a full Magento 2 reindex take?</p>
+      <p class="faq-a">On a 50k SKU store with reasonable hardware, catalogsearch_fulltext runs in 10 to 30 minutes and price in under 15. Past an hour usually points at memory_limit or batch_size.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/magento-1-live-edit-catalog-cache/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-1-live-edit-catalog-cache/hero.webp" type="image/webp">
+        <img src="/blog/magento-1-live-edit-catalog-cache/hero.jpg" alt="Wooden printer&#39;s type case open on dark oak workbench, brass handle, lead type sorted in compartments, red wax tag." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Magento 1 in 2026: editing live without nuking the catalog cache</h3>
+      <span class="pc-lede">A Dutch agency, a frozen Magento 1 shop, a Friday at 23:41, and the catalog_product_flat tables that nearly took the storefront down at checkout time.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/reading-php-error-logs-triage/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/reading-php-error-logs-triage/hero.webp" type="image/webp">
+        <img src="/blog/reading-php-error-logs-triage/hero.jpg" alt="Overhead photo of a PHP error log with red triage marks, graph-paper checklist, manila tab, brass plate, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Reading PHP error logs like bloodwork: a triage field guide</h3>
+      <span class="pc-lede">A 16:47 Friday message: site is throwing 500s, sometimes. You SSH in, tail the log, see eight hundred lines of red. This is how to triage them in order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
