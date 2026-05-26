@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>14 PHP-includes per pagina: dependencies in kaart brengen · Pier — Blog</title>
+<meta name="description" content="Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, architecture, tooling, workflow, migration">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/mapping-php-include-dependencies/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/mapping-php-include-dependencies/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="14 PHP-includes per pagina: dependencies in kaart brengen">
+<meta property="og:description" content="Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T21:47:51.771Z">
+<meta property="article:modified_time" content="2026-05-26T21:47:51.771Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="migration">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="14 PHP-includes per pagina: dependencies in kaart brengen">
+<meta name="twitter:description" content="Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/hero.jpg">
+<meta name="twitter:image:alt" content="Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/mapping-php-include-dependencies/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/mapping-php-include-dependencies/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/mapping-php-include-dependencies/"},
+  "url":"https://pier.abn.company/nl/blog/mapping-php-include-dependencies/",
+  "headline":"14 PHP-includes per pagina: dependencies in kaart brengen",
+  "description":"Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/mapping-php-include-dependencies/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel."
+  },
+  "datePublished":"2026-05-26T21:47:51.771Z",
+  "dateModified":"2026-05-26T21:47:51.771Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, architecture, tooling, workflow, migration",
+  "wordCount":2080,
+  "articleSection":"PHP",
+  "articleBody":"De pagina die tien minuten nodig had om te renderen Een ops engineer bij een middelgrote uitgever stuurde ons op een dinsdag om 23:41 een bericht. Hun staging server liep vast op één artikelpagina. De oorzaak bleek een verlopen require_once die een nieuwsbrief-widget uit 2009 binnentrok, welke probeerde te verbinden met een Mailman-server die jaren geleden al was uitgezet. Zes andere includes stonden erachter in de wachtrij, elk wachtend tot de vorige klaar was voordat hun eigen DNS-lookup kon falen. Het bestand bovenaan de keten zag er onschuldig uit. index.php , 38 regels. Maar elke regel die begon met require opende een deur naar een andere wereld, en de meeste van die werelden openden er weer meer. Tegen de tijd dat de pagina op een werkdag klaar was met laden, waren er 14 verschillende PHP-bestanden in de request getrokken, plus een config-laag die er zelf ook nog zeven extra binnenhaalde. Dit artikel is het playbook dat wij doorlopen wanneer we op een custom PHP-site terechtkomen met dat soort include-topologie. Het doel is niet om in één keer te refactoren. Het doel is weten wat wat aanroept, zodat de refactor die later komt niet het hele gebouw laat instorten. We hebben dit gedraaid op Magento 1-shops, WordPress-installaties met 200 must-use plugins en maatwerk-CMS'en van bureaus die niet meer bestaan. De vorm van het werk is altijd dezelfde. Maak een snapshot van de inclusion-graph tijdens runtime Statische analyse liegt tegen je bij legacy PHP. Een bestand kan include $template . '.php' zeggen, waar $template drie stack-niveaus hoger berekend wordt op basis van een query string. Een grep vangt dat niet. Een linter kan het niet resolven. Runtime tracing wel. Zet dit in een bestand dat je via auto_prepend_file aan elke request kunt vasthaken: <?php // /var/www/_trace/includes.php register_shutdown_function(function () { $entry = [ 'ts' => microtime(true), 'uri' => $_SERVER['REQUEST_URI'] ?? 'cli', 'files' => get_included_files(), 'mem' => memory_get_peak_usage(true), ]; file_put_contents( '/var/log/php-includes.ndjson', json_encode($entry) . \"\\n\", FILE_APPEND | LOCK_EX ); }); En in de .htaccess in de document root, of in een per-vhost config: php_value auto_prepend_file \"/var/www/_trace/includes.php\" Laat het draaien gedurende een representatieve periode. Een week echte traffic op een contentsite, drie dagen op een interne tool, één volledige factuurcyclus bij alles wat financieel is. Je wilt elke cron raken, elk admin-pad, elke vreemde URL die alleen een ingelogde redacteur twee keer per kwartaal aantikt. De get_included_files() -aanroep staat gedocumenteerd op php.net en is goedkoop genoeg om in productie aan te laten staan voor een afgebakende periode. Let op. get_included_files() retourneert de cumulatieve lijst bij shutdown. Dat betekent dat CLI workers en langlopende PHP-FPM-processen opgeblazen graphs laten zien bij latere requests, omdat OPcache en FPM de file list warm houden. Beperk de trace tot kortlopende mod_php -requests, of recycle FPM workers tussen sample-vensters zodat elke request schoon begint. Verzoen de trace met de source Zodra je een paar duizend NDJSON-regels hebt, bouw je de daadwerkelijke graph. Een kort script volstaat, geen library nodig: <?php // build-graph.php $edges = []; foreach (file('/var/log/php-includes.ndjson') as $line) { $row = json_decode($line, true); $files = $row['files']; for ($i = 1, $n = count($files); $i < $n; $i++) { $key = $files[$i - 1] . ' -> ' . $files[$i]; $edges[$key] = ($edges[$key] ?? 0) + 1; } } arsort($edges); foreach (array_slice($edges, 0, 50, true) as $edge => $hits) { echo str_pad((string)$hits, 8) . $edge . PHP_EOL; } Pipe de output door graphviz als je een plaatje wilt, of lees gewoon de bovenkant van de lijst. De eerste verrassing is meestal hoeveel edges naar één bestand wijzen. Op de uitgeverssite werd lib/legacy/strings.php per request 11 keer binnengetrokken vanuit vier verschillende parents, waarvan er twee maar één helper-functie uit het bestand gebruikten. Kruisverwijs nu met de statische kant. nikic/PHP-Parser geeft je een schone AST, maar voor een eerste pass is zelfs dit genoeg: grep -rEn \"(include|require)(_once)?\\s*[\\(\\\"']\" \\ --include=\"*.php\" /var/www/htdocs \\ > static-includes.txt Waar je naar zoekt, is het verschil. Bestanden die de grep vindt maar die de runtime nooit aanraakt, zijn ofwel dood ofwel alleen actief op een code path dat je nog niet hebt geraakt. Bestanden die de runtime wel aanraakt maar die de grep niet kan resolven (omdat het pad berekend wordt) zijn je echte koppeling, en die verdienen de eerste ronde aandacht. Markeer die bestandsnamen rood en plak ze op de muur, letterlijk of figuurlijk. Wat de graph meestal laat zien Drie patronen komen telkens terug bij dit soort opdrachten. Een platte ster, waarin één centrale functions.php de parent is van alles en niets anders enige structuur heeft. Een diamant, waarbij twee parents allebei dezelfde shared library binnentrekken en die shared library via $GLOBAL",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/mapping-php-include-dependencies/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"14 PHP-includes per pagina: dependencies in kaart brengen","item":"https://pier.abn.company/nl/blog/mapping-php-include-dependencies/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik de auto_prepend_file-trace in productie draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, voor een afgebakende periode. De shutdown-handler voegt microseconden per request toe. Roteer het NDJSON-bestand en schakel de prepend uit zodra je een representatieve sample hebt. Laat hem niet onbeperkt aanstaan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als de site PHP-FPM gebruikt in plaats van mod_php?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dezelfde prepend, maar recycle workers tussen samples in, zodat get_included_files() geen cumulatieve resultaten teruggeeft uit een langlopend proces. Zet pm.max_requests op een laag getal tijdens het trace-venster."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe trace ik includes op CLI cron jobs, niet alleen op web requests?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zet auto_prepend_file in een php.ini die gescoped is op de CLI SAPI, of geef -d auto_prepend_file=/path/to/trace.php mee in het cron-commando. De shutdown-handler vuurt op dezelfde manier af."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/mapping-php-include-dependencies/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 046</span>
+      </div>
+      <p class="eyebrow"><span class="n">046 —</span>PHP</p>
+      <h1 class="display-l post-title">14 PHP-includes per pagina: dependencies in kaart brengen</h1>
+      <p class="lede post-lede">Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T21:47:51.771Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/mapping-php-include-dependencies/hero.webp" type="image/webp">
+      <img src="/blog/mapping-php-include-dependencies/hero.jpg" alt="Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 046</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De pagina die tien minuten nodig had om te renderen</h2><p>Een ops engineer bij een middelgrote uitgever stuurde ons op een dinsdag om 23:41 een bericht. Hun staging server liep vast op één artikelpagina. De oorzaak bleek een verlopen <code>require_once</code> die een nieuwsbrief-widget uit 2009 binnentrok, welke probeerde te verbinden met een Mailman-server die jaren geleden al was uitgezet. Zes andere includes stonden erachter in de wachtrij, elk wachtend tot de vorige klaar was voordat hun eigen DNS-lookup kon falen.</p><p>Het bestand bovenaan de keten zag er onschuldig uit. <code>index.php</code>, 38 regels. Maar elke regel die begon met <code>require</code> opende een deur naar een andere wereld, en de meeste van die werelden openden er weer meer. Tegen de tijd dat de pagina op een werkdag klaar was met laden, waren er 14 verschillende PHP-bestanden in de request getrokken, plus een config-laag die er zelf ook nog zeven extra binnenhaalde.</p><p>Dit artikel is het playbook dat wij doorlopen wanneer we op een custom PHP-site terechtkomen met dat soort include-topologie. Het doel is niet om in één keer te refactoren. Het doel is weten wat wat aanroept, zodat de refactor die later komt niet het hele gebouw laat instorten. We hebben dit gedraaid op Magento 1-shops, WordPress-installaties met 200 must-use plugins en maatwerk-CMS'en van bureaus die niet meer bestaan. De vorm van het werk is altijd dezelfde.</p><h2>Maak een snapshot van de inclusion-graph tijdens runtime</h2><p>Statische analyse liegt tegen je bij legacy PHP. Een bestand kan <code>include $template . '.php'</code> zeggen, waar <code>$template</code> drie stack-niveaus hoger berekend wordt op basis van een query string. Een grep vangt dat niet. Een linter kan het niet resolven. Runtime tracing wel.</p><p>Zet dit in een bestand dat je via <code>auto_prepend_file</code> aan elke request kunt vasthaken:</p><pre><code class="lang-php">&lt;?php
+// /var/www/_trace/includes.php
+register_shutdown_function(function () {
+    $entry = [
+        'ts'    =&gt; microtime(true),
+        'uri'   =&gt; $_SERVER['REQUEST_URI'] ?? 'cli',
+        'files' =&gt; get_included_files(),
+        'mem'   =&gt; memory_get_peak_usage(true),
+    ];
+    file_put_contents(
+        '/var/log/php-includes.ndjson',
+        json_encode($entry) . "\n",
+        FILE_APPEND | LOCK_EX
+    );
+});
+</code></pre><p>En in de <code>.htaccess</code> in de document root, of in een per-vhost config:</p><pre><code class="lang-apache">php_value auto_prepend_file "/var/www/_trace/includes.php"
+</code></pre><p>Laat het draaien gedurende een representatieve periode. Een week echte traffic op een contentsite, drie dagen op een interne tool, één volledige factuurcyclus bij alles wat financieel is. Je wilt elke cron raken, elk admin-pad, elke vreemde URL die alleen een ingelogde redacteur twee keer per kwartaal aantikt. De <code>get_included_files()</code>-aanroep staat gedocumenteerd op <a href="https://www.php.net/manual/en/function.get-included-files.php">php.net</a> en is goedkoop genoeg om in productie aan te laten staan voor een afgebakende periode.</p><aside class="callout"><strong>Let op.</strong> <code>get_included_files()</code> retourneert de cumulatieve lijst bij shutdown. Dat betekent dat CLI workers en langlopende PHP-FPM-processen opgeblazen graphs laten zien bij latere requests, omdat OPcache en FPM de file list warm houden. Beperk de trace tot kortlopende <code>mod_php</code>-requests, of recycle FPM workers tussen sample-vensters zodat elke request schoon begint.</aside><h2>Verzoen de trace met de source</h2><p>Zodra je een paar duizend NDJSON-regels hebt, bouw je de daadwerkelijke graph. Een kort script volstaat, geen library nodig:</p><pre><code class="lang-php">&lt;?php
+// build-graph.php
+$edges = [];
+foreach (file('/var/log/php-includes.ndjson') as $line) {
+    $row = json_decode($line, true);
+    $files = $row['files'];
+    for ($i = 1, $n = count($files); $i &lt; $n; $i++) {
+        $key = $files[$i - 1] . ' -&gt; ' . $files[$i];
+        $edges[$key] = ($edges[$key] ?? 0) + 1;
+    }
+}
+arsort($edges);
+foreach (array_slice($edges, 0, 50, true) as $edge =&gt; $hits) {
+    echo str_pad((string)$hits, 8) . $edge . PHP_EOL;
+}
+</code></pre><p>Pipe de output door <code>graphviz</code> als je een plaatje wilt, of lees gewoon de bovenkant van de lijst. De eerste verrassing is meestal hoeveel edges naar één bestand wijzen. Op de uitgeverssite werd <code>lib/legacy/strings.php</code> per request 11 keer binnengetrokken vanuit vier verschillende parents, waarvan er twee maar één helper-functie uit het bestand gebruikten.</p><p>Kruisverwijs nu met de statische kant. <a href="https://github.com/nikic/PHP-Parser">nikic/PHP-Parser</a> geeft je een schone AST, maar voor een eerste pass is zelfs dit genoeg:</p><pre><code class="lang-bash">grep -rEn "(include|require)(_once)?\s*[\(\"']" \
+  --include="*.php" /var/www/htdocs \
+  &gt; static-includes.txt
+</code></pre><p>Waar je naar zoekt, is het verschil. Bestanden die de grep vindt maar die de runtime nooit aanraakt, zijn ofwel dood ofwel alleen actief op een code path dat je nog niet hebt geraakt. Bestanden die de runtime wel aanraakt maar die de grep niet kan resolven (omdat het pad berekend wordt) zijn je echte koppeling, en die verdienen de eerste ronde aandacht. Markeer die bestandsnamen rood en plak ze op de muur, letterlijk of figuurlijk.</p><h3>Wat de graph meestal laat zien</h3><p>Drie patronen komen telkens terug bij dit soort opdrachten. Een platte ster, waarin één centrale <code>functions.php</code> de parent is van alles en niets anders enige structuur heeft. Een diamant, waarbij twee parents allebei dezelfde shared library binnentrekken en die shared library via <code>$GLOBALS</code> weer in beide terugreikt. En een daisy chain, waarbij <code>header.php</code> <code>nav.php</code> include die <code>menu-helpers.php</code> include die <code>cache.php</code> include die <code>config.php</code> include, en het verwijderen van welke schakel dan ook midden in de keten de pagina breekt op een manier waaraan je een uur kwijt bent om te diagnosticeren.</p><p>Een daisy chain breken is van de drie het pijnlijkst, omdat elke schakel op zichzelf dragend lijkt. Werk van onderaf. Inline de bijdrage van het leaf-bestand in de laag erboven, laat de trace nog 24 uur draaien, bevestig dat niets anders het leaf-bestand nodig had en verwijder het dan pas. Herhaal één laag per keer. Het is traag. Het is ook de enige manier om er weer uit te klimmen zonder een stapel halfverwijderde includes achter te laten waarover de volgende onderhouder mag piekeren.</p><h2>Vind de globals voordat je iets verplaatst</h2><p>Bij sites uit dit tijdperk gaat de include-volgorde zelden over code-organisatie. Het gaat over <em>variabelen in scope</em>. <code>header.php</code> zet <code>$current_user</code>, <code>sidebar.php</code> leest hem. Verplaats er één en je breekt iets drie bestanden verderop.</p><p>Je hebt een lijst nodig van globals die over de include-grens heen lopen. Er is geen schone manier om die eruit te halen, maar een brute-force scan haalt het grootste deel:</p><pre><code class="lang-bash"># variables declared with the `global` keyword
+grep -rEn '^\s*global\s+\
+ --include="*.php" /var/www/htdocs
+
+# direct $GLOBALS array access
+grep -rEn '\$GLOBALS\[' --include="*.php" /var/www/htdocs
+</code></pre><p>Dan het lastigere deel. PHP lekt elke top-level <code>$var = ...</code>-toewijzing naar de scope van het includende bestand. Een variabele die in <code>config.php</code> wordt gedeclareerd, is dus stilletjes zichtbaar in alles waarin <code>config.php</code> wordt binnengetrokken. Dit gedrag staat gedocumenteerd in <a href="https://www.php.net/manual/en/function.include.php">de manual page van include</a> en is het herlezen waard vóór de refactor, vooral de zin dat de variable scope die van de aanroepende regel is.</p><p>Lijst elke top-level toewijzing in de geïncludeerde bestanden:</p><pre><code class="lang-bash">for f in $(cut -d: -f1 static-includes.txt | sort -u); do
+  awk '/^[[:space:]]*\$[A-Za-z_]+[[:space:]]*=/ {
+    print FILENAME ":" NR ": " $0
+  }' "$f"
+done
+</code></pre><p>Er is nog één patroon dat geautomatiseerde scans ruïneert. Als een include <code>extract($_REQUEST)</code> of <code>extract($row)</code> aanroept, wordt elke key in die array een top-level variabele in de aanroepende scope, en je hebt geen manier om te weten welke totdat runtime. Grep case-insensitief op <code>extract(</code> door de hele boom. Behandel elke hit als een waarschuwing, documenteer de vorm van de array met een kort commentaar voordat je iets verandert, en beschouw het bestand als effectief onbegrensd in wat het injecteert.</p><p>Twee uur van deze oefening bespaart je twee weken refactor-pijn later. Bij de uitgeversopdracht vonden we 47 top-level toewijzingen verspreid over 22 bestanden, waarvan er zes werden gelezen door code in volstrekt niet-gerelateerde delen van de boom. Die zes bepaalden alles aan de volgorde van de refactor.</p><h2>Knip de refactor op naar blast radius</h2><p>Nu kun je gaan plannen. De slices, in de volgorde die wij meestal aanhouden:</p><ol><li><strong>Verwijder de dode includes.</strong> Bestanden die in de statische grep verschijnen maar nooit in de runtime trace, na een representatieve periode, kunnen weg. Commit elk bestand apart, met de route-dekking die het dood verklaarde als bewijs. Als je trace-venster een week was en het bestand nooit afging, heb je nog altijd <code>git revert</code>.</li><li><strong>Klap de dubbele pulls in.</strong> Als <code>strings.php</code> 11 keer wordt gerequired, vind dan de hoogste gemeenschappelijke voorouder in de call graph en require het daar één keer. De andere tien <code>require_once</code>-aanroepen worden no-ops die je in een vervolg-commit kunt verwijderen, los, zodat de diff reviewbaar blijft.</li><li><strong>Promoveer globals naar expliciete parameters.</strong> Kies één global, vind elke read, wrap elke read in een functie die de waarde als argument accepteert. <code>$current_user</code> wordt <code>render_sidebar($currentUser)</code>. Dit is mechanisch en saai en de enige uitweg. Gebruik de runtime trace uit stap één als regressiecheck: de bestandslijst per URL moet voor en na identiek zijn.</li><li><strong>Vervang dynamische includes door een router.</strong> De <code>include $template . '.php'</code>-patronen zijn de plek waar productiebugs zich verstoppen. Verplaats ze naar een switch-statement of een kleine dispatch-array. Nu houdt je statische analyse op met liegen en kan je IDE eindelijk de call sites autocompleten.</li></ol><p>Op zichzelf zijn dit geen grote wijzigingen. De reden dat ze meestal worden overgeslagen, is dat stap drie een week aan oninteressante edits kost en de diff lastig te reviewen is. De truc is om elke global als een eigen pull request te committen, met de runtime trace van voor en na als bewijs dat het gedrag niet veranderd is.</p><p>Als de site een Composer-autoloader heeft die bovenop de require-keten is geschroefd, behandel die dan als nog een parent in de graph en niet als een ontsnappingsroute. De class map zal namespaced calls netjes resolven, maar de legacy includes vuren nog steeds parallel af en dezelfde global leaks gaan nog steeds over de grens. Een veelgemaakte fout is aannemen dat het toevoegen van Composer betekent dat de bestand-voor-bestand refactor klaar is. In de praktijk heb je meestal twee inclusion-systemen die jarenlang naast elkaar draaien, en de trace is de enige eerlijke map van de unie.</p><h3>Het database-beeld parallel</h3><p>Eén kanttekening die bij elke opdracht naar boven komt. Dezelfde sites die 14 includes per pagina hebben, hebben vaak een <code>db.php</code> die bovenaan een connection opent, en daarna een <code>queries.php</code> die op require-niveau twintig <code>mysql_query</code>-aanroepen op module scope afvuurt. De output van stap één hierboven is waar je dat beeld ook vindt. Zodra je weet welke bestanden op welke requests draaien, wordt de SQL-audit een stuk korter, en het query log dat je een paar uur lang verzamelt met <code>general_log = 'ON'</code> legt zich netjes over de include-graph heen.</p><h2>Valideer elke slice tegen de trace</h2><p>Na elke commit in bovenstaande reeks heb je bewijs nodig dat het include-gedrag niet is verschoven. De goedkoopste fingerprint is een stabiele hash van de included-file-lijst per URL. Voeg één regel toe aan de prepend-handler zodat elke regel een identifier draagt waarop je kunt groeperen:</p><pre><code class="lang-php">$entry['hash'] = substr(md5(implode('|', get_included_files())), 0, 12);
+</code></pre><p>Haal elke hash voor een gegeven URL van vóór de wijziging op, draai de refactor en haal daarna de hashes erna op. Als de set verschilt, heeft iets een bestand binnengetrokken dat er eerder niet was, of er juist één weggelaten die er nog had moeten staan. Bij de uitgeversopdracht vingen we op deze manier twee refactor-regressies, die anders stilletjes naar productie waren gegaan. De shutdown-handler is het dichtst bij een regressietest dat een site zonder tests ooit zal hebben.</p><p>De vergelijking zelf is een one-liner:</p><pre><code class="lang-bash">jq -r 'select(.uri == "/article/foo") | .hash' \
+  /var/log/php-includes.ndjson \
+  | sort -u
+</code></pre><p>Meer dan één afwijkende hash voor een URL tijdens een rustig uur is een aanwijzing, ofwel voor een echte wijziging, ofwel voor een code path dat je hebt gemist. Bekijk het voordat de volgende commit landt. De discipline verdient zichzelf terug op het moment dat ze voor het eerst een refactor vangt die stilletjes stopte met het includen van de cache layer op één request-type.</p><h2>Waar dit voor ons uitkomt</h2><p>Toen we Pier bouwden voor het bewerken van precies dit soort <a href="/">legacy sites</a>, was het include-probleem een van de eerste muren waar we tegenaan liepen. Wat we uiteindelijk deden, was per request een trace bijhouden van aangeraakte bestanden op de server, de graph in de editor renderen en je elke edge laten aanklikken om direct naar de <code>require</code>-regel te springen die hem binnentrok. De <a href="/#features">version history</a> verzorgt het deel waarin je terugloopt vanaf een slice die niet werkte, en de <a href="/#database">MySQL editor</a> staat naast de bestandsboom zodat de schema-audit naast de code-audit kan draaien. Dat is het werk. De tool komt daar pas achteraan.</p><h2>Eén ding om vandaag te doen</h2><p>Open de grootste <code>index.php</code> of <code>front-controller.php</code> op een site die je onderhoudt en voeg de <code>auto_prepend_file</code>-trace van hierboven toe. Laat hem 48 uur staan. De lijst met bestanden die je terugkrijgt, is korter dan je verwacht, en het verschil tussen die lijst en wat de codebase werkelijk bevat, is de omvang van je uiteindelijke refactor.</p>
+    </div>
+
+    <aside class="pullquote">Breng de inclusion-graph in kaart tijdens runtime voordat je een custom PHP-site refactort. Het verschil tussen wat draait en wat de codebase bevat, is de omvang van het werk.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik de auto_prepend_file-trace in productie draaien?</p>
+      <p class="faq-a">Ja, voor een afgebakende periode. De shutdown-handler voegt microseconden per request toe. Roteer het NDJSON-bestand en schakel de prepend uit zodra je een representatieve sample hebt. Laat hem niet onbeperkt aanstaan.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als de site PHP-FPM gebruikt in plaats van mod_php?</p>
+      <p class="faq-a">Dezelfde prepend, maar recycle workers tussen samples in, zodat get_included_files() geen cumulatieve resultaten teruggeeft uit een langlopend proces. Zet pm.max_requests op een laag getal tijdens het trace-venster.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe trace ik includes op CLI cron jobs, niet alleen op web requests?</p>
+      <p class="faq-a">Zet auto_prepend_file in een php.ini die gescoped is op de CLI SAPI, of geef -d auto_prepend_file=/path/to/trace.php mee in het cron-commando. De shutdown-handler vuurt op dezelfde manier af.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-3-to-5-template-overrides/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-3-to-5-template-overrides/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-3-to-5-template-overrides/hero.jpg" alt="Schuifmaat op crème papieren sjabloon met potloodlijnen, kleirood briefje onder een bek, gekrast eiken tafelblad, zijlicht van raam." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Joomla 3 naar Joomla 5: overrides die de sprong overleven</h3>
+      <span class="pc-lede">Zestig procent van je Joomla 3 overrides is te redden. De andere veertig procent sloopt je site geruisloos. Dit is de volgorde die wij draaien.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/inline-css-embedded-fonts-aged-well/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/inline-css-embedded-fonts-aged-well/hero.webp" type="image/webp">
+        <img src="/nl/blog/inline-css-embedded-fonts-aged-well/hero.jpg" alt="Gesloten bordeauxrood leren logboek op donker eiken bureau, rood lint, messing penpunt op verzegelde kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Frontend</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Inline CSS en embedded fonts: oude gewoontes die werken</h3>
+      <span class="pc-lede">Elf jaar later doet in een WordPress-theme uit 2014 nog precies dat nuttig werk wat we ooit bespotten: inline CSS, self-hosted fonts, kale JavaScript.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/mapping-php-include-dependencies/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
