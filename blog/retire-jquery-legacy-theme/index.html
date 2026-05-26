@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Retiring jQuery from a legacy theme: a working playbook · Pier — Blog</title>
+<meta name="description" content="Most legacy themes still ship jQuery for two lines of code: a hamburger toggle and a smooth scroll. Here is how we retire it without spending a Saturday on rollbacks.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, frontend, php, workflow, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Retiring jQuery from a legacy theme: a working playbook">
+<meta property="og:description" content="Most legacy themes still ship jQuery for two lines of code: a hamburger toggle and a smooth scroll. Here is how we retire it without spending a Saturday on rollbacks.">
+<meta property="og:url" content="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<meta property="og:image" content="https://pier.abn.company/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Flat-lay on bone linen: inked script crossing out jQuery, folded blueprint with arrows, manila tab, brass plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T06:44:41.310Z">
+<meta property="article:modified_time" content="2026-05-26T06:44:41.310Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Frontend">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="frontend">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Retiring jQuery from a legacy theme: a working playbook">
+<meta name="twitter:description" content="Most legacy themes still ship jQuery for two lines of code: a hamburger toggle and a smooth scroll. Here is how we retire it without spending a Saturday on rollbacks.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta name="twitter:image:alt" content="Flat-lay on bone linen: inked script crossing out jQuery, folded blueprint with arrows, manila tab, brass plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Frontend">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/retire-jquery-legacy-theme/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/retire-jquery-legacy-theme/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/retire-jquery-legacy-theme/"},
+  "url":"https://pier.abn.company/blog/retire-jquery-legacy-theme/",
+  "headline":"Retiring jQuery from a legacy theme: a working playbook",
+  "description":"Most legacy themes still ship jQuery for two lines of code: a hamburger toggle and a smooth scroll. Here is how we retire it without spending a Saturday on rollbacks.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/retire-jquery-legacy-theme/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Flat-lay on bone linen: inked script crossing out jQuery, folded blueprint with arrows, manila tab, brass plate, wax seal."
+  },
+  "datePublished":"2026-05-26T06:44:41.310Z",
+  "dateModified":"2026-05-26T06:44:41.310Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, frontend, php, workflow, tooling",
+  "wordCount":1455,
+  "articleSection":"Frontend",
+  "articleBody":"An agency we work with forwarded a header.php last week. The site is a 2017 build for a regional logistics company in the south of the Netherlands. The theme loads six JavaScript files. Four are jQuery plugins (slick, fancybox, a sticky-header library, and one nobody can remember adding). Two are eleven-line snippets that toggle a mobile menu and fade in the hero. Total work the page actually performs: a hamburger button, a footer accordion, and a hero fade. Total payload: 87 KB of JavaScript, of which 32 KB is jQuery itself, plus another 18 KB of plugins it drags along. This is the ordinary shape of a 7-year-old WordPress theme. The interesting question is not whether to retire jQuery. The interesting question is how to do it without spending a Saturday on rollbacks. What follows is the playbook we use on a typical legacy site , in the order we use it. It applies equally to a Drupal 7 theme, a Joomla 3 template, or any other PHP-rendered site that learned about JavaScript through jQuery. Audit before you touch anything Before deleting a single wp_enqueue_script call, find every place jQuery is actually invoked. Two greps cover most themes: cd wp-content/themes/your-theme grep -rn \"jQuery\" --include=\"*.js\" --include=\"*.php\" . grep -rn '\\$(' --include=\"*.js\" . grep -rn \"wp_enqueue_script.*jquery\" --include=\"*.php\" ../.. The first two greps tell you what the theme actually does with jQuery. The third tells you who else on the site has declared a dependency on it: plugins, the parent theme, a child theme, a page builder. You cannot fully remove jQuery as long as anything else is pulling it in, and that is fine. The first pass is about removing your own usage. Plugin-introduced jQuery is a separate decision, made later. Catalogue every call. A spreadsheet is enough. We do it in three columns: the file and line, the jQuery feature in use, the equivalent in modern JavaScript. After half an hour you will have something like this: header.js:14 · $('.menu-toggle').on('click', ...) · document.querySelector('.menu-toggle').addEventListener('click', ...) footer.js:8 · $('.faq').slideToggle() · CSS transition on grid-template-rows plus a class toggle hero.js:22 · $.ajax({...}) · fetch(...) slider.js:1 · slick plugin · keep for now, replace in a second pass The point of the matrix is that you will see, almost immediately, that 80 percent of the calls are events, selectors, and class toggling. All of those have had native equivalents for over a decade. The remaining 20 percent is animation, AJAX, and the occasional plugin. Each of those gets a specific decision, not a blanket rewrite. The replacement matrix For most legacy themes the substitutions are mechanical. The list below covers the calls we see on roughly nine out of ten audits. Selectors and events // jQuery $('.menu-toggle').on('click', function () { $(this).toggleClass('is-open'); $('.site-nav').slideToggle(200); }); // Modern document.querySelector('.menu-toggle').addEventListener('click', (e) => { e.currentTarget.classList.toggle('is-open'); document.querySelector('.site-nav').classList.toggle('is-open'); }); The slideToggle becomes a CSS transition on max-height or, on modern browsers, grid-template-rows interpolation . The behaviour is identical, the bundle is gone, and the animation actually runs on the compositor instead of being driven by setInterval. DOM traversal // jQuery $('.card').each(function () { $(this).find('.title').text($(this).data('label')); }); // Modern document.querySelectorAll('.card').forEach((card) => { card.querySelector('.title').textContent = card.dataset.label; }); The mental model is the same. find becomes querySelector , each becomes forEach , .data('x') becomes .dataset.x . Most teams write better code on the second pass because the native API forces them to think about whether they want one element or many, instead of letting jQuery quietly paper over the difference. AJAX fetch is the obvious replacement, but $.ajax has one habit that catches people out: it sends an X-Requested-With: XMLHttpRequest header, which WordPress's admin-ajax.php and several custom REST endpoints check for. Set it explicitly: const res = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', }, body: new URLSearchParams({ action: 'get_posts', cat: '4' }), }); const data = await res.json(); Almost every legacy theme also wraps its bootstrap in jQuery(document).ready() . The native equivalent is document.addEventListener('DOMContentLoaded', fn) , and in most cases you do not need it at all: putting the script tag at the end of <body> , or marking it defer , has the same effect. Ship the change behind a feature flag This is the part most write-ups skip. You do not deploy a jQuery removal in one push. You ship the new code, leave the old code in place, and toggle between them with a query parameter or a cookie. The smallest version of this in WordPress ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/retire-jquery-legacy-theme/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Retiring jQuery from a legacy theme: a working playbook","item":"https://pier.abn.company/blog/retire-jquery-legacy-theme/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I just delete jQuery from wp_enqueue_scripts and reload?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not safely. Plugins, the admin bar, and page builders may still declare a dependency. Audit who needs it first, then dequeue conditionally for anonymous front-end traffic."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the bundle size saving worth the work on a small site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On its own, 32 KB is marginal. The real payoff is that the next developer to open the theme reads native JavaScript instead of a 2014-era plugin stack written by someone long gone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about jQuery Migrate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Delete it. It exists to paper over APIs removed between jQuery 1.x and 3.x. If your code does not need those APIs, Migrate is dead weight; if it does, fix the code instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I keep jQuery for plugins I cannot replace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Leave it registered. Plugins that declare a dependency will pull it in. Your goal is removing jQuery from code you own, not zero jQuery on the page."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 029</span>
+      </div>
+      <p class="eyebrow"><span class="n">029 —</span>Frontend</p>
+      <h1 class="display-l post-title">Retiring jQuery from a legacy theme: a working playbook</h1>
+      <p class="lede post-lede">Most legacy themes still ship jQuery for two lines of code: a hamburger toggle and a smooth scroll. Here is how we retire it without spending a Saturday on rollbacks.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T06:44:41.310Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/retire-jquery-legacy-theme/hero.webp" type="image/webp">
+      <img src="/blog/retire-jquery-legacy-theme/hero.jpg" alt="Flat-lay on bone linen: inked script crossing out jQuery, folded blueprint with arrows, manila tab, brass plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 029</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>An agency we work with forwarded a <code>header.php</code> last week. The site is a 2017 build for a regional logistics company in the south of the Netherlands. The theme loads six JavaScript files. Four are jQuery plugins (slick, fancybox, a sticky-header library, and one nobody can remember adding). Two are eleven-line snippets that toggle a mobile menu and fade in the hero. Total work the page actually performs: a hamburger button, a footer accordion, and a hero fade. Total payload: 87 KB of JavaScript, of which 32 KB is jQuery itself, plus another 18 KB of plugins it drags along.</p>
+
+<p>This is the ordinary shape of a 7-year-old WordPress theme. The interesting question is not whether to retire jQuery. The interesting question is how to do it without spending a Saturday on rollbacks. What follows is the playbook we use on a typical <a href="/">legacy site</a>, in the order we use it. It applies equally to a Drupal 7 theme, a Joomla 3 template, or any other PHP-rendered site that learned about JavaScript through jQuery.</p>
+
+<h2>Audit before you touch anything</h2>
+
+<p>Before deleting a single <code>wp_enqueue_script</code> call, find every place jQuery is actually invoked. Two greps cover most themes:</p>
+
+<pre><code class="lang-bash">cd wp-content/themes/your-theme
+grep -rn "jQuery" --include="*.js" --include="*.php" .
+grep -rn '\$(' --include="*.js" .
+grep -rn "wp_enqueue_script.*jquery" --include="*.php" ../..
+</code></pre>
+
+<p>The first two greps tell you what the theme actually does with jQuery. The third tells you who else on the site has declared a dependency on it: plugins, the parent theme, a child theme, a page builder. You cannot fully remove jQuery as long as anything else is pulling it in, and that is fine. The first pass is about removing your own usage. Plugin-introduced jQuery is a separate decision, made later.</p>
+
+<p>Catalogue every call. A spreadsheet is enough. We do it in three columns: the file and line, the jQuery feature in use, the equivalent in modern JavaScript. After half an hour you will have something like this:</p>
+
+<ul>
+  <li><code>header.js:14</code> · <code>$('.menu-toggle').on('click', ...)</code> · <code>document.querySelector('.menu-toggle').addEventListener('click', ...)</code></li>
+  <li><code>footer.js:8</code> · <code>$('.faq').slideToggle()</code> · CSS transition on <code>grid-template-rows</code> plus a class toggle</li>
+  <li><code>hero.js:22</code> · <code>$.ajax({...})</code> · <code>fetch(...)</code></li>
+  <li><code>slider.js:1</code> · slick plugin · keep for now, replace in a second pass</li>
+</ul>
+
+<p>The point of the matrix is that you will see, almost immediately, that 80 percent of the calls are events, selectors, and class toggling. All of those have had native equivalents for over a decade. The remaining 20 percent is animation, AJAX, and the occasional plugin. Each of those gets a specific decision, not a blanket rewrite.</p>
+
+<h2>The replacement matrix</h2>
+
+<p>For most legacy themes the substitutions are mechanical. The list below covers the calls we see on roughly nine out of ten audits.</p>
+
+<h3>Selectors and events</h3>
+
+<pre><code class="lang-js">// jQuery
+$('.menu-toggle').on('click', function () {
+  $(this).toggleClass('is-open');
+  $('.site-nav').slideToggle(200);
+});
+
+// Modern
+document.querySelector('.menu-toggle').addEventListener('click', (e) => {
+  e.currentTarget.classList.toggle('is-open');
+  document.querySelector('.site-nav').classList.toggle('is-open');
+});
+</code></pre>
+
+<p>The <code>slideToggle</code> becomes a CSS transition on <code>max-height</code> or, on modern browsers, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows">grid-template-rows interpolation</a>. The behaviour is identical, the bundle is gone, and the animation actually runs on the compositor instead of being driven by setInterval.</p>
+
+<h3>DOM traversal</h3>
+
+<pre><code class="lang-js">// jQuery
+$('.card').each(function () {
+  $(this).find('.title').text($(this).data('label'));
+});
+
+// Modern
+document.querySelectorAll('.card').forEach((card) => {
+  card.querySelector('.title').textContent = card.dataset.label;
+});
+</code></pre>
+
+<p>The mental model is the same. <code>find</code> becomes <code>querySelector</code>, <code>each</code> becomes <code>forEach</code>, <code>.data('x')</code> becomes <code>.dataset.x</code>. Most teams write better code on the second pass because the native API forces them to think about whether they want one element or many, instead of letting jQuery quietly paper over the difference.</p>
+
+<h3>AJAX</h3>
+
+<p><code>fetch</code> is the obvious replacement, but <code>$.ajax</code> has one habit that catches people out: it sends an <code>X-Requested-With: XMLHttpRequest</code> header, which WordPress's <code>admin-ajax.php</code> and several custom REST endpoints check for. Set it explicitly:</p>
+
+<pre><code class="lang-js">const res = await fetch('/wp-admin/admin-ajax.php', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'X-Requested-With': 'XMLHttpRequest',
+  },
+  body: new URLSearchParams({ action: 'get_posts', cat: '4' }),
+});
+const data = await res.json();
+</code></pre>
+
+<p>Almost every legacy theme also wraps its bootstrap in <code>jQuery(document).ready()</code>. The native equivalent is <code>document.addEventListener('DOMContentLoaded', fn)</code>, and in most cases you do not need it at all: putting the script tag at the end of <code>&lt;body&gt;</code>, or marking it <code>defer</code>, has the same effect.</p>
+
+<h2>Ship the change behind a feature flag</h2>
+
+<p>This is the part most write-ups skip. You do not deploy a jQuery removal in one push. You ship the new code, leave the old code in place, and toggle between them with a query parameter or a cookie. The smallest version of this in WordPress is a handful of lines in <code>functions.php</code>:</p>
+
+<pre><code class="lang-php">function pier_use_modern_js() {
+  return isset( $_GET['modernjs'] ) || isset( $_COOKIE['modernjs'] );
+}
+
+add_action( 'wp_enqueue_scripts', function () {
+  $dir = get_template_directory_uri() . '/assets/js';
+  if ( pier_use_modern_js() ) {
+    if ( ! is_admin_bar_showing() ) {
+      wp_dequeue_script( 'jquery' );
+    }
+    wp_enqueue_script( 'theme-modern', $dir . '/modern.js', [], '1.0', true );
+  } else {
+    wp_enqueue_script( 'theme-legacy', $dir . '/legacy.js', [ 'jquery' ], '1.0', true );
+  }
+}, 100 );
+</code></pre>
+
+<p>Now you can browse the site at <code>?modernjs=1</code> and see the new code path. QA the menu, the accordions, the contact form, the search, the cookie banner. When you are satisfied, flip the default and keep the cookie path open for rollback. A week later, delete the legacy branch entirely.</p>
+
+<aside class="callout"><p><strong>Watch the admin bar.</strong> WordPress's logged-in admin bar declares a hard dependency on jQuery. If <code>wp_dequeue_script('jquery')</code> runs on a logged-in page, the admin bar will throw <code>$ is not a function</code> in the console and the dropdown menus stop working. Gate the dequeue with <code>if ( ! is_admin_bar_showing() )</code>, or only dequeue on the front end for anonymous traffic. The example above does the former.</p></aside>
+
+<h2>Catch the regressions you did not predict</h2>
+
+<p>The visible regressions (menu does not open, form does not submit) you will catch in five minutes of clicking. The invisible ones are what take down a Saturday. Three habits help.</p>
+
+<p><strong>Diff the rendered HTML.</strong> Before and after the cutover, save the rendered HTML of ten representative pages with <code>curl</code> and run <code>diff</code>. Most differences will be nonces and timestamps. Anything else is worth a second look.</p>
+
+<p><strong>Watch the console in production.</strong> Wire <code>window.onerror</code> to a one-line endpoint that writes to a log file. For the first 48 hours after the cutover, every <code>$ is not defined</code> coming from a third-party widget will show up there, in the order it happens, with the URL and the line number. That signal is worth more than any synthetic test.</p>
+
+<p><strong>Keep jQuery loadable on demand.</strong> If a third-party plugin still needs it, you do not need to fight that battle today. Leave <code>wp-includes/js/jquery/jquery.min.js</code> registered, just not enqueued by your theme. Plugins that declare a dependency will still pull it in. Pages that do not, will not. The browser caches it once for the few pages that need it, and the rest of the site is clean.</p>
+
+<h2>The harder cases</h2>
+
+<p>Three patterns deserve their own thinking. The first is jQuery UI: datepickers, sortables, dialogs. The native <code>&lt;input type="date"&gt;</code> covers most pickers, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API">the Drag and Drop API</a> covers sortables, and the native <code>&lt;dialog&gt;</code> element covers modals with focus trapping included. The second is jQuery Migrate, which papers over APIs removed between jQuery 1.x and 3.x and is itself worth deleting; if you depend on what it patches, fix the code instead. The third is jQuery-dependent page builders such as older Visual Composer or pre-3.0 Elementor: those will keep jQuery alive on your site regardless of what the theme does. Accept that and move on.</p>
+
+<p>For the slider plugins (slick, owl carousel, fancybox), a like-for-like replacement is rarely necessary. CSS scroll-snap covers a horizontal carousel in roughly forty lines. The <code>&lt;dialog&gt;</code> element covers a lightbox in twenty. We have replaced four-hundred-line slick configurations with sixty lines of CSS more than once. The slider rarely needed half of what jQuery was doing for it.</p>
+
+<p>The point of the exercise is not zero jQuery on the page. The point is zero jQuery in code you own, so that the next time you open this theme it is a normal JavaScript file and not an archaeological dig.</p>
+
+<h2>The smallest thing you can do today</h2>
+
+<p>Open the theme. Run the three greps from the top of this post. Paste the results into a text file. That is the audit, done. The replacements are mechanical once the list is in front of you, and the feature-flag scaffolding is twelve lines of PHP.</p>
+
+<p>When we built Pier we ran into this exact pattern across customer sites: every legacy theme has a slightly different jQuery footprint, and you want the audit, the live diff, and the rollback in one place. The way we ended up handling it was to keep file <a href="/#features">version history</a> next to the running edit, so a one-click revert is always there if the cutover surprises you on a Tuesday morning.</p>
+    </div>
+
+    <aside class="pullquote">Retiring jQuery from a legacy theme is mechanical once you audit the calls; the risk lives in the cutover, which is why you ship it behind a flag.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I just delete jQuery from wp_enqueue_scripts and reload?</p>
+      <p class="faq-a">Not safely. Plugins, the admin bar, and page builders may still declare a dependency. Audit who needs it first, then dequeue conditionally for anonymous front-end traffic.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is the bundle size saving worth the work on a small site?</p>
+      <p class="faq-a">On its own, 32 KB is marginal. The real payoff is that the next developer to open the theme reads native JavaScript instead of a 2014-era plugin stack written by someone long gone.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about jQuery Migrate?</p>
+      <p class="faq-a">Delete it. It exists to paper over APIs removed between jQuery 1.x and 3.x. If your code does not need those APIs, Migrate is dead weight; if it does, fix the code instead.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I keep jQuery for plugins I cannot replace?</p>
+      <p class="faq-a">Yes. Leave it registered. Plugins that declare a dependency will pull it in. Your goal is removing jQuery from code you own, not zero jQuery on the page.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=frontend">#frontend</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/inline-css-embedded-fonts-aged-well/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/inline-css-embedded-fonts-aged-well/hero.webp" type="image/webp">
+        <img src="/blog/inline-css-embedded-fonts-aged-well/hero.jpg" alt="Closed burgundy leather logbook on dark oak desk, red ribbon marker, brass pen nib on wax-sealed cream card." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Frontend</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Inline CSS and embedded fonts: 2010s habits that aged well</h3>
+      <span class="pc-lede">Eleven years on, the parts of a 2014 WordPress theme still doing useful work are the ones we used to mock: inline CSS, self-hosted fonts, plain JavaScript.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/joomla-3-to-5-template-overrides/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/joomla-3-to-5-template-overrides/hero.webp" type="image/webp">
+        <img src="/blog/joomla-3-to-5-template-overrides/hero.jpg" alt="Machinist calipers on cream paper template with pencil lines, clay-red slip under one jaw, scarred oak table, side window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Joomla 3 to Joomla 5: template overrides that survive</h3>
+      <span class="pc-lede">Most Joomla 3 overrides are sixty percent salvageable. The other forty percent will silently break your site. Here is the rescue order we use on real client sites.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

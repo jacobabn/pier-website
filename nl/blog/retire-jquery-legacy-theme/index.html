@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>jQuery uitfaseren uit een legacy theme: een draaiboek · Pier — Blog</title>
+<meta name="description" content="Oude themes laden jQuery vaak voor twee regels code: een hamburgermenu en een smooth scroll. Zo haal je het weg zonder zaterdag aan rollbacks te besteden.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, frontend, php, workflow, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="jQuery uitfaseren uit een legacy theme: een draaiboek">
+<meta property="og:description" content="Oude themes laden jQuery vaak voor twee regels code: een hamburgermenu en een smooth scroll. Zo haal je het weg zonder zaterdag aan rollbacks te besteden.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Flat-lay op botlinnen: inktscript dat jQuery doorstreept, gevouwen blauwdruk met pijlen, manilla label, messingplaat, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T06:44:41.310Z">
+<meta property="article:modified_time" content="2026-05-26T06:44:41.310Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Frontend">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="frontend">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="jQuery uitfaseren uit een legacy theme: een draaiboek">
+<meta name="twitter:description" content="Oude themes laden jQuery vaak voor twee regels code: een hamburgermenu en een smooth scroll. Zo haal je het weg zonder zaterdag aan rollbacks te besteden.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/hero.jpg">
+<meta name="twitter:image:alt" content="Flat-lay op botlinnen: inktscript dat jQuery doorstreept, gevouwen blauwdruk met pijlen, manilla label, messingplaat, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Frontend">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/retire-jquery-legacy-theme/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/"},
+  "url":"https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/",
+  "headline":"jQuery uitfaseren uit een legacy theme: een draaiboek",
+  "description":"Oude themes laden jQuery vaak voor twee regels code: een hamburgermenu en een smooth scroll. Zo haal je het weg zonder zaterdag aan rollbacks te besteden.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Flat-lay op botlinnen: inktscript dat jQuery doorstreept, gevouwen blauwdruk met pijlen, manilla label, messingplaat, lakzegel."
+  },
+  "datePublished":"2026-05-26T06:44:41.310Z",
+  "dateModified":"2026-05-26T06:44:41.310Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, frontend, php, workflow, tooling",
+  "wordCount":1480,
+  "articleSection":"Frontend",
+  "articleBody":"Een bureau waar we mee samenwerken stuurde vorige week een header.php door. De site is uit 2017, gebouwd voor een regionaal transportbedrijf in Zuid-Nederland. Het theme laadt zes JavaScript-bestanden. Vier daarvan zijn jQuery-plugins (slick, fancybox, een sticky-header library, en eentje waarvan niemand zich nog kan herinneren wie hem heeft toegevoegd). De andere twee zijn snippets van elf regels die een mobiel menu togglen en de hero laten infaden. Wat de pagina daadwerkelijk doet: een hamburgerknop, een accordion in de footer, en een hero die infadet. Totale payload: 87 KB JavaScript, waarvan 32 KB jQuery zelf is, plus nog 18 KB aan plugins die jQuery meesleept. Dit is de standaardvorm van een zeven jaar oud WordPress-theme. De interessante vraag is niet óf je jQuery moet uitfaseren. De interessante vraag is hoe je dat doet zonder je zaterdag kwijt te zijn aan rollbacks. Hieronder staat het draaiboek dat we gebruiken op een doorsnee legacy site , in de volgorde waarin we het toepassen. Het werkt net zo goed op een Drupal 7-theme, een Joomla 3-template, of welke andere PHP-gerenderde site dan ook die JavaScript heeft leren kennen via jQuery. Inventariseer voor je iets aanraakt Voordat je ook maar één wp_enqueue_script -aanroep verwijdert, breng eerst in kaart waar jQuery overal wordt aangeroepen. Twee greps dekken de meeste themes: cd wp-content/themes/your-theme grep -rn \"jQuery\" --include=\"*.js\" --include=\"*.php\" . grep -rn '\\$(' --include=\"*.js\" . grep -rn \"wp_enqueue_script.*jquery\" --include=\"*.php\" ../.. De eerste twee greps laten zien wat het theme zelf met jQuery doet. De derde laat zien wie er nog meer op de site een dependency heeft gedeclareerd: plugins, het parent-theme, een child-theme, een page builder. Je krijgt jQuery niet volledig van de pagina af zolang iets anders het ook nog binnenhaalt, en dat is prima. De eerste ronde gaat over je eigen gebruik. jQuery die plugins binnenhalen is een aparte beslissing, voor later. Catalogiseer elke aanroep. Een spreadsheet is genoeg. Wij doen het in drie kolommen: het bestand en regelnummer, de jQuery-functie die wordt gebruikt, en het equivalent in modern JavaScript. Na een half uur heb je zoiets als dit: header.js:14 · $('.menu-toggle').on('click', ...) · document.querySelector('.menu-toggle').addEventListener('click', ...) footer.js:8 · $('.faq').slideToggle() · CSS-transition op grid-template-rows plus een class toggle hero.js:22 · $.ajax({...}) · fetch(...) slider.js:1 · slick-plugin · nu nog laten staan, vervangen in de tweede ronde Het nut van die matrix is dat je vrijwel direct ziet dat 80 procent van de aanroepen events, selectors en class-toggling zijn. Daarvoor bestaan al ruim tien jaar native equivalenten. De resterende 20 procent is animatie, AJAX, en hier en daar een plugin. Voor elk daarvan neem je een aparte beslissing, geen herschrijving over de hele linie. De vervangingsmatrix Bij de meeste legacy themes zijn de vervangingen mechanisch. De lijst hieronder dekt de aanroepen die we zien in ongeveer negen van de tien audits. Selectors en events // jQuery $('.menu-toggle').on('click', function () { $(this).toggleClass('is-open'); $('.site-nav').slideToggle(200); }); // Modern document.querySelector('.menu-toggle').addEventListener('click', (e) => { e.currentTarget.classList.toggle('is-open'); document.querySelector('.site-nav').classList.toggle('is-open'); }); De slideToggle wordt een CSS-transition op max-height of, op moderne browsers, interpolatie op grid-template-rows . Het gedrag is identiek, de bundle is weg, en de animatie loopt nu echt op de compositor in plaats van aangedreven door setInterval. DOM-traversal // jQuery $('.card').each(function () { $(this).find('.title').text($(this).data('label')); }); // Modern document.querySelectorAll('.card').forEach((card) => { card.querySelector('.title').textContent = card.dataset.label; }); Het denkmodel blijft hetzelfde. find wordt querySelector , each wordt forEach , .data('x') wordt .dataset.x . De meeste teams schrijven betere code in de tweede ronde, omdat de native API hen dwingt na te denken of ze één element of meerdere willen, in plaats van dat jQuery dat verschil stilletjes wegmoffelt. AJAX fetch is de voor de hand liggende vervanger, maar $.ajax heeft één gewoonte waar mensen op stuiten: het stuurt een X-Requested-With: XMLHttpRequest header mee, en WordPress' admin-ajax.php en diverse custom REST-endpoints controleren daarop. Zet die dus expliciet: const res = await fetch('/wp-admin/admin-ajax.php', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest', }, body: new URLSearchParams({ action: 'get_posts', cat: '4' }), }); const data = await res.json(); Vrijwel elk legacy theme wikkelt zijn bootstrap ook in jQuery(document).ready() . Het native equivalent is document.addEventListener('DOMContentLoaded', fn) , en in de meeste gevallen heb je het helemaal niet nodig: de script-tag aan het eind van <body> zetten, of ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"jQuery uitfaseren uit een legacy theme: een draaiboek","item":"https://pier.abn.company/nl/blog/retire-jquery-legacy-theme/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik jQuery niet gewoon uit wp_enqueue_scripts halen en herladen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet veilig. Plugins, de admin bar en page builders kunnen er nog steeds een dependency op declareren. Inventariseer eerst wie het nodig heeft, en dequeue daarna conditioneel voor anoniem verkeer aan de voorkant."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is de besparing in bundle size het werk waard op een kleine site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op zichzelf is 32 KB marginaal. De echte winst is dat de volgende developer die het theme opent native JavaScript leest, in plaats van een plugin-stack uit 2014 die door iemand is geschreven die allang vertrokken is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "En jQuery Migrate?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Verwijder het. Het bestaat om APIs af te dekken die tussen jQuery 1.x en 3.x zijn verwijderd. Heeft jouw code die APIs niet nodig, dan is Migrate dode ballast; heeft het ze wel nodig, fix dan de code."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/retire-jquery-legacy-theme/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 029</span>
+      </div>
+      <p class="eyebrow"><span class="n">029 —</span>Frontend</p>
+      <h1 class="display-l post-title">jQuery uitfaseren uit een legacy theme: een draaiboek</h1>
+      <p class="lede post-lede">Oude themes laden jQuery vaak voor twee regels code: een hamburgermenu en een smooth scroll. Zo haal je het weg zonder zaterdag aan rollbacks te besteden.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T06:44:41.310Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/retire-jquery-legacy-theme/hero.webp" type="image/webp">
+      <img src="/blog/retire-jquery-legacy-theme/hero.jpg" alt="Flat-lay op botlinnen: inktscript dat jQuery doorstreept, gevouwen blauwdruk met pijlen, manilla label, messingplaat, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 029</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een bureau waar we mee samenwerken stuurde vorige week een <code>header.php</code> door. De site is uit 2017, gebouwd voor een regionaal transportbedrijf in Zuid-Nederland. Het theme laadt zes JavaScript-bestanden. Vier daarvan zijn jQuery-plugins (slick, fancybox, een sticky-header library, en eentje waarvan niemand zich nog kan herinneren wie hem heeft toegevoegd). De andere twee zijn snippets van elf regels die een mobiel menu togglen en de hero laten infaden. Wat de pagina daadwerkelijk doet: een hamburgerknop, een accordion in de footer, en een hero die infadet. Totale payload: 87 KB JavaScript, waarvan 32 KB jQuery zelf is, plus nog 18 KB aan plugins die jQuery meesleept.</p>
+
+<p>Dit is de standaardvorm van een zeven jaar oud WordPress-theme. De interessante vraag is niet óf je jQuery moet uitfaseren. De interessante vraag is hoe je dat doet zonder je zaterdag kwijt te zijn aan rollbacks. Hieronder staat het draaiboek dat we gebruiken op een doorsnee <a href="/">legacy site</a>, in de volgorde waarin we het toepassen. Het werkt net zo goed op een Drupal 7-theme, een Joomla 3-template, of welke andere PHP-gerenderde site dan ook die JavaScript heeft leren kennen via jQuery.</p>
+
+<h2>Inventariseer voor je iets aanraakt</h2>
+
+<p>Voordat je ook maar één <code>wp_enqueue_script</code>-aanroep verwijdert, breng eerst in kaart waar jQuery overal wordt aangeroepen. Twee greps dekken de meeste themes:</p>
+
+<pre><code class="lang-bash">cd wp-content/themes/your-theme
+grep -rn "jQuery" --include="*.js" --include="*.php" .
+grep -rn '\$(' --include="*.js" .
+grep -rn "wp_enqueue_script.*jquery" --include="*.php" ../..
+</code></pre>
+
+<p>De eerste twee greps laten zien wat het theme zelf met jQuery doet. De derde laat zien wie er nog meer op de site een dependency heeft gedeclareerd: plugins, het parent-theme, een child-theme, een page builder. Je krijgt jQuery niet volledig van de pagina af zolang iets anders het ook nog binnenhaalt, en dat is prima. De eerste ronde gaat over je eigen gebruik. jQuery die plugins binnenhalen is een aparte beslissing, voor later.</p>
+
+<p>Catalogiseer elke aanroep. Een spreadsheet is genoeg. Wij doen het in drie kolommen: het bestand en regelnummer, de jQuery-functie die wordt gebruikt, en het equivalent in modern JavaScript. Na een half uur heb je zoiets als dit:</p>
+
+<ul>
+  <li><code>header.js:14</code> · <code>$('.menu-toggle').on('click', ...)</code> · <code>document.querySelector('.menu-toggle').addEventListener('click', ...)</code></li>
+  <li><code>footer.js:8</code> · <code>$('.faq').slideToggle()</code> · CSS-transition op <code>grid-template-rows</code> plus een class toggle</li>
+  <li><code>hero.js:22</code> · <code>$.ajax({...})</code> · <code>fetch(...)</code></li>
+  <li><code>slider.js:1</code> · slick-plugin · nu nog laten staan, vervangen in de tweede ronde</li>
+</ul>
+
+<p>Het nut van die matrix is dat je vrijwel direct ziet dat 80 procent van de aanroepen events, selectors en class-toggling zijn. Daarvoor bestaan al ruim tien jaar native equivalenten. De resterende 20 procent is animatie, AJAX, en hier en daar een plugin. Voor elk daarvan neem je een aparte beslissing, geen herschrijving over de hele linie.</p>
+
+<h2>De vervangingsmatrix</h2>
+
+<p>Bij de meeste legacy themes zijn de vervangingen mechanisch. De lijst hieronder dekt de aanroepen die we zien in ongeveer negen van de tien audits.</p>
+
+<h3>Selectors en events</h3>
+
+<pre><code class="lang-js">// jQuery
+$('.menu-toggle').on('click', function () {
+  $(this).toggleClass('is-open');
+  $('.site-nav').slideToggle(200);
+});
+
+// Modern
+document.querySelector('.menu-toggle').addEventListener('click', (e) => {
+  e.currentTarget.classList.toggle('is-open');
+  document.querySelector('.site-nav').classList.toggle('is-open');
+});
+</code></pre>
+
+<p>De <code>slideToggle</code> wordt een CSS-transition op <code>max-height</code> of, op moderne browsers, <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows">interpolatie op grid-template-rows</a>. Het gedrag is identiek, de bundle is weg, en de animatie loopt nu echt op de compositor in plaats van aangedreven door setInterval.</p>
+
+<h3>DOM-traversal</h3>
+
+<pre><code class="lang-js">// jQuery
+$('.card').each(function () {
+  $(this).find('.title').text($(this).data('label'));
+});
+
+// Modern
+document.querySelectorAll('.card').forEach((card) => {
+  card.querySelector('.title').textContent = card.dataset.label;
+});
+</code></pre>
+
+<p>Het denkmodel blijft hetzelfde. <code>find</code> wordt <code>querySelector</code>, <code>each</code> wordt <code>forEach</code>, <code>.data('x')</code> wordt <code>.dataset.x</code>. De meeste teams schrijven betere code in de tweede ronde, omdat de native API hen dwingt na te denken of ze één element of meerdere willen, in plaats van dat jQuery dat verschil stilletjes wegmoffelt.</p>
+
+<h3>AJAX</h3>
+
+<p><code>fetch</code> is de voor de hand liggende vervanger, maar <code>$.ajax</code> heeft één gewoonte waar mensen op stuiten: het stuurt een <code>X-Requested-With: XMLHttpRequest</code> header mee, en WordPress' <code>admin-ajax.php</code> en diverse custom REST-endpoints controleren daarop. Zet die dus expliciet:</p>
+
+<pre><code class="lang-js">const res = await fetch('/wp-admin/admin-ajax.php', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'X-Requested-With': 'XMLHttpRequest',
+  },
+  body: new URLSearchParams({ action: 'get_posts', cat: '4' }),
+});
+const data = await res.json();
+</code></pre>
+
+<p>Vrijwel elk legacy theme wikkelt zijn bootstrap ook in <code>jQuery(document).ready()</code>. Het native equivalent is <code>document.addEventListener('DOMContentLoaded', fn)</code>, en in de meeste gevallen heb je het helemaal niet nodig: de script-tag aan het eind van <code>&lt;body&gt;</code> zetten, of hem op <code>defer</code> zetten, heeft hetzelfde effect.</p>
+
+<h2>Zet de wijziging achter een feature flag</h2>
+
+<p>Dit is het deel dat de meeste tutorials overslaan. Je deployt een jQuery-verwijdering niet in één keer. Je zet de nieuwe code live, laat de oude code staan, en switcht ertussen met een query parameter of een cookie. De kleinste versie hiervan in WordPress is een handvol regels in <code>functions.php</code>:</p>
+
+<pre><code class="lang-php">function pier_use_modern_js() {
+  return isset( $_GET['modernjs'] ) || isset( $_COOKIE['modernjs'] );
+}
+
+add_action( 'wp_enqueue_scripts', function () {
+  $dir = get_template_directory_uri() . '/assets/js';
+  if ( pier_use_modern_js() ) {
+    if ( ! is_admin_bar_showing() ) {
+      wp_dequeue_script( 'jquery' );
+    }
+    wp_enqueue_script( 'theme-modern', $dir . '/modern.js', [], '1.0', true );
+  } else {
+    wp_enqueue_script( 'theme-legacy', $dir . '/legacy.js', [ 'jquery' ], '1.0', true );
+  }
+}, 100 );
+</code></pre>
+
+<p>Nu kun je de site bezoeken via <code>?modernjs=1</code> en zie je het nieuwe code-pad. Loop het menu, de accordions, het contactformulier, het zoekvak en de cookiebanner door. Als je tevreden bent, draai je de default om en houd je het cookie-pad open voor een rollback. Een week later gooi je de legacy-branch er helemaal uit.</p>
+
+<aside class="callout"><p><strong>Let op de admin bar.</strong> De ingelogde admin bar van WordPress declareert een harde dependency op jQuery. Als <code>wp_dequeue_script('jquery')</code> op een ingelogde pagina draait, gooit de admin bar <code>$ is not a function</code> in de console en werken de dropdown-menu's niet meer. Zet de dequeue achter <code>if ( ! is_admin_bar_showing() )</code>, of dequeue alleen aan de voorkant voor anoniem verkeer. Het voorbeeld hierboven doet het eerste.</p></aside>
+
+<h2>Vang de regressies op die je niet zag aankomen</h2>
+
+<p>De zichtbare regressies (menu opent niet, formulier verstuurt niet) heb je binnen vijf minuten klikken te pakken. De onzichtbare zijn wat je zaterdag opslokt. Drie gewoontes helpen.</p>
+
+<p><strong>Diff de gerenderde HTML.</strong> Sla voor en na de cutover de gerenderde HTML van tien representatieve pagina's op met <code>curl</code> en draai <code>diff</code>. De meeste verschillen zullen nonces en timestamps zijn. Al het andere is een tweede blik waard.</p>
+
+<p><strong>Houd de console op productie in de gaten.</strong> Hang <code>window.onerror</code> aan een endpoint van één regel dat naar een logbestand schrijft. De eerste 48 uur na de cutover zie je daar elke <code>$ is not defined</code> uit een third-party widget langskomen, in de volgorde waarin het gebeurt, met URL en regelnummer erbij. Dat signaal is meer waard dan welke synthetische test ook.</p>
+
+<p><strong>Houd jQuery on demand laadbaar.</strong> Als een third-party plugin het nog nodig heeft, hoef je die strijd vandaag niet te voeren. Laat <code>wp-includes/js/jquery/jquery.min.js</code> gewoon geregistreerd staan, alleen niet door jouw theme enqueued. Plugins die een dependency declareren halen het alsnog binnen. Pagina's die dat niet doen, doen het niet. De browser cachet het één keer voor de paar pagina's die het nodig hebben, en de rest van de site is schoon.</p>
+
+<h2>De lastigere gevallen</h2>
+
+<p>Drie patronen verdienen aparte aandacht. Het eerste is jQuery UI: datepickers, sortables, dialogs. De native <code>&lt;input type="date"&gt;</code> dekt de meeste pickers, <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API">de Drag and Drop API</a> dekt sortables, en het native <code>&lt;dialog&gt;</code>-element dekt modals inclusief focus trapping. Het tweede is jQuery Migrate, dat APIs afdekt die tussen jQuery 1.x en 3.x zijn verwijderd en zelf ook weg mag: heb je iets nodig wat het patcht, fix dan de code. Het derde zijn jQuery-afhankelijke page builders zoals oudere Visual Composer of pre-3.0 Elementor: die houden jQuery op je site in leven, wat het theme ook doet. Accepteer dat en ga door.</p>
+
+<p>Voor de slider-plugins (slick, owl carousel, fancybox) is een één-op-één vervanger zelden nodig. CSS scroll-snap dekt een horizontale carousel af in ongeveer veertig regels. Het <code>&lt;dialog&gt;</code>-element dekt een lightbox af in twintig. We hebben slick-configuraties van vierhonderd regels meer dan eens vervangen door zestig regels CSS. De slider had zelden meer dan de helft nodig van wat jQuery ervoor deed.</p>
+
+<p>Het doel van de oefening is geen nul jQuery op de pagina. Het doel is nul jQuery in code die jij beheert, zodat het de volgende keer dat je dit theme opent een normaal JavaScript-bestand is en geen archeologische opgraving.</p>
+
+<h2>Het kleinste dat je vandaag kunt doen</h2>
+
+<p>Open het theme. Draai de drie greps van bovenaan deze post. Plak de uitkomsten in een tekstbestand. Klaar, dat is de audit. De vervangingen zijn mechanisch zodra je de lijst voor je hebt liggen, en de feature-flag-steiger is twaalf regels PHP.</p>
+
+<p>Toen we Pier bouwden, kwamen we dit patroon op klantsites steeds tegen: elk legacy theme heeft een net iets andere jQuery-footprint, en je wilt de audit, de live diff en de rollback op één plek. We hebben het uiteindelijk zo opgelost dat de <a href="/#features">version history</a> van een bestand naast de lopende edit blijft staan, zodat een revert met één klik er altijd is, mocht de cutover je op een dinsdagochtend verrassen.</p>
+    </div>
+
+    <aside class="pullquote">jQuery uitfaseren uit een legacy theme is mechanisch zodra je de aanroepen in kaart hebt; het risico zit in de cutover, en daarom zet je het achter een flag.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik jQuery niet gewoon uit wp_enqueue_scripts halen en herladen?</p>
+      <p class="faq-a">Niet veilig. Plugins, de admin bar en page builders kunnen er nog steeds een dependency op declareren. Inventariseer eerst wie het nodig heeft, en dequeue daarna conditioneel voor anoniem verkeer aan de voorkant.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is de besparing in bundle size het werk waard op een kleine site?</p>
+      <p class="faq-a">Op zichzelf is 32 KB marginaal. De echte winst is dat de volgende developer die het theme opent native JavaScript leest, in plaats van een plugin-stack uit 2014 die door iemand is geschreven die allang vertrokken is.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">En jQuery Migrate?</p>
+      <p class="faq-a">Verwijder het. Het bestaat om APIs af te dekken die tussen jQuery 1.x en 3.x zijn verwijderd. Heeft jouw code die APIs niet nodig, dan is Migrate dode ballast; heeft het ze wel nodig, fix dan de code.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=frontend">#frontend</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/inline-css-embedded-fonts-aged-well/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/inline-css-embedded-fonts-aged-well/hero.webp" type="image/webp">
+        <img src="/nl/blog/inline-css-embedded-fonts-aged-well/hero.jpg" alt="Gesloten bordeauxrood leren logboek op donker eiken bureau, rood lint, messing penpunt op verzegelde kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Frontend</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Inline CSS en embedded fonts: oude gewoontes die werken</h3>
+      <span class="pc-lede">Elf jaar later doet in een WordPress-theme uit 2014 nog precies dat nuttig werk wat we ooit bespotten: inline CSS, self-hosted fonts, kale JavaScript.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/joomla-3-to-5-template-overrides/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-3-to-5-template-overrides/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-3-to-5-template-overrides/hero.jpg" alt="Schuifmaat op crème papieren sjabloon met potloodlijnen, kleirood briefje onder een bek, gekrast eiken tafelblad, zijlicht van raam." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Joomla 3 naar Joomla 5: overrides die de sprong overleven</h3>
+      <span class="pc-lede">Zestig procent van je Joomla 3 overrides is te redden. De andere veertig procent sloopt je site geruisloos. Dit is de volgorde die wij draaien.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/retire-jquery-legacy-theme/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
