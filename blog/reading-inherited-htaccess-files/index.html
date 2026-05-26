@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading inherited .htaccess files: a fundamentals guide · Pier — Blog</title>
+<meta name="description" content="Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="htaccess, wordpress, php, architecture, operations, security">
+
+<link rel="canonical" href="https://pier.abn.company/blog/reading-inherited-htaccess-files/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-inherited-htaccess-files/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-inherited-htaccess-files/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading inherited .htaccess files: a fundamentals guide">
+<meta property="og:description" content="Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.">
+<meta property="og:url" content="https://pier.abn.company/blog/reading-inherited-htaccess-files/">
+<meta property="og:image" content="https://pier.abn.company/blog/reading-inherited-htaccess-files/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/reading-inherited-htaccess-files/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Top-down photo of aged .htaccess printout with crossed-out RewriteRule lines, brass plate, manila tab, red wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T08:32:20.372Z">
+<meta property="article:modified_time" content="2026-05-26T08:32:20.372Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Architecture">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading inherited .htaccess files: a fundamentals guide">
+<meta name="twitter:description" content="Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/reading-inherited-htaccess-files/hero.jpg">
+<meta name="twitter:image:alt" content="Top-down photo of aged .htaccess printout with crossed-out RewriteRule lines, brass plate, manila tab, red wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Architecture">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/reading-inherited-htaccess-files/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/reading-inherited-htaccess-files/"},
+  "url":"https://pier.abn.company/blog/reading-inherited-htaccess-files/",
+  "headline":"Reading inherited .htaccess files: a fundamentals guide",
+  "description":"Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/reading-inherited-htaccess-files/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Top-down photo of aged .htaccess printout with crossed-out RewriteRule lines, brass plate, manila tab, red wax seal on linen."
+  },
+  "datePublished":"2026-05-26T08:32:20.372Z",
+  "dateModified":"2026-05-26T08:32:20.372Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"htaccess, wordpress, php, architecture, operations, security",
+  "wordCount":1174,
+  "articleSection":"Architecture",
+  "articleBody":"The first five minutes It is 16:20 on a Wednesday. A client forwards an email from their hosting provider: \"Your site failed our PHP 8.2 compatibility scan.\" You SFTP into the document root, open .htaccess, and find 340 lines. Half are commented out in Dutch. There are three separate WordPress rewrite blocks, two of them stale. Somewhere in there is a single mod_security rule that has been silently 403'ing the contact form for a month. Before touching anything, copy the file off-server. Name it htaccess-baseline-2026-05-26.txt and drop it in a notes folder. Every edit from now on is a diff against that baseline. If something breaks in twenty minutes, you want to be able to scp the original back in one command, not reconstruct it from memory. Then read top to bottom, slowly. The .htaccess file is parsed directive by directive, in order, and the order matters. The last matching rule for a given response header wins. The first matching RewriteRule with the [L] flag stops the chain. A file that looks fine can do nothing because a Redirect 301 on the second line short-circuits everything below it. The block taxonomy Most inherited .htaccess files are five blocks taped together, in roughly this order: PHP handler switch ( AddHandler / SetHandler ), often left behind by cPanel or DirectAdmin's PHP selector. The CMS rewrite block, bracketed by # BEGIN / # END markers. Caching plugin debris (W3 Total Cache, WP Super Cache, WP Rocket). Security hardening: deny-from rules, wp-config protection, mod_security tweaks. Site-specific redirects: 301s accumulated over migrations. Read it as five files glued together, not one. Each block has its own author, its own decade, its own bug. The CMS block is the one you must not touch by hand. The other four are where your work is. The PHP handler line On shared hosting the top of the file usually looks like this: # Use PHP 7.4 AddHandler application/x-httpd-ea-php74 .php If you are migrating to PHP 8.2, this line is a trap. The host's MultiPHP UI will appear to set the version correctly while .htaccess silently overrides it. The fix is to comment the line out, save, reload the site, and confirm in a phpinfo() page that the version actually flipped. Apache's docs on the AddHandler directive are worth a re-read if the syntax looks unfamiliar. The CMS rewrite block A standard WordPress block looks like this: # BEGIN WordPress <IfModule mod_rewrite.c> RewriteEngine On RewriteBase / RewriteRule ^index\\.php$ - [L] RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d RewriteRule . /index.php [L] </IfModule> # END WordPress Six lines. That is the whole legitimate WordPress rewrite block. Anything inside the BEGIN/END markers that does not match this template was added by a plugin or by a previous developer who treated .htaccess like a scratch pad. WordPress's own permalinks documentation confirms it: the core block does not change between releases. If you see two BEGIN WordPress blocks in the same file, one of them is dead. Usually the second one. Delete it, save, hard-reload the front page and one permalink. If both still load, the cut was clean. Reading rewrite rules without losing your mind The block that breaks the most brains is the rewrite chain. Read each rule as four parts: The conditions (every RewriteCond above it, until the previous RewriteRule ). The match pattern (the regex after RewriteRule ). The substitution (the URL it rewrites to). The flags in square brackets. So a rule like this: RewriteCond %{HTTP_HOST} ^www\\.oldsite\\.nl$ [NC] RewriteRule ^(.*)$ https://newsite.nl/$1 [R=301,L] reads as: \"if the host header is www.oldsite.nl , case-insensitive, then redirect every path to the same path on newsite.nl with a 301, and stop processing.\" The [L] is the part developers forget. Without it, the next rule can rewrite again, sometimes producing the dreaded /index.php/index.php loop. Two flags account for most production fires: [L] (last, stop the chain) and [R=301] (permanent redirect, gets cached by browsers for months). A wrong 301 is a long-tail incident, because users with the cached redirect cannot reach the new behaviour until they clear their browser. Be sure before you push. Test rewrites with curl -I before celebrating. A 200 in your browser may be served from disk cache; curl sees the wire response. curl -I -L https://site.nl/old-path follows the chain and shows every hop. If you see two redirects where you expected one, the chain is still broken. The dangerous quiet The lines that ship outages are not the loud ones. They are the quiet ones that look harmless. A Header set X-Frame-Options \"SAMEORIGIN\" added years ago can break a new iframe embed for a partner site. A <Files wp-config.php> block that was copy-pasted with the wrong filename ( wpconfig.php ) protects nothing. A RewriteRule ^wp-admin/ - [F] left behind from a hack-recovery in 2019 will 403 the legitimate admin once the IP allow-list above it expires. When auditing, search the file for th",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/reading-inherited-htaccess-files/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading inherited .htaccess files: a fundamentals guide","item":"https://pier.abn.company/blog/reading-inherited-htaccess-files/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What happens if I delete .htaccess entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress regenerates the core block on the next permalink save, but every custom redirect, security rule, and PHP handler line is gone for good. Copy the file off-server before you touch it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find which line is causing a 500 error?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rename .htaccess to .htaccess.disabled and reload. If the 500 stops, binary-search by commenting halves of the file until the offending block is alone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are .htaccess rewrite rules case-sensitive?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes by default. Use the [NC] flag on RewriteCond and RewriteRule to make them case-insensitive. Hostnames and paths are matched literally otherwise."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I move rules into the main server config instead?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If you control the vhost, yes. The .htaccess file is parsed on every request and is measurably slower. On shared hosting you usually have no choice but to keep it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 031</span>
+      </div>
+      <p class="eyebrow"><span class="n">031 —</span>Architecture</p>
+      <h1 class="display-l post-title">Reading inherited .htaccess files: a fundamentals guide</h1>
+      <p class="lede post-lede">Inherited a site whose .htaccess starts with three commented blocks of dead RewriteRules in Dutch? Read it block by block. This is the order we use.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T08:32:20.372Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp">
+      <img src="/blog/reading-inherited-htaccess-files/hero.jpg" alt="Top-down photo of aged .htaccess printout with crossed-out RewriteRule lines, brass plate, manila tab, red wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 031</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The first five minutes</h2>
+<p>It is 16:20 on a Wednesday. A client forwards an email from their hosting provider: "Your site failed our PHP 8.2 compatibility scan." You SFTP into the document root, open .htaccess, and find 340 lines. Half are commented out in Dutch. There are three separate WordPress rewrite blocks, two of them stale. Somewhere in there is a single mod_security rule that has been silently 403'ing the contact form for a month.</p>
+<p>Before touching anything, copy the file off-server. Name it <code>htaccess-baseline-2026-05-26.txt</code> and drop it in a notes folder. Every edit from now on is a diff against that baseline. If something breaks in twenty minutes, you want to be able to scp the original back in one command, not reconstruct it from memory.</p>
+<p>Then read top to bottom, slowly. The .htaccess file is parsed directive by directive, in order, and the order matters. The last matching rule for a given response header wins. The first matching RewriteRule with the <code>[L]</code> flag stops the chain. A file that looks fine can do nothing because a <code>Redirect 301</code> on the second line short-circuits everything below it.</p>
+
+<h2>The block taxonomy</h2>
+<p>Most inherited .htaccess files are five blocks taped together, in roughly this order:</p>
+<ol>
+<li>PHP handler switch (<code>AddHandler</code> / <code>SetHandler</code>), often left behind by cPanel or DirectAdmin's PHP selector.</li>
+<li>The CMS rewrite block, bracketed by <code># BEGIN</code> / <code># END</code> markers.</li>
+<li>Caching plugin debris (W3 Total Cache, WP Super Cache, WP Rocket).</li>
+<li>Security hardening: deny-from rules, wp-config protection, mod_security tweaks.</li>
+<li>Site-specific redirects: 301s accumulated over migrations.</li>
+</ol>
+<p>Read it as five files glued together, not one. Each block has its own author, its own decade, its own bug. The CMS block is the one you must not touch by hand. The other four are where your work is.</p>
+
+<h3>The PHP handler line</h3>
+<p>On shared hosting the top of the file usually looks like this:</p>
+<pre><code class="lang-apache"># Use PHP 7.4
+AddHandler application/x-httpd-ea-php74 .php
+</code></pre>
+<p>If you are migrating to PHP 8.2, this line is a trap. The host's MultiPHP UI will appear to set the version correctly while .htaccess silently overrides it. The fix is to comment the line out, save, reload the site, and confirm in a <code>phpinfo()</code> page that the version actually flipped. Apache's docs on the <a href="https://httpd.apache.org/docs/current/mod/mod_mime.html#addhandler">AddHandler directive</a> are worth a re-read if the syntax looks unfamiliar.</p>
+
+<h3>The CMS rewrite block</h3>
+<p>A standard WordPress block looks like this:</p>
+<pre><code class="lang-apache"># BEGIN WordPress
+&lt;IfModule mod_rewrite.c&gt;
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+&lt;/IfModule&gt;
+# END WordPress
+</code></pre>
+<p>Six lines. That is the whole legitimate WordPress rewrite block. Anything inside the BEGIN/END markers that does not match this template was added by a plugin or by a previous developer who treated .htaccess like a scratch pad. WordPress's own <a href="https://wordpress.org/documentation/article/htaccess/">permalinks documentation</a> confirms it: the core block does not change between releases.</p>
+<p>If you see two BEGIN WordPress blocks in the same file, one of them is dead. Usually the second one. Delete it, save, hard-reload the front page and one permalink. If both still load, the cut was clean.</p>
+
+<h2>Reading rewrite rules without losing your mind</h2>
+<p>The block that breaks the most brains is the rewrite chain. Read each rule as four parts:</p>
+<ul>
+<li>The conditions (every <code>RewriteCond</code> above it, until the previous <code>RewriteRule</code>).</li>
+<li>The match pattern (the regex after <code>RewriteRule</code>).</li>
+<li>The substitution (the URL it rewrites to).</li>
+<li>The flags in square brackets.</li>
+</ul>
+<p>So a rule like this:</p>
+<pre><code class="lang-apache">RewriteCond %{HTTP_HOST} ^www\.oldsite\.nl$ [NC]
+RewriteRule ^(.*)$ https://newsite.nl/$1 [R=301,L]
+</code></pre>
+<p>reads as: "if the host header is <code>www.oldsite.nl</code>, case-insensitive, then redirect every path to the same path on <code>newsite.nl</code> with a 301, and stop processing." The <code>[L]</code> is the part developers forget. Without it, the next rule can rewrite again, sometimes producing the dreaded <code>/index.php/index.php</code> loop.</p>
+<p>Two flags account for most production fires: <code>[L]</code> (last, stop the chain) and <code>[R=301]</code> (permanent redirect, gets cached by browsers for months). A wrong 301 is a long-tail incident, because users with the cached redirect cannot reach the new behaviour until they clear their browser. Be sure before you push.</p>
+<aside class="callout">Test rewrites with <code>curl -I</code> before celebrating. A 200 in your browser may be served from disk cache; curl sees the wire response. <code>curl -I -L https://site.nl/old-path</code> follows the chain and shows every hop. If you see two redirects where you expected one, the chain is still broken.</aside>
+
+<h2>The dangerous quiet</h2>
+<p>The lines that ship outages are not the loud ones. They are the quiet ones that look harmless.</p>
+<p>A <code>Header set X-Frame-Options "SAMEORIGIN"</code> added years ago can break a new iframe embed for a partner site. A <code>&lt;Files wp-config.php&gt;</code> block that was copy-pasted with the wrong filename (<code>wpconfig.php</code>) protects nothing. A <code>RewriteRule ^wp-admin/ - [F]</code> left behind from a hack-recovery in 2019 will 403 the legitimate admin once the IP allow-list above it expires.</p>
+<p>When auditing, search the file for three patterns first:</p>
+<pre><code class="lang-bash">grep -nE '^\s*(Redirect|RedirectMatch)\s' .htaccess
+grep -nE '\[F\]|\[G\]|\[R=' .htaccess
+grep -nE 'Header\s+(set|append|add)' .htaccess
+</code></pre>
+<p>Those three commands surface the rules most likely to be silently shaping traffic. Read each match in context. If you cannot explain in one sentence why it is there, it is a candidate for removal, but not yet. Comment it out first with a date stamp:</p>
+<pre><code class="lang-apache"># 2026-05-26 BM: disabled, suspect stale hotlink block
+# RewriteCond %{HTTP_REFERER} !^https?://(www\.)?site\.nl [NC]
+# RewriteRule \.(jpg|jpeg|png|gif)$ - [F]
+</code></pre>
+<p>A dated comment is a tombstone. Six months from now, when nobody complains, you delete the block. Until then, the comment tells the next person what you suspected and when.</p>
+
+<h2>The kill-switch test</h2>
+<p>The fastest way to know whether .htaccess is the source of an incident is the kill switch. Rename it:</p>
+<pre><code class="lang-bash">mv .htaccess .htaccess.disabled
+</code></pre>
+<p>Reload the site. If the symptom disappears, .htaccess owns the bug. If the symptom remains, look elsewhere (PHP, the database, the load balancer). Then rename it back and binary-search: comment out the bottom half, reload, then the bottom quarter, until the offending block is alone.</p>
+<p>This is crude, and it costs you a few seconds of broken permalinks on a live site. But it is decisive in a way that reading the file is not. The Apache project documents the <a href="https://httpd.apache.org/docs/current/sections.html">order of section and directive processing</a> for the cases where the bug is not in one block but in the interaction between two.</p>
+
+<h2>What we ended up building</h2>
+<p>When we built Pier we ran into this exact thing on almost every onboarding to a <a href="/">legacy site</a>: an .htaccess that was an archaeological dig. The way we ended up handling it was to give every saved version of the file a timestamped diff in <a href="/#features">version history</a>, so that a kill-switch test followed by twenty edits can be rolled back in one click instead of an SCP scramble.</p>
+<p>Pick the smallest version of this you can do today: open one .htaccess you have not read in a year, save a baseline copy off-server, and run the three grep commands above against it. Whatever turns up in the next five minutes is the start of your audit.</p>
+    </div>
+
+    <aside class="pullquote">An inherited .htaccess is five files glued together. Read them in order, kill-switch test before you guess, and tombstone-comment every line you remove.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What happens if I delete .htaccess entirely?</p>
+      <p class="faq-a">WordPress regenerates the core block on the next permalink save, but every custom redirect, security rule, and PHP handler line is gone for good. Copy the file off-server before you touch it.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I find which line is causing a 500 error?</p>
+      <p class="faq-a">Rename .htaccess to .htaccess.disabled and reload. If the 500 stops, binary-search by commenting halves of the file until the offending block is alone.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Are .htaccess rewrite rules case-sensitive?</p>
+      <p class="faq-a">Yes by default. Use the [NC] flag on RewriteCond and RewriteRule to make them case-insensitive. Hostnames and paths are matched literally otherwise.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I move rules into the main server config instead?</p>
+      <p class="faq-a">If you control the vhost, yes. The .htaccess file is parsed on every request and is measurably slower. On shared hosting you usually have no choice but to keep it.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leather logbook with ribbon marker on dark oak, brass pen nib, red wax seal on folded paper, soft window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Reviving a dead WordPress site: a 90-minute playbook</h3>
+      <span class="pc-lede">A Dutch agency owner sent a Loom at 23:41: white screen, no logs, no SSH. Ninety minutes later the cart was live. Here is the order we work in.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/hacked-wordpress-five-minute-audit/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/hacked-wordpress-five-minute-audit/hero.webp" type="image/webp">
+        <img src="/blog/hacked-wordpress-five-minute-audit/hero.jpg" alt="Brass machinist calipers on cream paper template with pencil tick marks and red wax checkmark, dark oak surface." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Spotting a hacked WordPress install: a 5-minute audit</h3>
+      <span class="pc-lede">You have FTP, the database password, and maybe five minutes before the client wakes up. Here is the audit that gets you to a verdict, in roughly that order.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
