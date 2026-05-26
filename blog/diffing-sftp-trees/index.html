@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Diffing two SFTP trees: when &#39;nothing changed&#39; isn&#39;t true · Pier — Blog</title>
+<meta name="description" content="A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, sftp, ftp, wordpress, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Diffing two SFTP trees: when &#39;nothing changed&#39; isn&#39;t true">
+<meta property="og:description" content="A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.">
+<meta property="og:url" content="https://pier.abn.company/blog/diffing-sftp-trees/">
+<meta property="og:image" content="https://pier.abn.company/blog/diffing-sftp-trees/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/diffing-sftp-trees/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Two printed SFTP directory listings on graph paper labelled Friday and Saturday, red thread between them, brass DIFF plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T19:57:06.108Z">
+<meta property="article:modified_time" content="2026-05-26T19:57:06.108Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Diffing two SFTP trees: when &#39;nothing changed&#39; isn&#39;t true">
+<meta name="twitter:description" content="A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/diffing-sftp-trees/hero.jpg">
+<meta name="twitter:image:alt" content="Two printed SFTP directory listings on graph paper labelled Friday and Saturday, red thread between them, brass DIFF plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/diffing-sftp-trees/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/diffing-sftp-trees/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/diffing-sftp-trees/"},
+  "url":"https://pier.abn.company/blog/diffing-sftp-trees/",
+  "headline":"Diffing two SFTP trees: when 'nothing changed' isn't true",
+  "description":"A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/diffing-sftp-trees/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Two printed SFTP directory listings on graph paper labelled Friday and Saturday, red thread between them, brass DIFF plate, wax seal."
+  },
+  "datePublished":"2026-05-26T19:57:06.108Z",
+  "dateModified":"2026-05-26T19:57:06.108Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"workflow, sftp, ftp, wordpress, php, operations",
+  "wordCount":1105,
+  "articleSection":"Workflow",
+  "articleBody":"A Dutch agency we work with got the message on Saturday at 09:14: the contact form on a nine-year-old WordPress site started returning a 500 on submit. The client, a regional logistics firm, was firm about one thing. Nobody had touched anything since Friday afternoon. \"We literally went home at 17:00 and didn't open the laptop.\" The dev on call had to either believe that or prove it wrong before lunch. This is the most common shape of an SFTP support call. Something works on Friday. Something is broken on Monday. The client swears nothing changed. The truth is almost always a small file nobody remembers writing. The job is finding it without a Git history, without a deploy log, and without burning the client's morning. The mtime lie The first instinct on any unix shell is find . -mtime -3 . On an FTP-managed site, it lies to you about half the time. Most FTP and SFTP clients (FileZilla, Cyberduck, Transmit) preserve the original modification time when they upload, so a file uploaded yesterday can carry an mtime from 2019. Worse, some plugin updaters reset mtime to match the upstream zip. The field that doesn't lie is ctime (inode change time on linux), which is updated every time the inode itself is rewritten, including when the file is replaced. Most FTP servers cannot set ctime from the client side because it isn't an exposed metadata field. find . -type f -ctime -3 -printf '%T@ %p\\n' | sort -n This will surface anything whose inode changed in the last 72 hours, sorted by mtime. On a normal WordPress install that should be a short list: maybe a cache directory, maybe a session file, maybe nothing at all. A single unexpected hit in wp-content/plugins/ or at the docroot is usually the answer. The catch: ctime resets if anyone has done a chmod or chown on a tree, which managed hosts sometimes do during a nightly sweep. Look at the spread of timestamps. If the entire wp-content/uploads tree shares the same ctime to the second, that was a bulk operation, not a file edit. Building a baseline If you work with a site for any length of time, the cheapest insurance you can buy yourself is a checksum manifest. Once a week, on a cron or by hand: cd /var/www/clientsite find . -type f \\ -not -path './wp-content/cache/*' \\ -not -path './wp-content/uploads/*' \\ -exec md5sum {} \\; \\ | sort -k 2 > ~/baselines/clientsite-2026-05-23.md5 The file is 2-3 MB for a typical WordPress install. When the Saturday ticket comes in, you mirror the current site to /tmp/audit , run the same command against it, and then: diff ~/baselines/clientsite-2026-05-23.md5 ~/audit/clientsite-now.md5 Every line on the left that doesn't have an exact match on the right is a file that changed, was deleted, or was added. The diff for a real \"nothing happened\" incident is usually one to six lines long, which is exactly the size of evidence you can paste into a Basecamp reply. Two trees, one rsync dry-run When you don't have a baseline, you compare against the closest thing you do have: your last local pull, the staging copy, or a backup tarball from your host. rsync in dry-run mode with itemized changes is the fastest way to see the delta. rsync -avn --itemize-changes --delete \\ --exclude='wp-content/cache/' \\ --exclude='wp-content/uploads/' \\ ./local-friday-pull/ \\ sftp-user@host:/var/www/clientsite/ The interesting column is the leftmost flag block. >f.st.... means a file would be sent because it's newer on the source. *deleting means a file present locally is missing on the remote. The pattern you want to see is short. If rsync wants to push back hundreds of files, that's a permission or umask drift; if it wants to push back two, you have your answer. Note the n in -avn . That's dry-run. Without it, rsync will happily overwrite the live site with your stale Friday copy, which is the second-worst Saturday outcome. Run dry-run against a staging or local copy, never against the live tree as a \"let me sync it back\" reflex. If the change on the server is the fix (a hotfix from another freelancer, a host security patch), rsync without -n will silently revert it and you'll spend Sunday debugging a bug that no longer exists in production. Where the change actually lives Once the diff is in front of you, eighty percent of the time it lives in one of five places. .htaccess at the docroot, especially after a security plugin re-writes its own block. wp-config.php , where someone bumped WP_DEBUG or added a constant. wp-content/plugins/<name>/ for an auto-updated plugin ( auto-updates have been on by default since WP 5.5). wp-content/mu-plugins/ , a folder most clients don't know exists and many hosts inject into. A theme's functions.php that a \"marketing person with FTP access\" edited at 16:58 on Friday. None of this requires Git or a deploy pipeline. It requires knowing where to look, having a baseline you trust, and a diff you can hand the client. The MySQL side of the same question Filesystem diffs only tell you half the story. The other half lives in wp_optio",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/diffing-sftp-trees/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Diffing two SFTP trees: when 'nothing changed' isn't true","item":"https://pier.abn.company/blog/diffing-sftp-trees/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why doesn't mtime reliably show recently changed files over FTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most FTP and SFTP clients preserve the source file's original mtime on upload, so a file uploaded yesterday can carry a timestamp from years ago. Use ctime on linux for the truth."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How big is a typical md5 baseline file for WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "With cache and uploads excluded, expect 2-3 MB on disk and roughly 1,200 to 4,000 lines, depending on how many plugins and language files are installed."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can rsync compare two remote SFTP servers directly?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not natively. Mirror both to local copies first (lftp mirror is fastest) and then run rsync --dry-run between the two local trees."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the site is already in Git?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Then git status and git diff do the same job in one command. This playbook is for the much more common case where a legacy site has no version control at all."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/diffing-sftp-trees/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 044</span>
+      </div>
+      <p class="eyebrow"><span class="n">044 —</span>Workflow</p>
+      <h1 class="display-l post-title">Diffing two SFTP trees: when &#39;nothing changed&#39; isn&#39;t true</h1>
+      <p class="lede post-lede">A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T19:57:06.108Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/diffing-sftp-trees/hero.webp" type="image/webp">
+      <img src="/blog/diffing-sftp-trees/hero.jpg" alt="Two printed SFTP directory listings on graph paper labelled Friday and Saturday, red thread between them, brass DIFF plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 044</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with got the message on Saturday at 09:14: the contact form on a nine-year-old WordPress site started returning a 500 on submit. The client, a regional logistics firm, was firm about one thing. Nobody had touched anything since Friday afternoon. "We literally went home at 17:00 and didn't open the laptop." The dev on call had to either believe that or prove it wrong before lunch.</p>
+
+<p>This is the most common shape of an SFTP support call. Something works on Friday. Something is broken on Monday. The client swears nothing changed. The truth is almost always a small file nobody remembers writing. The job is finding it without a Git history, without a deploy log, and without burning the client's morning.</p>
+
+<h2>The mtime lie</h2>
+
+<p>The first instinct on any unix shell is <code>find . -mtime -3</code>. On an FTP-managed site, it lies to you about half the time. Most FTP and SFTP clients (FileZilla, Cyberduck, Transmit) preserve the original modification time when they upload, so a file uploaded yesterday can carry an mtime from 2019. Worse, some plugin updaters reset mtime to match the upstream zip.</p>
+
+<p>The field that doesn't lie is <code>ctime</code> (inode change time on linux), which is updated every time the inode itself is rewritten, including when the file is replaced. Most FTP servers cannot set ctime from the client side because it isn't an exposed metadata field.</p>
+
+<pre><code class="lang-bash">find . -type f -ctime -3 -printf '%T@ %p\n' | sort -n</code></pre>
+
+<p>This will surface anything whose inode changed in the last 72 hours, sorted by mtime. On a normal WordPress install that should be a short list: maybe a cache directory, maybe a session file, maybe nothing at all. A single unexpected hit in <code>wp-content/plugins/</code> or at the docroot is usually the answer.</p>
+
+<p>The catch: ctime resets if anyone has done a <code>chmod</code> or <code>chown</code> on a tree, which managed hosts sometimes do during a nightly sweep. Look at the spread of timestamps. If the entire <code>wp-content/uploads</code> tree shares the same ctime to the second, that was a bulk operation, not a file edit.</p>
+
+<h2>Building a baseline</h2>
+
+<p>If you work with a site for any length of time, the cheapest insurance you can buy yourself is a checksum manifest. Once a week, on a cron or by hand:</p>
+
+<pre><code class="lang-bash">cd /var/www/clientsite
+find . -type f \
+  -not -path './wp-content/cache/*' \
+  -not -path './wp-content/uploads/*' \
+  -exec md5sum {} \; \
+  | sort -k 2 &gt; ~/baselines/clientsite-2026-05-23.md5</code></pre>
+
+<p>The file is 2-3 MB for a typical WordPress install. When the Saturday ticket comes in, you mirror the current site to <code>/tmp/audit</code>, run the same command against it, and then:</p>
+
+<pre><code class="lang-bash">diff ~/baselines/clientsite-2026-05-23.md5 ~/audit/clientsite-now.md5</code></pre>
+
+<p>Every line on the left that doesn't have an exact match on the right is a file that changed, was deleted, or was added. The diff for a real "nothing happened" incident is usually one to six lines long, which is exactly the size of evidence you can paste into a Basecamp reply.</p>
+
+<h2>Two trees, one rsync dry-run</h2>
+
+<p>When you don't have a baseline, you compare against the closest thing you do have: your last local pull, the staging copy, or a backup tarball from your host. <a href="https://download.samba.org/pub/rsync/rsync.1">rsync</a> in dry-run mode with itemized changes is the fastest way to see the delta.</p>
+
+<pre><code class="lang-bash">rsync -avn --itemize-changes --delete \
+  --exclude='wp-content/cache/' \
+  --exclude='wp-content/uploads/' \
+  ./local-friday-pull/ \
+  sftp-user@host:/var/www/clientsite/</code></pre>
+
+<p>The interesting column is the leftmost flag block. <code>&gt;f.st....</code> means a file would be sent because it's newer on the source. <code>*deleting</code> means a file present locally is missing on the remote. The pattern you want to see is short. If rsync wants to push back hundreds of files, that's a permission or umask drift; if it wants to push back two, you have your answer.</p>
+
+<p>Note the <code>n</code> in <code>-avn</code>. That's dry-run. Without it, rsync will happily overwrite the live site with your stale Friday copy, which is the second-worst Saturday outcome.</p>
+
+<aside class="callout">Run dry-run against a staging or local copy, never against the live tree as a "let me sync it back" reflex. If the change on the server is the fix (a hotfix from another freelancer, a host security patch), rsync without <code>-n</code> will silently revert it and you'll spend Sunday debugging a bug that no longer exists in production.</aside>
+
+<h2>Where the change actually lives</h2>
+
+<p>Once the diff is in front of you, eighty percent of the time it lives in one of five places.</p>
+
+<ul>
+  <li><code>.htaccess</code> at the docroot, especially after a security plugin re-writes its own block.</li>
+  <li><code>wp-config.php</code>, where someone bumped <code>WP_DEBUG</code> or added a constant.</li>
+  <li><code>wp-content/plugins/&lt;name&gt;/</code> for an auto-updated plugin (<a href="https://developer.wordpress.org/reference/functions/wp_maybe_auto_update/">auto-updates</a> have been on by default since WP 5.5).</li>
+  <li><code>wp-content/mu-plugins/</code>, a folder most clients don't know exists and many hosts inject into.</li>
+  <li>A theme's <code>functions.php</code> that a "marketing person with FTP access" edited at 16:58 on Friday.</li>
+ </ul>
+
+<p>None of this requires Git or a deploy pipeline. It requires knowing where to look, having a baseline you trust, and a diff you can hand the client.</p>
+
+<h2>The MySQL side of the same question</h2>
+
+<p>Filesystem diffs only tell you half the story. The other half lives in <code>wp_options</code>, <code>wp_postmeta</code>, and the cron table. A broken contact form is just as likely to be a plugin that got auto-deactivated as it is a file change. Worth a check:</p>
+
+<pre><code class="lang-sql">SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('active_plugins', 'cron', 'siteurl', 'home');</code></pre>
+
+<p>Compare against your last known-good export. If <code>active_plugins</code> lost an entry between Friday and Saturday, somebody (or something) deactivated it. WP-CLI has the cleanest read: <code>wp option get active_plugins --format=json</code>.</p>
+
+<h2>What we ended up building</h2>
+
+<p>When we built <a href="/">Pier</a> for our own <a href="/">legacy site</a> work, this Saturday-morning scene is the one we kept hitting. The way we ended up handling it was to snapshot the SFTP tree and the database on connect, then show every subsequent change in a <a href="/#features">version history</a> alongside the file's previous content. The same view exists for the <a href="/#database">MySQL editor</a>, so a deactivated plugin or a flipped <code>siteurl</code> surfaces the same way a touched <code>.htaccess</code> does. The diff lives next to the undo button, which is the order you want them in at 09:14 on a Saturday.</p>
+
+<h2>The smallest thing to do today</h2>
+
+<p>Open the SFTP root of one site you support. Run the md5 manifest command above, redirect it to a baseline file, drop the file in a folder called <code>baselines/</code>. Cost: about ninety seconds and 3 MB of disk. The next time a client tells you nothing changed since Friday, you'll have something to diff against, and the conversation will be twelve minutes long instead of two hours.</p>
+    </div>
+
+    <aside class="pullquote">If you support legacy sites without Git, drop a weekly md5 manifest into a baselines folder. The first Saturday ticket pays for the habit.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why doesn&#39;t mtime reliably show recently changed files over FTP?</p>
+      <p class="faq-a">Most FTP and SFTP clients preserve the source file&#39;s original mtime on upload, so a file uploaded yesterday can carry a timestamp from years ago. Use ctime on linux for the truth.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How big is a typical md5 baseline file for WordPress?</p>
+      <p class="faq-a">With cache and uploads excluded, expect 2-3 MB on disk and roughly 1,200 to 4,000 lines, depending on how many plugins and language files are installed.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can rsync compare two remote SFTP servers directly?</p>
+      <p class="faq-a">Not natively. Mirror both to local copies first (lftp mirror is fastest) and then run rsync --dry-run between the two local trees.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if the site is already in Git?</p>
+      <p class="faq-a">Then git status and git diff do the same job in one command. This playbook is for the much more common case where a legacy site has no version control at all.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-without-the-dashboard/hero.jpg" alt="Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>WordPress without the dashboard: why some agencies live in the FTP</h3>
+      <span class="pc-lede">A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/blog/wp-config-live-edit-procedure/hero.jpg" alt="Brass padlock with wax-sealed paper tag on folded linen cloth, bone paper surface, dark oak table edge." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 May 2026</span></span>
+      <h3>wp-config.php on production: a safe edit procedure</h3>
+      <span class="pc-lede">wp-config.php is one line away from a white screen. Here is the procedure we use to change it on a live WordPress site without ever dropping a request.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/diffing-sftp-trees/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

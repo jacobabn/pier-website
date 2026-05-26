@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Twee SFTP-trees diffen: vind het bestand dat veranderde · Pier — Blog</title>
+<meta name="description" content="Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, sftp, ftp, wordpress, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/diffing-sftp-trees/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Twee SFTP-trees diffen: vind het bestand dat veranderde">
+<meta property="og:description" content="Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/diffing-sftp-trees/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/diffing-sftp-trees/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/diffing-sftp-trees/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Twee geprinte SFTP-mappenlijsten op ruitjespapier met labels vrijdag en zaterdag, rode draad ertussen, messing DIFF-plaatje, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T19:57:06.108Z">
+<meta property="article:modified_time" content="2026-05-26T19:57:06.108Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Twee SFTP-trees diffen: vind het bestand dat veranderde">
+<meta name="twitter:description" content="Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/diffing-sftp-trees/hero.jpg">
+<meta name="twitter:image:alt" content="Twee geprinte SFTP-mappenlijsten op ruitjespapier met labels vrijdag en zaterdag, rode draad ertussen, messing DIFF-plaatje, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/diffing-sftp-trees/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/diffing-sftp-trees/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/diffing-sftp-trees/"},
+  "url":"https://pier.abn.company/nl/blog/diffing-sftp-trees/",
+  "headline":"Twee SFTP-trees diffen: vind het bestand dat veranderde",
+  "description":"Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/diffing-sftp-trees/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Twee geprinte SFTP-mappenlijsten op ruitjespapier met labels vrijdag en zaterdag, rode draad ertussen, messing DIFF-plaatje, lakzegel."
+  },
+  "datePublished":"2026-05-26T19:57:06.108Z",
+  "dateModified":"2026-05-26T19:57:06.108Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, sftp, ftp, wordpress, php, operations",
+  "wordCount":1122,
+  "articleSection":"Workflow",
+  "articleBody":"Een Nederlands bureau waarmee we samenwerken kreeg het bericht zaterdag om 09:14 binnen: het contactformulier op een negen jaar oude WordPress-site gaf bij verzenden plotseling een 500 terug. De klant, een regionaal logistiek bedrijf, was stellig over één ding. Niemand had iets aangeraakt sinds vrijdagmiddag. 'We zijn letterlijk om 17:00 naar huis gegaan en hebben de laptop niet meer opengeklapt.' De dienstdoende dev moest dat geloven of het tegendeel bewijzen vóór de lunch. Dit is de standaardvorm van een SFTP-supportcall. Iets werkt op vrijdag. Iets is stuk op maandag. De klant zweert dat er niets is veranderd. De waarheid is bijna altijd een klein bestand dat niemand zich herinnert geschreven te hebben. Het werk bestaat eruit dat bestand te vinden zonder Git-historie, zonder deploy-log, en zonder de ochtend van de klant op te branden. De mtime-leugen De eerste reflex in een unix-shell is find . -mtime -3 . Op een via FTP beheerde site liegt dat commando ongeveer in de helft van de gevallen. De meeste FTP- en SFTP-clients (FileZilla, Cyberduck, Transmit) bewaren de originele modificatietijd bij het uploaden, dus een bestand dat gisteren is geüpload kan een mtime uit 2019 dragen. Erger nog: sommige plugin-updaters resetten de mtime zodat die overeenkomt met de upstream-zip. Het veld dat niet liegt is ctime (inode change time op linux), dat opnieuw wordt gezet elke keer dat de inode zelf wordt herschreven, inclusief wanneer het bestand wordt vervangen. De meeste FTP-servers kunnen ctime niet vanaf de clientkant zetten, omdat het geen exposed metadata-veld is. find . -type f -ctime -3 -printf '%T@ %p\\n' | sort -n Dit haalt alles boven water waarvan de inode in de laatste 72 uur is veranderd, gesorteerd op mtime. Op een normale WordPress-installatie hoort dat een korte lijst te zijn: misschien een cache-directory, misschien een session-bestand, misschien helemaal niets. Eén onverwachte hit in wp-content/plugins/ of in de docroot is meestal het antwoord. De catch: ctime wordt gereset als iemand chmod of chown heeft losgelaten op een tree, wat managed hosts soms doen tijdens een nachtelijke sweep. Kijk naar de spreiding van de timestamps. Als de hele wp-content/uploads -tree dezelfde ctime deelt tot op de seconde, was dat een bulk-operatie, geen file-edit. Een baseline opbouwen Als je langere tijd met een site werkt, is de goedkoopste verzekering die je voor jezelf kunt afsluiten een checksum-manifest. Eén keer per week, via cron of met de hand: cd /var/www/clientsite find . -type f \\ -not -path './wp-content/cache/*' \\ -not -path './wp-content/uploads/*' \\ -exec md5sum {} \\; \\ | sort -k 2 > ~/baselines/clientsite-2026-05-23.md5 Het bestand is 2 tot 3 MB voor een typische WordPress-installatie. Komt het zaterdagticket binnen, dan mirror je de huidige site naar /tmp/audit , draai je hetzelfde commando ertegen, en dan: diff ~/baselines/clientsite-2026-05-23.md5 ~/audit/clientsite-now.md5 Elke regel links zonder exacte match rechts is een bestand dat is gewijzigd, verwijderd of toegevoegd. De diff voor een echt 'er is niets gebeurd'-incident is meestal één tot zes regels lang, precies de hoeveelheid bewijs die je in een Basecamp-reply kunt plakken. Twee trees, één rsync dry-run Als je geen baseline hebt, vergelijk je tegen het dichtstbijzijnde wat je wél hebt: je laatste lokale pull, de staging-kopie, of een backup-tarball van je host. rsync in dry-run-modus met itemized changes is de snelste manier om de delta te zien. rsync -avn --itemize-changes --delete \\ --exclude='wp-content/cache/' \\ --exclude='wp-content/uploads/' \\ ./local-friday-pull/ \\ sftp-user@host:/var/www/clientsite/ De interessante kolom is het meest linkse flag-blok. >f.st.... betekent dat een bestand verzonden zou worden omdat het op de source nieuwer is. *deleting betekent dat een lokaal aanwezig bestand op de remote ontbreekt. Het patroon dat je wilt zien is kort. Als rsync honderden bestanden terug wil pushen, is dat permission- of umask-drift; wil het er twee terug pushen, dan heb je je antwoord. Let op de n in -avn . Dat is dry-run. Zonder die n overschrijft rsync vrolijk de live site met je verouderde kopie van vrijdag, en dat is de op één na slechtste zaterdaguitkomst. Draai dry-run altijd tegen een staging- of lokale kopie, nooit als 'even terugsyncen'-reflex tegen de live tree. Als de verandering op de server juist de fix is (een hotfix van een andere freelancer, een security-patch van de hostingmaatschappij), draait rsync zonder -n die geruisloos terug en spendeer je de zondag aan het debuggen van een bug die in productie niet meer bestaat. Waar de wijziging echt zit Zodra de diff voor je staat, zit het in tachtig procent van de gevallen op één van vijf plekken. .htaccess in de docroot, vooral nadat een security-plugin zijn eigen block opnieuw heeft geschreven. wp-config.php , waar iemand WP_DEBUG heeft omgezet of een constante heeft toegevoegd. wp-content/plugins/<naam>/ voor een auto-geüpdatete plugin ( auto-updates staan sinds WP 5.5",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/diffing-sftp-trees/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Twee SFTP-trees diffen: vind het bestand dat veranderde","item":"https://pier.abn.company/nl/blog/diffing-sftp-trees/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom laat mtime niet betrouwbaar zien welke bestanden recent zijn gewijzigd via FTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De meeste FTP- en SFTP-clients behouden bij het uploaden de originele mtime van het bron-bestand, dus een bestand dat gisteren is geüpload kan een timestamp van jaren geleden dragen. Gebruik op linux ctime voor de waarheid."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe groot is een typisch md5-baseline-bestand voor WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Met cache en uploads uitgesloten kun je 2 tot 3 MB op schijf verwachten, en grofweg 1.200 tot 4.000 regels, afhankelijk van het aantal geïnstalleerde plugins en taalbestanden."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan rsync twee remote SFTP-servers direct met elkaar vergelijken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet uit zichzelf. Mirror beide eerst naar lokale kopieën (lftp mirror is het snelst) en draai dan rsync --dry-run tussen de twee lokale trees."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/diffing-sftp-trees/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 044</span>
+      </div>
+      <p class="eyebrow"><span class="n">044 —</span>Workflow</p>
+      <h1 class="display-l post-title">Twee SFTP-trees diffen: vind het bestand dat veranderde</h1>
+      <p class="lede post-lede">Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T19:57:06.108Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/diffing-sftp-trees/hero.webp" type="image/webp">
+      <img src="/blog/diffing-sftp-trees/hero.jpg" alt="Twee geprinte SFTP-mappenlijsten op ruitjespapier met labels vrijdag en zaterdag, rode draad ertussen, messing DIFF-plaatje, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 044</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waarmee we samenwerken kreeg het bericht zaterdag om 09:14 binnen: het contactformulier op een negen jaar oude WordPress-site gaf bij verzenden plotseling een 500 terug. De klant, een regionaal logistiek bedrijf, was stellig over één ding. Niemand had iets aangeraakt sinds vrijdagmiddag. 'We zijn letterlijk om 17:00 naar huis gegaan en hebben de laptop niet meer opengeklapt.' De dienstdoende dev moest dat geloven of het tegendeel bewijzen vóór de lunch.</p>
+
+<p>Dit is de standaardvorm van een SFTP-supportcall. Iets werkt op vrijdag. Iets is stuk op maandag. De klant zweert dat er niets is veranderd. De waarheid is bijna altijd een klein bestand dat niemand zich herinnert geschreven te hebben. Het werk bestaat eruit dat bestand te vinden zonder Git-historie, zonder deploy-log, en zonder de ochtend van de klant op te branden.</p>
+
+<h2>De mtime-leugen</h2>
+
+<p>De eerste reflex in een unix-shell is <code>find . -mtime -3</code>. Op een via FTP beheerde site liegt dat commando ongeveer in de helft van de gevallen. De meeste FTP- en SFTP-clients (FileZilla, Cyberduck, Transmit) bewaren de originele modificatietijd bij het uploaden, dus een bestand dat gisteren is geüpload kan een mtime uit 2019 dragen. Erger nog: sommige plugin-updaters resetten de mtime zodat die overeenkomt met de upstream-zip.</p>
+
+<p>Het veld dat niet liegt is <code>ctime</code> (inode change time op linux), dat opnieuw wordt gezet elke keer dat de inode zelf wordt herschreven, inclusief wanneer het bestand wordt vervangen. De meeste FTP-servers kunnen ctime niet vanaf de clientkant zetten, omdat het geen exposed metadata-veld is.</p>
+
+<pre><code class="lang-bash">find . -type f -ctime -3 -printf '%T@ %p\n' | sort -n</code></pre>
+
+<p>Dit haalt alles boven water waarvan de inode in de laatste 72 uur is veranderd, gesorteerd op mtime. Op een normale WordPress-installatie hoort dat een korte lijst te zijn: misschien een cache-directory, misschien een session-bestand, misschien helemaal niets. Eén onverwachte hit in <code>wp-content/plugins/</code> of in de docroot is meestal het antwoord.</p>
+
+<p>De catch: ctime wordt gereset als iemand <code>chmod</code> of <code>chown</code> heeft losgelaten op een tree, wat managed hosts soms doen tijdens een nachtelijke sweep. Kijk naar de spreiding van de timestamps. Als de hele <code>wp-content/uploads</code>-tree dezelfde ctime deelt tot op de seconde, was dat een bulk-operatie, geen file-edit.</p>
+
+<h2>Een baseline opbouwen</h2>
+
+<p>Als je langere tijd met een site werkt, is de goedkoopste verzekering die je voor jezelf kunt afsluiten een checksum-manifest. Eén keer per week, via cron of met de hand:</p>
+
+<pre><code class="lang-bash">cd /var/www/clientsite
+find . -type f \
+  -not -path './wp-content/cache/*' \
+  -not -path './wp-content/uploads/*' \
+  -exec md5sum {} \; \
+  | sort -k 2 &gt; ~/baselines/clientsite-2026-05-23.md5</code></pre>
+
+<p>Het bestand is 2 tot 3 MB voor een typische WordPress-installatie. Komt het zaterdagticket binnen, dan mirror je de huidige site naar <code>/tmp/audit</code>, draai je hetzelfde commando ertegen, en dan:</p>
+
+<pre><code class="lang-bash">diff ~/baselines/clientsite-2026-05-23.md5 ~/audit/clientsite-now.md5</code></pre>
+
+<p>Elke regel links zonder exacte match rechts is een bestand dat is gewijzigd, verwijderd of toegevoegd. De diff voor een echt 'er is niets gebeurd'-incident is meestal één tot zes regels lang, precies de hoeveelheid bewijs die je in een Basecamp-reply kunt plakken.</p>
+
+<h2>Twee trees, één rsync dry-run</h2>
+
+<p>Als je geen baseline hebt, vergelijk je tegen het dichtstbijzijnde wat je wél hebt: je laatste lokale pull, de staging-kopie, of een backup-tarball van je host. <a href="https://download.samba.org/pub/rsync/rsync.1">rsync</a> in dry-run-modus met itemized changes is de snelste manier om de delta te zien.</p>
+
+<pre><code class="lang-bash">rsync -avn --itemize-changes --delete \
+  --exclude='wp-content/cache/' \
+  --exclude='wp-content/uploads/' \
+  ./local-friday-pull/ \
+  sftp-user@host:/var/www/clientsite/</code></pre>
+
+<p>De interessante kolom is het meest linkse flag-blok. <code>&gt;f.st....</code> betekent dat een bestand verzonden zou worden omdat het op de source nieuwer is. <code>*deleting</code> betekent dat een lokaal aanwezig bestand op de remote ontbreekt. Het patroon dat je wilt zien is kort. Als rsync honderden bestanden terug wil pushen, is dat permission- of umask-drift; wil het er twee terug pushen, dan heb je je antwoord.</p>
+
+<p>Let op de <code>n</code> in <code>-avn</code>. Dat is dry-run. Zonder die n overschrijft rsync vrolijk de live site met je verouderde kopie van vrijdag, en dat is de op één na slechtste zaterdaguitkomst.</p>
+
+<aside class="callout">Draai dry-run altijd tegen een staging- of lokale kopie, nooit als 'even terugsyncen'-reflex tegen de live tree. Als de verandering op de server juist de fix is (een hotfix van een andere freelancer, een security-patch van de hostingmaatschappij), draait rsync zonder <code>-n</code> die geruisloos terug en spendeer je de zondag aan het debuggen van een bug die in productie niet meer bestaat.</aside>
+
+<h2>Waar de wijziging echt zit</h2>
+
+<p>Zodra de diff voor je staat, zit het in tachtig procent van de gevallen op één van vijf plekken.</p>
+
+<ul>
+  <li><code>.htaccess</code> in de docroot, vooral nadat een security-plugin zijn eigen block opnieuw heeft geschreven.</li>
+  <li><code>wp-config.php</code>, waar iemand <code>WP_DEBUG</code> heeft omgezet of een constante heeft toegevoegd.</li>
+  <li><code>wp-content/plugins/&lt;naam&gt;/</code> voor een auto-geüpdatete plugin (<a href="https://developer.wordpress.org/reference/functions/wp_maybe_auto_update/">auto-updates</a> staan sinds WP 5.5 standaard aan).</li>
+  <li><code>wp-content/mu-plugins/</code>, een map waarvan de meeste klanten niet weten dat hij bestaat en waar veel hosts iets in injecteren.</li>
+  <li>De <code>functions.php</code> van een theme die een 'marketingmedewerker met FTP-toegang' om 16:58 op vrijdag heeft aangepast.</li>
+ </ul>
+
+<p>Niets hiervan vereist Git of een deploy-pipeline. Het vereist weten waar je moet kijken, een baseline die je vertrouwt, en een diff die je aan de klant kunt overhandigen.</p>
+
+<h2>De MySQL-kant van dezelfde vraag</h2>
+
+<p>Filesystem-diffs vertellen maar de helft van het verhaal. De andere helft zit in <code>wp_options</code>, <code>wp_postmeta</code> en de cron-tabel. Een kapot contactformulier is net zo vaak een plugin die automatisch is gedeactiveerd als een file-wijziging. Een controle waard:</p>
+
+<pre><code class="lang-sql">SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('active_plugins', 'cron', 'siteurl', 'home');</code></pre>
+
+<p>Vergelijk dit met je laatste known-good export. Als <code>active_plugins</code> tussen vrijdag en zaterdag een entry kwijt is, heeft iemand (of iets) hem gedeactiveerd. WP-CLI heeft de schoonste read: <code>wp option get active_plugins --format=json</code>.</p>
+
+<h2>Wat we uiteindelijk bouwden</h2>
+
+<p>Toen we <a href="/">Pier</a> bouwden voor ons eigen werk aan <a href="/">verouderde sites</a>, was dit zaterdagochtend-scenario het ding waar we keer op keer tegenaan liepen. We hebben het uiteindelijk zo opgelost dat we bij het verbinden een snapshot maken van de SFTP-tree en de database, en daarna elke wijziging tonen in een <a href="/#features">version history</a> naast de vorige inhoud van het bestand. Dezelfde view bestaat voor de <a href="/#database">MySQL editor</a>, dus een gedeactiveerde plugin of een omgezette <code>siteurl</code> komt op dezelfde manier boven water als een aangeraakte <code>.htaccess</code>. De diff staat naast de undo-knop, en dat is de volgorde waarin je ze om 09:14 op een zaterdag wilt hebben.</p>
+
+<h2>Het kleinste wat je vandaag kunt doen</h2>
+
+<p>Open de SFTP-root van één site die je onderhoudt. Draai het md5-manifest-commando hierboven, redirect de output naar een baseline-bestand, zet dat bestand in een map die <code>baselines/</code> heet. Kosten: zo'n negentig seconden en 3 MB schijfruimte. De volgende keer dat een klant zegt dat er niets veranderd is sinds vrijdag, heb je iets om tegen te diffen, en duurt het gesprek twaalf minuten in plaats van twee uur.</p>
+    </div>
+
+    <aside class="pullquote">Onderhoud je verouderde sites zonder Git, zet dan wekelijks een md5-manifest in een baselines-map. De eerste zaterdagticket verdient die gewoonte al terug.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom laat mtime niet betrouwbaar zien welke bestanden recent zijn gewijzigd via FTP?</p>
+      <p class="faq-a">De meeste FTP- en SFTP-clients behouden bij het uploaden de originele mtime van het bron-bestand, dus een bestand dat gisteren is geüpload kan een timestamp van jaren geleden dragen. Gebruik op linux ctime voor de waarheid.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe groot is een typisch md5-baseline-bestand voor WordPress?</p>
+      <p class="faq-a">Met cache en uploads uitgesloten kun je 2 tot 3 MB op schijf verwachten, en grofweg 1.200 tot 4.000 regels, afhankelijk van het aantal geïnstalleerde plugins en taalbestanden.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan rsync twee remote SFTP-servers direct met elkaar vergelijken?</p>
+      <p class="faq-a">Niet uit zichzelf. Mirror beide eerst naar lokale kopieën (lftp mirror is het snelst) en draai dan rsync --dry-run tussen de twee lokale trees.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-without-the-dashboard/hero.jpg" alt="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>WordPress zonder dashboard: waarom bureaus in FTP wonen</h3>
+      <span class="pc-lede">Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-live-edit-procedure/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-live-edit-procedure/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-live-edit-procedure/hero.jpg" alt="Messing hangslot met gelakt papieren label op gevouwen linnen doek, beige papier, donkere eikenrand." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 mei 2026</span></span>
+      <h3>wp-config.php in productie: een veilige edit-procedure</h3>
+      <span class="pc-lede">wp-config.php is één regel van een wit scherm verwijderd. Zo bewerk je het op een live WordPress-site zonder ooit een request te laten vallen.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/diffing-sftp-trees/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
