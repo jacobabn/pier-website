@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>MySQL collation mismatches: a field guide to empty results · Pier — Blog</title>
+<meta name="description" content="Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, php, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="MySQL collation mismatches: a field guide to empty results">
+<meta property="og:description" content="Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.">
+<meta property="og:url" content="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<meta property="og:image" content="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Two pinned character-set sheets on bone linen, loupe over mismatched glyph, brass MySQL plate, red wax seal, pen, ruler.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T22:37:40.705Z">
+<meta property="article:modified_time" content="2026-05-26T22:37:40.705Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="MySQL collation mismatches: a field guide to empty results">
+<meta name="twitter:description" content="Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta name="twitter:image:alt" content="Two pinned character-set sheets on bone linen, loupe over mismatched glyph, brass MySQL plate, red wax seal, pen, ruler.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/"},
+  "url":"https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/",
+  "headline":"MySQL collation mismatches: a field guide to empty results",
+  "description":"Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Two pinned character-set sheets on bone linen, loupe over mismatched glyph, brass MySQL plate, red wax seal, pen, ruler."
+  },
+  "datePublished":"2026-05-26T22:37:40.705Z",
+  "dateModified":"2026-05-26T22:37:40.705Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"mysql, databases, wordpress, php, workflow",
+  "wordCount":1069,
+  "articleSection":"Databases",
+  "articleBody":"The ticket arrives at 16:02. A small e-commerce shop running WooCommerce on PHP 7.4 (yes, still). \"Search for Café Noir on the storefront returns nothing. The product is definitely there.\" The dev SSHes in, runs SELECT * FROM wp_posts WHERE post_title = 'Café Noir' AND post_status = 'publish' , gets one row. Switches to the front-end search query the theme generates, gets zero rows. Same database. Same column. Same string. This is what a MySQL collation mismatch looks like in the wild. The data is intact. The schema is intact. The query plan is fine. The two strings being compared simply do not agree on what \"equal\" means, because they live in different collations and MySQL silently coerces one side until the comparison fails, or succeeds in a way nobody expected. What collation actually decides Character set decides which bytes are legal. Collation decides whether two legal byte sequences are the same string. utf8mb4_unicode_ci treats 'café' and 'cafe' as different because it preserves the accent. utf8mb4_unicode_520_ci with the _ai_ variant treats them as identical because it strips accents in comparison. utf8mb4_general_ci sorts characters by codepoint and gets a handful of edge cases wrong (German ß, Polish ł, anything in the Turkish dotless-i region). The MySQL 8 default of utf8mb4_0900_ai_ci is yet another rule set, with its own sort order and its own incompatibilities. None of this matters until two columns with different collations meet in the same expression. Then MySQL has to coerce. If the coercibility values do not match cleanly, MySQL throws Illegal mix of collations . If they do match, the comparison runs and you get an answer. The answer may not be the one you wanted. The 4 PM scene, decoded The WooCommerce search the theme generated was joining wp_posts against a custom wc_products_search_index table the previous developer added. The two tables looked identical at a glance: SHOW CREATE TABLE wp_posts; -- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci SHOW CREATE TABLE wc_products_search_index; -- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci One was created in 2018 by the WordPress installer (when utf8mb4_unicode_520_ci was the WP default, per the utf8mb4 upgrade notes ). The other was created in 2022 by a plugin that hardcoded utf8mb4_unicode_ci . The JOIN on post_title = search_term compared two strings the database considered to be in different alphabets. For pure ASCII, MySQL coerced its way to a correct answer. For 'Café' with the e-acute, it gave up and returned nothing for that one row. Finding every mismatch in one query Before fixing anything, get the lay of the land. This is the query I run first on any database I have not seen before: SELECT TABLE_NAME, COLUMN_NAME, COLLATION_NAME, CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND COLLATION_NAME IS NOT NULL ORDER BY COLLATION_NAME, TABLE_NAME; You will usually see one of three patterns: Clean. One collation across every text column. Rare on anything older than two years. Two-tier. The core CMS tables on one collation, a few plugin or custom tables on another. The common case. Archaeological. Three or four collations, including a latin1_swedish_ci column nobody remembers creating. Usually a sign the database has survived at least one migration. For the table-level view, swap COLUMNS for TABLES and look at TABLE_COLLATION . Be aware that table-level collation is just the default for new columns. The truth lives at the column level. Converting without losing data The safe path is one table at a time, with a backup taken at the start and a verification query at the end. The naive ALTER looks like this: ALTER TABLE wc_products_search_index CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci; CONVERT TO rewrites every text column in place and re-encodes the data. On a 50,000-row product index it takes a few seconds. On a 12-million-row wp_postmeta on a customer's box it takes long enough that you should do it during a maintenance window, with a binlog backup ready. Warning. CONVERT TO CHARACTER SET will silently change column types when an index is too long for the new charset. A VARCHAR(255) indexed under utf8 (max 765 bytes) does not fit under utf8mb4 (max 1020 bytes) with the old 767-byte InnoDB key limit. Check innodb_large_prefix and ROW_FORMAT=DYNAMIC on each table before converting, or you will get cryptic key-length errors and a half-converted table. The silent failures, ranked by nastiness Errors are easy. The reason collation bugs survive in production is that some of them never error at all. Indexes go cold A WHERE indexed_column = ? comparison where the parameter arrives with a different collation triggers an implicit conversion on the column side. The index is no longer eligible. The query goes from 2ms to 800ms, and the only signal is your APM tool grumbling about a slow query that used to be fast. Run EXPLAIN on the offending query a",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"MySQL collation mismatches: a field guide to empty results","item":"https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will CONVERT TO CHARACTER SET break my existing indexes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It can, if the new charset pushes a column past the InnoDB key-length limit. Run it on a copy first, and verify innodb_large_prefix is on and the table is ROW_FORMAT=DYNAMIC."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is utf8mb4_unicode_520_ci or utf8mb4_0900_ai_ci the safer default for WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stay on utf8mb4_unicode_520_ci for any WP older than 5.6 or any site still on MySQL 5.7. WP 5.6+ on MySQL 8 handles 0900_ai_ci, but switching everywhere is a migration of its own."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I force a collation in one query without altering the table?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Append COLLATE utf8mb4_unicode_520_ci to the column reference in the WHERE or ON clause. Useful as a hotfix while you plan the real schema change."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my query work in phpMyAdmin but fail from PHP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "phpMyAdmin and your PHP client often open the session with different default collations. Run SHOW VARIABLES LIKE 'collation_connection' in both and you will see the gap."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 047</span>
+      </div>
+      <p class="eyebrow"><span class="n">047 —</span>Databases</p>
+      <h1 class="display-l post-title">MySQL collation mismatches: a field guide to empty results</h1>
+      <p class="lede post-lede">Your search returns nothing. The row is right there in phpMyAdmin. Welcome to MySQL collation mismatches, where two strings disagree about what equal means.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T22:37:40.705Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+      <img src="/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Two pinned character-set sheets on bone linen, loupe over mismatched glyph, brass MySQL plate, red wax seal, pen, ruler." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 047</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The ticket arrives at 16:02. A small e-commerce shop running WooCommerce on PHP 7.4 (yes, still). "Search for Café Noir on the storefront returns nothing. The product is definitely there." The dev SSHes in, runs <code>SELECT * FROM wp_posts WHERE post_title = 'Café Noir' AND post_status = 'publish'</code>, gets one row. Switches to the front-end search query the theme generates, gets zero rows. Same database. Same column. Same string.</p><p>This is what a MySQL collation mismatch looks like in the wild. The data is intact. The schema is intact. The query plan is fine. The two strings being compared simply do not agree on what "equal" means, because they live in different collations and MySQL silently coerces one side until the comparison fails, or succeeds in a way nobody expected.</p><h2>What collation actually decides</h2><p>Character set decides which bytes are legal. Collation decides whether two legal byte sequences are the same string. <code>utf8mb4_unicode_ci</code> treats <code>'café'</code> and <code>'cafe'</code> as different because it preserves the accent. <code>utf8mb4_unicode_520_ci</code> with the <code>_ai_</code> variant treats them as identical because it strips accents in comparison. <code>utf8mb4_general_ci</code> sorts characters by codepoint and gets a handful of edge cases wrong (German ß, Polish ł, anything in the Turkish dotless-i region). The MySQL 8 default of <a href="https://dev.mysql.com/doc/refman/8.0/en/charset-collation-names.html">utf8mb4_0900_ai_ci</a> is yet another rule set, with its own sort order and its own incompatibilities.</p><p>None of this matters until two columns with different collations meet in the same expression. Then MySQL has to coerce. If the coercibility values do not match cleanly, MySQL throws <em>Illegal mix of collations</em>. If they do match, the comparison runs and you get an answer. The answer may not be the one you wanted.</p><h2>The 4 PM scene, decoded</h2><p>The WooCommerce search the theme generated was joining <code>wp_posts</code> against a custom <code>wc_products_search_index</code> table the previous developer added. The two tables looked identical at a glance:</p><pre><code class="lang-sql">SHOW CREATE TABLE wp_posts;
+-- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci
+
+SHOW CREATE TABLE wc_products_search_index;
+-- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</code></pre><p>One was created in 2018 by the WordPress installer (when <code>utf8mb4_unicode_520_ci</code> was the WP default, per the <a href="https://make.wordpress.org/core/2015/04/02/the-utf8mb4-upgrade/">utf8mb4 upgrade notes</a>). The other was created in 2022 by a plugin that hardcoded <code>utf8mb4_unicode_ci</code>. The JOIN on <code>post_title = search_term</code> compared two strings the database considered to be in different alphabets. For pure ASCII, MySQL coerced its way to a correct answer. For <code>'Café'</code> with the e-acute, it gave up and returned nothing for that one row.</p><h2>Finding every mismatch in one query</h2><p>Before fixing anything, get the lay of the land. This is the query I run first on any database I have not seen before:</p><pre><code class="lang-sql">SELECT
+  TABLE_NAME,
+  COLUMN_NAME,
+  COLLATION_NAME,
+  CHARACTER_SET_NAME
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND COLLATION_NAME IS NOT NULL
+ORDER BY COLLATION_NAME, TABLE_NAME;</code></pre><p>You will usually see one of three patterns:</p><ul><li><strong>Clean.</strong> One collation across every text column. Rare on anything older than two years.</li><li><strong>Two-tier.</strong> The core CMS tables on one collation, a few plugin or custom tables on another. The common case.</li><li><strong>Archaeological.</strong> Three or four collations, including a <code>latin1_swedish_ci</code> column nobody remembers creating. Usually a sign the database has survived at least one migration.</li></ul><p>For the table-level view, swap <code>COLUMNS</code> for <code>TABLES</code> and look at <code>TABLE_COLLATION</code>. Be aware that table-level collation is just the default for new columns. The truth lives at the column level.</p><h2>Converting without losing data</h2><p>The safe path is one table at a time, with a backup taken at the start and a verification query at the end. The naive ALTER looks like this:</p><pre><code class="lang-sql">ALTER TABLE wc_products_search_index
+  CONVERT TO CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_520_ci;</code></pre><p><code>CONVERT TO</code> rewrites every text column in place and re-encodes the data. On a 50,000-row product index it takes a few seconds. On a 12-million-row <code>wp_postmeta</code> on a customer's box it takes long enough that you should do it during a maintenance window, with a binlog backup ready.</p><aside class="callout"><strong>Warning.</strong> <code>CONVERT TO CHARACTER SET</code> will silently change column types when an index is too long for the new charset. A <code>VARCHAR(255)</code> indexed under <code>utf8</code> (max 765 bytes) does not fit under <code>utf8mb4</code> (max 1020 bytes) with the old 767-byte InnoDB key limit. Check <code>innodb_large_prefix</code> and <code>ROW_FORMAT=DYNAMIC</code> on each table before converting, or you will get cryptic key-length errors and a half-converted table.</aside><h2>The silent failures, ranked by nastiness</h2><p>Errors are easy. The reason collation bugs survive in production is that some of them never error at all.</p><h3>Indexes go cold</h3><p>A <code>WHERE indexed_column = ?</code> comparison where the parameter arrives with a different collation triggers an implicit conversion on the column side. The index is no longer eligible. The query goes from 2ms to 800ms, and the only signal is your APM tool grumbling about a slow query that used to be fast. Run <code>EXPLAIN</code> on the offending query and look for <code>Using where</code> without the index in <code>key</code>.</p><h3>UNIQUE constraints accept duplicates</h3><p>If your unique index lives on a column with <code>_ai_ci</code> (accent-insensitive, case-insensitive) and your application code treats <code>'CAFÉ'</code> and <code>'cafe'</code> as different users, the database will too on insert. Until somebody changes the collation, at which point one of the two rows becomes a duplicate-key error on the next migration.</p><h3>JOINs return ghost rows</h3><p>A LEFT JOIN between two tables on a string key, where the collations differ by exactly the right amount, can return rows where the right-hand side is NULL even though a match exists. The fix on the spot is to force the collation in the ON clause:</p><pre><code class="lang-sql">LEFT JOIN wc_products_search_index s
+  ON p.post_title COLLATE utf8mb4_unicode_520_ci = s.search_term</code></pre><p>This is load-bearing duct tape. The real fix is to converge the schema.</p><h2>The smallest thing you can do today</h2><p>Open the database for the one site you most recently argued with. Run the <code>information_schema.COLUMNS</code> query above. Count how many distinct collations come back. If it is more than one, you have a candidate for the next time a search query returns nothing for reasons that make no sense.</p><p>When we built the <a href="/#database">MySQL editor</a> inside Pier we ran into this exact thing on a Dutch agency's <a href="/">legacy site</a>: a search that worked on staging and not on production, traced back to one plugin that hardcoded <code>utf8mb4_general_ci</code> on a single column. The way we ended up handling it was to surface the collation on every column in the schema browser, and to land every ALTER in <a href="/#features">version history</a> so the rollback is one click when the prefix-length check bites anyway.</p>
+    </div>
+
+    <aside class="pullquote">When a query returns zero rows but the data is there, suspect collation before you suspect the data. The proof is one query against information_schema.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Will CONVERT TO CHARACTER SET break my existing indexes?</p>
+      <p class="faq-a">It can, if the new charset pushes a column past the InnoDB key-length limit. Run it on a copy first, and verify innodb_large_prefix is on and the table is ROW_FORMAT=DYNAMIC.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is utf8mb4_unicode_520_ci or utf8mb4_0900_ai_ci the safer default for WordPress?</p>
+      <p class="faq-a">Stay on utf8mb4_unicode_520_ci for any WP older than 5.6 or any site still on MySQL 5.7. WP 5.6+ on MySQL 8 handles 0900_ai_ci, but switching everywhere is a migration of its own.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I force a collation in one query without altering the table?</p>
+      <p class="faq-a">Append COLLATE utf8mb4_unicode_520_ci to the column reference in the WHERE or ON clause. Useful as a hotfix while you plan the real schema change.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does my query work in phpMyAdmin but fail from PHP?</p>
+      <p class="faq-a">phpMyAdmin and your PHP client often open the session with different default collations. Run SHOW VARIABLES LIKE &#39;collation_connection&#39; in both and you will see the gap.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/database-source-of-truth-refactor/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/database-source-of-truth-refactor/hero.webp" type="image/webp">
+        <img src="/blog/database-source-of-truth-refactor/hero.jpg" alt="Overhead photo of paper schematic labelled wp_options, manila folder, brass plate, red wax seal on linen ribbon." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Database as source of truth: refactor the data, not the code</h3>
+      <span class="pc-lede">You inherit a 14-year-old WordPress site. You pull the repo, grep for the broken behaviour, find nothing. The real logic is a 4 KB row in wp_options.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 May 2026</span></span>
+      <h3>40GB wp_options autoload: the night we hit 800ms TTFB</h3>
+      <span class="pc-lede">A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

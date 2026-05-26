@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>MySQL collation-mismatches: een veldgids voor lege resultaten · Pier — Blog</title>
+<meta name="description" content="Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, php, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="MySQL collation-mismatches: een veldgids voor lege resultaten">
+<meta property="og:description" content="Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T22:37:40.705Z">
+<meta property="article:modified_time" content="2026-05-26T22:37:40.705Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="MySQL collation-mismatches: een veldgids voor lege resultaten">
+<meta name="twitter:description" content="Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg">
+<meta name="twitter:image:alt" content="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/"},
+  "url":"https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/",
+  "headline":"MySQL collation-mismatches: een veldgids voor lege resultaten",
+  "description":"Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal."
+  },
+  "datePublished":"2026-05-26T22:37:40.705Z",
+  "dateModified":"2026-05-26T22:37:40.705Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, databases, wordpress, php, workflow",
+  "wordCount":1063,
+  "articleSection":"Databases",
+  "articleBody":"Het ticket komt binnen om 16:02. Een kleine webshop op WooCommerce, PHP 7.4 (ja, nog steeds). \"Zoeken op Café Noir in de storefront geeft niets terug. Het product staat er gewoon.\" De ontwikkelaar gaat via SSH binnen, draait SELECT * FROM wp_posts WHERE post_title = 'Café Noir' AND post_status = 'publish' , krijgt één rij. Schakelt over op de zoekopdracht die het theme aan de voorkant genereert, krijgt nul rijen. Zelfde database. Zelfde kolom. Zelfde string. Zo ziet een MySQL collation-mismatch eruit in het wild. De data is intact. Het schema is intact. Het query plan klopt. De twee strings die vergeleken worden zijn het simpelweg oneens over wat \"gelijk\" betekent, omdat ze in verschillende collations leven en MySQL stilletjes één kant aanpast tot de vergelijking faalt, of slaagt op een manier die niemand verwacht had. Wat collation eigenlijk bepaalt Een character set bepaalt welke bytes geldig zijn. Een collation bepaalt of twee geldige bytereeksen dezelfde string zijn. utf8mb4_unicode_ci behandelt 'café' en 'cafe' als verschillend, omdat het accent behouden blijft. utf8mb4_unicode_520_ci met de _ai_ variant ziet ze als identiek, omdat accenten worden weggelaten in de vergelijking. utf8mb4_general_ci sorteert karakters op codepoint en gaat de mist in bij een handvol edge cases (Duitse ß, Poolse ł, alles rond de Turkse dotless-i). De MySQL 8 standaard utf8mb4_0900_ai_ci is alweer een andere regelset, met een eigen sorteervolgorde en eigen incompatibiliteiten. Niets hiervan maakt uit, totdat twee kolommen met verschillende collations elkaar tegenkomen in dezelfde expressie. Dan moet MySQL aanpassen. Als de coercibility-waarden niet netjes overeenkomen, gooit MySQL Illegal mix of collations . Komen ze wel overeen, dan draait de vergelijking en krijg je een antwoord. Misschien niet het antwoord dat je wilde. De scène van 16:00, ontleed De WooCommerce-zoekopdracht die het theme genereerde joinde wp_posts met een eigen wc_products_search_index tabel die de vorige ontwikkelaar had toegevoegd. Op het eerste gezicht zagen de twee tabellen er identiek uit: SHOW CREATE TABLE wp_posts; -- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci SHOW CREATE TABLE wc_products_search_index; -- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci De ene was in 2018 aangemaakt door de WordPress-installer (toen utf8mb4_unicode_520_ci de WP-standaard was, volgens de utf8mb4 upgrade notes ). De andere kwam in 2022 uit een plugin die utf8mb4_unicode_ci hardcoded had staan. De JOIN op post_title = search_term vergeleek twee strings die de database in verschillende alfabetten plaatste. Voor pure ASCII paste MySQL zich aan tot het juiste antwoord. Voor 'Café' met de e-accent gaf MySQL het op en kwam er voor die ene rij niets terug. Elke mismatch vinden met één query Voor je iets gaat oplossen, eerst het terrein verkennen. Dit is de query die ik als eerste draai op elke database die ik niet ken: SELECT TABLE_NAME, COLUMN_NAME, COLLATION_NAME, CHARACTER_SET_NAME FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND COLLATION_NAME IS NOT NULL ORDER BY COLLATION_NAME, TABLE_NAME; Meestal zie je een van drie patronen: Schoon. Eén collation voor alle tekstkolommen. Zeldzaam op alles wat ouder is dan twee jaar. Tweelagig. De CMS-kerntabellen op één collation, een paar plugin- of custom-tabellen op een andere. Het normale geval. Archeologisch. Drie of vier collations, inclusief een latin1_swedish_ci kolom waarvan niemand zich herinnert dat hij is aangemaakt. Meestal een teken dat de database minstens één migratie heeft overleefd. Voor het zicht op tabelniveau wissel je COLUMNS voor TABLES en kijk je naar TABLE_COLLATION . Let op: de collation op tabelniveau is alleen de standaard voor nieuwe kolommen. De waarheid zit op kolomniveau. Converteren zonder dataverlies De veilige route is één tabel per keer, met een back-up aan het begin en een verificatiequery aan het eind. De naïeve ALTER ziet er zo uit: ALTER TABLE wc_products_search_index CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci; CONVERT TO herschrijft elke tekstkolom ter plekke en hercodeert de data. Op een productindex van 50.000 rijen kost dat een paar seconden. Op een wp_postmeta van 12 miljoen rijen op de bak van een klant duurt het zo lang dat je het binnen een onderhoudsvenster moet doen, met een binlog-back-up paraat. Waarschuwing. CONVERT TO CHARACTER SET verandert stilletjes kolomtypes wanneer een index te lang is voor de nieuwe charset. Een VARCHAR(255) geïndexeerd onder utf8 (max 765 bytes) past niet onder utf8mb4 (max 1020 bytes) bij de oude 767-byte InnoDB-keylimiet. Controleer innodb_large_prefix en ROW_FORMAT=DYNAMIC op elke tabel voor je converteert, anders krijg je cryptische key-length errors en een half geconverteerde tabel. De stille fouten, gerangschikt op vervelendheid Errors zijn makkelijk. Collation-bugs overleven in productie juist omdat sommige er nooit een gooien. Indexen worden koud Een WHERE indexed_",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"MySQL collation-mismatches: een veldgids voor lege resultaten","item":"https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Breekt CONVERT TO CHARACTER SET mijn bestaande indexen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dat kan, als de nieuwe charset een kolom over de InnoDB-keylengtelimiet duwt. Draai het eerst op een kopie en controleer dat innodb_large_prefix aanstaat en de tabel ROW_FORMAT=DYNAMIC is."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is utf8mb4_unicode_520_ci of utf8mb4_0900_ai_ci de veiligere default voor WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Blijf op utf8mb4_unicode_520_ci voor elke WP ouder dan 5.6 of elke site die nog op MySQL 5.7 draait. WP 5.6+ op MySQL 8 kan met 0900_ai_ci overweg, maar overal omschakelen is een migratie op zich."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe forceer ik een collation in één query zonder de tabel te wijzigen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plak COLLATE utf8mb4_unicode_520_ci achter de kolomreferentie in de WHERE of ON clause. Handig als hotfix terwijl je de echte schemawijziging plant."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 047</span>
+      </div>
+      <p class="eyebrow"><span class="n">047 —</span>Databases</p>
+      <h1 class="display-l post-title">MySQL collation-mismatches: een veldgids voor lege resultaten</h1>
+      <p class="lede post-lede">Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T22:37:40.705Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+      <img src="/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 047</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het ticket komt binnen om 16:02. Een kleine webshop op WooCommerce, PHP 7.4 (ja, nog steeds). "Zoeken op Café Noir in de storefront geeft niets terug. Het product staat er gewoon." De ontwikkelaar gaat via SSH binnen, draait <code>SELECT * FROM wp_posts WHERE post_title = 'Café Noir' AND post_status = 'publish'</code>, krijgt één rij. Schakelt over op de zoekopdracht die het theme aan de voorkant genereert, krijgt nul rijen. Zelfde database. Zelfde kolom. Zelfde string.</p><p>Zo ziet een MySQL collation-mismatch eruit in het wild. De data is intact. Het schema is intact. Het query plan klopt. De twee strings die vergeleken worden zijn het simpelweg oneens over wat "gelijk" betekent, omdat ze in verschillende collations leven en MySQL stilletjes één kant aanpast tot de vergelijking faalt, of slaagt op een manier die niemand verwacht had.</p><h2>Wat collation eigenlijk bepaalt</h2><p>Een character set bepaalt welke bytes geldig zijn. Een collation bepaalt of twee geldige bytereeksen dezelfde string zijn. <code>utf8mb4_unicode_ci</code> behandelt <code>'café'</code> en <code>'cafe'</code> als verschillend, omdat het accent behouden blijft. <code>utf8mb4_unicode_520_ci</code> met de <code>_ai_</code> variant ziet ze als identiek, omdat accenten worden weggelaten in de vergelijking. <code>utf8mb4_general_ci</code> sorteert karakters op codepoint en gaat de mist in bij een handvol edge cases (Duitse ß, Poolse ł, alles rond de Turkse dotless-i). De MySQL 8 standaard <a href="https://dev.mysql.com/doc/refman/8.0/en/charset-collation-names.html">utf8mb4_0900_ai_ci</a> is alweer een andere regelset, met een eigen sorteervolgorde en eigen incompatibiliteiten.</p><p>Niets hiervan maakt uit, totdat twee kolommen met verschillende collations elkaar tegenkomen in dezelfde expressie. Dan moet MySQL aanpassen. Als de coercibility-waarden niet netjes overeenkomen, gooit MySQL <em>Illegal mix of collations</em>. Komen ze wel overeen, dan draait de vergelijking en krijg je een antwoord. Misschien niet het antwoord dat je wilde.</p><h2>De scène van 16:00, ontleed</h2><p>De WooCommerce-zoekopdracht die het theme genereerde joinde <code>wp_posts</code> met een eigen <code>wc_products_search_index</code> tabel die de vorige ontwikkelaar had toegevoegd. Op het eerste gezicht zagen de twee tabellen er identiek uit:</p><pre><code class="lang-sql">SHOW CREATE TABLE wp_posts;
+-- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_520_ci
+
+SHOW CREATE TABLE wc_products_search_index;
+-- ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci</code></pre><p>De ene was in 2018 aangemaakt door de WordPress-installer (toen <code>utf8mb4_unicode_520_ci</code> de WP-standaard was, volgens de <a href="https://make.wordpress.org/core/2015/04/02/the-utf8mb4-upgrade/">utf8mb4 upgrade notes</a>). De andere kwam in 2022 uit een plugin die <code>utf8mb4_unicode_ci</code> hardcoded had staan. De JOIN op <code>post_title = search_term</code> vergeleek twee strings die de database in verschillende alfabetten plaatste. Voor pure ASCII paste MySQL zich aan tot het juiste antwoord. Voor <code>'Café'</code> met de e-accent gaf MySQL het op en kwam er voor die ene rij niets terug.</p><h2>Elke mismatch vinden met één query</h2><p>Voor je iets gaat oplossen, eerst het terrein verkennen. Dit is de query die ik als eerste draai op elke database die ik niet ken:</p><pre><code class="lang-sql">SELECT
+  TABLE_NAME,
+  COLUMN_NAME,
+  COLLATION_NAME,
+  CHARACTER_SET_NAME
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND COLLATION_NAME IS NOT NULL
+ORDER BY COLLATION_NAME, TABLE_NAME;</code></pre><p>Meestal zie je een van drie patronen:</p><ul><li><strong>Schoon.</strong> Eén collation voor alle tekstkolommen. Zeldzaam op alles wat ouder is dan twee jaar.</li><li><strong>Tweelagig.</strong> De CMS-kerntabellen op één collation, een paar plugin- of custom-tabellen op een andere. Het normale geval.</li><li><strong>Archeologisch.</strong> Drie of vier collations, inclusief een <code>latin1_swedish_ci</code> kolom waarvan niemand zich herinnert dat hij is aangemaakt. Meestal een teken dat de database minstens één migratie heeft overleefd.</li></ul><p>Voor het zicht op tabelniveau wissel je <code>COLUMNS</code> voor <code>TABLES</code> en kijk je naar <code>TABLE_COLLATION</code>. Let op: de collation op tabelniveau is alleen de standaard voor nieuwe kolommen. De waarheid zit op kolomniveau.</p><h2>Converteren zonder dataverlies</h2><p>De veilige route is één tabel per keer, met een back-up aan het begin en een verificatiequery aan het eind. De naïeve ALTER ziet er zo uit:</p><pre><code class="lang-sql">ALTER TABLE wc_products_search_index
+  CONVERT TO CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_520_ci;</code></pre><p><code>CONVERT TO</code> herschrijft elke tekstkolom ter plekke en hercodeert de data. Op een productindex van 50.000 rijen kost dat een paar seconden. Op een <code>wp_postmeta</code> van 12 miljoen rijen op de bak van een klant duurt het zo lang dat je het binnen een onderhoudsvenster moet doen, met een binlog-back-up paraat.</p><aside class="callout"><strong>Waarschuwing.</strong> <code>CONVERT TO CHARACTER SET</code> verandert stilletjes kolomtypes wanneer een index te lang is voor de nieuwe charset. Een <code>VARCHAR(255)</code> geïndexeerd onder <code>utf8</code> (max 765 bytes) past niet onder <code>utf8mb4</code> (max 1020 bytes) bij de oude 767-byte InnoDB-keylimiet. Controleer <code>innodb_large_prefix</code> en <code>ROW_FORMAT=DYNAMIC</code> op elke tabel voor je converteert, anders krijg je cryptische key-length errors en een half geconverteerde tabel.</aside><h2>De stille fouten, gerangschikt op vervelendheid</h2><p>Errors zijn makkelijk. Collation-bugs overleven in productie juist omdat sommige er nooit een gooien.</p><h3>Indexen worden koud</h3><p>Een <code>WHERE indexed_column = ?</code> vergelijking waarbij de parameter met een andere collation binnenkomt, forceert een impliciete conversie op de kolomkant. De index is niet meer bruikbaar. De query gaat van 2ms naar 800ms, en het enige signaal is je APM-tool die mompelt over een trage query die ooit snel was. Draai <code>EXPLAIN</code> op de boosdoener en kijk naar <code>Using where</code> zonder de index in <code>key</code>.</p><h3>UNIQUE constraints accepteren duplicaten</h3><p>Als je unique index op een kolom met <code>_ai_ci</code> staat (accent-insensitive, case-insensitive) en je applicatiecode behandelt <code>'CAFÉ'</code> en <code>'cafe'</code> als verschillende gebruikers, doet de database dat ook bij insert. Totdat iemand de collation wijzigt, waarna een van de twee rijen bij de volgende migratie een duplicate-key error wordt.</p><h3>JOINs leveren spookrijen op</h3><p>Een LEFT JOIN tussen twee tabellen op een string-key, waarbij de collations precies genoeg verschillen, kan rijen teruggeven waarbij de rechterkant NULL is terwijl er wel degelijk een match bestaat. De snelle fix is de collation forceren in de ON clause:</p><pre><code class="lang-sql">LEFT JOIN wc_products_search_index s
+  ON p.post_title COLLATE utf8mb4_unicode_520_ci = s.search_term</code></pre><p>Dit is dragende ducttape. De echte fix is het schema convergeren.</p><h2>Het kleinste wat je vandaag kan doen</h2><p>Open de database van de site waar je het laatst ruzie mee had. Draai de <code>information_schema.COLUMNS</code> query van hierboven. Tel hoeveel verschillende collations terugkomen. Als het er meer dan één zijn, heb je een kandidaat voor de volgende keer dat een zoekopdracht niets oplevert om redenen die nergens op slaan.</p><p>Toen we de <a href="/#database">MySQL editor</a> in Pier bouwden, kwamen we precies dit tegen op de <a href="/">legacy site</a> van een Nederlands bureau: een zoekopdracht die werkte op staging maar niet in productie, terug te leiden tot één plugin die <code>utf8mb4_general_ci</code> hardcoded had op één enkele kolom. We hebben het uiteindelijk zo opgelost dat de collation zichtbaar is op elke kolom in de schema-browser, en dat elke ALTER landt in de <a href="/#features">version history</a> zodat de rollback één klik is wanneer de prefix-length check je alsnog te pakken krijgt.</p>
+    </div>
+
+    <aside class="pullquote">Als een query nul rijen teruggeeft terwijl de data er staat, verdenk dan eerst de collation, niet de data. Het bewijs zit in één query tegen information_schema.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Breekt CONVERT TO CHARACTER SET mijn bestaande indexen?</p>
+      <p class="faq-a">Dat kan, als de nieuwe charset een kolom over de InnoDB-keylengtelimiet duwt. Draai het eerst op een kopie en controleer dat innodb_large_prefix aanstaat en de tabel ROW_FORMAT=DYNAMIC is.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is utf8mb4_unicode_520_ci of utf8mb4_0900_ai_ci de veiligere default voor WordPress?</p>
+      <p class="faq-a">Blijf op utf8mb4_unicode_520_ci voor elke WP ouder dan 5.6 of elke site die nog op MySQL 5.7 draait. WP 5.6+ op MySQL 8 kan met 0900_ai_ci overweg, maar overal omschakelen is een migratie op zich.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe forceer ik een collation in één query zonder de tabel te wijzigen?</p>
+      <p class="faq-a">Plak COLLATE utf8mb4_unicode_520_ci achter de kolomreferentie in de WHERE of ON clause. Handig als hotfix terwijl je de echte schemawijziging plant.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/database-source-of-truth-refactor/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/database-source-of-truth-refactor/hero.webp" type="image/webp">
+        <img src="/nl/blog/database-source-of-truth-refactor/hero.jpg" alt="Bovenaanzicht van papieren schema wp_options, manilamap, messing plaatje, rode lakzegel op linnen lint." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Database als source of truth: refactor de data, niet de code</h3>
+      <span class="pc-lede">Je erft een 14 jaar oude WordPress-site. Je pullt de repo, grept naar het kapotte gedrag, vindt niets. De logica zit in een rij in wp_options.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>40GB wp_options autoload: één nacht terug naar 800ms TTFB</h3>
+      <span class="pc-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/mysql-collation-mismatches-field-guide/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
