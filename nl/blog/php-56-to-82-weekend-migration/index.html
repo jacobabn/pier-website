@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP 5.6 naar 8.2 in één weekend: de realistische versie · Pier — Blog</title>
+<meta name="description" content="De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, mysql, migration, workflow, operations, htaccess">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-56-to-82-weekend-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-56-to-82-weekend-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP 5.6 naar 8.2 in één weekend: de realistische versie">
+<meta property="og:description" content="De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Plat gelegd papieren register PHP 5.6 naar 8.2, gestencilde uitdraaien met rode strepen, koperen presse-papier op eiken.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T07:39:22.906Z">
+<meta property="article:modified_time" content="2026-05-26T07:39:22.906Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="htaccess">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP 5.6 naar 8.2 in één weekend: de realistische versie">
+<meta name="twitter:description" content="De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Plat gelegd papieren register PHP 5.6 naar 8.2, gestencilde uitdraaien met rode strepen, koperen presse-papier op eiken.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-56-to-82-weekend-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/"},
+  "url":"https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/",
+  "headline":"PHP 5.6 naar 8.2 in één weekend: de realistische versie",
+  "description":"De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Plat gelegd papieren register PHP 5.6 naar 8.2, gestencilde uitdraaien met rode strepen, koperen presse-papier op eiken."
+  },
+  "datePublished":"2026-05-26T07:39:22.906Z",
+  "dateModified":"2026-05-26T07:39:22.906Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, mysql, migration, workflow, operations, htaccess",
+  "wordCount":1738,
+  "articleSection":"PHP",
+  "articleBody":"De Loom kwam binnen om 23:41 op een vrijdag. Een Nederlands bureau waar we mee werken had een 14 jaar oude PHP-applicatie geërfd van een logistieke klant, en hun managed host had net de standaardmail verstuurd: \"PHP 5.6 wordt maandag om 09:00 CET uitgeschakeld.\" Het bureau had twee werkdagen om de codebase naar PHP 8.2 te brengen, feature-pariteit te herstellen, en geen paniek te factureren. De sprong van 5.6 naar 8.2 slaat vier major versies over. De meeste blogposts over die sprong doen alsof je het kunt plannen. Echte geforceerde migraties geven je die luxe zelden. Dit is een case study van wat er dat weekend werkelijk gebeurde. Namen zijn geanonimiseerd. De codepatronen zijn typerend voor elke langlopende custom PHP-applicatie die we de afgelopen vijf jaar geopend hebben. Hoe de codebase eruitzag om 23:42 De applicatie was een custom vrachtboekingsportaal op één VPS. Apache 2.2, PHP 5.6.40, MySQL 5.5, en 71.000 regels PHP verdeeld over drie losjes gekoppelde modules. De helft was geschreven in 2012. De andere helft was een poging uit 2019 om delen ervan te moderniseren, halverwege gestaakt. Geen tests. Eén cron-bestand. Een config.inc.php met de database-credentials in platte tekst. Het eerste wat we deden was uitschrijven wat de cutover categorisch niet zou overleven. De backward incompatible changes -pagina's in de PHP-handleiding zijn hét beste document hiervoor. We liepen ze op volgorde door: 5.6 naar 7.0, 7.0 naar 7.4, 7.4 naar 8.0, 8.0 naar 8.2. Stuk voor stuk kort. Lees ze op volgorde en je hebt een werkbare mentale kaart van elk breaking pattern tussen jou en maandagochtend. De greps die het meest opleverden: grep -rEn \"mysql_(query|connect|fetch_|num_rows|real_escape)\" . grep -rEn \"ereg_?|split\\(|each\\(|create_function\" . grep -rEn '\\$[A-Za-z_]+\\{[0-9]+\\}' . grep -rEn \"function +[A-Z][A-Za-z_]*\\s*\\(\" . # PHP4-style constructors (heuristic) Dat leverde 318 hits op verspreid over 47 bestanden. Ongeveer 80% in twee bestanden. Dat was de bemoedigende ontdekking van de nacht. Legacy PHP verdeelt zijn zonden zelden gelijkmatig. Twee bestanden bezitten het grootste deel van de technical debt, en die vind je meestal met één weekend grep-werk. Zaterdag 02:00. Het plan dat we op een servet schreven We zouden niets gaan refactoren. We zouden de kleinst mogelijke wijziging toepassen om elk patroon op de doelruntime te laten draaien, de resulterende warnings op zondag oppakken, en uitleveren. De lijst: Vervang alle mysql_* -aanroepen door een dunne mysqli -shim. Dezelfde call sites, alleen functienamen met prefix. Zet PHP4-stijl constructors om naar __construct . Mechanisch werk. Vervang ereg en split door hun preg_ -equivalenten. Fix curly-brace string offsets ( $s{0} wordt $s[0] ). Draai de applicatie lokaal op PHP 8.2 met error_reporting(E_ALL) en kijk wat er in vlammen opgaat. We hebben het database-schema niet aangeraakt. We hebben de templates niet aangeraakt. We hebben helemaal niets opgeruimd. Elke wijziging die niet nodig was om de boel te laten booten, werd doorgeschoven naar een vervolgsprint. De grootste fout die mensen maken bij een geforceerde PHP-migratie, is hem behandelen als het moment om eindelijk de code op te knappen. Dat is het niet. Het is het moment om de code te laten draaien. De volledige shim: function db_query($sql) { global $db; $r = mysqli_query($db, $sql); if ($r === false) { error_log(\"SQL: \" . mysqli_error($db) . \" :: \" . $sql); } return $r; } function db_fetch_assoc($r) { return $r ? mysqli_fetch_assoc($r) : false; } function db_num_rows($r) { return $r ? mysqli_num_rows($r) : 0; } function db_escape($s) { global $db; return mysqli_real_escape_string($db, $s); } Daarna een sed-pass over elk PHP-bestand: find . -name \"*.php\" -print0 | xargs -0 sed -i '' \\ -e 's/mysql_query(/db_query(/g' \\ -e 's/mysql_fetch_assoc(/db_fetch_assoc(/g' \\ -e 's/mysql_num_rows(/db_num_rows(/g' \\ -e 's/mysql_real_escape_string(/db_escape(/g' Het idee van de shim is dat we nog niet proberen SQL-injectie te fixen of te refactoren naar prepared statements. Dat is een Q3-project. De shim koopt de applicatie een runtime op de nieuwe interpreter zonder de call sites te veranderen. Let op. Als de oude mysql_* -code leunde op de impliciete \"laatste connectie\", doen de mysqli -equivalenten dat niet. Bij elke aanroep moet de connectie expliciet meegegeven worden. De shim hierboven verbergt dat door $db via closure mee te nemen, maar als de codebase meerdere mysql_connect -aanroepen heeft, gebruikt de shim stilzwijgend de laatste die liep. Grep eerst op mysql_connect voordat je gaat sed'en. Zaterdag 11:00. Wat er daadwerkelijk brak op PHP 8.2 Tegen het einde van zaterdagochtend bootte de applicatie. Ongeveer de helft retourneerde een 500. De fouten vielen uiteen in vijf categorieën. Dynamic property-deprecations PHP 8.2 markeerde het toekennen aan niet-gedeclareerde properties als deprecated (zie de RFC ). De legacy code deed dingen als $user->cached_orders = [...] van buiten de klasse, op een klasse die cach",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP 5.6 naar 8.2 in één weekend: de realistische versie","item":"https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kun je echt in één weekend van PHP 5.6 naar PHP 8.2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Soms. Het hangt ervan af hoeveel van de breaking patterns zich concentreren in hoe weinig bestanden. De greps bovenaan dit artikel vertellen je binnen tien minuten of je codebase realistisch is voor een weekend-cutover."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik eerst naar PHP 7.4 als tussenstap?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen als je weken over hebt. PHP 7.4 wordt al niet meer ondersteund en de meeste hostingmaatschappijen stoppen met het aanbieden ervan. Direct naar 8.2 betekent één ronde aan breuk in plaats van twee, en één weekend werk in plaats van twee."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "En de database tijdens een PHP-versiesprong?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Laat hem staan. PHP 8.2 praat zonder klagen met MySQL 5.5, 5.6, 5.7, 8.0 en MariaDB 10.x. Een database-upgrade koppelen aan een PHP-upgrade verdubbelt het oppervlak van de wijziging zonder de waarde te verdubbelen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/php-56-to-82-weekend-migration/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 030</span>
+      </div>
+      <p class="eyebrow"><span class="n">030 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP 5.6 naar 8.2 in één weekend: de realistische versie</h1>
+      <p class="lede post-lede">De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T07:39:22.906Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-56-to-82-weekend-migration/hero.webp" type="image/webp">
+      <img src="/blog/php-56-to-82-weekend-migration/hero.jpg" alt="Plat gelegd papieren register PHP 5.6 naar 8.2, gestencilde uitdraaien met rode strepen, koperen presse-papier op eiken." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 030</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom kwam binnen om 23:41 op een vrijdag. Een Nederlands bureau waar we mee werken had een 14 jaar oude PHP-applicatie geërfd van een logistieke klant, en hun managed host had net de standaardmail verstuurd: "PHP 5.6 wordt maandag om 09:00 CET uitgeschakeld." Het bureau had twee werkdagen om de codebase naar PHP 8.2 te brengen, feature-pariteit te herstellen, en geen paniek te factureren. De sprong van 5.6 naar 8.2 slaat vier major versies over. De meeste blogposts over die sprong doen alsof je het kunt plannen. Echte geforceerde migraties geven je die luxe zelden.</p>
+
+<p>Dit is een case study van wat er dat weekend werkelijk gebeurde. Namen zijn geanonimiseerd. De codepatronen zijn typerend voor elke langlopende custom PHP-applicatie die we de afgelopen vijf jaar geopend hebben.</p>
+
+<h2>Hoe de codebase eruitzag om 23:42</h2>
+
+<p>De applicatie was een custom vrachtboekingsportaal op één VPS. Apache 2.2, PHP 5.6.40, MySQL 5.5, en 71.000 regels PHP verdeeld over drie losjes gekoppelde modules. De helft was geschreven in 2012. De andere helft was een poging uit 2019 om delen ervan te moderniseren, halverwege gestaakt. Geen tests. Eén cron-bestand. Een <code>config.inc.php</code> met de database-credentials in platte tekst.</p>
+
+<p>Het eerste wat we deden was uitschrijven wat de cutover categorisch niet zou overleven. De <a href="https://www.php.net/manual/en/migration70.incompatible.php">backward incompatible changes</a>-pagina's in de PHP-handleiding zijn hét beste document hiervoor. We liepen ze op volgorde door: 5.6 naar 7.0, 7.0 naar 7.4, 7.4 naar 8.0, 8.0 naar 8.2. Stuk voor stuk kort. Lees ze op volgorde en je hebt een werkbare mentale kaart van elk breaking pattern tussen jou en maandagochtend.</p>
+
+<p>De greps die het meest opleverden:</p>
+
+<pre><code class="lang-bash">grep -rEn "mysql_(query|connect|fetch_|num_rows|real_escape)" .
+grep -rEn "ereg_?|split\(|each\(|create_function" .
+grep -rEn '\$[A-Za-z_]+\{[0-9]+\}' .
+grep -rEn "function +[A-Z][A-Za-z_]*\s*\(" .   # PHP4-style constructors (heuristic)
+</code></pre>
+
+<p>Dat leverde 318 hits op verspreid over 47 bestanden. Ongeveer 80% in twee bestanden. Dat was de bemoedigende ontdekking van de nacht. Legacy PHP verdeelt zijn zonden zelden gelijkmatig. Twee bestanden bezitten het grootste deel van de technical debt, en die vind je meestal met één weekend grep-werk.</p>
+
+<h2>Zaterdag 02:00. Het plan dat we op een servet schreven</h2>
+
+<p>We zouden niets gaan refactoren. We zouden de kleinst mogelijke wijziging toepassen om elk patroon op de doelruntime te laten draaien, de resulterende warnings op zondag oppakken, en uitleveren. De lijst:</p>
+
+<ol>
+<li>Vervang alle <code>mysql_*</code>-aanroepen door een dunne <code>mysqli</code>-shim. Dezelfde call sites, alleen functienamen met prefix.</li>
+<li>Zet PHP4-stijl constructors om naar <code>__construct</code>. Mechanisch werk.</li>
+<li>Vervang <code>ereg</code> en <code>split</code> door hun <code>preg_</code>-equivalenten.</li>
+<li>Fix curly-brace string offsets (<code>$s{0}</code> wordt <code>$s[0]</code>).</li>
+<li>Draai de applicatie lokaal op PHP 8.2 met <code>error_reporting(E_ALL)</code> en kijk wat er in vlammen opgaat.</li>
+</ol>
+
+<p>We hebben het database-schema niet aangeraakt. We hebben de templates niet aangeraakt. We hebben helemaal niets opgeruimd. Elke wijziging die niet nodig was om de boel te laten booten, werd doorgeschoven naar een vervolgsprint. De grootste fout die mensen maken bij een geforceerde PHP-migratie, is hem behandelen als het moment om eindelijk de code op te knappen. Dat is het niet. Het is het moment om de code te laten draaien.</p>
+
+<p>De volledige shim:</p>
+
+<pre><code class="lang-php">function db_query($sql) {
+    global $db;
+    $r = mysqli_query($db, $sql);
+    if ($r === false) {
+        error_log("SQL: " . mysqli_error($db) . " :: " . $sql);
+    }
+    return $r;
+}
+function db_fetch_assoc($r) { return $r ? mysqli_fetch_assoc($r) : false; }
+function db_num_rows($r)    { return $r ? mysqli_num_rows($r) : 0; }
+function db_escape($s) {
+    global $db;
+    return mysqli_real_escape_string($db, $s);
+}
+</code></pre>
+
+<p>Daarna een sed-pass over elk PHP-bestand:</p>
+
+<pre><code class="lang-bash">find . -name "*.php" -print0 | xargs -0 sed -i '' \
+    -e 's/mysql_query(/db_query(/g' \
+    -e 's/mysql_fetch_assoc(/db_fetch_assoc(/g' \
+    -e 's/mysql_num_rows(/db_num_rows(/g' \
+    -e 's/mysql_real_escape_string(/db_escape(/g'
+</code></pre>
+
+<p>Het idee van de shim is dat we nog niet proberen SQL-injectie te fixen of te refactoren naar prepared statements. Dat is een Q3-project. De shim koopt de applicatie een runtime op de nieuwe interpreter zonder de call sites te veranderen.</p>
+
+<aside class="callout"><strong>Let op.</strong> Als de oude <code>mysql_*</code>-code leunde op de impliciete "laatste connectie", doen de <code>mysqli</code>-equivalenten dat niet. Bij elke aanroep moet de connectie expliciet meegegeven worden. De shim hierboven verbergt dat door <code>$db</code> via closure mee te nemen, maar als de codebase meerdere <code>mysql_connect</code>-aanroepen heeft, gebruikt de shim stilzwijgend de laatste die liep. Grep eerst op <code>mysql_connect</code> voordat je gaat sed'en.</aside>
+
+<h2>Zaterdag 11:00. Wat er daadwerkelijk brak op PHP 8.2</h2>
+
+<p>Tegen het einde van zaterdagochtend bootte de applicatie. Ongeveer de helft retourneerde een 500. De fouten vielen uiteen in vijf categorieën.</p>
+
+<h3>Dynamic property-deprecations</h3>
+
+<p>PHP 8.2 markeerde het toekennen aan niet-gedeclareerde properties als deprecated (zie <a href="https://wiki.php.net/rfc/deprecate_dynamic_properties">de RFC</a>). De legacy code deed dingen als <code>$user-&gt;cached_orders = [...]</code> van buiten de klasse, op een klasse die <code>cached_orders</code> nooit had gedeclareerd. In productie had dat een stille logregel moeten zijn, maar de host had <code>display_errors=On</code> staan in de gedeelde php.ini, dus de deprecation-banner verscheen midden in de JSON die de iOS-app ophaalde, en de iOS-app stopte met het parsen van responses.</p>
+
+<p>Twee opties: elke property netjes declareren, of <code>#[\AllowDynamicProperties]</code> toevoegen aan de klassen die het probleem veroorzaakten. We deden het tweede. Het is de gedocumenteerde escape hatch en het kostte veertien minuten.</p>
+
+<h3>String-interpolatie met curly braces</h3>
+
+<p><code>"Hello ${name}"</code> is deprecated. <code>"Hello {$name}"</code> mag wel. De fix is een regex-pass en een code review.</p>
+
+<pre><code class="lang-bash">grep -rEn '\$\{[A-Za-z_]' --include="*.php" .
+</code></pre>
+
+<h3>utf8_encode en utf8_decode</h3>
+
+<p>Beide deprecated in 8.2. De applicatie gebruikte <code>utf8_encode</code> op kolomwaarden die uit een latin1 MySQL-tabel kwamen (charmant). Vervanging: <code>mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1')</code>. Zelfde resultaat, geen deprecation, vereist <code>mbstring</code>, dat de meeste actuele hosting-builds standaard meeleveren.</p>
+
+<h3>Impliciete float-naar-int conversies</h3>
+
+<p>Een rapportagemodule deed <code>$pages = $total / $per_page</code> en gebruikte <code>$pages</code> vervolgens als array-index. PHP 8.1 maakte de impliciete float-naar-int conversie tot een deprecation warning. We wikkelden de toekenning in <code>(int) ceil(...)</code>. Drie plekken.</p>
+
+<h3>Constructor signature mismatches</h3>
+
+<p>Subklassen die een parent constructor overschrijven met een andere signature gooien nu een error. We liepen er één keer tegenaan, in een payment-gateway-abstractie. De fix was <code>...$args</code> aan de parent signature toevoegen en de suite opnieuw draaien. We hadden geen suite, dus we doorliepen de boeking-flow handmatig opnieuw.</p>
+
+<h2>Zaterdag 17:00. De cronjobs waar niemand op had ingelogd</h2>
+
+<p>Twee cronjobs draaiden 's nachts: één genereerde facturen, één synchroniseerde een voorraadfeed naar een partner via SFTP. Beide waren geschreven tegen PHP 5.6 CLI. Op de nieuwe CLI viel de factuurjob om, omdat hij <code>create_function</code> aanriep, verwijderd in 8.0. Twee regels, vervangen door een anonymous function. De voorraadfeed-job viel om omdat de <code>ssh2_*</code>-functies niet meegecompileerd waren in de PHP-build van de host. We schakelden over naar <a href="https://phpseclib.com/">phpseclib</a>, dat pure-PHP is en niets van de host vraagt. De composer install duurde twee minuten. De job draaide schoon bij de volgende tick.</p>
+
+<p>De les, als die er is: als je grept op breaking patterns, grep dan ook de cron-bestanden. Die wonen meestal in <code>/etc/cron.d/</code> of in een aparte map onder de application root, en worden standaard over het hoofd gezien.</p>
+
+<h2>Zondag 03:00. De .htaccess-wijziging waar niemand voor had gewaarschuwd</h2>
+
+<p>De nieuwe stack van de host draaide onder PHP-FPM in plaats van mod_php. De deploy van het bureau was geschreven in de veronderstelling van mod_php. Twee dingen braken direct.</p>
+
+<p>Ten eerste zette de applicatie <code>php_value upload_max_filesize 64M</code> in <code>.htaccess</code>. Onder FPM kan Apache PHP-ini-waarden niet op die manier zetten. De Apache-foutmelding is glashelder zodra je weet waar je naar moet zoeken:</p>
+
+<pre><code>Invalid command 'php_value', perhaps misspelled or defined by a module not included in the server configuration
+</code></pre>
+
+<p>De vervanging staat in een <code>.user.ini</code>-bestand in de document root. De directives blijven hetzelfde, het bestandsformaat verandert:</p>
+
+<pre><code class="lang-ini">upload_max_filesize = 64M
+post_max_size = 80M
+memory_limit = 256M
+</code></pre>
+
+<p>De <a href="https://www.php.net/manual/en/configuration.file.per-user.php">php.net-docs</a> beschrijven de syntax. De gotcha die het opschrijven waard is: <code>.user.ini</code> wordt standaard 300 seconden gecached. Test je wijzigingen en lijken ze niet door te komen, dan is dat waarom. Zet <code>user_ini.cache_ttl = 0</code> in de php.ini van het testdomein.</p>
+
+<p>Ten tweede brak het <code>RewriteRule</code>-blok dat het PHP-session-id in URL's plaatste voor clients met cookies uit (jazeker, in 2026), omdat de FPM-frontend <code>PHPSESSID</code> uit de querystring stripte. We hebben de URL-session-fallback volledig verwijderd. Geen enkele live client had cookies uitgeschakeld. We hebben de access log gecontroleerd voordat we het weghaalden.</p>
+
+<h2>Zondag 14:00. De rollback die we niet nodig hadden</h2>
+
+<p>Op zondagmiddag bootte de applicatie, parste de iOS-client de responses, draaiden beide cronjobs schoon, en werden PDF-facturen gegenereerd. We hadden aan het begin een rollback-plan opgesteld: één <code>git checkout</code> plus een <code>mysqldump</code> restore. We hebben het nooit gebruikt. Het dichtst kwamen we erbij toen we één composer install terugdraaiden omdat PHPMailer 6.10 ondersteuning had laten vallen voor een embedded font dat de factuurtemplate gebruikte. Terug naar 6.9.3 kostte 90 seconden.</p>
+
+<p>De twee dingen die ervoor zorgden dat we de rollback niet nodig hadden:</p>
+
+<ul>
+<li>De shim. Door tijdens de migratie de SQL-toegang niet te refactoren, bleef het oppervlak van de wijziging klein genoeg om de bugs die wel verschenen ook klein te houden.</li>
+<li>De database met rust gelaten. De nieuwe interpreter praat probleemloos met MySQL 5.5. De database-upgrade landde zes weken later, los, met zijn eigen rollback-plan en zijn eigen weekend.</li>
+</ul>
+
+<h2>Wat vier weken anders had gemaakt</h2>
+
+<p>Eerlijk gezegd structureel weinig. De volgorde van een PHP 8.2-migratie blijft hetzelfde: eerst PHP, dan database, dan dependencies, daarna refactor. Wat vier weken je oplevert, is staging-pariteit en een echt testplan. Met 48 uur vervang je tests door een tail op de productie-errorlog en een betaalde stagiair die op zaterdagochtend door de booking-flow klikt. Allebei werkt het; eentje is rustiger.</p>
+
+<p>Het andere wat we gedaan zouden hebben, is de <code>.htaccess</code> en <code>.user.ini</code> vanaf het begin onder versiebeheer brengen. Het pijnlijkste moment van het weekend was zondag om 04:11, toen er voor debugging een directive in de live <code>.htaccess</code> was aangepast en niemand zich de originele waarde nog herinnerde. Een back-up van vrijdagavond 23:50 bespaarde ons dertig minuten gokwerk.</p>
+
+<h2>Het kleinste wat hier hardop gezegd moet worden</h2>
+
+<p>Toen we <a href="/">Pier</a> bouwden, kwamen we precies dit patroon keer op keer tegen. Het patroon: een bureau neemt een <a href="/">legacy site</a> over, krijgt een host-EOL-mail, en besteedt een weekend aan greppen op <code>mysql_</code> en het bewerken van <code>.htaccess</code> via FTP. Hoe we het uiteindelijk hebben opgelost: elke save maakt automatisch een snapshot, zodat de vraag "wat was de originele waarde" een antwoord van één klik krijgt in de <a href="/#features">version history</a>, en de database-kant van de cutover leeft binnen dezelfde <a href="/#database">MySQL editor</a> als de bestand-kant.</p>
+
+<p>Heb je nog een PHP 5.6- of 7.x-site in productie staan, dan is het kleinste wat je vandaag kunt doen de vier grep-commando's bovenaan dit artikel tegen de codebase aanzetten. De output voorspelt je weekend.</p>
+    </div>
+
+    <aside class="pullquote">Migreer eerst PHP, laat de database met rust, en zet een shim om je mysql_*-aanroepen voordat je ze refactort. De kleinst mogelijke wijziging is degene die de grootste kans heeft maandag live te staan.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kun je echt in één weekend van PHP 5.6 naar PHP 8.2?</p>
+      <p class="faq-a">Soms. Het hangt ervan af hoeveel van de breaking patterns zich concentreren in hoe weinig bestanden. De greps bovenaan dit artikel vertellen je binnen tien minuten of je codebase realistisch is voor een weekend-cutover.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik eerst naar PHP 7.4 als tussenstap?</p>
+      <p class="faq-a">Alleen als je weken over hebt. PHP 7.4 wordt al niet meer ondersteund en de meeste hostingmaatschappijen stoppen met het aanbieden ervan. Direct naar 8.2 betekent één ronde aan breuk in plaats van twee, en één weekend werk in plaats van twee.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">En de database tijdens een PHP-versiesprong?</p>
+      <p class="faq-a">Laat hem staan. PHP 8.2 praat zonder klagen met MySQL 5.5, 5.6, 5.7, 8.0 en MariaDB 10.x. Een database-upgrade koppelen aan een PHP-upgrade verdubbelt het oppervlak van de wijziging zonder de waarde te verdubbelen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/php-intranet-windows-2008-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-intranet-windows-2008-migration/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-intranet-windows-2008-migration/hero.jpg" alt="Inktzwarte messing plaat met WIN2008 op gevouwen draaiboek over CUTOVER-millimeterpapier, manilamap, rood waxzegel, linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>19 mei 2026</span></span>
+      <h3>Custom PHP-intranet van Windows 2008 af in één weekend</h3>
+      <span class="pc-lede">Een ongedocumenteerd custom PHP-intranet, een Windows 2008-machine die maandag uit het rack gaat, en één weekend. De inventaris, de breuken, de cutover.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/php-56-to-82-weekend-migration/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
