@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Recovering a corrupted MyISAM table: incident walkthrough · Pier — Blog</title>
+<meta name="description" content="A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here&#39;s the incident in order.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, htaccess, ftp, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Recovering a corrupted MyISAM table: incident walkthrough">
+<meta property="og:description" content="A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here&#39;s the incident in order.">
+<meta property="og:url" content="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<meta property="og:image" content="https://pier.abn.company/blog/repair-crashed-myisam-table/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/repair-crashed-myisam-table/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: paper repair log for wp_options, phpMyAdmin printout, MyISAM schematic, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-26T11:12:56.780Z">
+<meta property="article:modified_time" content="2026-05-26T11:12:56.780Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Recovering a corrupted MyISAM table: incident walkthrough">
+<meta name="twitter:description" content="A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here&#39;s the incident in order.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/repair-crashed-myisam-table/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: paper repair log for wp_options, phpMyAdmin printout, MyISAM schematic, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/repair-crashed-myisam-table/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/repair-crashed-myisam-table/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/repair-crashed-myisam-table/"},
+  "url":"https://pier.abn.company/blog/repair-crashed-myisam-table/",
+  "headline":"Recovering a corrupted MyISAM table: incident walkthrough",
+  "description":"A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here's the incident in order.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/repair-crashed-myisam-table/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: paper repair log for wp_options, phpMyAdmin printout, MyISAM schematic, wax seal."
+  },
+  "datePublished":"2026-05-26T11:12:56.780Z",
+  "dateModified":"2026-05-26T11:12:56.780Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"mysql, databases, wordpress, htaccess, ftp, operations",
+  "wordCount":1889,
+  "articleSection":"Databases",
+  "articleBody":"A 23:41 message lands from a Rotterdam agency lead we work with regularly. Their client's WooCommerce shop, a tile retailer turning about €40k a week, is white-screening. The hosting panel is one of those budget Dutch resellers that does not hand out SSH. When she finally finds the PHP error log, it reads: mysqli_real_connect(): (HY000/144): Table './shop_db/wp_options' is marked as crashed and last (automatic?) repair failed This is MyISAM corruption. The kind that used to happen every other Tuesday in 2008 and now only happens to legacy sites nobody is paying attention to. The next ninety minutes were a walkthrough of what to do when you cannot SSH, cannot restart mysqld, and cannot afford to lose the row count. None of it required anything fancier than FTP and phpMyAdmin. Triage in the first five minutes Before touching anything, separate symptoms from cause. A WordPress white screen can come from at least five places: a fatal PHP error, an exhausted memory limit, a misbehaving plugin update, a database failure, or DNS pointed at the wrong server. The error log in this incident already pointed at MySQL, but the agency lead's first instinct had been to deactivate plugins by renaming wp-content/plugins via FTP. That would have done nothing for a crashed index and might have masked the real cause. Read the log first. If wp-config.php has WP_DEBUG_LOG off and the host has not surfaced a PHP error log in the panel, two lines at the top of the file restore visibility: define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); Refresh the failing URL once. wp-content/debug.log will now contain whatever the PHP fatal looks like. Remove those two lines as soon as you have your error string; leaving them in production logs every notice every plugin emits, and the log file balloons fast on a busy shop. Reading the wreckage The phrase \"marked as crashed and last (automatic?) repair failed\" tells you two facts. First, the server's own myisam-recover-options already fired and gave up. Second, the table is now locked in a needs-repair state, so every subsequent query returns the same error rather than reading garbage on top. That is merciful; it means new data is not still being written into a corrupted index while you investigate. Confirm which engine the table is on. Every shared host puts phpMyAdmin somewhere; open the database and look at the Engine column. If wp_options shows MyISAM, this post applies. If it has been quietly migrated to InnoDB by some previous developer, you are dealing with a different problem and the playbook below will mislead you. Before doing anything destructive, run a check: CHECK TABLE wp_options EXTENDED; If the result is status: OK the table is fine and the corruption was transient, which sometimes happens after a brief disk-cache flush failure. More commonly you will see Corrupt , Size of indexfile is: 12345 Should be: 67890 , or Found block with too small length at position N . All three mean the same thing in practice: the index is out of sync with the data file, and a repair is required. Putting the site into maintenance Do not repair while the site is taking traffic. Each pageview that hits wp_options while you are working keeps a lock contested and may interrupt the repair mid-rebuild. Two minutes with an .htaccess file at the document root buys a clean room: RewriteEngine On RewriteCond %{REMOTE_ADDR} !^203\\.0\\.113\\.45$ RewriteCond %{REQUEST_URI} !^/maintenance\\.html$ RewriteRule .* /maintenance.html [R=503,L] ErrorDocument 503 /maintenance.html Header always set Retry-After \"1800\" Replace 203.0.113.45 with your own IP. The 503 with a Retry-After header is correct HTTP semantics; Google's crawler will treat the downtime as planned and will not drop the site from the index. The official Google guidance on planned downtime has been the same since 2011 and remains the right answer. Upload a one-page maintenance.html via FTP alongside the rule. The agency lead in this incident used a single styled paragraph in Dutch: \"Onze webshop is even offline voor onderhoud. We zijn rond middernacht weer open.\" Five minutes, total. While the maintenance page is live, send the client one short message explaining what they are looking at. \"Database table needs a repair, site is paused so we do not lose orders, ETA midnight\" is enough. The shop owner who notices the 503 before you tell them is a shop owner whose trust now needs rebuilding alongside the table. Repairing through phpMyAdmin first phpMyAdmin's \"Repair table\" link runs REPAIR TABLE under the hood. It is safe to retry, so always try it before doing anything file-level: REPAIR TABLE wp_options; Three outcomes matter. status: OK . The table is fixed. Drop the maintenance .htaccess block, hit the homepage, watch the access log for two minutes, and you are done. Number of rows changed from 4421 to 4378 . Rows were lost. For wp_options this is usually survivable because most of those rows are autoloaded transient cache values that WordPress wi",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/repair-crashed-myisam-table/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Recovering a corrupted MyISAM table: incident walkthrough","item":"https://pier.abn.company/blog/repair-crashed-myisam-table/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why did MySQL's auto-recovery fail before I got there?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Auto-recovery runs with limited memory and a strict timeout. A large table or a deeply corrupted index will exceed both. Manual REPAIR TABLE EXTENDED or myisamchk often succeeds where the automatic pass gave up."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I repair the table without taking the site offline?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Every pageview that touches a crashed MyISAM table contests the lock and risks interrupting the repair. A 503 maintenance page for ten minutes is cheaper than a half-rebuilt index and a second incident."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I convert every MyISAM table to InnoDB afterwards?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For WordPress, Joomla and Drupal in 2026, yes. InnoDB has row-level locking and crash recovery. The only old reason to keep MyISAM was full-text search on legacy MySQL, and InnoDB has supported FULLTEXT since 5.6."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "My host will not give me FTP access to the database directory. What now?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Open a ticket asking for the .MYD and .MYI of one specific table, citing the corruption error. Most hosts will SCP them out within an hour. If they refuse, run REPAIR TABLE EXTENDED via phpMyAdmin and accept the row loss."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 034</span>
+      </div>
+      <p class="eyebrow"><span class="n">034 —</span>Databases</p>
+      <h1 class="display-l post-title">Recovering a corrupted MyISAM table: incident walkthrough</h1>
+      <p class="lede post-lede">A WooCommerce wp_options table crashed on a shared host at 23:41. Ninety minutes, no SSH, only phpMyAdmin and FTP. Here&#39;s the incident in order.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T11:12:56.780Z">26 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/repair-crashed-myisam-table/hero.webp" type="image/webp">
+      <img src="/blog/repair-crashed-myisam-table/hero.jpg" alt="Overhead photo on bone linen: paper repair log for wp_options, phpMyAdmin printout, MyISAM schematic, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 034</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A 23:41 message lands from a Rotterdam agency lead we work with regularly. Their client's WooCommerce shop, a tile retailer turning about €40k a week, is white-screening. The hosting panel is one of those budget Dutch resellers that does not hand out SSH. When she finally finds the PHP error log, it reads:</p>
+
+<pre><code class="lang-text">mysqli_real_connect(): (HY000/144): Table './shop_db/wp_options' is marked as crashed and last (automatic?) repair failed</code></pre>
+
+<p>This is MyISAM corruption. The kind that used to happen every other Tuesday in 2008 and now only happens to <a href="/">legacy sites</a> nobody is paying attention to. The next ninety minutes were a walkthrough of what to do when you cannot SSH, cannot restart mysqld, and cannot afford to lose the row count. None of it required anything fancier than FTP and phpMyAdmin.</p>
+
+<h2>Triage in the first five minutes</h2>
+
+<p>Before touching anything, separate symptoms from cause. A WordPress white screen can come from at least five places: a fatal PHP error, an exhausted memory limit, a misbehaving plugin update, a database failure, or DNS pointed at the wrong server. The error log in this incident already pointed at MySQL, but the agency lead's first instinct had been to deactivate plugins by renaming <code>wp-content/plugins</code> via FTP. That would have done nothing for a crashed index and might have masked the real cause. Read the log first.</p>
+
+<p>If <code>wp-config.php</code> has <code>WP_DEBUG_LOG</code> off and the host has not surfaced a PHP error log in the panel, two lines at the top of the file restore visibility:</p>
+
+<pre><code class="lang-php">define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );</code></pre>
+
+<p>Refresh the failing URL once. <code>wp-content/debug.log</code> will now contain whatever the PHP fatal looks like. Remove those two lines as soon as you have your error string; leaving them in production logs every notice every plugin emits, and the log file balloons fast on a busy shop.</p>
+
+<h2>Reading the wreckage</h2>
+
+<p>The phrase "marked as crashed and last (automatic?) repair failed" tells you two facts. First, the server's own <a href="https://dev.mysql.com/doc/refman/8.0/en/myisam-repair.html">myisam-recover-options</a> already fired and gave up. Second, the table is now locked in a needs-repair state, so every subsequent query returns the same error rather than reading garbage on top. That is merciful; it means new data is not still being written into a corrupted index while you investigate.</p>
+
+<p>Confirm which engine the table is on. Every shared host puts phpMyAdmin somewhere; open the database and look at the <code>Engine</code> column. If <code>wp_options</code> shows MyISAM, this post applies. If it has been quietly migrated to InnoDB by some previous developer, you are dealing with a different problem and the playbook below will mislead you.</p>
+
+<p>Before doing anything destructive, run a check:</p>
+
+<pre><code class="lang-sql">CHECK TABLE wp_options EXTENDED;</code></pre>
+
+<p>If the result is <code>status: OK</code> the table is fine and the corruption was transient, which sometimes happens after a brief disk-cache flush failure. More commonly you will see <code>Corrupt</code>, <code>Size of indexfile is: 12345 Should be: 67890</code>, or <code>Found block with too small length at position N</code>. All three mean the same thing in practice: the index is out of sync with the data file, and a repair is required.</p>
+
+<h2>Putting the site into maintenance</h2>
+
+<p>Do not repair while the site is taking traffic. Each pageview that hits <code>wp_options</code> while you are working keeps a lock contested and may interrupt the repair mid-rebuild. Two minutes with an <code>.htaccess</code> file at the document root buys a clean room:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.45$
+RewriteCond %{REQUEST_URI} !^/maintenance\.html$
+RewriteRule .* /maintenance.html [R=503,L]
+
+ErrorDocument 503 /maintenance.html
+Header always set Retry-After "1800"</code></pre>
+
+<p>Replace <code>203.0.113.45</code> with your own IP. The <code>503</code> with a <code>Retry-After</code> header is correct HTTP semantics; Google's crawler will treat the downtime as planned and will not drop the site from the index. The <a href="https://developers.google.com/search/blog/2011/01/how-to-deal-with-planned-site-downtime">official Google guidance on planned downtime</a> has been the same since 2011 and remains the right answer.</p>
+
+<p>Upload a one-page <code>maintenance.html</code> via FTP alongside the rule. The agency lead in this incident used a single styled paragraph in Dutch: "Onze webshop is even offline voor onderhoud. We zijn rond middernacht weer open." Five minutes, total.</p>
+
+<p>While the maintenance page is live, send the client one short message explaining what they are looking at. "Database table needs a repair, site is paused so we do not lose orders, ETA midnight" is enough. The shop owner who notices the 503 before you tell them is a shop owner whose trust now needs rebuilding alongside the table.</p>
+
+<h2>Repairing through phpMyAdmin first</h2>
+
+<p>phpMyAdmin's "Repair table" link runs <code>REPAIR TABLE</code> under the hood. It is safe to retry, so always try it before doing anything file-level:</p>
+
+<pre><code class="lang-sql">REPAIR TABLE wp_options;</code></pre>
+
+<p>Three outcomes matter.</p>
+
+<p><strong><code>status: OK</code>.</strong> The table is fixed. Drop the maintenance <code>.htaccess</code> block, hit the homepage, watch the access log for two minutes, and you are done.</p>
+
+<p><strong><code>Number of rows changed from 4421 to 4378</code>.</strong> Rows were lost. For <code>wp_options</code> this is usually survivable because most of those rows are autoloaded transient cache values that WordPress will rebuild on the next request. Run a sanity query against the site URL and admin email so you know nothing critical evaporated:</p>
+
+<pre><code class="lang-sql">SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('siteurl', 'home', 'admin_email', 'blogname', 'template', 'stylesheet');</code></pre>
+
+<p><strong><code>Cannot create file './shop_db/wp_options.TMD' (Errcode: 28)</code>.</strong> The host's tempfs is full. This is depressingly common on cheap shared hosting. Email the host, or empty an oversized <code>error_log</code> in the document root via File Manager, then run the repair again.</p>
+
+<p>For deeper corruption, use the extended form:</p>
+
+<pre><code class="lang-sql">REPAIR TABLE wp_options EXTENDED;</code></pre>
+
+<p>This rebuilds the index row by row. It is slower than the default pass and sometimes recovers what the default cannot. About four times out of five, one of these two commands ends the incident.</p>
+
+<h2>File-level recovery with myisamchk</h2>
+
+<p>The fifth case is the awkward one. <code>REPAIR TABLE</code> returns an error so early that it cannot even read the <code>.MYI</code> header, or it loops returning the same row-count without progress. That is when you go file-level.</p>
+
+<p>The engine stores each table as three files in the database directory:</p>
+
+<ul>
+<li><code>wp_options.frm</code>: the schema</li>
+<li><code>wp_options.MYD</code>: the data</li>
+<li><code>wp_options.MYI</code>: the index</li>
+</ul>
+
+<p>On shared hosting these live at something like <code>/home/clientuser/var/lib/mysql/shop_db/</code> or are buried behind a cPanel abstraction. If you can FTP into the database directory directly, take all three files down. If not, ask the host to ship you a hot copy; most will if you reference the table name and explain you need raw MYD/MYI access. The ticket wording that consistently works is "we have a confirmed corruption on table X, can you SCP the three table files from /var/lib/mysql/dbname/ to my FTP space so we can run myisamchk locally". Naming the tool by name signals you know what you are doing and bypasses the first-tier script.</p>
+
+<p>Locally, install a MySQL-compatible toolchain. On macOS:</p>
+
+<pre><code class="lang-bash">brew install mariadb</code></pre>
+
+<p>Then run the repair against the index file, not the data file:</p>
+
+<pre><code class="lang-bash">myisamchk -r -f --sort_buffer_size=512M wp_options.MYI</code></pre>
+
+<p><code>-r</code> is recover, <code>-f</code> forces past minor errors, and a generous sort buffer prevents the rebuild from thrashing on a large table. If that pass fails, fall back to the slower but more forgiving safe-recover:</p>
+
+<pre><code class="lang-bash">myisamchk -o --safe-recover wp_options.MYI</code></pre>
+
+<p><code>-o</code> uses the old recovery method, which reads each data row individually instead of trusting the index. It can rescue tables that <code>-r</code> writes off. Verify the result:</p>
+
+<pre><code class="lang-bash">myisamchk wp_options.MYI
+# Checking MyISAM file: wp_options.MYI
+# Data records: 4421   Deleted blocks: 0
+# myisamchk: MyISAM file wp_options.MYI is usable</code></pre>
+
+<p>Re-upload all three files. Watch your FTP client; some hide uppercase extensions and only upload the lowercase <code>.frm</code>, leaving the database in a worse state than before. After upload, run a flush through phpMyAdmin so MySQL drops its cached file handles and re-opens the freshly written copies:</p>
+
+<pre><code class="lang-sql">FLUSH TABLES wp_options;</code></pre>
+
+<aside class="callout">There is no rollback past the file-overwrite step. Always upload the repaired trio to a sibling path first, for example <code>shop_db_repair/</code>, verify them with a <code>SELECT COUNT(*)</code> from a one-line PHP script, and only then swap the directories. The cost of a verify is two minutes; the cost of overwriting a working copy with a still-broken one is your evening and the client's trust.</aside>
+
+<h2>Why this engine fails like clockwork</h2>
+
+<p>MyISAM dates to 1996 and was MySQL's default storage engine until version 5.5 in 2010. It has no crash recovery, no transactions, and table-level locking. When mysqld dies mid-write, and on a shared host with twenty noisy neighbours mysqld dies more often than the hosting marketing pages admit, there is no journal to replay. The <code>.MYI</code> index file is left pointing at offsets that the <code>.MYD</code> data file no longer agrees with. MySQL notices on the next read and flags the table as crashed.</p>
+
+<p>The corruption is therefore not the sign of a unique disaster. It is the engine doing what the engine does when interrupted. Every legacy site still on this storage engine is one mysqld restart away from the same incident, which is why hardening matters more than the recovery itself.</p>
+
+<h2>Hardening after recovery</h2>
+
+<p>Do not leave the table on MyISAM. The original corruption almost always traces to one of three causes: the shared host's mysqld crashed, the host had a power blip, or two writes raced against the engine's table-level lock during a plugin update. InnoDB survives all three. Convert it:</p>
+
+<pre><code class="lang-sql">ALTER TABLE wp_options ENGINE=InnoDB;</code></pre>
+
+<p>For a WordPress database with many legacy MyISAM tables, generate the full sweep from <code>information_schema</code>:</p>
+
+<pre><code class="lang-sql">SELECT CONCAT('ALTER TABLE `', table_name, '` ENGINE=InnoDB;') AS stmt
+FROM information_schema.tables
+WHERE table_schema = 'shop_db'
+  AND engine = 'MyISAM';</code></pre>
+
+<p>Copy the output rows, paste them back into the SQL tab, and run them as a batch. Most WordPress installs from before 2013 still have a few such tables hanging on because every mysqldump-restore cycle since then has preserved the original engine. The <a href="https://developer.wordpress.org/advanced-administration/upgrade/databases/">WordPress developer notes on database engines</a> have recommended InnoDB by default for over a decade.</p>
+
+<p>Then add offsite backups. cPanel's built-in Backup Wizard usually runs weekly at best and stores the backup on the same physical disk that just failed you. UpdraftPlus for WordPress and Akeeba for Joomla both push to S3, Dropbox or Backblaze for a few euros a month. Set the schedule to nightly for the database and weekly for files. Without offsite copies, the next corruption costs the client a number you do not want to write in an apology email.</p>
+
+<p>The Rotterdam incident ended at 01:09. The extended <code>REPAIR TABLE</code> pass recovered the table cleanly with no row loss; the file-level path stayed in reserve and was never needed. The <code>ALTER TABLE ... ENGINE=InnoDB</code> sweep ran on twelve tables in under a minute. The agency lead sent the shop owner a screenshot of the homepage at 01:11 and went to sleep.</p>
+
+<p>When we built <a href="/">Pier</a> we kept running into this exact pattern, agencies cleaning up someone else's mess at midnight with nothing but FTP and phpMyAdmin to hand. The way we ended up handling it was to give the <a href="/#database">MySQL editor</a> a repair action that runs <code>CHECK TABLE</code> first, shows the row-count diff before you commit, and snapshots the <code>.MYD</code> and <code>.MYI</code> into the <a href="/#features">version history</a> so the repair itself becomes reversible.</p>
+
+<p>The smallest thing today: open phpMyAdmin on one client site you have not touched in a year, run <code>SELECT table_name, engine FROM information_schema.tables WHERE table_schema = DATABASE();</code>, and convert any remaining MyISAM tables to InnoDB before they crash on you at 23:41 on someone else's birthday.</p>
+    </div>
+
+    <aside class="pullquote">MyISAM corruption is recoverable from phpMyAdmin and FTP alone if you 503 the site first, repair the index before touching the data file, then convert to InnoDB.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why did MySQL&#39;s auto-recovery fail before I got there?</p>
+      <p class="faq-a">Auto-recovery runs with limited memory and a strict timeout. A large table or a deeply corrupted index will exceed both. Manual REPAIR TABLE EXTENDED or myisamchk often succeeds where the automatic pass gave up.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I repair the table without taking the site offline?</p>
+      <p class="faq-a">No. Every pageview that touches a crashed MyISAM table contests the lock and risks interrupting the repair. A 503 maintenance page for ten minutes is cheaper than a half-rebuilt index and a second incident.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I convert every MyISAM table to InnoDB afterwards?</p>
+      <p class="faq-a">For WordPress, Joomla and Drupal in 2026, yes. InnoDB has row-level locking and crash recovery. The only old reason to keep MyISAM was full-text search on legacy MySQL, and InnoDB has supported FULLTEXT since 5.6.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">My host will not give me FTP access to the database directory. What now?</p>
+      <p class="faq-a">Open a ticket asking for the .MYD and .MYI of one specific table, citing the corruption error. Most hosts will SCP them out within an hour. If they refuse, run REPAIR TABLE EXTENDED via phpMyAdmin and accept the row loss.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/blog/legacy-site-manifest-file/hero.jpg" alt="Open wooden card-index drawer on linen, brass label-holder, fanned index cards, clay-red ribbon on one card." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Legacy site manifests: a 20-minute audit blueprint</h3>
+      <span class="pc-lede">You inherit a 9-year-old WordPress site at 4pm Friday. By 4:20 you should have a manifest that tells the next person, or you in six months, what&#39;s actually running.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leather logbook with ribbon marker on dark oak, brass pen nib, red wax seal on folded paper, soft window light." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Reviving a dead WordPress site: a 90-minute playbook</h3>
+      <span class="pc-lede">A Dutch agency owner sent a Loom at 23:41: white screen, no logs, no SSH. Ninety minutes later the cart was live. Here is the order we work in.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

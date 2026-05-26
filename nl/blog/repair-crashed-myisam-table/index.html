@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Gecrashte MyISAM-tabel herstellen: een incidentverslag · Pier — Blog</title>
+<meta name="description" content="Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, htaccess, ftp, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/repair-crashed-myisam-table/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Gecrashte MyISAM-tabel herstellen: een incidentverslag">
+<meta property="og:description" content="Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van bovenaf op linnen: papieren reparatielogboek wp_options, phpMyAdmin-print, MyISAM-schema, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-26T11:12:56.780Z">
+<meta property="article:modified_time" content="2026-05-26T11:12:56.780Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Gecrashte MyISAM-tabel herstellen: een incidentverslag">
+<meta name="twitter:description" content="Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/repair-crashed-myisam-table/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van bovenaf op linnen: papieren reparatielogboek wp_options, phpMyAdmin-print, MyISAM-schema, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/repair-crashed-myisam-table/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/repair-crashed-myisam-table/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/repair-crashed-myisam-table/"},
+  "url":"https://pier.abn.company/nl/blog/repair-crashed-myisam-table/",
+  "headline":"Gecrashte MyISAM-tabel herstellen: een incidentverslag",
+  "description":"Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/repair-crashed-myisam-table/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van bovenaf op linnen: papieren reparatielogboek wp_options, phpMyAdmin-print, MyISAM-schema, lakzegel."
+  },
+  "datePublished":"2026-05-26T11:12:56.780Z",
+  "dateModified":"2026-05-26T11:12:56.780Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, databases, wordpress, htaccess, ftp, operations",
+  "wordCount":1924,
+  "articleSection":"Databases",
+  "articleBody":"Om 23:41 valt er een bericht binnen van een agency lead in Rotterdam waar we vaker mee werken. De WooCommerce-shop van haar klant, een meubelwinkel met zo'n €40k omzet per week, geeft een white screen. Het hostingpaneel is van zo'n goedkope Nederlandse reseller die geen SSH uitdeelt. Als ze eindelijk de PHP error log vindt, staat er: mysqli_real_connect(): (HY000/144): Table './shop_db/wp_options' is marked as crashed and last (automatic?) repair failed Dit is MyISAM-corruptie. Het soort dat in 2008 om de andere dinsdag voorkwam en nu alleen nog gebeurt op verouderde sites waar niemand meer naar omkijkt. De volgende negentig minuten waren een doorloop van wat je doet als je geen SSH hebt, mysqld niet kunt herstarten, en je het je niet kunt veroorloven rijen te verliezen. Niets ervan vroeg om iets ingewikkelders dan FTP en phpMyAdmin. Triage in de eerste vijf minuten Voordat je iets aanraakt: scheid symptomen van oorzaak. Een white screen in WordPress kan uit minstens vijf hoeken komen: een fatale PHP-fout, een uitgeput geheugenlimiet, een misdragende plugin-update, een database-storing, of DNS dat naar de verkeerde server wijst. De error log in dit incident wees al naar MySQL, maar het eerste instinct van de agency lead was om plugins te deactiveren door wp-content/plugins via FTP te hernoemen. Dat zou niets hebben uitgehaald tegen een gecrashte index, en het had de echte oorzaak kunnen maskeren. Lees eerst de log. Als wp-config.php WP_DEBUG_LOG uit heeft staan en de host geen PHP error log toont in het paneel, herstellen twee regels bovenaan het bestand de zichtbaarheid: define( 'WP_DEBUG', true ); define( 'WP_DEBUG_LOG', true ); Ververs de falende URL één keer. wp-content/debug.log bevat nu hoe de PHP-fatal er ook uitziet. Verwijder die twee regels zodra je je error-string hebt; ze in productie laten staan logt elke notice die elke plugin uitstoot, en het logbestand groeit snel op een drukke shop. Het wrak lezen De zinsnede 'marked as crashed and last (automatic?) repair failed' vertelt je twee dingen. Ten eerste: de eigen myisam-recover-options van de server zijn al afgegaan en hebben opgegeven. Ten tweede: de tabel zit nu vast in een needs-repair-staat, dus elke volgende query geeft dezelfde fout in plaats van bovenop corrupte data te lezen. Dat is een zegen; het betekent dat er geen nieuwe data nog in een corrupte index wordt geschreven terwijl jij onderzoekt. Bevestig op welke engine de tabel draait. Elke shared host zet phpMyAdmin ergens; open de database en kijk naar de Engine -kolom. Als wp_options MyISAM laat zien, geldt deze post. Is hij door een eerdere developer stilletjes naar InnoDB gemigreerd, dan heb je een ander probleem en zal het draaiboek hieronder je misleiden. Voordat je iets destructiefs doet, draai eerst een check: CHECK TABLE wp_options EXTENDED; Is het resultaat status: OK , dan is de tabel in orde en was de corruptie tijdelijk, wat soms gebeurt na een korte disk-cache flush-fout. Vaker zie je Corrupt , Size of indexfile is: 12345 Should be: 67890 , of Found block with too small length at position N . Alle drie betekenen in de praktijk hetzelfde: de index loopt niet meer synchroon met het databestand, en een reparatie is nodig. De site in onderhoud zetten Repareer niet terwijl de site verkeer ontvangt. Elke pageview die wp_options raakt terwijl jij werkt, houdt een lock betwist en kan de reparatie halverwege de rebuild onderbreken. Twee minuten met een .htaccess in de document root kopen je een schone werkomgeving: RewriteEngine On RewriteCond %{REMOTE_ADDR} !^203\\.0\\.113\\.45$ RewriteCond %{REQUEST_URI} !^/maintenance\\.html$ RewriteRule .* /maintenance.html [R=503,L] ErrorDocument 503 /maintenance.html Header always set Retry-After \"1800\" Vervang 203.0.113.45 door je eigen IP. De 503 met een Retry-After -header is correcte HTTP-semantiek; de crawler van Google behandelt de downtime als gepland en haalt de site niet uit de index. De officiële Google-richtlijn over geplande downtime is sinds 2011 hetzelfde gebleven en blijft het juiste antwoord. Upload via FTP een maintenance.html van één pagina naast de rewrite-regel. De agency lead in dit incident gebruikte één gestileerde alinea in het Nederlands: \"Onze webshop is even offline voor onderhoud. We zijn rond middernacht weer open.\" In totaal vijf minuten. Stuur de klant terwijl de onderhoudspagina live staat één kort bericht met uitleg over wat ze zien. \"Database-tabel heeft reparatie nodig, site staat op pauze zodat we geen bestellingen verliezen, ETA middernacht\" is genoeg. De shop-eigenaar die de 503 ziet voordat jij het vertelt, is een shop-eigenaar wiens vertrouwen je nu samen met de tabel mag heropbouwen. Eerst repareren via phpMyAdmin De link 'Repair table' in phpMyAdmin draait onder de motorkap REPAIR TABLE . Veilig om te herhalen, dus probeer hem altijd voordat je iets op bestandsniveau doet: REPAIR TABLE wp_options; Drie uitkomsten doen ertoe. status: OK . De tabel is gerepareerd. Verwijder de .htaccess -onderhoudsblokkade",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/repair-crashed-myisam-table/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Gecrashte MyISAM-tabel herstellen: een incidentverslag","item":"https://pier.abn.company/nl/blog/repair-crashed-myisam-table/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom faalde de auto-recovery van MySQL voordat ik erbij was?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Auto-recovery draait met beperkt geheugen en een strikte timeout. Een grote tabel of een diep corrupte index overschrijdt beide. Een handmatige REPAIR TABLE EXTENDED of myisamchk slaagt vaak waar de automatische pass opgaf."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik de tabel repareren zonder de site offline te halen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Elke pageview die een gecrashte MyISAM-tabel raakt, betwist de lock en kan de reparatie onderbreken. Een 503-onderhoudspagina van tien minuten is goedkoper dan een half opnieuw opgebouwde index en een tweede incident."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik daarna elke MyISAM-tabel naar InnoDB converteren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor WordPress, Joomla en Drupal in 2026: ja. InnoDB heeft row-level locking en crash recovery. De enige oude reden om MyISAM te houden was full-text search op legacy MySQL, en InnoDB ondersteunt FULLTEXT sinds 5.6."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/repair-crashed-myisam-table/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 034</span>
+      </div>
+      <p class="eyebrow"><span class="n">034 —</span>Databases</p>
+      <h1 class="display-l post-title">Gecrashte MyISAM-tabel herstellen: een incidentverslag</h1>
+      <p class="lede post-lede">Een WooCommerce wp_options-tabel crashte op shared hosting om 23:41. Negentig minuten, geen SSH, alleen phpMyAdmin en FTP. Het incident in volgorde.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-26T11:12:56.780Z">26 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/repair-crashed-myisam-table/hero.webp" type="image/webp">
+      <img src="/blog/repair-crashed-myisam-table/hero.jpg" alt="Foto van bovenaf op linnen: papieren reparatielogboek wp_options, phpMyAdmin-print, MyISAM-schema, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 034</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 valt er een bericht binnen van een agency lead in Rotterdam waar we vaker mee werken. De WooCommerce-shop van haar klant, een meubelwinkel met zo'n €40k omzet per week, geeft een white screen. Het hostingpaneel is van zo'n goedkope Nederlandse reseller die geen SSH uitdeelt. Als ze eindelijk de PHP error log vindt, staat er:</p>
+
+<pre><code class="lang-text">mysqli_real_connect(): (HY000/144): Table './shop_db/wp_options' is marked as crashed and last (automatic?) repair failed</code></pre>
+
+<p>Dit is MyISAM-corruptie. Het soort dat in 2008 om de andere dinsdag voorkwam en nu alleen nog gebeurt op <a href="/">verouderde sites</a> waar niemand meer naar omkijkt. De volgende negentig minuten waren een doorloop van wat je doet als je geen SSH hebt, mysqld niet kunt herstarten, en je het je niet kunt veroorloven rijen te verliezen. Niets ervan vroeg om iets ingewikkelders dan FTP en phpMyAdmin.</p>
+
+<h2>Triage in de eerste vijf minuten</h2>
+
+<p>Voordat je iets aanraakt: scheid symptomen van oorzaak. Een white screen in WordPress kan uit minstens vijf hoeken komen: een fatale PHP-fout, een uitgeput geheugenlimiet, een misdragende plugin-update, een database-storing, of DNS dat naar de verkeerde server wijst. De error log in dit incident wees al naar MySQL, maar het eerste instinct van de agency lead was om plugins te deactiveren door <code>wp-content/plugins</code> via FTP te hernoemen. Dat zou niets hebben uitgehaald tegen een gecrashte index, en het had de echte oorzaak kunnen maskeren. Lees eerst de log.</p>
+
+<p>Als <code>wp-config.php</code> <code>WP_DEBUG_LOG</code> uit heeft staan en de host geen PHP error log toont in het paneel, herstellen twee regels bovenaan het bestand de zichtbaarheid:</p>
+
+<pre><code class="lang-php">define( 'WP_DEBUG', true );
+define( 'WP_DEBUG_LOG', true );</code></pre>
+
+<p>Ververs de falende URL één keer. <code>wp-content/debug.log</code> bevat nu hoe de PHP-fatal er ook uitziet. Verwijder die twee regels zodra je je error-string hebt; ze in productie laten staan logt elke notice die elke plugin uitstoot, en het logbestand groeit snel op een drukke shop.</p>
+
+<h2>Het wrak lezen</h2>
+
+<p>De zinsnede 'marked as crashed and last (automatic?) repair failed' vertelt je twee dingen. Ten eerste: de eigen <a href="https://dev.mysql.com/doc/refman/8.0/en/myisam-repair.html">myisam-recover-options</a> van de server zijn al afgegaan en hebben opgegeven. Ten tweede: de tabel zit nu vast in een needs-repair-staat, dus elke volgende query geeft dezelfde fout in plaats van bovenop corrupte data te lezen. Dat is een zegen; het betekent dat er geen nieuwe data nog in een corrupte index wordt geschreven terwijl jij onderzoekt.</p>
+
+<p>Bevestig op welke engine de tabel draait. Elke shared host zet phpMyAdmin ergens; open de database en kijk naar de <code>Engine</code>-kolom. Als <code>wp_options</code> MyISAM laat zien, geldt deze post. Is hij door een eerdere developer stilletjes naar InnoDB gemigreerd, dan heb je een ander probleem en zal het draaiboek hieronder je misleiden.</p>
+
+<p>Voordat je iets destructiefs doet, draai eerst een check:</p>
+
+<pre><code class="lang-sql">CHECK TABLE wp_options EXTENDED;</code></pre>
+
+<p>Is het resultaat <code>status: OK</code>, dan is de tabel in orde en was de corruptie tijdelijk, wat soms gebeurt na een korte disk-cache flush-fout. Vaker zie je <code>Corrupt</code>, <code>Size of indexfile is: 12345 Should be: 67890</code>, of <code>Found block with too small length at position N</code>. Alle drie betekenen in de praktijk hetzelfde: de index loopt niet meer synchroon met het databestand, en een reparatie is nodig.</p>
+
+<h2>De site in onderhoud zetten</h2>
+
+<p>Repareer niet terwijl de site verkeer ontvangt. Elke pageview die <code>wp_options</code> raakt terwijl jij werkt, houdt een lock betwist en kan de reparatie halverwege de rebuild onderbreken. Twee minuten met een <code>.htaccess</code> in de document root kopen je een schone werkomgeving:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.45$
+RewriteCond %{REQUEST_URI} !^/maintenance\.html$
+RewriteRule .* /maintenance.html [R=503,L]
+
+ErrorDocument 503 /maintenance.html
+Header always set Retry-After "1800"</code></pre>
+
+<p>Vervang <code>203.0.113.45</code> door je eigen IP. De <code>503</code> met een <code>Retry-After</code>-header is correcte HTTP-semantiek; de crawler van Google behandelt de downtime als gepland en haalt de site niet uit de index. De <a href="https://developers.google.com/search/blog/2011/01/how-to-deal-with-planned-site-downtime">officiële Google-richtlijn over geplande downtime</a> is sinds 2011 hetzelfde gebleven en blijft het juiste antwoord.</p>
+
+<p>Upload via FTP een <code>maintenance.html</code> van één pagina naast de rewrite-regel. De agency lead in dit incident gebruikte één gestileerde alinea in het Nederlands: "Onze webshop is even offline voor onderhoud. We zijn rond middernacht weer open." In totaal vijf minuten.</p>
+
+<p>Stuur de klant terwijl de onderhoudspagina live staat één kort bericht met uitleg over wat ze zien. "Database-tabel heeft reparatie nodig, site staat op pauze zodat we geen bestellingen verliezen, ETA middernacht" is genoeg. De shop-eigenaar die de 503 ziet voordat jij het vertelt, is een shop-eigenaar wiens vertrouwen je nu samen met de tabel mag heropbouwen.</p>
+
+<h2>Eerst repareren via phpMyAdmin</h2>
+
+<p>De link 'Repair table' in phpMyAdmin draait onder de motorkap <code>REPAIR TABLE</code>. Veilig om te herhalen, dus probeer hem altijd voordat je iets op bestandsniveau doet:</p>
+
+<pre><code class="lang-sql">REPAIR TABLE wp_options;</code></pre>
+
+<p>Drie uitkomsten doen ertoe.</p>
+
+<p><strong><code>status: OK</code>.</strong> De tabel is gerepareerd. Verwijder de <code>.htaccess</code>-onderhoudsblokkade, open de homepage, kijk twee minuten naar de access log, en je bent klaar.</p>
+
+<p><strong><code>Number of rows changed from 4421 to 4378</code>.</strong> Er zijn rijen verloren. Voor <code>wp_options</code> is dat meestal te overleven, omdat de meeste van die rijen autoloaded transient cache-waarden zijn die WordPress bij de volgende request opnieuw opbouwt. Doe een sanity-query tegen de site-URL en het admin-emailadres, zodat je weet dat er niets cruciaals is verdampt:</p>
+
+<pre><code class="lang-sql">SELECT option_name, option_value
+FROM wp_options
+WHERE option_name IN ('siteurl', 'home', 'admin_email', 'blogname', 'template', 'stylesheet');</code></pre>
+
+<p><strong><code>Cannot create file './shop_db/wp_options.TMD' (Errcode: 28)</code>.</strong> De tempfs van de host zit vol. Deprimerend gangbaar op goedkope shared hosting. Mail de host, of leeg een te grote <code>error_log</code> in de document root via de File Manager, en draai de reparatie opnieuw.</p>
+
+<p>Voor diepere corruptie, gebruik de uitgebreide vorm:</p>
+
+<pre><code class="lang-sql">REPAIR TABLE wp_options EXTENDED;</code></pre>
+
+<p>Dit bouwt de index rij voor rij opnieuw op. Trager dan de standaard-pass en herstelt soms wat de standaard niet kan. Ongeveer vier op de vijf keer eindigt één van deze twee commando's het incident.</p>
+
+<h2>Bestandsherstel met myisamchk</h2>
+
+<p>Het vijfde geval is het lastige. <code>REPAIR TABLE</code> geeft zo vroeg een fout dat het de <code>.MYI</code>-header niet eens kan lezen, of het blijft in een loop hangen waarbij hetzelfde rij-aantal terugkomt zonder voortgang. Dan ga je naar bestandsniveau.</p>
+
+<p>De engine slaat elke tabel op als drie bestanden in de database-directory:</p>
+
+<ul>
+<li><code>wp_options.frm</code>: het schema</li>
+<li><code>wp_options.MYD</code>: de data</li>
+<li><code>wp_options.MYI</code>: de index</li>
+</ul>
+
+<p>Op shared hosting staan die ergens als <code>/home/clientuser/var/lib/mysql/shop_db/</code> of zijn ze verstopt achter een cPanel-abstractie. Kun je rechtstreeks via FTP in de database-directory, haal dan alle drie de bestanden binnen. Zo niet, vraag de host om een hot copy; de meeste doen het als je de tabelnaam noemt en uitlegt dat je rauwe MYD/MYI-toegang nodig hebt. De ticket-formulering die consistent werkt is: "we hebben een bevestigde corruptie op tabel X, kunnen jullie de drie tabelbestanden uit /var/lib/mysql/dbname/ via SCP naar mijn FTP-ruimte zetten zodat we myisamchk lokaal kunnen draaien". De tool bij naam noemen signaleert dat je weet wat je doet en omzeilt de eerste lijn van de scripted support.</p>
+
+<p>Installeer lokaal een MySQL-compatibele toolchain. Op macOS:</p>
+
+<pre><code class="lang-bash">brew install mariadb</code></pre>
+
+<p>Draai vervolgens de reparatie tegen het indexbestand, niet tegen het databestand:</p>
+
+<pre><code class="lang-bash">myisamchk -r -f --sort_buffer_size=512M wp_options.MYI</code></pre>
+
+<p><code>-r</code> is recover, <code>-f</code> forceert voorbij kleine fouten, en een ruime sort buffer voorkomt dat de rebuild gaat thrashen op een grote tabel. Mislukt die pass, val terug op de tragere maar vergevingsgezindere safe-recover:</p>
+
+<pre><code class="lang-bash">myisamchk -o --safe-recover wp_options.MYI</code></pre>
+
+<p><code>-o</code> gebruikt de oude recovery-methode, die elke datarij afzonderlijk leest in plaats van de index te vertrouwen. Het kan tabellen redden die <code>-r</code> heeft afgeschreven. Verifieer het resultaat:</p>
+
+<pre><code class="lang-bash">myisamchk wp_options.MYI
+# Checking MyISAM file: wp_options.MYI
+# Data records: 4421   Deleted blocks: 0
+# myisamchk: MyISAM file wp_options.MYI is usable</code></pre>
+
+<p>Upload alle drie de bestanden opnieuw. Let op je FTP-client; sommige verbergen uppercase-extensies en uploaden alleen de lowercase <code>.frm</code>, waardoor de database in een slechtere staat achterblijft dan voorheen. Doe na het uploaden een flush via phpMyAdmin, zodat MySQL zijn gecachte file handles dropt en de net geschreven kopieën opnieuw opent:</p>
+
+<pre><code class="lang-sql">FLUSH TABLES wp_options;</code></pre>
+
+<aside class="callout">Er is geen rollback voorbij de stap waarin het bestand wordt overschreven. Upload het gerepareerde trio altijd eerst naar een zusterpad, bijvoorbeeld <code>shop_db_repair/</code>, verifieer ze met een <code>SELECT COUNT(*)</code> vanuit een PHP-scriptje van één regel, en wissel pas dan de directories. Verifiëren kost twee minuten; een werkende kopie overschrijven met een nog steeds kapotte versie kost je je avond en het vertrouwen van de klant.</aside>
+
+<h2>Waarom deze engine zo voorspelbaar uitvalt</h2>
+
+<p>MyISAM stamt uit 1996 en was de standaard storage engine van MySQL tot versie 5.5 in 2010. Hij heeft geen crash recovery, geen transacties, en table-level locking. Als mysqld halverwege een write doodgaat, en op een shared host met twintig luidruchtige buren gaat mysqld vaker dood dan de marketingpagina's van de hosting toegeven, is er geen journal om af te spelen. Het <code>.MYI</code>-indexbestand blijft achter met offsets waar het <code>.MYD</code>-databestand het niet meer mee eens is. MySQL merkt het bij de volgende read en markeert de tabel als crashed.</p>
+
+<p>De corruptie is daarom geen teken van een unieke ramp. Het is de engine die doet wat de engine doet als hij onderbroken wordt. Elke verouderde site die nog op deze storage engine staat, is één mysqld-herstart verwijderd van hetzelfde incident, en daarom telt hardening meer dan het herstel zelf.</p>
+
+<h2>Hardening na het herstel</h2>
+
+<p>Laat de tabel niet op MyISAM staan. De oorspronkelijke corruptie is bijna altijd terug te voeren op één van drie oorzaken: de mysqld van de shared host crashte, de host had een stroomdip, of twee writes botsten op de table-level lock van de engine tijdens een plugin-update. InnoDB overleeft alle drie. Converteer hem:</p>
+
+<pre><code class="lang-sql">ALTER TABLE wp_options ENGINE=InnoDB;</code></pre>
+
+<p>Voor een WordPress-database met veel oude MyISAM-tabellen, genereer de volledige sweep vanuit <code>information_schema</code>:</p>
+
+<pre><code class="lang-sql">SELECT CONCAT('ALTER TABLE `', table_name, '` ENGINE=InnoDB;') AS stmt
+FROM information_schema.tables
+WHERE table_schema = 'shop_db'
+  AND engine = 'MyISAM';</code></pre>
+
+<p>Kopieer de output-rijen, plak ze terug in het SQL-tabblad, en draai ze als batch. De meeste WordPress-installaties van voor 2013 hebben nog steeds een paar van zulke tabellen rondhangen, omdat elke mysqldump-restore-cyclus sindsdien de oorspronkelijke engine heeft bewaard. De <a href="https://developer.wordpress.org/advanced-administration/upgrade/databases/">WordPress developer notes over database engines</a> bevelen InnoDB al meer dan tien jaar standaard aan.</p>
+
+<p>Voeg daarna offsite back-ups toe. De ingebouwde Backup Wizard van cPanel draait hooguit wekelijks, en slaat de back-up op op dezelfde fysieke schijf die je net heeft laten zitten. UpdraftPlus voor WordPress en Akeeba voor Joomla pushen allebei naar S3, Dropbox of Backblaze voor een paar euro per maand. Zet het schema op nachtelijk voor de database en wekelijks voor bestanden. Zonder offsite-kopieën kost de volgende corruptie de klant een getal dat je niet in een excuusmail wilt schrijven.</p>
+
+<p>Het Rotterdamse incident eindigde om 01:09. De extended <code>REPAIR TABLE</code>-pass herstelde de tabel netjes, zonder verlies van rijen; het pad op bestandsniveau bleef in reserve en was nooit nodig. De <code>ALTER TABLE ... ENGINE=InnoDB</code>-sweep draaide in minder dan een minuut op twaalf tabellen. De agency lead stuurde de shop-eigenaar om 01:11 een screenshot van de homepage en ging slapen.</p>
+
+<p>Toen we <a href="/">Pier</a> bouwden, kwamen we precies dit patroon steeds weer tegen: agencies die om middernacht andermans rommel opruimen, met niks anders dan FTP en phpMyAdmin in de hand. De manier waarop we het uiteindelijk hebben opgelost was de <a href="/#database">MySQL editor</a> een repair-actie geven die eerst <code>CHECK TABLE</code> draait, het verschil in rij-aantal toont voordat je commit, en de <code>.MYD</code> en <code>.MYI</code> in de <a href="/#features">version history</a> snapshot zodat de reparatie zelf omkeerbaar wordt.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: open phpMyAdmin op één klantsite die je een jaar niet hebt aangeraakt, draai <code>SELECT table_name, engine FROM information_schema.tables WHERE table_schema = DATABASE();</code>, en converteer elke overgebleven MyISAM-tabel naar InnoDB voordat hij om 23:41 op de verjaardag van iemand anders bij je crasht.</p>
+    </div>
+
+    <aside class="pullquote">MyISAM-corruptie is met alleen phpMyAdmin en FTP te herstellen, mits je de site eerst op 503 zet, de index repareert voordat je het databestand aanraakt, en daarna naar InnoDB converteert.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom faalde de auto-recovery van MySQL voordat ik erbij was?</p>
+      <p class="faq-a">Auto-recovery draait met beperkt geheugen en een strikte timeout. Een grote tabel of een diep corrupte index overschrijdt beide. Een handmatige REPAIR TABLE EXTENDED of myisamchk slaagt vaak waar de automatische pass opgaf.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik de tabel repareren zonder de site offline te halen?</p>
+      <p class="faq-a">Nee. Elke pageview die een gecrashte MyISAM-tabel raakt, betwist de lock en kan de reparatie onderbreken. Een 503-onderhoudspagina van tien minuten is goedkoper dan een half opnieuw opgebouwde index en een tweede incident.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik daarna elke MyISAM-tabel naar InnoDB converteren?</p>
+      <p class="faq-a">Voor WordPress, Joomla en Drupal in 2026: ja. InnoDB heeft row-level locking en crash recovery. De enige oude reden om MyISAM te houden was full-text search op legacy MySQL, en InnoDB ondersteunt FULLTEXT sinds 5.6.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/revive-dead-wordpress-site/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/revive-dead-wordpress-site/hero.webp" type="image/webp">
+        <img src="/nl/blog/revive-dead-wordpress-site/hero.jpg" alt="Open leren logboek met lintmarker op donker eiken, messing penpunt, rode lakzegel op gevouwen papier, zacht raamlicht." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Dode WordPress-site reanimeren: een 90-minuten playbook</h3>
+      <span class="pc-lede">Een Nederlandse bureau-eigenaar stuurde een Loom om 23:41: wit scherm, geen logs, geen SSH. Negentig minuten later draaide de checkout weer. De volgorde.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/repair-crashed-myisam-table/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
