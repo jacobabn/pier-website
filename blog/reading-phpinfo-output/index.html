@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading phpinfo() output: a topographic map of the host · Pier — Blog</title>
+<meta name="description" content="Drop a phpinfo.php in the docroot and the wall of beige tables you get back is a topographic map of the host. Here is how to read it section by section.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, operations, security, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-phpinfo-output/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading phpinfo() output: a topographic map of the host">
+<meta property="og:description" content="Drop a phpinfo.php in the docroot and the wall of beige tables you get back is a topographic map of the host. Here is how to read it section by section.">
+<meta property="og:url" content="https://pier.abn.company/blog/reading-phpinfo-output/">
+<meta property="og:image" content="https://pier.abn.company/blog/reading-phpinfo-output/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/reading-phpinfo-output/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of a printed phpinfo sheet with ink contour lines, brass HOST plate, red wax seal on bone linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-05-27T02:57:16.040Z">
+<meta property="article:modified_time" content="2026-05-27T02:57:16.040Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading phpinfo() output: a topographic map of the host">
+<meta name="twitter:description" content="Drop a phpinfo.php in the docroot and the wall of beige tables you get back is a topographic map of the host. Here is how to read it section by section.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/reading-phpinfo-output/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of a printed phpinfo sheet with ink contour lines, brass HOST plate, red wax seal on bone linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-phpinfo-output/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/reading-phpinfo-output/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/reading-phpinfo-output/"},
+  "url":"https://pier.abn.company/blog/reading-phpinfo-output/",
+  "headline":"Reading phpinfo() output: a topographic map of the host",
+  "description":"Drop a phpinfo.php in the docroot and the wall of beige tables you get back is a topographic map of the host. Here is how to read it section by section.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/reading-phpinfo-output/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of a printed phpinfo sheet with ink contour lines, brass HOST plate, red wax seal on bone linen."
+  },
+  "datePublished":"2026-05-27T02:57:16.040Z",
+  "dateModified":"2026-05-27T02:57:16.040Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, wordpress, operations, security, tooling",
+  "wordCount":1280,
+  "articleSection":"PHP",
+  "articleBody":"A client forwards SFTP credentials and a vague note: \"the contact form stopped sending Tuesday, please look.\" You connect, find a docroot you have never seen, and the first thing you do, before touching anything, is drop a one-line file into the web root: <?php phpinfo(); Load it in a browser. The result is a wall of beige tables that most people scroll past hunting for one specific value. Read it properly and a legacy site 's phpinfo() output is a topographic map of the host: PHP version, kernel, the exact php.ini in play, every loaded extension, what the web server thinks it is, and which environment variables your code can actually see. This post walks the page top to bottom, section by section, with what each block tells you. The banner block The top banner gives you four facts that decide most of your next hour. PHP version. PHP Version 7.4.33 means the host has been frozen since end-of-life in November 2022. WordPress core may still boot, but Composer installs will start refusing modern constraints and the Stripe SDK 13+ refuses to load. System line. Linux web17 5.10.0-26-amd64 #1 SMP Debian x86_64 . You now know the kernel, the host name (often a giveaway about which shared-host plan you are on), and the architecture. Build date. Tells you whether the distro package is fresh or has been stale for two years. Server API. FPM/FastCGI vs Apache 2.0 Handler vs cli decides which config file is even relevant. A site behind nginx will say FPM. A cPanel shared host typically says Apache 2.0 Handler. If you see cli you are looking at the wrong binary. Note the Server API early. The rest of the page reads differently for FPM than it does for mod_php, because the ini scan dir is in a different place and a reload means something different. Configuration file and scan directory Two rows that get misread more than any others. Configuration File (php.ini) Path : where PHP looks for an ini. Loaded Configuration File : the one actually in use. Scan this dir for additional .ini files : usually /etc/php/8.2/fpm/conf.d/ . Additional .ini files parsed : the actual list, in load order. If Loaded Configuration File reads (none) you are running on compiled defaults, which on a shared host is rare but happens. Worse, if Path and Loaded disagree, somebody has overridden the ini at runtime: check for a PHPRC environment variable or a php_admin_value directive in the vhost. The scan dir matters because most modern distributions split ini snippets into per-extension files. On Debian and Ubuntu you will see 20-mysqli.ini , 20-opcache.ini , 30-xdebug.ini . The number prefix decides load order. If you need to override memory_limit cleanly, drop a file with a higher prefix into the scan dir rather than editing the main ini. Loaded modules as a fingerprint Below the Core section, phpinfo lists every loaded extension as its own table. This is the host's real fingerprint, and where most \"why is this plugin broken\" tickets get answered. Scan for these, in order: opcache . If absent on a production host, ask why. Enabling it on a moderately busy WordPress site cuts CPU by roughly half. mysqli and pdo_mysql . WordPress and most CMSes default to mysqli. Older code that still calls mysql_* directly has been dead since PHP 7.0; if you see it, that is your bug. gd vs imagick . The WordPress wp_image_editor silently picks whichever is available. If both are missing, every uploaded image stays at the original size. curl . Missing curl means no outbound HTTPS for Wordfence, Akismet, or any API integration. intl . WooCommerce 8+ refuses to boot without it. redis or memcached . Presence tells you the host expects an object cache. Absence means installing W3 Total Cache's Redis backend is pointless. xdebug . If you see it on a production host, take it off. It costs measurable wall-clock time even when not actively debugging. Each extension table also shows its compiled version. Mismatches between what you see here and what composer.json expects are the source of half the \"works on staging, breaks on prod\" tickets. The environment and server variables block Near the bottom there are three tables that look almost identical and trip people up. Apache Environment (or Environment on FPM): variables the web server hands to PHP. HTTP Headers Information : what the current request looked like. PHP Variables : the $_SERVER , $_ENV , and $_REQUEST arrays as PHP currently sees them. The interesting one is usually Environment. On a shared host, look for DOCUMENT_ROOT to confirm which directory you are actually inside (symlinked vhosts are common). Look for HTTP_X_FORWARDED_PROTO if the site sits behind a load balancer: if it is set to https but PHP still thinks the request is HTTP, you need to patch wp-config.php : if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') { $_SERVER['HTTPS'] = 'on'; } Look at PATH to see what shell binaries exec() calls will resolve. Hosts that lock PATH down to /usr/bin:/bin will break pl",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/reading-phpinfo-output/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading phpinfo() output: a topographic map of the host","item":"https://pier.abn.company/blog/reading-phpinfo-output/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is it safe to leave phpinfo() on a production server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It exposes the PHP version, OS, every extension, and your docroot path, all of which speed up attackers. Delete the file the moment you have read it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where do I edit php.ini on shared hosting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You usually cannot. Check the scan dir row in phpinfo. Most shared hosts let you drop a user.ini or .htaccess php_value override; cPanel exposes a MultiPHP INI Editor."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why do mysqli and pdo_mysql both show up?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They are two separate extensions wrapping the same MySQL client library. WordPress uses mysqli; most modern frameworks use PDO. Having both loaded is normal and costs nothing meaningful."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does Loaded Configuration File (none) mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PHP found no ini file and is running on compile-time defaults. On a shared host this usually means the SAPI is misconfigured; on a container it often means nobody mounted the ini in."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/reading-phpinfo-output/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 052</span>
+      </div>
+      <p class="eyebrow"><span class="n">052 —</span>PHP</p>
+      <h1 class="display-l post-title">Reading phpinfo() output: a topographic map of the host</h1>
+      <p class="lede post-lede">Drop a phpinfo.php in the docroot and the wall of beige tables you get back is a topographic map of the host. Here is how to read it section by section.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T02:57:16.040Z">27 May 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-phpinfo-output/hero.webp" type="image/webp">
+      <img src="/blog/reading-phpinfo-output/hero.jpg" alt="Overhead photo of a printed phpinfo sheet with ink contour lines, brass HOST plate, red wax seal on bone linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 052</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A client forwards SFTP credentials and a vague note: <em>"the contact form stopped sending Tuesday, please look."</em> You connect, find a docroot you have never seen, and the first thing you do, before touching anything, is drop a one-line file into the web root:</p><pre><code class="lang-php">&lt;?php phpinfo();
+</code></pre><p>Load it in a browser. The result is a wall of beige tables that most people scroll past hunting for one specific value. Read it properly and a <a href="/">legacy site</a>'s phpinfo() output is a topographic map of the host: PHP version, kernel, the exact <code>php.ini</code> in play, every loaded extension, what the web server thinks it is, and which environment variables your code can actually see.</p><p>This post walks the page top to bottom, section by section, with what each block tells you.</p><h2>The banner block</h2><p>The top banner gives you four facts that decide most of your next hour.</p><ul><li><strong>PHP version.</strong> <code>PHP Version 7.4.33</code> means the host has been frozen since end-of-life in November 2022. WordPress core may still boot, but Composer installs will start refusing modern constraints and the Stripe SDK 13+ refuses to load.</li><li><strong>System line.</strong> <code>Linux web17 5.10.0-26-amd64 #1 SMP Debian x86_64</code>. You now know the kernel, the host name (often a giveaway about which shared-host plan you are on), and the architecture.</li><li><strong>Build date.</strong> Tells you whether the distro package is fresh or has been stale for two years.</li><li><strong>Server API.</strong> <code>FPM/FastCGI</code> vs <code>Apache 2.0 Handler</code> vs <code>cli</code> decides which config file is even relevant. A site behind nginx will say FPM. A cPanel shared host typically says Apache 2.0 Handler. If you see <code>cli</code> you are looking at the wrong binary.</li></ul><p>Note the Server API early. The rest of the page reads differently for FPM than it does for mod_php, because the ini scan dir is in a different place and a reload means something different.</p><h2>Configuration file and scan directory</h2><p>Two rows that get misread more than any others.</p><ul><li><code>Configuration File (php.ini) Path</code>: where PHP looks for an ini.</li><li><code>Loaded Configuration File</code>: the one actually in use.</li><li><code>Scan this dir for additional .ini files</code>: usually <code>/etc/php/8.2/fpm/conf.d/</code>.</li><li><code>Additional .ini files parsed</code>: the actual list, in load order.</li></ul><p>If <code>Loaded Configuration File</code> reads <code>(none)</code> you are running on compiled defaults, which on a shared host is rare but happens. Worse, if Path and Loaded disagree, somebody has overridden the ini at runtime: check for a <code>PHPRC</code> environment variable or a <code>php_admin_value</code> directive in the vhost.</p><p>The scan dir matters because most modern distributions split ini snippets into per-extension files. On Debian and Ubuntu you will see <code>20-mysqli.ini</code>, <code>20-opcache.ini</code>, <code>30-xdebug.ini</code>. The number prefix decides load order. If you need to override <code>memory_limit</code> cleanly, drop a file with a higher prefix into the scan dir rather than editing the main ini.</p><h2>Loaded modules as a fingerprint</h2><p>Below the Core section, phpinfo lists every loaded extension as its own table. This is the host's real fingerprint, and where most "why is this plugin broken" tickets get answered.</p><p>Scan for these, in order:</p><ul><li><code>opcache</code>. If absent on a production host, ask why. Enabling it on a moderately busy WordPress site cuts CPU by roughly half.</li><li><code>mysqli</code> and <code>pdo_mysql</code>. WordPress and most CMSes default to mysqli. Older code that still calls <code>mysql_*</code> directly has been dead since PHP 7.0; if you see it, that is your bug.</li><li><code>gd</code> vs <code>imagick</code>. The WordPress <code>wp_image_editor</code> silently picks whichever is available. If both are missing, every uploaded image stays at the original size.</li><li><code>curl</code>. Missing curl means no outbound HTTPS for Wordfence, Akismet, or any API integration.</li><li><code>intl</code>. WooCommerce 8+ refuses to boot without it.</li><li><code>redis</code> or <code>memcached</code>. Presence tells you the host expects an object cache. Absence means installing W3 Total Cache's Redis backend is pointless.</li><li><code>xdebug</code>. If you see it on a production host, take it off. It costs measurable wall-clock time even when not actively debugging.</li></ul><p>Each extension table also shows its compiled version. Mismatches between what you see here and what <code>composer.json</code> expects are the source of half the "works on staging, breaks on prod" tickets.</p><h2>The environment and server variables block</h2><p>Near the bottom there are three tables that look almost identical and trip people up.</p><ul><li><code>Apache Environment</code> (or <code>Environment</code> on FPM): variables the web server hands to PHP.</li><li><code>HTTP Headers Information</code>: what the current request looked like.</li><li><code>PHP Variables</code>: the <code>$_SERVER</code>, <code>$_ENV</code>, and <code>$_REQUEST</code> arrays as PHP currently sees them.</li></ul><p>The interesting one is usually Environment. On a shared host, look for <code>DOCUMENT_ROOT</code> to confirm which directory you are actually inside (symlinked vhosts are common). Look for <code>HTTP_X_FORWARDED_PROTO</code> if the site sits behind a load balancer: if it is set to <code>https</code> but PHP still thinks the request is HTTP, you need to patch <code>wp-config.php</code>:</p><pre><code class="lang-php">if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+    &amp;&amp; $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+</code></pre><p>Look at <code>PATH</code> to see what shell binaries <code>exec()</code> calls will resolve. Hosts that lock PATH down to <code>/usr/bin:/bin</code> will break plugins that shell out to <code>wkhtmltopdf</code> in <code>/usr/local/bin</code>.</p><h2>The disable_functions row</h2><p>In the Core block, scroll to <code>disable_functions</code>. On a hardened shared host this row reads like a tombstone:</p><pre><code>exec, passthru, shell_exec, system, proc_open, popen,
+curl_multi_exec, parse_ini_file, show_source, symlink
+</code></pre><p>Every one of those is a function some legitimate plugin somewhere depends on. If a contact form silently fails on a new host, this row is the first place to look. The opposite is also true: if this row is empty on a production host, treat it as a finding, not a feature. The <a href="https://owasp.org/www-project-php-configuration-cheat-sheet/">OWASP PHP configuration cheat sheet</a> recommends disabling at least the shell-spawning four.</p><aside class="callout">A phpinfo() page on a public URL is a gift to anyone scanning your domain. It prints the PHP version, OS, every extension, and often the full filesystem path to your docroot. Delete the file the moment you are done reading it, or wrap it in a basic-auth <code>.htaccess</code> block while you work.</aside><h2>Session, OPcache and upload limits</h2><p>Four rows near the bottom that explain most "it broke when the file got big" incidents.</p><ul><li><code>upload_max_filesize</code> and <code>post_max_size</code>. The latter must be larger than the former, and both must be larger than nginx's <code>client_max_body_size</code>. If a 12 MB upload fails silently, one of these three is the cause. See the <a href="https://www.php.net/manual/en/ini.core.php">php.net ini reference</a> for the interaction.</li><li><code>memory_limit</code>. 256M is the modern WordPress floor. Anything lower and the block editor will white-screen on long posts.</li><li><code>max_execution_time</code>. 30s is the default. Long-running imports need this raised in a dedicated FPM pool, not globally.</li><li><code>session.save_path</code>. If this is <code>/tmp</code> on a shared host, sessions get garbage-collected by any tenant's cron. Hosts that take sessions seriously give you a per-user path.</li></ul><p>For OPcache, check <code>opcache.enable=1</code> and <code>opcache.validate_timestamps</code>. With timestamps off, file edits do not take effect until the pool is reloaded, which is the right setting for production and the wrong setting for "why is my CSS change not showing."</p><h2>What we built around this</h2><p>When we built <a href="/">Pier</a> we kept hitting the same pattern: ten minutes lost re-discovering the same handful of phpinfo facts every time we opened a client's site. The way we ended up handling it was a permanent docked view that surfaces PHP version, ini path, loaded modules, and disable_functions next to the file tree, refreshed each time you reconnect.</p><p>The smallest thing you can do today: drop a <code>phpinfo.php</code> into a staging site you already work on, read it once from top to bottom with this post next to it, then delete the file. The next time a host surprises you, you will know which section to scroll to.</p>
+    </div>
+
+    <aside class="pullquote">A phpinfo() page is a topographic map of the host: read it top to bottom once and you will save the next hour of guessing what broke.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to leave phpinfo() on a production server?</p>
+      <p class="faq-a">No. It exposes the PHP version, OS, every extension, and your docroot path, all of which speed up attackers. Delete the file the moment you have read it.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Where do I edit php.ini on shared hosting?</p>
+      <p class="faq-a">You usually cannot. Check the scan dir row in phpinfo. Most shared hosts let you drop a user.ini or .htaccess php_value override; cPanel exposes a MultiPHP INI Editor.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why do mysqli and pdo_mysql both show up?</p>
+      <p class="faq-a">They are two separate extensions wrapping the same MySQL client library. WordPress uses mysqli; most modern frameworks use PDO. Having both loaded is normal and costs nothing meaningful.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What does Loaded Configuration File (none) mean?</p>
+      <p class="faq-a">PHP found no ini file and is running on compile-time defaults. On a shared host this usually means the SAPI is misconfigured; on a container it often means nobody mounted the ini in.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/htaccess-hardening-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/htaccess-hardening-cheatsheet/hero.jpg" alt="Overhead photo of inked .htaccess cheatsheet on graph paper, brass HTACCESS plate, steel ruler, red pencil, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Eleven .htaccess directives worth keeping, three to drop</h3>
+      <span class="pc-lede">A cheatsheet for the .htaccess file you inherited on that legacy WordPress or Magento site: eleven directives worth keeping, and three that quietly hurt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/drupal-7-pharma-hack-walkthrough/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-pharma-hack-walkthrough/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-pharma-hack-walkthrough/hero.jpg" alt="Overhead photo on bone linen: annotated sitemap, .htaccess sheet, manila folder, CV page, brass Drupal 7 plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Drupal 7 pharma hack: tracing an old uploads injection</h3>
+      <span class="pc-lede">The customer&#39;s Google snippet read &#39;Buy Cialis 20mg&#39; but the page itself looked clean. Tracing the Drupal 7 pharma hack took us through htaccess cloaking and a forgotten CV upload.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/reading-phpinfo-output/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

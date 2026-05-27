@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>phpinfo() lezen: een topografische kaart van je host · Pier — Blog</title>
+<meta name="description" content="Zet een phpinfo.php in de docroot en de muur aan beige tabellen die je terugkrijgt is een topografische kaart van de host. Lees hem sectie voor sectie.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, operations, security, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-phpinfo-output/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-phpinfo-output/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="phpinfo() lezen: een topografische kaart van je host">
+<meta property="og:description" content="Zet een phpinfo.php in de docroot en de muur aan beige tabellen die je terugkrijgt is een topografische kaart van de host. Lees hem sectie voor sectie.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/reading-phpinfo-output/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/reading-phpinfo-output/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/reading-phpinfo-output/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van geprint phpinfo-vel met inktcontouren, koperen HOST-plaat en rode lakzegel op botkleurig linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-27T02:57:16.040Z">
+<meta property="article:modified_time" content="2026-05-27T02:57:16.040Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="phpinfo() lezen: een topografische kaart van je host">
+<meta name="twitter:description" content="Zet een phpinfo.php in de docroot en de muur aan beige tabellen die je terugkrijgt is een topografische kaart van de host. Lees hem sectie voor sectie.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/reading-phpinfo-output/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van geprint phpinfo-vel met inktcontouren, koperen HOST-plaat en rode lakzegel op botkleurig linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-phpinfo-output/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/reading-phpinfo-output/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/reading-phpinfo-output/"},
+  "url":"https://pier.abn.company/nl/blog/reading-phpinfo-output/",
+  "headline":"phpinfo() lezen: een topografische kaart van je host",
+  "description":"Zet een phpinfo.php in de docroot en de muur aan beige tabellen die je terugkrijgt is een topografische kaart van de host. Lees hem sectie voor sectie.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/reading-phpinfo-output/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van geprint phpinfo-vel met inktcontouren, koperen HOST-plaat en rode lakzegel op botkleurig linnen."
+  },
+  "datePublished":"2026-05-27T02:57:16.040Z",
+  "dateModified":"2026-05-27T02:57:16.040Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, wordpress, operations, security, tooling",
+  "wordCount":1269,
+  "articleSection":"PHP",
+  "articleBody":"Een klant stuurt SFTP-gegevens door met een vage notitie: \"het contactformulier verstuurt sinds dinsdag niets meer, kun je even kijken.\" Je logt in, ziet een docroot die je nog nooit hebt gezien, en het eerste wat je doet voordat je iets aanraakt is één bestand van één regel in de webroot zetten: <?php phpinfo(); Open hem in een browser. Wat je terugkrijgt is een muur aan beige tabellen waar de meeste mensen langs scrollen op zoek naar één specifieke waarde. Lees hem goed en de phpinfo()-output van een verouderde site is een topografische kaart van de host: PHP-versie, kernel, exact welke php.ini er draait, elke geladen extensie, wat de webserver denkt te zijn, en welke environment variables je code daadwerkelijk ziet. Dit artikel loopt de pagina van boven naar beneden door, sectie voor sectie, met wat elk blok je vertelt. Het banner-blok De banner bovenaan geeft je vier feiten die het grootste deel van je volgende uur bepalen. PHP-versie. PHP Version 7.4.33 betekent dat de host bevroren is sinds end-of-life in november 2022. WordPress core start nog wel op, maar Composer-installaties weigeren moderne constraints en de Stripe SDK 13+ laadt niet meer. Systeemregel. Linux web17 5.10.0-26-amd64 #1 SMP Debian x86_64 . Je weet nu de kernel, de hostnaam (vaak een verklapper van welk shared-hosting pakket je hebt), en de architectuur. Build date. Vertelt je of het distropakket vers is of al twee jaar muf staat. Server API. FPM/FastCGI versus Apache 2.0 Handler versus cli bepaalt welk config-bestand überhaupt relevant is. Een site achter nginx zegt FPM. Een cPanel shared host zegt meestal Apache 2.0 Handler. Zie je cli , dan kijk je naar de verkeerde binary. Lees de Server API als eerste. De rest van de pagina leest anders bij FPM dan bij mod_php, omdat de ini-scan-map op een andere plek staat en een reload iets anders betekent. Configuratiebestand en scan-map Twee rijen die vaker verkeerd gelezen worden dan welke ook. Configuration File (php.ini) Path : waar PHP een ini zoekt. Loaded Configuration File : degene die daadwerkelijk gebruikt wordt. Scan this dir for additional .ini files : meestal /etc/php/8.2/fpm/conf.d/ . Additional .ini files parsed : de daadwerkelijke lijst, in laadvolgorde. Als Loaded Configuration File (none) zegt, draai je op compile-time defaults, wat op een shared host zelden voorkomt maar het gebeurt. Erger: als Path en Loaded niet overeenkomen, heeft iemand de ini at runtime overschreven. Check op een PHPRC environment variable of een php_admin_value directive in de vhost. De scan-map is belangrijk omdat de meeste moderne distributies ini-snippets opsplitsen in losse bestanden per extensie. Op Debian en Ubuntu zie je 20-mysqli.ini , 20-opcache.ini , 30-xdebug.ini . Het numerieke prefix bepaalt de laadvolgorde. Wil je memory_limit netjes overschrijven, zet dan een bestand met een hoger prefix in de scan-map in plaats van de hoofd-ini aan te passen. Geladen modules als vingerafdruk Onder de Core-sectie toont phpinfo elke geladen extensie in een eigen tabel. Dit is de echte vingerafdruk van de host, en de plek waar de meeste \"waarom werkt deze plugin niet\"-tickets beantwoord worden. Loop deze af, in volgorde: opcache . Ontbreekt deze op een productiehost, vraag dan waarom. Inschakelen op een matig drukke WordPress-site halveert het CPU-gebruik grofweg. mysqli en pdo_mysql . WordPress en de meeste CMS'en gebruiken standaard mysqli. Oudere code die nog rechtstreeks mysql_* aanroept is dood sinds PHP 7.0. Kom je dat tegen, dan is dat je bug. gd versus imagick . De WordPress wp_image_editor pakt stilzwijgend wat beschikbaar is. Ontbreken beide, dan blijft elke geüploade afbeelding op het originele formaat staan. curl . Geen curl betekent geen uitgaand HTTPS voor Wordfence, Akismet, of welke API-koppeling dan ook. intl . WooCommerce 8+ start niet zonder. redis of memcached . Aanwezigheid zegt dat de host een object cache verwacht. Afwezigheid betekent dat de Redis-backend van W3 Total Cache installeren zinloos is. xdebug . Zie je deze op een productiehost, haal hem eraf. Hij kost meetbare wall-clock tijd, ook als je niet actief aan het debuggen bent. Elke extensietabel toont ook de gecompileerde versie. Mismatches tussen wat je hier ziet en wat composer.json verwacht zijn de oorzaak van de helft van de \"werkt op staging, breekt op productie\"-tickets. Het env- en server-variabelenblok Onderaan staan drie tabellen die er bijna identiek uitzien en waar mensen over struikelen. Apache Environment (of Environment bij FPM): variabelen die de webserver aan PHP doorgeeft. HTTP Headers Information : hoe de huidige request eruit zag. PHP Variables : de $_SERVER , $_ENV en $_REQUEST arrays zoals PHP ze op dit moment ziet. De interessante is meestal Environment. Op een shared host, kijk naar DOCUMENT_ROOT om te bevestigen in welke map je daadwerkelijk zit (gesymlinkte vhosts zijn standaard). Kijk naar HTTP_X_FORWARDED_PROTO als de site achter een load balancer hangt. Staat deze op https maar denkt PHP nog steed",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/reading-phpinfo-output/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"phpinfo() lezen: een topografische kaart van je host","item":"https://pier.abn.company/nl/blog/reading-phpinfo-output/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is het veilig om phpinfo() op een productieserver te laten staan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De pagina toont de PHP-versie, het OS, elke extensie en je docroot-pad, allemaal informatie die aanvallers sneller maakt. Verwijder het bestand zodra je het gelezen hebt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waar pas ik php.ini aan op shared hosting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Meestal kan dat niet rechtstreeks. Kijk in phpinfo bij de scan-map-rij. De meeste shared hosts laten je een user.ini of een .htaccess php_value override neerzetten; cPanel heeft een MultiPHP INI Editor."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom staan mysqli en pdo_mysql allebei in de lijst?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het zijn twee aparte extensies om dezelfde MySQL-clientlibrary heen. WordPress gebruikt mysqli; de meeste moderne frameworks gebruiken PDO. Beide geladen hebben is normaal en kost niets noemenswaardigs."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/reading-phpinfo-output/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 052</span>
+      </div>
+      <p class="eyebrow"><span class="n">052 —</span>PHP</p>
+      <h1 class="display-l post-title">phpinfo() lezen: een topografische kaart van je host</h1>
+      <p class="lede post-lede">Zet een phpinfo.php in de docroot en de muur aan beige tabellen die je terugkrijgt is een topografische kaart van de host. Lees hem sectie voor sectie.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T02:57:16.040Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-phpinfo-output/hero.webp" type="image/webp">
+      <img src="/blog/reading-phpinfo-output/hero.jpg" alt="Bovenaanzicht van geprint phpinfo-vel met inktcontouren, koperen HOST-plaat en rode lakzegel op botkleurig linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 052</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een klant stuurt SFTP-gegevens door met een vage notitie: <em>"het contactformulier verstuurt sinds dinsdag niets meer, kun je even kijken."</em> Je logt in, ziet een docroot die je nog nooit hebt gezien, en het eerste wat je doet voordat je iets aanraakt is één bestand van één regel in de webroot zetten:</p><pre><code class="lang-php">&lt;?php phpinfo();
+</code></pre><p>Open hem in een browser. Wat je terugkrijgt is een muur aan beige tabellen waar de meeste mensen langs scrollen op zoek naar één specifieke waarde. Lees hem goed en de phpinfo()-output van een <a href="/">verouderde site</a> is een topografische kaart van de host: PHP-versie, kernel, exact welke <code>php.ini</code> er draait, elke geladen extensie, wat de webserver denkt te zijn, en welke environment variables je code daadwerkelijk ziet.</p><p>Dit artikel loopt de pagina van boven naar beneden door, sectie voor sectie, met wat elk blok je vertelt.</p><h2>Het banner-blok</h2><p>De banner bovenaan geeft je vier feiten die het grootste deel van je volgende uur bepalen.</p><ul><li><strong>PHP-versie.</strong> <code>PHP Version 7.4.33</code> betekent dat de host bevroren is sinds end-of-life in november 2022. WordPress core start nog wel op, maar Composer-installaties weigeren moderne constraints en de Stripe SDK 13+ laadt niet meer.</li><li><strong>Systeemregel.</strong> <code>Linux web17 5.10.0-26-amd64 #1 SMP Debian x86_64</code>. Je weet nu de kernel, de hostnaam (vaak een verklapper van welk shared-hosting pakket je hebt), en de architectuur.</li><li><strong>Build date.</strong> Vertelt je of het distropakket vers is of al twee jaar muf staat.</li><li><strong>Server API.</strong> <code>FPM/FastCGI</code> versus <code>Apache 2.0 Handler</code> versus <code>cli</code> bepaalt welk config-bestand überhaupt relevant is. Een site achter nginx zegt FPM. Een cPanel shared host zegt meestal Apache 2.0 Handler. Zie je <code>cli</code>, dan kijk je naar de verkeerde binary.</li></ul><p>Lees de Server API als eerste. De rest van de pagina leest anders bij FPM dan bij mod_php, omdat de ini-scan-map op een andere plek staat en een reload iets anders betekent.</p><h2>Configuratiebestand en scan-map</h2><p>Twee rijen die vaker verkeerd gelezen worden dan welke ook.</p><ul><li><code>Configuration File (php.ini) Path</code>: waar PHP een ini zoekt.</li><li><code>Loaded Configuration File</code>: degene die daadwerkelijk gebruikt wordt.</li><li><code>Scan this dir for additional .ini files</code>: meestal <code>/etc/php/8.2/fpm/conf.d/</code>.</li><li><code>Additional .ini files parsed</code>: de daadwerkelijke lijst, in laadvolgorde.</li></ul><p>Als <code>Loaded Configuration File</code> <code>(none)</code> zegt, draai je op compile-time defaults, wat op een shared host zelden voorkomt maar het gebeurt. Erger: als Path en Loaded niet overeenkomen, heeft iemand de ini at runtime overschreven. Check op een <code>PHPRC</code> environment variable of een <code>php_admin_value</code> directive in de vhost.</p><p>De scan-map is belangrijk omdat de meeste moderne distributies ini-snippets opsplitsen in losse bestanden per extensie. Op Debian en Ubuntu zie je <code>20-mysqli.ini</code>, <code>20-opcache.ini</code>, <code>30-xdebug.ini</code>. Het numerieke prefix bepaalt de laadvolgorde. Wil je <code>memory_limit</code> netjes overschrijven, zet dan een bestand met een hoger prefix in de scan-map in plaats van de hoofd-ini aan te passen.</p><h2>Geladen modules als vingerafdruk</h2><p>Onder de Core-sectie toont phpinfo elke geladen extensie in een eigen tabel. Dit is de echte vingerafdruk van de host, en de plek waar de meeste "waarom werkt deze plugin niet"-tickets beantwoord worden.</p><p>Loop deze af, in volgorde:</p><ul><li><code>opcache</code>. Ontbreekt deze op een productiehost, vraag dan waarom. Inschakelen op een matig drukke WordPress-site halveert het CPU-gebruik grofweg.</li><li><code>mysqli</code> en <code>pdo_mysql</code>. WordPress en de meeste CMS'en gebruiken standaard mysqli. Oudere code die nog rechtstreeks <code>mysql_*</code> aanroept is dood sinds PHP 7.0. Kom je dat tegen, dan is dat je bug.</li><li><code>gd</code> versus <code>imagick</code>. De WordPress <code>wp_image_editor</code> pakt stilzwijgend wat beschikbaar is. Ontbreken beide, dan blijft elke geüploade afbeelding op het originele formaat staan.</li><li><code>curl</code>. Geen curl betekent geen uitgaand HTTPS voor Wordfence, Akismet, of welke API-koppeling dan ook.</li><li><code>intl</code>. WooCommerce 8+ start niet zonder.</li><li><code>redis</code> of <code>memcached</code>. Aanwezigheid zegt dat de host een object cache verwacht. Afwezigheid betekent dat de Redis-backend van W3 Total Cache installeren zinloos is.</li><li><code>xdebug</code>. Zie je deze op een productiehost, haal hem eraf. Hij kost meetbare wall-clock tijd, ook als je niet actief aan het debuggen bent.</li></ul><p>Elke extensietabel toont ook de gecompileerde versie. Mismatches tussen wat je hier ziet en wat <code>composer.json</code> verwacht zijn de oorzaak van de helft van de "werkt op staging, breekt op productie"-tickets.</p><h2>Het env- en server-variabelenblok</h2><p>Onderaan staan drie tabellen die er bijna identiek uitzien en waar mensen over struikelen.</p><ul><li><code>Apache Environment</code> (of <code>Environment</code> bij FPM): variabelen die de webserver aan PHP doorgeeft.</li><li><code>HTTP Headers Information</code>: hoe de huidige request eruit zag.</li><li><code>PHP Variables</code>: de <code>$_SERVER</code>, <code>$_ENV</code> en <code>$_REQUEST</code> arrays zoals PHP ze op dit moment ziet.</li></ul><p>De interessante is meestal Environment. Op een shared host, kijk naar <code>DOCUMENT_ROOT</code> om te bevestigen in welke map je daadwerkelijk zit (gesymlinkte vhosts zijn standaard). Kijk naar <code>HTTP_X_FORWARDED_PROTO</code> als de site achter een load balancer hangt. Staat deze op <code>https</code> maar denkt PHP nog steeds dat de request HTTP is, dan moet je <code>wp-config.php</code> patchen:</p><pre><code class="lang-php">if (isset($_SERVER['HTTP_X_FORWARDED_PROTO'])
+    &amp;&amp; $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+}
+</code></pre><p>Kijk naar <code>PATH</code> om te zien welke shell-binaries <code>exec()</code>-aanroepen vinden. Hosts die PATH dichttimmeren tot <code>/usr/bin:/bin</code> breken plugins die uitwijken naar <code>wkhtmltopdf</code> in <code>/usr/local/bin</code>.</p><h2>De rij disable_functions</h2><p>Scroll in het Core-blok naar <code>disable_functions</code>. Op een hard dichtgezette shared host leest deze rij als een grafsteen:</p><pre><code>exec, passthru, shell_exec, system, proc_open, popen,
+curl_multi_exec, parse_ini_file, show_source, symlink
+</code></pre><p>Elk van die functies wordt ergens door een legitieme plugin gebruikt. Faalt een contactformulier stilletjes op een nieuwe host, dan is dit de eerste plek om te kijken. Het omgekeerde geldt ook: is deze rij leeg op een productiehost, behandel dat als een bevinding, niet als een feature. De <a href="https://owasp.org/www-project-php-configuration-cheat-sheet/">OWASP PHP configuration cheat sheet</a> raadt aan minstens de vier shell-spawnende functies uit te schakelen.</p><aside class="callout">Een phpinfo()-pagina op een publieke URL is een cadeau aan iedereen die je domein scant. Hij toont de PHP-versie, het OS, elke extensie, en vaak het volledige filesystem-pad naar je docroot. Verwijder het bestand zodra je klaar bent met lezen, of zet er tijdens je werk een basic-auth <code>.htaccess</code>-blok omheen.</aside><h2>Session, OPcache en upload-limieten</h2><p>Vier rijen onderaan die de meeste "het brak toen het bestand groot werd"-incidenten verklaren.</p><ul><li><code>upload_max_filesize</code> en <code>post_max_size</code>. De tweede moet groter zijn dan de eerste, en beide groter dan nginx's <code>client_max_body_size</code>. Faalt een upload van 12 MB stilletjes, dan is een van deze drie de oorzaak. Zie de <a href="https://www.php.net/manual/en/ini.core.php">php.net ini reference</a> voor de interactie.</li><li><code>memory_limit</code>. 256M is de moderne ondergrens voor WordPress. Alles lager en de block editor geeft een wit scherm bij lange berichten.</li><li><code>max_execution_time</code>. 30s is de default. Langlopende imports vragen hier een hogere waarde in een aparte FPM pool, niet globaal.</li><li><code>session.save_path</code>. Staat deze op <code>/tmp</code> op een shared host, dan worden sessies door de cron van iedere tenant opgeruimd. Hosts die sessies serieus nemen geven je een pad per gebruiker.</li></ul><p>Voor OPcache, check <code>opcache.enable=1</code> en <code>opcache.validate_timestamps</code>. Met timestamps uit hebben bestandswijzigingen pas effect na een reload van de pool. De juiste instelling voor productie, de verkeerde instelling voor "waarom verschijnt mijn CSS-wijziging niet".</p><h2>Wat we hier omheen bouwden</h2><p>Toen we <a href="/">Pier</a> bouwden liepen we steeds tegen hetzelfde patroon aan: tien minuten kwijt aan het opnieuw uitvogelen van diezelfde handvol phpinfo-feiten iedere keer dat we een klantsite openden. Wat we er uiteindelijk mee gedaan hebben is een permanente docked view die PHP-versie, ini-pad, geladen modules en disable_functions naast de bestandsboom toont, ververst bij elke nieuwe verbinding.</p><p>Het kleinste wat je vandaag kunt doen: zet een <code>phpinfo.php</code> in een staging site waar je toch al aan werkt, lees hem één keer van boven naar beneden met dit artikel ernaast, en verwijder daarna het bestand. De volgende keer dat een host je verrast, weet je naar welke sectie je moet scrollen.</p>
+    </div>
+
+    <aside class="pullquote">Een phpinfo()-pagina is een topografische kaart van de host: lees hem één keer van boven naar beneden en je bespaart jezelf het volgende uur gokwerk.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om phpinfo() op een productieserver te laten staan?</p>
+      <p class="faq-a">Nee. De pagina toont de PHP-versie, het OS, elke extensie en je docroot-pad, allemaal informatie die aanvallers sneller maakt. Verwijder het bestand zodra je het gelezen hebt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waar pas ik php.ini aan op shared hosting?</p>
+      <p class="faq-a">Meestal kan dat niet rechtstreeks. Kijk in phpinfo bij de scan-map-rij. De meeste shared hosts laten je een user.ini of een .htaccess php_value override neerzetten; cPanel heeft een MultiPHP INI Editor.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom staan mysqli en pdo_mysql allebei in de lijst?</p>
+      <p class="faq-a">Het zijn twee aparte extensies om dezelfde MySQL-clientlibrary heen. WordPress gebruikt mysqli; de meeste moderne frameworks gebruiken PDO. Beide geladen hebben is normaal en kost niets noemenswaardigs.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/htaccess-hardening-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/htaccess-hardening-cheatsheet/hero.jpg" alt="Bovenaanzicht van .htaccess-spiekbriefje op ruitjespapier, messing plaatje, stalen liniaal, rood potlood, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Elf .htaccess-directives die blijven, drie die eruit moeten</h3>
+      <span class="pc-lede">Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/drupal-7-pharma-hack-walkthrough/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.webp" type="image/webp">
+        <img src="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.jpg" alt="Bovenaanzicht op linnen: geannoteerde sitemap, .htaccess-vel, manilla map, cv-pagina, koperen Drupal 7-plaat, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Drupal 7 pharma hack: een oude uploads-injectie traceren</h3>
+      <span class="pc-lede">De Google-snippet van de klant zei &#39;Buy Cialis 20mg&#39; maar de pagina zelf zag er schoon uit. De Drupal 7 pharma hack traceren ging via htaccess cloaking.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/reading-phpinfo-output/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
