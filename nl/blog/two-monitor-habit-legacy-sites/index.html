@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Twee schermen, één blik: FTP en MySQL bij legacy sites · Pier — Blog</title>
+<meta name="description" content="Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, wordpress, mysql, ftp, php, databases">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/two-monitor-habit-legacy-sites/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/two-monitor-habit-legacy-sites/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Twee schermen, één blik: FTP en MySQL bij legacy sites">
+<meta property="og:description" content="Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht: twee vellen op linnen, inkt-FTP-boom en ER-diagram verbonden door rode draad, messing SEAM-plaatje ertussen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-27T01:10:45.566Z">
+<meta property="article:modified_time" content="2026-05-27T01:10:45.566Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Twee schermen, één blik: FTP en MySQL bij legacy sites">
+<meta name="twitter:description" content="Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht: twee vellen op linnen, inkt-FTP-boom en ER-diagram verbonden door rode draad, messing SEAM-plaatje ertussen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/two-monitor-habit-legacy-sites/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/"},
+  "url":"https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/",
+  "headline":"Twee schermen, één blik: FTP en MySQL bij legacy sites",
+  "description":"Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht: twee vellen op linnen, inkt-FTP-boom en ER-diagram verbonden door rode draad, messing SEAM-plaatje ertussen."
+  },
+  "datePublished":"2026-05-27T01:10:45.566Z",
+  "dateModified":"2026-05-27T01:10:45.566Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, wordpress, mysql, ftp, php, databases",
+  "wordCount":1015,
+  "articleSection":"Workflow",
+  "articleBody":"Een dinsdagmiddag. Een klant mailt: \"de meta description op /diensten noemt nog steeds de oude bedrijfsnaam.\" Je opent het themabestand. Het loopt door de wp_get_document_title -filterketen. Nergens een verwijzing naar de oude naam. Je opent wp_options , draait SELECT option_value FROM wp_options WHERE option_name = 'blogdescription' . Daar staat hij. Oude naam, voor het laatst aangeraakt in 2019. Twee vensters. Eén vraag. Vijf seconden. Dit bedoelen we met de twee-schermen-gewoonte op een legacy site . Niet letterlijk twee monitors, al schelen die wel. Het is het mentale model waarbij je bestandssysteem en database in hetzelfde gezichtsveld houdt, want op een 12 jaar oude PHP-installatie vertelt geen van beide je in zijn eentje de waarheid. De splitsing die je ogen al maken In een nieuwe Next.js- of Rails-app heeft \"waar staat deze string?\" één antwoord. In een oude WordPress-site heeft die vraag er zes. De string kan staan in de header.php van het actieve thema, in een child theme dat de parent overschrijft, in de wp_options -tabel , in wp_postmeta via Yoast of Rank Math, als constante in wp-config.php , of in een .htaccess -rewrite die de URL stilletjes naar een heel andere pagina aliast. De code lezen zonder de data te lezen is het halve verhaal. De data lezen zonder de code te lezen is de andere helft. De meeste bugs op een legacy site zitten op de naad daartussen. De vier opzoekacties die elk uur terugkomen Houd jezelf een dag in de gaten terwijl je aan een legacy WordPress-site werkt. Vier patronen blijven terugkomen. Code verwijst naar een meta-key, jij controleert de waarde. Een template draait get_post_meta($id, '_custom_layout', true) . Jij queryt: SELECT meta_value FROM wp_postmeta WHERE post_id = 412 AND meta_key = '_custom_layout'; Leeg. Daarom valt de layout terug op de standaardwaarde. Een rij verwijst naar een bestand, jij opent het bestand. wp_options.template zegt twentytwentyone-child . Je opent /wp-content/themes/twentytwentyone-child/style.css en de parent-declaratie wijst naar een thema dat drie jaar geleden is verwijderd. Een 500 in de browser, een stack trace in het log, een config in de rij. Apache-logs zeggen Allowed memory size of 134217728 bytes exhausted in /wp-includes/class-wp-query.php . De fix zit in wp-config.php via ini_set('memory_limit', '512M') , maar de oorzaak is misschien een op hol geslagen query tegen een wp_postmeta -tabel die inmiddels tot 1,4 miljoen rijen is gegroeid. Er duikt uit het niets een redirect op. De pagina geeft 200 terug op databaseniveau, 301 in de browser. De regel staat ofwel in .htaccess : RewriteEngine On RewriteRule ^old-url/?$ /new-url [R=301,L] of in een wp_redirection_items -tabel van een plugin, of in wp_options.siteurl dat naar een vervallen domein wijst. Je controleert alle drie voor je hem vindt. Stuk voor stuk twee-venster-klussen. Het ene venster is de FTP-tree. Het andere is een SQL-prompt. Eén scherm, op de juiste manier gesplitst Niet iedereen heeft het bureau voor twee schermen. De gewoonte werkt prima op één scherm zolang je de splitsing aanhoudt. De ene helft is de bestandsbrowser en editor. De andere helft is de database-client. Je tabt er niet tussendoor. Je kijkt opzij. Een paar tactische opmerkingen na jaren werken op deze manier, dwars door legacy WordPress, Drupal 7, Joomla 3 en Magento 1 heen: Houd de FTP-tree opengeklapt tot /wp-content/ . Daar zit 90% van de antwoorden. De core-mappen veranderen zelden. Stamp wp-content/themes , wp-content/plugins , wp-content/uploads en wp-content/mu-plugins in je geheugen. Pin vier query-templates vast. Eén voor wp_options op naam. Eén voor wp_postmeta op post-ID. Eén voor SHOW CREATE TABLE op elke tabel die je niet herkent. Eén voor wp_users op login. De meeste dagen heb je verder niks nodig. Lees .htaccess één keer aan het begin van elke sessie. Vertrouw daarna nooit op je geheugen ervan. Elke legacy site heeft een .htaccess die iemand in 2017 half heeft bewerkt en nooit heeft opgeruimd. De Apache RewriteRule-docs zijn de enige bron van waarheid op het moment dat de volgorde van flags geen hout meer snijdt. Open wp-config.php in alleen-lezen. Daar worden constanten gedeclareerd die de database niet kan zien, en waarden overschreven waarvan de database denkt dat ze er zelf de baas over is. WP_HOME , WP_SITEURL , $table_prefix . Als de prefix is gerandomiseerd, breekt elke query-template hierboven totdat je hem aanpast. Elke query hierboven gaat uit van de standaard wp_ -prefix. Op gehardende installs is die prefix vaak gerandomiseerd ( wp_a8f2_ , wp_xyz_ ). Controleer altijd $table_prefix in wp-config.php voor je SQL kopieert tussen sites. Een query die schoon draait op de ene klantinstallatie geeft nul rijen terug op de volgende, en jij verspilt twintig minuten met de data de schuld geven. Waarom de gewoonte zich uitbetaalt De reden dat dit telt is niet dat het tijd bespaart op één enkele opzoekactie. Het bespaart tijd op de opzoekactie waarvan je nog niet wist dat je hem nodig had",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Twee schermen, één blik: FTP en MySQL bij legacy sites","item":"https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Heb ik hier echt twee fysieke monitors voor nodig?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Eén scherm dat fiftyfifty is gesplitst tussen een FTP-bestandsboom en een SQL-editor werkt prima. De gewoonte zit in de layout, niet in de hardware."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom niet gewoon de WordPress-admin gebruiken om instellingen op te zoeken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De admin verbergt waarden, normaliseert geserialiseerde data, en laat je geen verweesde rijen zien. wp_options rechtstreeks lezen is sneller en eerlijker over wat er werkelijk opgeslagen staat."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Werkt deze gewoonte ook op moderne stacks?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Minder. Moderne stacks houden schema en code in sync via migraties. Op legacy PHP zijn die jaren geleden uit elkaar gegroeid, en dan wordt de visuele diff tussen bestandssysteem en database je debugger."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/two-monitor-habit-legacy-sites/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 050</span>
+      </div>
+      <p class="eyebrow"><span class="n">050 —</span>Workflow</p>
+      <h1 class="display-l post-title">Twee schermen, één blik: FTP en MySQL bij legacy sites</h1>
+      <p class="lede post-lede">Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T01:10:45.566Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/two-monitor-habit-legacy-sites/hero.webp" type="image/webp">
+      <img src="/blog/two-monitor-habit-legacy-sites/hero.jpg" alt="Bovenaanzicht: twee vellen op linnen, inkt-FTP-boom en ER-diagram verbonden door rode draad, messing SEAM-plaatje ertussen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 050</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een dinsdagmiddag. Een klant mailt: "de meta description op /diensten noemt nog steeds de oude bedrijfsnaam." Je opent het themabestand. Het loopt door de <code>wp_get_document_title</code>-filterketen. Nergens een verwijzing naar de oude naam. Je opent <code>wp_options</code>, draait <code>SELECT option_value FROM wp_options WHERE option_name = 'blogdescription'</code>. Daar staat hij. Oude naam, voor het laatst aangeraakt in 2019.</p>
+
+<p>Twee vensters. Eén vraag. Vijf seconden.</p>
+
+<p>Dit bedoelen we met de twee-schermen-gewoonte op een <a href="/">legacy site</a>. Niet letterlijk twee monitors, al schelen die wel. Het is het mentale model waarbij je bestandssysteem en database in hetzelfde gezichtsveld houdt, want op een 12 jaar oude PHP-installatie vertelt geen van beide je in zijn eentje de waarheid.</p>
+
+<h2>De splitsing die je ogen al maken</h2>
+
+<p>In een nieuwe Next.js- of Rails-app heeft "waar staat deze string?" één antwoord. In een oude WordPress-site heeft die vraag er zes. De string kan staan in de <code>header.php</code> van het actieve thema, in een child theme dat de parent overschrijft, in de <a href="https://codex.wordpress.org/Database_Description#Table:_wp_options"><code>wp_options</code>-tabel</a>, in <code>wp_postmeta</code> via Yoast of Rank Math, als constante in <code>wp-config.php</code>, of in een <code>.htaccess</code>-rewrite die de URL stilletjes naar een heel andere pagina aliast.</p>
+
+<p>De code lezen zonder de data te lezen is het halve verhaal. De data lezen zonder de code te lezen is de andere helft. De meeste bugs op een legacy site zitten op de naad daartussen.</p>
+
+<h2>De vier opzoekacties die elk uur terugkomen</h2>
+
+<p>Houd jezelf een dag in de gaten terwijl je aan een legacy WordPress-site werkt. Vier patronen blijven terugkomen.</p>
+
+<p><strong>Code verwijst naar een meta-key, jij controleert de waarde.</strong> Een template draait <code>get_post_meta($id, '_custom_layout', true)</code>. Jij queryt:</p>
+
+<pre><code class="lang-sql">SELECT meta_value
+FROM wp_postmeta
+WHERE post_id = 412
+  AND meta_key = '_custom_layout';</code></pre>
+
+<p>Leeg. Daarom valt de layout terug op de standaardwaarde.</p>
+
+<p><strong>Een rij verwijst naar een bestand, jij opent het bestand.</strong> <code>wp_options.template</code> zegt <code>twentytwentyone-child</code>. Je opent <code>/wp-content/themes/twentytwentyone-child/style.css</code> en de parent-declaratie wijst naar een thema dat drie jaar geleden is verwijderd.</p>
+
+<p><strong>Een 500 in de browser, een stack trace in het log, een config in de rij.</strong> Apache-logs zeggen <code>Allowed memory size of 134217728 bytes exhausted in /wp-includes/class-wp-query.php</code>. De fix zit in <code>wp-config.php</code> via <code>ini_set('memory_limit', '512M')</code>, maar de oorzaak is misschien een op hol geslagen query tegen een <code>wp_postmeta</code>-tabel die inmiddels tot 1,4 miljoen rijen is gegroeid.</p>
+
+<p><strong>Er duikt uit het niets een redirect op.</strong> De pagina geeft 200 terug op databaseniveau, 301 in de browser. De regel staat ofwel in <code>.htaccess</code>:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+RewriteRule ^old-url/?$ /new-url [R=301,L]</code></pre>
+
+<p>of in een <code>wp_redirection_items</code>-tabel van een plugin, of in <code>wp_options.siteurl</code> dat naar een vervallen domein wijst. Je controleert alle drie voor je hem vindt.</p>
+
+<p>Stuk voor stuk twee-venster-klussen. Het ene venster is de FTP-tree. Het andere is een SQL-prompt.</p>
+
+<h2>Eén scherm, op de juiste manier gesplitst</h2>
+
+<p>Niet iedereen heeft het bureau voor twee schermen. De gewoonte werkt prima op één scherm zolang je de splitsing aanhoudt. De ene helft is de bestandsbrowser en editor. De andere helft is de database-client. Je tabt er niet tussendoor. Je kijkt opzij.</p>
+
+<p>Een paar tactische opmerkingen na jaren werken op deze manier, dwars door legacy WordPress, Drupal 7, Joomla 3 en Magento 1 heen:</p>
+
+<ul>
+  <li><strong>Houd de FTP-tree opengeklapt tot <code>/wp-content/</code>.</strong> Daar zit 90% van de antwoorden. De core-mappen veranderen zelden. Stamp <code>wp-content/themes</code>, <code>wp-content/plugins</code>, <code>wp-content/uploads</code> en <code>wp-content/mu-plugins</code> in je geheugen.</li>
+  <li><strong>Pin vier query-templates vast.</strong> Eén voor <code>wp_options</code> op naam. Eén voor <code>wp_postmeta</code> op post-ID. Eén voor <code>SHOW CREATE TABLE</code> op elke tabel die je niet herkent. Eén voor <code>wp_users</code> op login. De meeste dagen heb je verder niks nodig.</li>
+  <li><strong>Lees <code>.htaccess</code> één keer aan het begin van elke sessie.</strong> Vertrouw daarna nooit op je geheugen ervan. Elke legacy site heeft een <code>.htaccess</code> die iemand in 2017 half heeft bewerkt en nooit heeft opgeruimd. De <a href="https://httpd.apache.org/docs/current/mod_rewrite/rewriterule.html">Apache RewriteRule-docs</a> zijn de enige bron van waarheid op het moment dat de volgorde van flags geen hout meer snijdt.</li>
+  <li><strong>Open <code>wp-config.php</code> in alleen-lezen.</strong> Daar worden constanten gedeclareerd die de database niet kan zien, en waarden overschreven waarvan de database denkt dat ze er zelf de baas over is. <code>WP_HOME</code>, <code>WP_SITEURL</code>, <code>$table_prefix</code>. Als de prefix is gerandomiseerd, breekt elke query-template hierboven totdat je hem aanpast.</li>
+</ul>
+
+<aside class="callout">Elke query hierboven gaat uit van de standaard <code>wp_</code>-prefix. Op gehardende installs is die prefix vaak gerandomiseerd (<code>wp_a8f2_</code>, <code>wp_xyz_</code>). Controleer altijd <code>$table_prefix</code> in <code>wp-config.php</code> voor je SQL kopieert tussen sites. Een query die schoon draait op de ene klantinstallatie geeft nul rijen terug op de volgende, en jij verspilt twintig minuten met de data de schuld geven.</aside>
+
+<h2>Waarom de gewoonte zich uitbetaalt</h2>
+
+<p>De reden dat dit telt is niet dat het tijd bespaart op één enkele opzoekactie. Het bespaart tijd op de opzoekactie waarvan je nog niet wist dat je hem nodig had. Zodra bestandssysteem en database in dezelfde oogopslag zitten, zie je de naad zonder erover na te denken. Je merkt op dat het template een optie verwacht die er niet staat. Je merkt op dat de databaserij verwijst naar een bestand dat is hernoemd. De mismatches komen visueel boven, niet via deductie.</p>
+
+<p>Dit is het stuk dat zich niet laat vertalen naar werken op een verse stack. In een moderne app worden schema en code in sync gehouden door migraties en ORM's. In een legacy PHP-site werden ze in sync gehouden door een developer die in 2018 vertrokken is, en sindsdien zijn ze uit elkaar gedreven. Jij bent nu de migratie. Jouw ogen zijn de diff.</p>
+
+<p>Toen we Pier bouwden liepen we hier bij iedere klantinstallatie tegenaan. Wat we uiteindelijk hebben gedaan is de bestandstree en de <a href="/#database">MySQL editor</a> in hetzelfde venster zetten, naast elkaar, met <a href="/#features">version history</a> die de wijzigingen aan beide kanten tegelijk bijhoudt. De naad blijft zichtbaar zonder dat je alt-tabt, en dat is precies het punt van de gewoonte.</p>
+
+<p>Het kleinste wat je vandaag kunt proberen: open je huidige legacy-project, splits de editor zodat de bestandstree naast een SQL-prompt staat, en draai één query tegen <code>wp_options</code> voor een optie-naam waar je actieve thema naar verwijst. Wat je ook vindt, het vertelt je iets dat de code niet liet zien.</p>
+    </div>
+
+    <aside class="pullquote">Op legacy PHP-sites zijn schema en code jaren geleden uit elkaar gedreven. Houd bestandssysteem en database in één oogopslag bij elkaar en de mismatches komen visueel boven, niet via deductie.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Heb ik hier echt twee fysieke monitors voor nodig?</p>
+      <p class="faq-a">Nee. Eén scherm dat fiftyfifty is gesplitst tussen een FTP-bestandsboom en een SQL-editor werkt prima. De gewoonte zit in de layout, niet in de hardware.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom niet gewoon de WordPress-admin gebruiken om instellingen op te zoeken?</p>
+      <p class="faq-a">De admin verbergt waarden, normaliseert geserialiseerde data, en laat je geen verweesde rijen zien. wp_options rechtstreeks lezen is sneller en eerlijker over wat er werkelijk opgeslagen staat.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Werkt deze gewoonte ook op moderne stacks?</p>
+      <p class="faq-a">Minder. Moderne stacks houden schema en code in sync via migraties. Op legacy PHP zijn die jaren geleden uit elkaar gegroeid, en dan wordt de visuele diff tussen bestandssysteem en database je debugger.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>MySQL collation-mismatches: een veldgids voor lege resultaten</h3>
+      <span class="pc-lede">Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/9gb-restore-partial-dump-ftp-shards/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.webp" type="image/webp">
+        <img src="/nl/blog/9gb-restore-partial-dump-ftp-shards/hero.jpg" alt="Bovenaanzicht werkbank met afgekapte mysqldump-print, drie manila FTP-mappen, herstellog, messing RESTORE-plaat, gelakte envelop." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>9GB site herstellen: kapotte dump en drie FTP-shards</h3>
+      <span class="pc-lede">Een middag besteed aan het samenrapen van een 9GB WordPress-site uit één afgekapte mysqldump en drie half kapotte FTP-backups. Dit is het herstelverslag.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/two-monitor-habit-legacy-sites/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
