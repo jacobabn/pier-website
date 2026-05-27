@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento CSV-import zonder downtime: 9.000 rijen wisselen · Pier — Blog</title>
+<meta name="description" content="Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, php, databases, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento CSV-import zonder downtime: 9.000 rijen wisselen">
+<meta property="og:description" content="Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-27T02:04:41.832Z">
+<meta property="article:modified_time" content="2026-05-27T02:04:41.832Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento CSV-import zonder downtime: 9.000 rijen wisselen">
+<meta name="twitter:description" content="Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/"},
+  "url":"https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/",
+  "headline":"Magento CSV-import zonder downtime: 9.000 rijen wisselen",
+  "description":"Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen."
+  },
+  "datePublished":"2026-05-27T02:04:41.832Z",
+  "dateModified":"2026-05-27T02:04:41.832Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, mysql, php, databases, operations, workflow",
+  "wordCount":1507,
+  "articleSection":"Magento",
+  "articleBody":"De Loom van 23:41 Op een dinsdag om 23:41 viel er een Loom-link binnen. Twaalf minuten schermopname van de lead developer van een Nederlands bureau, stem strak, terwijl hij zijn terminal toelichtte. Hun grootste Magento 2.4.5-klant (ongeveer €4M per jaar in B2B-onderdelen en accessoires) had net een product-CSV van 9.043 rijen van de leverancier binnengekregen. Nieuwe prijzen, nieuwe voorraadstanden, achttien nieuwe SKU's, plus herschreven omschrijvingen op ruwweg de helft van de catalogus. De klant wilde alles live hebben vóór 06:00, want dan logden de eerste groothandelskopers in. De vorige poging, twee weken eerder, had de webshop 38 minuten uit de lucht gehaald. Categoriepagina's gaven 502's. Cart-updates liepen op timeouts. Admin-sessies bleven hangen. Uiteindelijk hebben ze MySQL herstart, daarbij twee rijen uit de import verloren en de hele volgende dag besteed aan reconcilen. De vraag van de lead op die Loom was rechttoe: hoe vervangen we 9.000 rijen Magento-productdata zonder dat de site eruit ligt? Dit is de post-mortem van die nacht. Namen weggelaten, elk commando en elk SQL-fragment is wat we daadwerkelijk hebben gedraaid of geadviseerd. Waar de native importer van Magento afhaakt De Magento_ImportExport -module van Magento 2 is voor precies dit werk gebouwd. bin/magento import:products of de admin-UI werken prima voor CSV's van bescheiden omvang. Het wordt pas vervelend als de import breed is (veel attributen per rij) en de catalogus tegelijk live URL-rewrites, multi-store, MSI-voorraad en tier prices heeft draaien. Elke opgeslagen rij triggert writes tegen: catalog_product_entity en bijbehorende EAV-tabellen _int , _varchar , _text , _decimal url_rewrite , bij elke wijziging van een URL-key (en Magento herschrijft de rewrite bij elke save, ook als de key feitelijk niet veranderd is) cataloginventory_stock_item en de MSI-tabel inventory_source_item De partities van catalog_product_index_price , één per customer group De full-text search index ( catalogsearch_fulltext_scope1 op MySQL, de Elasticsearch-index als die geconfigureerd is) Op een drukke shop botsen die writes met reads van categoriepagina's, layered navigation en de cart. Het InnoDB-deadlocklog loopt vol met steeds dezelfde regel: SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying to get lock; try restarting transaction, query was: UPDATE `catalog_product_index_price` SET ... Zodra er genoeg deadlocks opstapelen, retryt de importjob, faalt, en herstart óf vanaf rij 1 óf slaat de gefaalde rijen volledig over, afhankelijk van welke modus je hebt gekozen. Tegen die tijd hapt de frontend al naar adem. De CSV en de importjob opknippen De eerste fix is weinig spannend. Stop met proberen 9.000 rijen in één transactie te importeren. Magento's async bulk API bestaat precies hiervoor. We hebben de leverancier-CSV met een korte shell-loop in chunks van 300 rijen geknipt: cd /var/www/magento/var/import mkdir chunks tail -n +2 supplier-2026-05.csv | split -l 300 -d - chunks/products- head -n 1 supplier-2026-05.csv > header.csv for f in chunks/products-*; do cat header.csv \"$f\" > \"$f.csv\" && rm \"$f\" done ls chunks/ | wc -l # 31 Eenendertig chunks van ongeveer 300 rijen. Elke chunk duurt 40 tot 90 seconden om te importeren op de bak van deze klant (8 vCPU, 16 GB RAM, RDS MySQL 8.0). Sequentieel draaien met een kleine sleep ertussen, en de frontend blijft responsief. Voor de eigenlijke import gebruikten we de async bulk REST endpoints in plaats van de CLI. De async-route zet jobs in RabbitMQ en een consumer verwerkt ze één voor één, precies wat we wilden. De setup is twee blokken in app/etc/env.php : 'queue' => [ 'consumers_wait_for_messages' => 0, ], 'cron_consumers_runner' => [ 'cron_run' => true, 'max_messages' => 100, 'consumers' => ['async.operations.all'], ], Start de consumer daarna één keer met een enkele worker, zodat de chunks op volgorde worden afgewerkt: bin/magento queue:consumers:start async.operations.all \\ --single-thread --max-messages=10000 & Indexer-modi en het schuifwerk De grootste winst kwam uit het op manual zetten van élke indexer vóór de import begon. Standaard staan Magento's indexers op Update on Save, wat betekent dat elke rij-write een partiële reindex triggert van price, stock, EAV en search. Vermenigvuldig dat met 9.000 en de rekensom wordt lelijk. De indexer-documentatie dekt de modi maar zwijgt over de operationele consequenties. bin/magento indexer:set-mode manual bin/magento indexer:status # Design Config Grid Manual Updates # Customer Grid Manual Updates # Category Products Manual Updates # Product Categories Manual Updates # Product Price Manual Updates # Product EAV Manual Updates # Stock Manual Updates # Catalog Rule Product Manual Updates # Catalog Product Rule Manual Updates # Catalog Search Manual Updates # Inventory Manual Updates Met de indexers uit, schrijft de import alleen naar de brontabellen. Reads vanuit de storefront blijven de eerder opgebouwde indextabellen raken, en die houden",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento CSV-import zonder downtime: 9.000 rijen wisselen","item":"https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan dit ook met bin/magento import:products in plaats van de async API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, maar de CLI draait synchroon en een import van 9.000 rijen in één proces loopt al snel in deadlocks. Door de CSV op te knippen en het async bulk endpoint te gebruiken, kun je tussen chunks in elk geval even pauzeren."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Verlies je data als je indexers op manual zet?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Wijzigingen op entities worden bijgehouden in de mview changelog-tabellen (de _cl-tabellen). Bij een reindex worden ze in partial mode opnieuw afgespeeld. Vergeet niet om de indexers daarna terug te zetten op Update by Schedule."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe zit het met de reindex-tijd van Elasticsearch op een grote catalogus?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "catalogsearch_fulltext kan tegen een grote index meerdere minuten duren. Draai hem als laatste, accepteer kortstondig verouderde zoekresultaten, of doe een partiële reindex tegen alleen de gewijzigde SKU's."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-csv-import-without-downtime/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 051</span>
+      </div>
+      <p class="eyebrow"><span class="n">051 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento CSV-import zonder downtime: 9.000 rijen wisselen</h1>
+      <p class="lede post-lede">Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T02:04:41.832Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+      <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 051</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De Loom van 23:41</h2>
+<p>Op een dinsdag om 23:41 viel er een Loom-link binnen. Twaalf minuten schermopname van de lead developer van een Nederlands bureau, stem strak, terwijl hij zijn terminal toelichtte. Hun grootste Magento 2.4.5-klant (ongeveer €4M per jaar in B2B-onderdelen en accessoires) had net een product-CSV van 9.043 rijen van de leverancier binnengekregen. Nieuwe prijzen, nieuwe voorraadstanden, achttien nieuwe SKU's, plus herschreven omschrijvingen op ruwweg de helft van de catalogus. De klant wilde alles live hebben vóór 06:00, want dan logden de eerste groothandelskopers in.</p>
+<p>De vorige poging, twee weken eerder, had de webshop 38 minuten uit de lucht gehaald. Categoriepagina's gaven 502's. Cart-updates liepen op timeouts. Admin-sessies bleven hangen. Uiteindelijk hebben ze MySQL herstart, daarbij twee rijen uit de import verloren en de hele volgende dag besteed aan reconcilen. De vraag van de lead op die Loom was rechttoe: hoe vervangen we 9.000 rijen Magento-productdata zonder dat de site eruit ligt?</p>
+<p>Dit is de post-mortem van die nacht. Namen weggelaten, elk commando en elk SQL-fragment is wat we daadwerkelijk hebben gedraaid of geadviseerd.</p>
+
+<h2>Waar de native importer van Magento afhaakt</h2>
+<p>De <code>Magento_ImportExport</code>-module van Magento 2 is voor precies dit werk gebouwd. <code>bin/magento import:products</code> of de admin-UI werken prima voor CSV's van bescheiden omvang. Het wordt pas vervelend als de import breed is (veel attributen per rij) en de catalogus tegelijk live URL-rewrites, multi-store, MSI-voorraad en tier prices heeft draaien. Elke opgeslagen rij triggert writes tegen:</p>
+<ul>
+<li><code>catalog_product_entity</code> en bijbehorende EAV-tabellen <code>_int</code>, <code>_varchar</code>, <code>_text</code>, <code>_decimal</code></li>
+<li><code>url_rewrite</code>, bij elke wijziging van een URL-key (en Magento herschrijft de rewrite bij elke save, ook als de key feitelijk niet veranderd is)</li>
+<li><code>cataloginventory_stock_item</code> en de MSI-tabel <code>inventory_source_item</code></li>
+<li>De partities van <code>catalog_product_index_price</code>, één per customer group</li>
+<li>De full-text search index (<code>catalogsearch_fulltext_scope1</code> op MySQL, de Elasticsearch-index als die geconfigureerd is)</li>
+</ul>
+<p>Op een drukke shop botsen die writes met reads van categoriepagina's, layered navigation en de cart. Het <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-deadlocks.html">InnoDB-deadlocklog</a> loopt vol met steeds dezelfde regel:</p>
+<pre><code class="lang-text">SQLSTATE[40001]: Serialization failure: 1213 Deadlock found when trying
+to get lock; try restarting transaction, query was: UPDATE
+`catalog_product_index_price` SET ...</code></pre>
+<p>Zodra er genoeg deadlocks opstapelen, retryt de importjob, faalt, en herstart óf vanaf rij 1 óf slaat de gefaalde rijen volledig over, afhankelijk van welke modus je hebt gekozen. Tegen die tijd hapt de frontend al naar adem.</p>
+
+<h2>De CSV en de importjob opknippen</h2>
+<p>De eerste fix is weinig spannend. Stop met proberen 9.000 rijen in één transactie te importeren. Magento's async bulk API bestaat precies hiervoor. We hebben de leverancier-CSV met een korte shell-loop in chunks van 300 rijen geknipt:</p>
+<pre><code class="lang-bash">cd /var/www/magento/var/import
+mkdir chunks
+tail -n +2 supplier-2026-05.csv | split -l 300 -d - chunks/products-
+head -n 1 supplier-2026-05.csv &gt; header.csv
+for f in chunks/products-*; do
+  cat header.csv "$f" &gt; "$f.csv" &amp;&amp; rm "$f"
+done
+ls chunks/ | wc -l
+# 31</code></pre>
+<p>Eenendertig chunks van ongeveer 300 rijen. Elke chunk duurt 40 tot 90 seconden om te importeren op de bak van deze klant (8 vCPU, 16 GB RAM, RDS MySQL 8.0). Sequentieel draaien met een kleine sleep ertussen, en de frontend blijft responsief.</p>
+<p>Voor de eigenlijke import gebruikten we de <a href="https://developer.adobe.com/commerce/webapi/rest/use-rest/bulk-endpoints/">async bulk REST endpoints</a> in plaats van de CLI. De async-route zet jobs in RabbitMQ en een consumer verwerkt ze één voor één, precies wat we wilden. De setup is twee blokken in <code>app/etc/env.php</code>:</p>
+<pre><code class="lang-php">'queue' =&gt; [
+    'consumers_wait_for_messages' =&gt; 0,
+],
+'cron_consumers_runner' =&gt; [
+    'cron_run' =&gt; true,
+    'max_messages' =&gt; 100,
+    'consumers' =&gt; ['async.operations.all'],
+],</code></pre>
+<p>Start de consumer daarna één keer met een enkele worker, zodat de chunks op volgorde worden afgewerkt:</p>
+<pre><code class="lang-bash">bin/magento queue:consumers:start async.operations.all \
+  --single-thread --max-messages=10000 &amp;</code></pre>
+
+<h2>Indexer-modi en het schuifwerk</h2>
+<p>De grootste winst kwam uit het op manual zetten van élke indexer vóór de import begon. Standaard staan Magento's indexers op Update on Save, wat betekent dat elke rij-write een partiële reindex triggert van price, stock, EAV en search. Vermenigvuldig dat met 9.000 en de rekensom wordt lelijk. De <a href="https://developer.adobe.com/commerce/php/development/components/indexing/">indexer-documentatie</a> dekt de modi maar zwijgt over de operationele consequenties.</p>
+<pre><code class="lang-bash">bin/magento indexer:set-mode manual
+bin/magento indexer:status
+# Design Config Grid           Manual Updates
+# Customer Grid                Manual Updates
+# Category Products            Manual Updates
+# Product Categories           Manual Updates
+# Product Price                Manual Updates
+# Product EAV                  Manual Updates
+# Stock                        Manual Updates
+# Catalog Rule Product         Manual Updates
+# Catalog Product Rule         Manual Updates
+# Catalog Search               Manual Updates
+# Inventory                    Manual Updates</code></pre>
+<p>Met de indexers uit, schrijft de import alleen naar de brontabellen. Reads vanuit de storefront blijven de eerder opgebouwde indextabellen raken, en die houden nog steeds de data van gisterenavond vast. De bezoeker ziet voor de duur van de import de prijzen van gisteren. Voor deze klant, die expliciet zei dat 30 minuten oude prijzen prima zijn maar downtime niet, was dat de juiste afweging.</p>
+<aside class="callout"><strong>De MSI-valkuil.</strong> Draai je Magento 2.4 met multi-source inventory en importeer je rijen die <code>qty</code> of <code>is_in_stock</code> wijzigen, dan probeert <code>inventory_source_item</code> via een save observer alsnog te syncen naar <code>cataloginventory_stock_item</code>, ongeacht de indexer-modus. Wij hebben dat omzeild door de import tegen één default source (<code>source_code=default</code>) te draaien en de MSI-sync onderdeel te laten zijn van de post-import reindex. Heeft je catalogus meerdere fysieke sources, dan zul je een eigen plugin moeten schrijven om die observer uit te stellen.</aside>
+
+<h2>Reindexen zonder de catalogus offline te halen</h2>
+<p>Toen de laatste chunk binnen was, hadden we 9.043 rijen bijgewerkt, indexers onaangeroerd, frontend nog steeds netjes serverend. Het volgende probleem was reindexen zonder dezelfde outage van 38 minuten te reproduceren.</p>
+<p>De default <code>bin/magento indexer:reindex</code> draait elke indexer op volgorde en bouwt ze from scratch op. Op een catalogus van deze omvang neemt de price-reindex alleen al 6 tot 9 minuten en houdt <code>catalog_product_index_price</code> het grootste deel van die tijd op slot. Queries van categoriepagina's die daartegen joinen schuiven netjes in de wachtrij achter de rebuild.</p>
+<p>In plaats daarvan hebben we selectief gereindexed, in volgorde van afhankelijkheid, en elke indexer apart aangeroepen zodat we ertussen konden pauzeren:</p>
+<pre><code class="lang-bash">bin/magento indexer:reindex catalog_product_attribute
+bin/magento indexer:reindex catalog_product_price
+bin/magento indexer:reindex inventory
+bin/magento indexer:reindex cataloginventory_stock
+bin/magento indexer:reindex catalogrule_product
+bin/magento indexer:reindex catalog_category_product
+bin/magento indexer:reindex catalogsearch_fulltext</code></pre>
+<p>Voor de price-indexer, de zwaarste, hebben we een partiële reindex tegen alleen de gewijzigde SKU's gedraaid. Magento heeft per indexer een <code>_cl</code>-changelogtabel (<code>catalog_product_price_cl</code>), normaal alleen gebruikt in scheduled mode, maar die kun je ook handmatig vullen:</p>
+<pre><code class="lang-sql">INSERT INTO catalog_product_price_cl (entity_id)
+SELECT entity_id FROM catalog_product_entity
+WHERE sku IN (SELECT sku FROM tmp_changed_skus);
+
+-- Then trigger a partial reindex via the MView
+UPDATE mview_state SET status = 'idle', mode = 'enabled'
+WHERE view_id = 'catalog_product_price';</code></pre>
+<p>De partiële reindex deed er 41 seconden over tegen 9.043 SKU's, versus 7 minuten voor een volledige rebuild. Het grootste deel van die 41 seconden zat in de customer-group fan-out: deze klant heeft vier groepen (Guest, Retail, Wholesale, B2B-Tier), waardoor de indextabel bij elke cyclus aangroeit tot circa 36.000 rijen.</p>
+<p>Tot slot de cache. De verleiding is <code>bin/magento cache:flush</code>, wat álles platlegt inclusief de cart- en session-cache. Doe het niet. Gerichte invalidatie per tag is genoeg:</p>
+<pre><code class="lang-bash">bin/magento cache:clean config block_html full_page
+# leave layout, collections, db_ddl, eav, integration alone</code></pre>
+
+<h2>Wat we volgende keer anders doen</h2>
+<p>Het werkte. De hele klus liep van 02:18 tot 03:04. De p95 response time van de storefront bleef de hele tijd onder 800ms. De leverancier-CSV stond binnen, prijzen en voorraad waren om 03:10 live, de lead developer sliep door tot 11:00.</p>
+<p>Twee dingen zouden we anders doen. Eén, het URL-rewrite-probleem. Magento herschreef de hele <code>url_rewrite</code>-tabel voor producten waarvan de URL-key feitelijk niet was veranderd, omdat de importer de kolom in de CSV ziet staan en hem klakkeloos wegschrijft. De fix is om de <code>url_key</code>-kolom volledig uit de import-CSV te slopen als de keys niet wijzigen. Dat hebben we gedaan op chunks 4 tot en met 31 en daarmee circa 80.000 rij-writes op <code>url_rewrite</code> uitgespaard.</p>
+<p>Twee, de leverancier zou niet elke maand de hele catalogus moeten sturen als er maar een fractie van de rijen verandert. Een pre-import diff tegen de CSV van de vorige maand bracht de daadwerkelijke import de cyclus erna terug tot 1.247 rijen. <code>awk</code> is daar genoeg voor:</p>
+<pre><code class="lang-bash">awk -F',' 'NR==FNR{a[$1]=$0; next} a[$1]!=$0' \
+  prev-month.csv supplier-2026-06.csv &gt; delta.csv
+wc -l delta.csv
+# 1248 (header + 1247 changes)</code></pre>
+<p>Toen we <a href="/">Pier</a> bouwden, kwamen we precies dit soort werk telkens tegen: kleine bureaus die in een live Magento- of WordPress-database moeten poken via een <a href="/#database">MySQL editor</a> zonder hem op slot te zetten, en die een betrouwbare <a href="/#features">version history</a> willen wanneer iets om 02:00 alsnog scheefloopt. We hebben het uiteindelijk opgelost door elke wijziging in een snapshot per change te wikkelen die met één klik terugrolt. Dat is wat het bureau hierboven nu gebruikt om de maandelijkse delta-CSV en de onvermijdelijke losse SQL-tweaks te stagen, zonder ooit nog phpMyAdmin te openen.</p>
+
+<h2>Het kleinste dat je morgen kunt proberen</h2>
+<p>Open een staging-Magento, draai <code>bin/magento indexer:set-mode manual</code>, importeer een kleine CSV en kijk wat er met de response time van de storefront gebeurt. Heb je de indexer-modus nog nooit live zien omklappen, dan is het verschil het soort ding dat je je herinnert zodra iemand je een leverancier-dump van 9.000 rijen aanreikt.</p>
+    </div>
+
+    <aside class="pullquote">Zet voor een grote CSV-import elke Magento-indexer op manual; de storefront blijft de index van gisteren serveren terwijl de catalogus eronder wordt herschreven.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan dit ook met bin/magento import:products in plaats van de async API?</p>
+      <p class="faq-a">Ja, maar de CLI draait synchroon en een import van 9.000 rijen in één proces loopt al snel in deadlocks. Door de CSV op te knippen en het async bulk endpoint te gebruiken, kun je tussen chunks in elk geval even pauzeren.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Verlies je data als je indexers op manual zet?</p>
+      <p class="faq-a">Nee. Wijzigingen op entities worden bijgehouden in de mview changelog-tabellen (de _cl-tabellen). Bij een reindex worden ze in partial mode opnieuw afgespeeld. Vergeet niet om de indexers daarna terug te zetten op Update by Schedule.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe zit het met de reindex-tijd van Elasticsearch op een grote catalogus?</p>
+      <p class="faq-a">catalogsearch_fulltext kan tegen een grote index meerdere minuten duren. Draai hem als laatste, accepteer kortstondig verouderde zoekresultaten, of doe een partiële reindex tegen alleen de gewijzigde SKU&#39;s.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Magento 2 indexer vastgelopen: herstel zonder orderverlies</h3>
+      <span class="pc-lede">Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>40GB wp_options autoload: één nacht terug naar 800ms TTFB</h3>
+      <span class="pc-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
