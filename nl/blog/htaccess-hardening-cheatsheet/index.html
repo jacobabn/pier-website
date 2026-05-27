@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Elf .htaccess-directives die blijven, drie die eruit moeten · Pier — Blog</title>
+<meta name="description" content="Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="htaccess, security, wordpress, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Elf .htaccess-directives die blijven, drie die eruit moeten">
+<meta property="og:description" content="Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van .htaccess-spiekbriefje op ruitjespapier, messing plaatje, stalen liniaal, rood potlood, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-27T00:17:34.057Z">
+<meta property="article:modified_time" content="2026-05-27T00:17:34.057Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Elf .htaccess-directives die blijven, drie die eruit moeten">
+<meta name="twitter:description" content="Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van .htaccess-spiekbriefje op ruitjespapier, messing plaatje, stalen liniaal, rood potlood, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/htaccess-hardening-cheatsheet/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/"},
+  "url":"https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/",
+  "headline":"Elf .htaccess-directives die blijven, drie die eruit moeten",
+  "description":"Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van .htaccess-spiekbriefje op ruitjespapier, messing plaatje, stalen liniaal, rood potlood, lakzegel."
+  },
+  "datePublished":"2026-05-27T00:17:34.057Z",
+  "dateModified":"2026-05-27T00:17:34.057Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"htaccess, security, wordpress, php, operations",
+  "wordCount":1013,
+  "articleSection":"Security",
+  "articleBody":"Een Nederlands bureau waar we mee werken erfde vorige maand een WordPress-installatie uit 2014. Het eerste wat de senior developer deed: .htaccess openen in vim, langs het WordPress rewrite-blok scrollen, en 38 regels tellen die een vorige freelancer er door de jaren heen in had geplakt. Twee deden echt nuttig werk. Eén maakte de site actief trager. De rest was opvulling uit oude Stack Overflow-antwoorden. Als je verouderde sites onderhoudt, is dat bestand waarschijnlijk je belangrijkste beveiligingsartefact. Het draait bij elke request, het overschrijft de serverconfig zonder restart, en het is bijna altijd fout tegen de tijd dat jij het vindt. Hieronder de werkset die wij paraat houden: elf .htaccess-directives die hun plek verdienen op een typische WordPress-, Joomla- of custom-PHP-installatie, plus drie die behulpzaam lijken en je stilletjes pijn doen. Elf directives die blijven staan We gaan uit van Apache 2.4 met mod_rewrite , mod_headers en mod_expires aan. Zet ze in de .htaccess van de site-root, tenzij anders vermeld. 1. Forceer HTTPS RewriteEngine On RewriteCond %{HTTPS} !=on RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L] Plaats dit boven het WordPress-blok. De [L] -flag stopt verdere rewrites op de redirect zelf, wat de loop voorkomt die je krijgt als een latere regel het al doorverwezen request opnieuw rewrite. 2. HSTS Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\" Eén jaar, subdomeinen meegerekend. Sla preload over tot je zeker weet dat elk subdomein HTTPS is en dat ook blijft. Zie MDN over HSTS voor het preload-voorbehoud. 3. Zet directory listing uit Options -Indexes Als een map geen indexbestand heeft en Indexes staat aan, dan toont Apache de inhoud. Zo komen klant-PDF's uit een vergeten /uploads/2019/ -map alsnog in Google terecht. 4. Bescherm dotfiles <FilesMatch \"^\\.ht\"> Require all denied </FilesMatch> Meestal standaard in meegeleverde Apache-configs, maar op shared hosting is het de moeite om expliciet te zijn. Verbreed het patroon naar \"^\\.\" als je ook losse .env of .git -bestanden wilt blokkeren. 5. Vergrendel het configbestand <Files wp-config.php> Require all denied </Files> Joomla's tegenhanger is configuration.php , Drupal gebruikt sites/default/settings.php , Magento 1 heeft app/etc/local.xml . Blokkeer degene die jouw stack ook echt gebruikt. 6. nosniff Header set X-Content-Type-Options \"nosniff\" Voorkomt dat browsers de Content-Type die jij stuurt gaan tegenspreken, het mechanisme achter een klasse MIME-confusion-aanvallen op door gebruikers geüploade bestanden. 7. Frame deny Header set X-Frame-Options \"SAMEORIGIN\" Of zet Content-Security-Policy: frame-ancestors 'self' als je al een CSP hebt. Kies er één, niet allebei, anders kunnen browsers het oneens worden over de volgorde. 8. Referrer-policy Header set Referrer-Policy \"strict-origin-when-cross-origin\" Snijdt de lange staart af van sessietokens en admin-URL's die anders in de Referer -header lekken wanneer een redacteur op een externe link klikt. 9. Blokkeer xmlrpc.php <Files xmlrpc.php> Require all denied </Files> Tenzij je nog de Jetpack mobile-API of pingback gebruikt, heb je hem niet nodig. xmlrpc.php is het meest brute-forced endpoint op het moderne WordPress-web. 10. Geen PHP-uitvoering in uploads # wp-content/uploads/.htaccess (of sites/default/files/.htaccess op Drupal) <FilesMatch \"\\.(php|phtml|phps|php\\d+)$\"> Require all denied </FilesMatch> Dit is de directive die voorkomt dat een kwetsbaar uploadformulier in remote code execution verandert. Hij hoort in de uploads-map, niet in de site-root. 11. Beperk de request body LimitRequestBody 10485760 10 MB. Kies een getal dat past bij je werkelijke uploadgrootte en bij je PHP upload_max_filesize . De default is ongelimiteerd, en zo loopt één curl-loop op een vergeten endpoint de disk leeg. Drie directives die je stilletjes pijn doen Deze gooien we er meteen uit. Elk ziet er beveiligend uit. Elk maakt de situatie actief slechter. Wildcard CORS Header set Access-Control-Allow-Origin \"*\" Bijna altijd erin geplakt om een font-loading-fout tijdens development op te lossen, en daarna vergeten. Op een site met cookie-gebaseerde admin-endpoints is een wildcard origin in combinatie met Access-Control-Allow-Credentials een klasse data-exfiltratiebug. De CORS-doc van MDN legt de precieze interactie uit. Heb je écht cross-origin font-toegang nodig, scope het dan: Header set Access-Control-Allow-Origin \"https://cdn.example.com\" . Jaarlange cache op HTML ExpiresActive On ExpiresDefault \"access plus 1 year\" Gekopieerd uit een 'maak je site sneller'-tutorial. Prima voor fingerprinted assets zoals app.a1b2c3.css . Slecht voor HTML, want die blijft dan een jaar lang in browser- en CDN-caches hangen ongeacht wat jij publiceert. Scope Expires altijd op MIME-type en houd HTML op een korte policy: ExpiresActive On ExpiresByType text/css \"access plus 1 year\" ExpiresByType application/javascript \"access plus 1 year\" ExpiresByType image/webp \"access",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Elf .htaccess-directives die blijven, drie die eruit moeten","item":"https://pier.abn.company/nl/blog/htaccess-hardening-cheatsheet/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Heb ik zowel X-Frame-Options als CSP frame-ancestors nodig?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kies er één. CSP frame-ancestors heeft in moderne browsers voorrang op X-Frame-Options, maar X-Frame-Options op zichzelf is prima als je nog geen CSP hebt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Breekt het blokkeren van xmlrpc.php Jetpack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het breekt de Jetpack mobile-app en pingback. Als geen van beide op de site in gebruik is, is de blokkering veilig en verdwijnt meteen het meest brute-forced endpoint."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik .htaccess helemaal uitzetten en de hoofdconfig gebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, als je de server zelf beheert. Op shared hosting kan dat meestal niet. Daar is .htaccess vaak het enige beschikbare override-mechanisme."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 049</span>
+      </div>
+      <p class="eyebrow"><span class="n">049 —</span>Security</p>
+      <h1 class="display-l post-title">Elf .htaccess-directives die blijven, drie die eruit moeten</h1>
+      <p class="lede post-lede">Een spiekbriefje voor het .htaccess-bestand dat je erfde op die verouderde WordPress- of Magento-site: elf regels die blijven, drie die kwaad doen.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T00:17:34.057Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/htaccess-hardening-cheatsheet/hero.webp" type="image/webp">
+      <img src="/blog/htaccess-hardening-cheatsheet/hero.jpg" alt="Bovenaanzicht van .htaccess-spiekbriefje op ruitjespapier, messing plaatje, stalen liniaal, rood potlood, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 049</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waar we mee werken erfde vorige maand een WordPress-installatie uit 2014. Het eerste wat de senior developer deed: <code>.htaccess</code> openen in vim, langs het WordPress rewrite-blok scrollen, en 38 regels tellen die een vorige freelancer er door de jaren heen in had geplakt. Twee deden echt nuttig werk. Eén maakte de site actief trager. De rest was opvulling uit oude Stack Overflow-antwoorden.</p>
+
+<p>Als je <a href="/">verouderde sites</a> onderhoudt, is dat bestand waarschijnlijk je belangrijkste beveiligingsartefact. Het draait bij elke request, het overschrijft de serverconfig zonder restart, en het is bijna altijd fout tegen de tijd dat jij het vindt. Hieronder de werkset die wij paraat houden: elf .htaccess-directives die hun plek verdienen op een typische WordPress-, Joomla- of custom-PHP-installatie, plus drie die behulpzaam lijken en je stilletjes pijn doen.</p>
+
+<h2>Elf directives die blijven staan</h2>
+
+<p>We gaan uit van Apache 2.4 met <code>mod_rewrite</code>, <code>mod_headers</code> en <code>mod_expires</code> aan. Zet ze in de <code>.htaccess</code> van de site-root, tenzij anders vermeld.</p>
+
+<h3>1. Forceer HTTPS</h3>
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]</code></pre>
+<p>Plaats dit boven het WordPress-blok. De <code>[L]</code>-flag stopt verdere rewrites op de redirect zelf, wat de loop voorkomt die je krijgt als een latere regel het al doorverwezen request opnieuw rewrite.</p>
+
+<h3>2. HSTS</h3>
+<pre><code class="lang-apache">Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"</code></pre>
+<p>Eén jaar, subdomeinen meegerekend. Sla <code>preload</code> over tot je zeker weet dat elk subdomein HTTPS is en dat ook blijft. Zie <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">MDN over HSTS</a> voor het preload-voorbehoud.</p>
+
+<h3>3. Zet directory listing uit</h3>
+<pre><code class="lang-apache">Options -Indexes</code></pre>
+<p>Als een map geen indexbestand heeft en Indexes staat aan, dan toont Apache de inhoud. Zo komen klant-PDF's uit een vergeten <code>/uploads/2019/</code>-map alsnog in Google terecht.</p>
+
+<h3>4. Bescherm dotfiles</h3>
+<pre><code class="lang-apache">&lt;FilesMatch "^\.ht"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+<p>Meestal standaard in meegeleverde Apache-configs, maar op shared hosting is het de moeite om expliciet te zijn. Verbreed het patroon naar <code>"^\."</code> als je ook losse <code>.env</code> of <code>.git</code>-bestanden wilt blokkeren.</p>
+
+<h3>5. Vergrendel het configbestand</h3>
+<pre><code class="lang-apache">&lt;Files wp-config.php&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+<p>Joomla's tegenhanger is <code>configuration.php</code>, Drupal gebruikt <code>sites/default/settings.php</code>, Magento 1 heeft <code>app/etc/local.xml</code>. Blokkeer degene die jouw stack ook echt gebruikt.</p>
+
+<h3>6. nosniff</h3>
+<pre><code class="lang-apache">Header set X-Content-Type-Options "nosniff"</code></pre>
+<p>Voorkomt dat browsers de <code>Content-Type</code> die jij stuurt gaan tegenspreken, het mechanisme achter een klasse MIME-confusion-aanvallen op door gebruikers geüploade bestanden.</p>
+
+<h3>7. Frame deny</h3>
+<pre><code class="lang-apache">Header set X-Frame-Options "SAMEORIGIN"</code></pre>
+<p>Of zet <code>Content-Security-Policy: frame-ancestors 'self'</code> als je al een CSP hebt. Kies er één, niet allebei, anders kunnen browsers het oneens worden over de volgorde.</p>
+
+<h3>8. Referrer-policy</h3>
+<pre><code class="lang-apache">Header set Referrer-Policy "strict-origin-when-cross-origin"</code></pre>
+<p>Snijdt de lange staart af van sessietokens en admin-URL's die anders in de <code>Referer</code>-header lekken wanneer een redacteur op een externe link klikt.</p>
+
+<h3>9. Blokkeer xmlrpc.php</h3>
+<pre><code class="lang-apache">&lt;Files xmlrpc.php&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre>
+<p>Tenzij je nog de Jetpack mobile-API of pingback gebruikt, heb je hem niet nodig. xmlrpc.php is het meest brute-forced endpoint op het moderne WordPress-web.</p>
+
+<h3>10. Geen PHP-uitvoering in uploads</h3>
+<pre><code class="lang-apache"># wp-content/uploads/.htaccess  (of sites/default/files/.htaccess op Drupal)
+&lt;FilesMatch "\.(php|phtml|phps|php\d+)$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+<p>Dit is de directive die voorkomt dat een kwetsbaar uploadformulier in remote code execution verandert. Hij hoort in de uploads-map, niet in de site-root.</p>
+
+<h3>11. Beperk de request body</h3>
+<pre><code class="lang-apache">LimitRequestBody 10485760</code></pre>
+<p>10 MB. Kies een getal dat past bij je werkelijke uploadgrootte en bij je PHP <code>upload_max_filesize</code>. De default is ongelimiteerd, en zo loopt één curl-loop op een vergeten endpoint de disk leeg.</p>
+
+<h2>Drie directives die je stilletjes pijn doen</h2>
+
+<p>Deze gooien we er meteen uit. Elk ziet er beveiligend uit. Elk maakt de situatie actief slechter.</p>
+
+<h3>Wildcard CORS</h3>
+<pre><code class="lang-apache">Header set Access-Control-Allow-Origin "*"</code></pre>
+<p>Bijna altijd erin geplakt om een font-loading-fout tijdens development op te lossen, en daarna vergeten. Op een site met cookie-gebaseerde admin-endpoints is een wildcard origin in combinatie met <code>Access-Control-Allow-Credentials</code> een klasse data-exfiltratiebug. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS">De CORS-doc van MDN</a> legt de precieze interactie uit. Heb je écht cross-origin font-toegang nodig, scope het dan: <code>Header set Access-Control-Allow-Origin "https://cdn.example.com"</code>.</p>
+
+<h3>Jaarlange cache op HTML</h3>
+<pre><code class="lang-apache">ExpiresActive On
+ExpiresDefault "access plus 1 year"</code></pre>
+<p>Gekopieerd uit een 'maak je site sneller'-tutorial. Prima voor fingerprinted assets zoals <code>app.a1b2c3.css</code>. Slecht voor HTML, want die blijft dan een jaar lang in browser- en CDN-caches hangen ongeacht wat jij publiceert. Scope <code>Expires</code> altijd op MIME-type en houd HTML op een korte policy:</p>
+<pre><code class="lang-apache">ExpiresActive On
+ExpiresByType text/css "access plus 1 year"
+ExpiresByType application/javascript "access plus 1 year"
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType text/html "access plus 0 seconds"</code></pre>
+
+<h3>Apache 2.2-access-syntax op een 2.4-server</h3>
+<pre><code class="lang-apache">Order allow,deny
+Deny from all
+Allow from 81.23.45.67</code></pre>
+<p>Op Apache 2.4 werkt dit alleen als <code>mod_access_compat</code> geladen is. Bij veel moderne hosts is dat niet zo, en dan doet het blok stilletjes niets terwijl het lijkt op een IP-allowlist. De huidige syntax is <code>Require ip 81.23.45.67</code> binnen het relevante <code>&lt;Files&gt;</code>- of <code>&lt;Directory&gt;</code>-blok. <a href="https://httpd.apache.org/docs/2.4/upgrading.html">De 2.4-upgrade-notes van Apache</a> bevatten de volledige mapping.</p>
+
+<h2>Testen voor je opslaat</h2>
+
+<p>Een typo in <code>.htaccess</code> gooit de site bij de volgende request offline. Er is geen compileerstap. Twee gewoonten die ons hebben gered:</p>
+
+<p>Ten eerste: bewerk het live bestand nooit blind. Trek hem eerst lokaal binnen, bewerk lokaal, en draai <code>apachectl -t</code> tegen een matching lokale Apache. Lukt dat niet, dan <code>httpd -t</code> op de server zelf voordat de wijziging live gaat.</p>
+
+<p>Ten tweede: maak voor elke bewerking een gedateerde back-up: <code>cp .htaccess .htaccess.2026-05-27</code>. De meeste productiestoringen waar we klanten uit hebben geholpen waren één regel revert verwijderd, mits er een back-up bestond.</p>
+
+<aside class="callout">Verrassend veel tickets met '<code>.htaccess</code> werkt niet' blijken <code>AllowOverride None</code> in de parent <code>VirtualHost</code> te zijn. Je editor leest het bestand wel, Apache negeert het. Controleer de vhost voordat je je syntax de schuld geeft.</aside>
+
+<p>Toen we Pier bouwden liepen we hier op klantservers tegenaan: het bureau wist pas dat een <code>.htaccess</code>-bewerking iets had gebroken als een klant belde. Wat we uiteindelijk hebben gedaan is van elk bestand dat Pier aanraakt een snapshot bewaren in de <a href="/#features">version history</a>, zodat een one-click revert altijd binnen handbereik is, ook als de FTP-client al dicht is.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: open de <code>.htaccess</code> van je oudste actieve site, sla een gedateerde kopie ernaast op, en verwijder de wildcard-CORS-regel als die erin staat. De andere tien directives mogen tot morgen wachten.</p>
+    </div>
+
+    <aside class="pullquote">Een .htaccess-bestand verdient zijn plek met elf specifieke directives; de wildcard-CORS-regel en de jaarlange HTML-cache doen precies het tegenovergestelde.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Heb ik zowel X-Frame-Options als CSP frame-ancestors nodig?</p>
+      <p class="faq-a">Kies er één. CSP frame-ancestors heeft in moderne browsers voorrang op X-Frame-Options, maar X-Frame-Options op zichzelf is prima als je nog geen CSP hebt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Breekt het blokkeren van xmlrpc.php Jetpack?</p>
+      <p class="faq-a">Het breekt de Jetpack mobile-app en pingback. Als geen van beide op de site in gebruik is, is de blokkering veilig en verdwijnt meteen het meest brute-forced endpoint.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik .htaccess helemaal uitzetten en de hoofdconfig gebruiken?</p>
+      <p class="faq-a">Ja, als je de server zelf beheert. Op shared hosting kan dat meestal niet. Daar is .htaccess vaak het enige beschikbare override-mechanisme.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-login-htaccess-brute-force-block/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-login-htaccess-brute-force-block/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-login-htaccess-brute-force-block/hero.jpg" alt="Foto van boven op linnen: oud .htaccess-vel, logstrook, manilla BLOCK-tab, messing HTACCESS-plaatje, rood potlood, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>wp-login.php brute force: het .htaccess-blok dat werkt</h3>
+      <span class="pc-lede">De bots beuken al drie dagen om de twee seconden op wp-login.php. Dit is het .htaccess-blok dat ze tegenhoudt zonder het dashboard om zeep te helpen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp">
+        <img src="/nl/blog/reading-inherited-htaccess-files/hero.jpg" alt="Bovenaanzicht van vergeeld .htaccess-vel met doorgestreepte RewriteRule-regels, messing plaatje, manilla tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Een geërfde .htaccess lezen: blok voor blok zonder paniek</h3>
+      <span class="pc-lede">Een site geërfd waarvan de .htaccess begint met drie blokken dode RewriteRules in het Nederlands? Lees hem blok voor blok. Zo pakken wij dat aan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
