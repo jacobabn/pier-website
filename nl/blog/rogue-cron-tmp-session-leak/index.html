@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions · Pier — Blog</title>
+<meta name="description" content="Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, php, wordpress, tooling, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/rogue-cron-tmp-session-leak/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/rogue-cron-tmp-session-leak/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions">
+<meta property="og:description" content="Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: cron-schema, logprint, papieren labels, messing CRON-plaat, stalen liniaal, potlood, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-05-27T03:52:45.994Z">
+<meta property="article:modified_time" content="2026-05-27T03:52:45.994Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions">
+<meta name="twitter:description" content="Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: cron-schema, logprint, papieren labels, messing CRON-plaat, stalen liniaal, potlood, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/rogue-cron-tmp-session-leak/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/"},
+  "url":"https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/",
+  "headline":"Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions",
+  "description":"Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: cron-schema, logprint, papieren labels, messing CRON-plaat, stalen liniaal, potlood, rode lakzegel."
+  },
+  "datePublished":"2026-05-27T03:52:45.994Z",
+  "dateModified":"2026-05-27T03:52:45.994Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"operations, php, wordpress, tooling, workflow",
+  "wordCount":1067,
+  "articleSection":"Operations",
+  "articleBody":"De alert kwam binnen om 03:14 op een dinsdag. /dev/sda1 op een kleine VPS met vier WordPress-sites was over de 92% gegaan. Nog niet vol, maar duidelijk de verkeerde kant op. De on-call engineer (wij, in dit geval, omdat het bureau dat de server beheert juist voor dit soort avonden een retainer heeft) SSH'te in en deed de standaard triage. De boosdoener was /tmp . 12,4 GB ervan. Bijna alleen maar bestanden met namen als sess_a3f9b... , teruggaand tot achttien maanden geleden. Hieronder de walkthrough van hoe we die stapel hebben teruggevolgd naar één regel in de crontab van één gebruiker, en waarom het standaardadvies (verhoog session.gc_probability , zet systemd-tmpfiles op) wel het symptoom maar nooit de oorzaak aanpakt. Wat 12 GB aan sess_-bestanden eigenlijk betekent De standaard session handler van PHP schrijft één bestand per session weg, met de naam sess_<ID> , in het pad waar session.save_path naar verwijst. Bij de meeste standaard builds is dat pad /tmp . Elk bestand bevat de geserialiseerde $_SESSION -array van één bezoeker. Een schone WordPress-install roept session_start() helemaal niet aan (wp-login werkt met cookies, geen sessions). Maar heel veel plugins wel: WooCommerce van oudsher, Wordfence in bepaalde configuraties, contactformulier-plugins die een CSRF-nonce nodig hebben, elk \"members area\"-thema. Drupal 7-sites gebruiken sessions standaard. Net als de meeste custom PHP. Twaalf gigabyte aan session-bestanden is geen configuratieprobleem. Het is een creatieprobleem. Bij ruwweg 4 KB per bestand zijn dat circa drie miljoen sessions, en die haalt geen enkel menselijk bezoekersaantal op een kleine WordPress-site in achttien maanden. Iets machinaals hamert op een pagina die session_start() aanroept. Het mtime-cluster dat het verraadde Het eerste bruikbare ding was een histogram van de modification times van de bestanden. Niets bijzonders: find /tmp -maxdepth 1 -name 'sess_*' -printf '%TY-%Tm-%Td %TH\\n' \\ | sort | uniq -c | tail -40 De output zag er zo uit: 1440 2026-05-25 22 1440 2026-05-25 23 1440 2026-05-26 00 1440 2026-05-26 01 1440 2026-05-26 02 1440 bestanden per uur. Exact 24 per minuut. Dat is geen Googlebot-patroon en geen menselijk patroon. Dat is een cron die elke minuut afgaat en 24 losse curl -aanroepen doet, elk goed voor één verse session. Vanaf daar waren twee commando's genoeg om de bron te vinden: for u in $(cut -d: -f1 /etc/passwd); do crontab -u \"$u\" -l 2>/dev/null | sed \"s/^/$u: /\" done ls -la /etc/cron.d/ /etc/cron.hourly/ /etc/cron.daily/ De hit zat in de crontab van een niet-root-gebruiker, achtergelaten door een voormalige contractor en nooit nagekeken: * * * * * /usr/bin/curl -s https://example.com/wp-cron.php?doing_wp_cron > /dev/null * * * * * /usr/bin/curl -s https://example.com/?warm=home > /dev/null * * * * * /usr/bin/curl -s https://example.com/shop/?warm=1 > /dev/null # 21 more lines like this, hitting various \"cache warm\" URLs Het curl-zonder-cookies-patroon Dit is het deel dat het waard is om in je geheugen te prenten, want we hebben deze exacte failure mode in de laatste twee jaar nu op vijf verschillende klantservers gezien. Als je curl aanroept zonder -b en -c (de cookie-jar-flags), is elke aanroep een gloednieuwe client zonder cookies. Als de URL die hij aanspreekt ergens in z'n execution path session_start() aanroept (een plugin-hook, een theme-functie, een header-include), reserveert PHP een nieuwe session-ID en schrijft een nieuw bestand naar session.save_path . De cron die elke minuut draait, raakt 24 verschillende URL's, elk daarvan triggert session_start() , en om 03:14:00 staan er 24 verse bestanden in /tmp . Dan de tweede helft van het probleem. De session garbage collector van PHP hoort oude bestanden weg te halen op basis van session.gc_maxlifetime . Op Debian en Ubuntu staat die GC standaard uit ( session.gc_probability = 0 ) en is hij vervangen door een sessionclean -cron in /etc/cron.d/php . Maar die cron ruimt alleen de save_path op die in de php.ini van de FPM-pool staat. Als de site een session.save_path instelt in een per-directory .user.ini , komen de bestanden ergens terecht waar sessionclean nooit leest. In ons geval gebeurde precies dat. De site had dit in z'n document root staan: ; .user.ini session.save_path = \"/tmp\" session.gc_maxlifetime = 86400 Vijf jaar geleden door een of andere plugin-installer neergezet en sindsdien niet meer aangeraakt. De save_path van de FPM-pool was de standaard /var/lib/php/sessions . Het Debian-opruimscript ruimde dat netjes op. /tmp bleef maar groeien. Let op: session.save_path in een .user.ini of .htaccess wint per request, maar Debians sessionclean leest alleen de pool-config. Elke per-site-override van save_path is een toekomstig /tmp -lek dat ergens om 3 uur 's nachts boven komt drijven. De oorzaak oplossen, niet het symptoom Drie dingen, in volgorde. Verwijder de crontab-regels van de contractor. De \"cache warm\"-loop deed niets nuttigs: de site stond achter een CDN en de origin was al warm. De wp-cr",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions","item":"https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom ruimt de session garbage collector van PHP deze bestanden niet automatisch op?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op Debian-achtige distro's staat de GC van PHP uit (gc_probability=0) en is hij vervangen door een sessionclean-cron die alleen de save_path van de FPM-pool leest, en daarmee per-site-overrides in .user.ini mist."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik /tmp niet gewoon leeggooien om de ruimte terug te krijgen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet veilig. Uploads, ImageMagick-scratchbestanden en MySQL temp tables staan daar ook. Gebruik find /tmp -name 'sess_*' -mtime +1 -delete om alleen de oude session-bestanden te verwijderen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe voorkom ik dat dit nog een keer gebeurt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Audit elke user-crontab en elke .user.ini en .htaccess in de document root. Elke curl-loop zonder -b/-c die een pagina raakt die session_start() aanroept, blijft eeuwig sessions lekken."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/rogue-cron-tmp-session-leak/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 053</span>
+      </div>
+      <p class="eyebrow"><span class="n">053 —</span>Operations</p>
+      <h1 class="display-l post-title">Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions</h1>
+      <p class="lede post-lede">Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.</p>
+      <div class="post-meta">
+        <time datetime="2026-05-27T03:52:45.994Z">27 mei 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/rogue-cron-tmp-session-leak/hero.webp" type="image/webp">
+      <img src="/blog/rogue-cron-tmp-session-leak/hero.jpg" alt="Bovenaanzicht op linnen: cron-schema, logprint, papieren labels, messing CRON-plaat, stalen liniaal, potlood, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 053</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De alert kwam binnen om 03:14 op een dinsdag. <code>/dev/sda1</code> op een kleine VPS met vier WordPress-sites was over de 92% gegaan. Nog niet vol, maar duidelijk de verkeerde kant op. De on-call engineer (wij, in dit geval, omdat het bureau dat de server beheert juist voor dit soort avonden een retainer heeft) SSH'te in en deed de standaard triage.</p>
+<p>De boosdoener was <code>/tmp</code>. 12,4 GB ervan. Bijna alleen maar bestanden met namen als <code>sess_a3f9b...</code>, teruggaand tot achttien maanden geleden.</p>
+<p>Hieronder de walkthrough van hoe we die stapel hebben teruggevolgd naar één regel in de crontab van één gebruiker, en waarom het standaardadvies (verhoog <code>session.gc_probability</code>, zet <code>systemd-tmpfiles</code> op) wel het symptoom maar nooit de oorzaak aanpakt.</p>
+<h2>Wat 12 GB aan sess_-bestanden eigenlijk betekent</h2>
+<p>De standaard session handler van PHP schrijft één bestand per session weg, met de naam <code>sess_&lt;ID&gt;</code>, in het pad waar <code>session.save_path</code> naar verwijst. Bij de meeste standaard builds is dat pad <code>/tmp</code>. Elk bestand bevat de geserialiseerde <code>$_SESSION</code>-array van één bezoeker.</p>
+<p>Een schone WordPress-install roept <code>session_start()</code> helemaal niet aan (wp-login werkt met cookies, geen sessions). Maar heel veel plugins wel: WooCommerce van oudsher, Wordfence in bepaalde configuraties, contactformulier-plugins die een CSRF-nonce nodig hebben, elk "members area"-thema. Drupal 7-sites gebruiken sessions standaard. Net als de meeste custom PHP.</p>
+<p>Twaalf gigabyte aan session-bestanden is geen configuratieprobleem. Het is een creatieprobleem. Bij ruwweg 4 KB per bestand zijn dat circa drie miljoen sessions, en die haalt geen enkel menselijk bezoekersaantal op een kleine WordPress-site in achttien maanden. Iets machinaals hamert op een pagina die <code>session_start()</code> aanroept.</p>
+<h2>Het mtime-cluster dat het verraadde</h2>
+<p>Het eerste bruikbare ding was een histogram van de modification times van de bestanden. Niets bijzonders:</p>
+<pre><code class="lang-bash">find /tmp -maxdepth 1 -name 'sess_*' -printf '%TY-%Tm-%Td %TH\n' \
+  | sort | uniq -c | tail -40
+</code></pre>
+<p>De output zag er zo uit:</p>
+<pre><code class="lang-text">   1440 2026-05-25 22
+   1440 2026-05-25 23
+   1440 2026-05-26 00
+   1440 2026-05-26 01
+   1440 2026-05-26 02
+</code></pre>
+<p>1440 bestanden per uur. Exact 24 per minuut. Dat is geen Googlebot-patroon en geen menselijk patroon. Dat is een cron die elke minuut afgaat en 24 losse <code>curl</code>-aanroepen doet, elk goed voor één verse session.</p>
+<p>Vanaf daar waren twee commando's genoeg om de bron te vinden:</p>
+<pre><code class="lang-bash">for u in $(cut -d: -f1 /etc/passwd); do
+  crontab -u "$u" -l 2&gt;/dev/null | sed "s/^/$u: /"
+done
+ls -la /etc/cron.d/ /etc/cron.hourly/ /etc/cron.daily/
+</code></pre>
+<p>De hit zat in de crontab van een niet-root-gebruiker, achtergelaten door een voormalige contractor en nooit nagekeken:</p>
+<pre><code class="lang-bash">* * * * * /usr/bin/curl -s https://example.com/wp-cron.php?doing_wp_cron &gt; /dev/null
+* * * * * /usr/bin/curl -s https://example.com/?warm=home &gt; /dev/null
+* * * * * /usr/bin/curl -s https://example.com/shop/?warm=1 &gt; /dev/null
+# 21 more lines like this, hitting various "cache warm" URLs
+</code></pre>
+<h2>Het curl-zonder-cookies-patroon</h2>
+<p>Dit is het deel dat het waard is om in je geheugen te prenten, want we hebben deze exacte failure mode in de laatste twee jaar nu op vijf verschillende klantservers gezien.</p>
+<p>Als je <code>curl</code> aanroept zonder <code>-b</code> en <code>-c</code> (de cookie-jar-flags), is elke aanroep een gloednieuwe client zonder cookies. Als de URL die hij aanspreekt ergens in z'n execution path <code>session_start()</code> aanroept (een plugin-hook, een theme-functie, een header-include), reserveert PHP een nieuwe session-ID en schrijft een nieuw bestand naar <code>session.save_path</code>. De cron die elke minuut draait, raakt 24 verschillende URL's, elk daarvan triggert <code>session_start()</code>, en om 03:14:00 staan er 24 verse bestanden in <code>/tmp</code>.</p>
+<p>Dan de tweede helft van het probleem. <a href="https://www.php.net/manual/en/session.configuration.php">De session garbage collector van PHP</a> hoort oude bestanden weg te halen op basis van <code>session.gc_maxlifetime</code>. Op Debian en Ubuntu <a href="https://wiki.debian.org/PHP">staat die GC standaard uit</a> (<code>session.gc_probability = 0</code>) en is hij vervangen door een <code>sessionclean</code>-cron in <code>/etc/cron.d/php</code>. Maar die cron ruimt alleen de <code>save_path</code> op die in de <code>php.ini</code> van de FPM-pool staat. Als de site een <code>session.save_path</code> instelt in een per-directory <code>.user.ini</code>, komen de bestanden ergens terecht waar <code>sessionclean</code> nooit leest.</p>
+<p>In ons geval gebeurde precies dat. De site had dit in z'n document root staan:</p>
+<pre><code class="lang-ini">; .user.ini
+session.save_path = "/tmp"
+session.gc_maxlifetime = 86400
+</code></pre>
+<p>Vijf jaar geleden door een of andere plugin-installer neergezet en sindsdien niet meer aangeraakt. De save_path van de FPM-pool was de standaard <code>/var/lib/php/sessions</code>. Het Debian-opruimscript ruimde dat netjes op. <code>/tmp</code> bleef maar groeien.</p>
+<aside class="callout"><strong>Let op:</strong> <code>session.save_path</code> in een <code>.user.ini</code> of <code>.htaccess</code> wint per request, maar Debians <code>sessionclean</code> leest alleen de pool-config. Elke per-site-override van <code>save_path</code> is een toekomstig <code>/tmp</code>-lek dat ergens om 3 uur 's nachts boven komt drijven.</aside>
+<h2>De oorzaak oplossen, niet het symptoom</h2>
+<p>Drie dingen, in volgorde.</p>
+<ol>
+<li>Verwijder de crontab-regels van de contractor. De "cache warm"-loop deed niets nuttigs: de site stond achter een CDN en de origin was al warm. De <code>wp-cron.php</code>-regel is de standaard WordPress-workaround, maar die hoort elke vijftien minuten te draaien vanuit één regel, niet elke minuut vanuit een script dat z'n cookies weggooit. De <a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/">Codex heeft het canonieke patroon</a>.</li>
+<li>Haal de losgeslagen <code>.user.ini</code>-override weg. Til de directive ofwel op naar de FPM-pool-config zodat <code>sessionclean</code> de bestanden vindt, of accepteer de pool-default en laat alles onder <code>/var/lib/php/sessions</code> staan.</li>
+<li>Pas dán <code>/tmp</code> leeghalen. We gebruiken <code>find /tmp -name 'sess_*' -mtime +1 -delete</code>, niet <code>rm -rf /tmp/*</code>, want andere processen schrijven daar ook (uploads, ImageMagick-scratch, MySQL temp tables) en een blanket delete sloopt wat er net halverwege een upload zat.</li>
+</ol>
+<p>De post-mortem-fix aan de bureaukant was een notitie van één pagina in hun handover-doc. Als je een verouderde site overneemt, zijn de eerste drie dingen om naar te kijken: de actieve user-crontabs, elke <code>.user.ini</code> en <code>.htaccess</code> in de document-boom, en de FPM-pool-config. In de interactie tussen die drie zitten de trage lekken.</p>
+<h2>Wat we nu als eerste doen op elke nieuwe server</h2>
+<p>Het onderzoek kostte ons veertig minuten in plaats van vier uur omdat we het al eerder hadden gedaan. Toen we Pier bouwden liepen we tegen exact ditzelfde aan op een klantserver, en hoe we het uiteindelijk aanpakten was de file tree en de database allebei vanuit één venster doorbladerbaar maken, met <a href="/#features">version history</a> op elke overschrijving. De losgeslagen <code>.user.ini</code> die we verwijderden is met één klik terug te halen als blijkt dat iets op de site toch op die override leunde.</p>
+<p>Het kleinste wat je vandaag kunt doen: draai op elke <a href="/">verouderde site</a> die je nu onderhoudt <code>find / -name '.user.ini' 2&gt;/dev/null</code> en lees elk bestand dat eruit komt. De meeste zijn leeg. De bestanden die dat niet zijn, daar komt je volgende nachtelijke piepalert vandaan.</p>
+    </div>
+
+    <aside class="pullquote">Twaalf gigabyte aan sess_-bestanden is geen configuratieprobleem, het is een creatieprobleem: zoek de cron die curl zonder cookie jar aanroept.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom ruimt de session garbage collector van PHP deze bestanden niet automatisch op?</p>
+      <p class="faq-a">Op Debian-achtige distro&#39;s staat de GC van PHP uit (gc_probability=0) en is hij vervangen door een sessionclean-cron die alleen de save_path van de FPM-pool leest, en daarmee per-site-overrides in .user.ini mist.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik /tmp niet gewoon leeggooien om de ruimte terug te krijgen?</p>
+      <p class="faq-a">Niet veilig. Uploads, ImageMagick-scratchbestanden en MySQL temp tables staan daar ook. Gebruik find /tmp -name &#39;sess_*&#39; -mtime +1 -delete om alleen de oude session-bestanden te verwijderen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe voorkom ik dat dit nog een keer gebeurt?</p>
+      <p class="faq-a">Audit elke user-crontab en elke .user.ini en .htaccess in de document root. Elke curl-loop zonder -b/-c die een pagina raakt die session_start() aanroept, blijft eeuwig sessions lekken.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-maintenance-pricing-model/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-maintenance-pricing-model/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-maintenance-pricing-model/hero.jpg" alt="Bovenaanzicht op linnen: open retainercontract, ruitjes-tariefkaart, manilla tab, koperen weegschaal, envelop met lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Business</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Onderhoud van legacy sites: de val van de kleine fix</h3>
+      <span class="pc-lede">De derde &#39;even een kleine fix&#39; op een WordPress uit 2017 is waar freelancers failliet gaan. Een retainer die risico beprijst, geen toetsaanslagen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Plat overzicht: papieren waterval-grafiek met balken, koperen stopwatch op 2,3s, manila CHECKOUT-tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>WooCommerce checkout audit: de plugin van 2,3 seconden</h3>
+      <span class="pc-lede">Loom van een Nederlands bureau: WooCommerce checkout hangt drie seconden op elke postcodewijziging. De audit van twintig minuten die de plugin vindt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/rogue-cron-tmp-session-leak/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
