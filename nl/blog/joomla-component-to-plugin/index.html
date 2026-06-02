@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla 2.5 component naar Joomla 5 plugin: geen rewrite · Pier — Blog</title>
+<meta name="description" content="Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, php, mysql, migration, architecture, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-component-to-plugin/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-component-to-plugin/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla 2.5 component naar Joomla 5 plugin: geen rewrite">
+<meta property="og:description" content="Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/joomla-component-to-plugin/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/joomla-component-to-plugin/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-02T06:40:49.021Z">
+<meta property="article:modified_time" content="2026-06-02T06:40:49.021Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Joomla">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla 2.5 component naar Joomla 5 plugin: geen rewrite">
+<meta name="twitter:description" content="Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/joomla-component-to-plugin/hero.jpg">
+<meta name="twitter:image:alt" content="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Joomla">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-component-to-plugin/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/joomla-component-to-plugin/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/joomla-component-to-plugin/"},
+  "url":"https://pier.abn.company/nl/blog/joomla-component-to-plugin/",
+  "headline":"Joomla 2.5 component naar Joomla 5 plugin: geen rewrite",
+  "description":"Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/joomla-component-to-plugin/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel."
+  },
+  "datePublished":"2026-06-02T06:40:49.021Z",
+  "dateModified":"2026-06-02T06:40:49.021Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, php, mysql, migration, architecture, tooling",
+  "wordCount":1393,
+  "articleSection":"Joomla",
+  "articleBody":"Om 23:41 belandde er een Loom in onze inbox van een agency lead uit Utrecht. De clip liet een Joomla 2.5 site zien die nog altijd een custom com_competitions component draait voor een regionale sportbond. Twaalf jaar wedstrijden, uitslagen en spelersdossiers stonden in negen tabellen met prefix jos_comp_ . De hostingmaatschappij had net gemaild: PHP 8.2 in augustus, geen uitzonderingen. Een volledige rewrite was geen optie. De data, in hun woorden, was heilig. Dit is de playbook die we gebruikten om die codebase op Joomla 5 te tillen als plugin, met het originele schema intact. Heb je een Joomla 2.5 component dat niemand durft te herschrijven, dan past het onderstaande recept met minimale aanpassingen op jouw situatie. De inventaris waarmee we begonnen Voordat er ook maar één regel code verschuift, heb je een eerlijke lijst nodig van wat het oude component eigenlijk doet. Voor de bondsite zag dat er zo uit: Negen tabellen, naamconventie #__comp_* , foreign keys op integer ID, geen constraints gedeclareerd. Eén frontend lijstview ( views/fixtures ) en één detailview per wedstrijd. Een backend met zeven lijstviews, vijf edit-formulieren en een custom XML-formulier voor schorsingen. Drie router-regels in router.php die URL's produceren in de stijl /competitions/2025/eredivisie/match-42 . Rond de 4.200 regels PHP, het meeste in helpers/ en models/ . Wat het niet heeft: tests, namespacing, dependency injection of cron jobs. De backend wordt twee keer per seizoen gebruikt voor schorsingen. Wedstrijden komen binnen via een CSV-import die 's nachts draait. Waarom een plugin, en geen port van het component Een 1:1 port van Joomla 2.5 component naar Joomla 5 component is serieus werk. Je erft het volledige MVC-oppervlak: backend-formulieren, ACL-regels, installscripts, taaloverrides. Joomla 4 introduceerde namespaced extension layouts en Joomla 5 dwingt ze af, wat betekent dat ieder bestand wordt aangeraakt, iedere JFactory -call wordt herschreven en iedere form XML opnieuw bekeken. De bondsite had het meeste daarvan niet nodig. De fixtures en wedstrijddetails zijn read-only aan de frontend. De backend wordt twee keer per jaar gebruikt. De vraag wordt dus: kunnen we de publieke URL's serveren vanuit een plugin en het schaarse backendwerk elders afhandelen? Ja, en de truc is om te leunen op het event-systeem van Joomla in plaats van een MVC-stack opnieuw te bouwen. We kwamen uit op een hybride opzet. Een system plugin verzorgt de routing en rendering voor de publieke pagina's. Een console plugin onder plugins/console/ doet de nachtelijke CSV-import. De twee schorsingsmomenten per jaar verhuisden naar een klein AJAX-endpoint binnen diezelfde system plugin. Geen component-pakket, geen admin-menustructuur, geen toolbars. Het datamodel behouden Regel één: blijf van de tabellen af. Iedere migratie die belooft 'gewoon een rename' te zijn, wordt een regressiejacht van drie weken. De Joomla 5 Table -klasse is namespaced maar gedraagt zich verder als de oude JTable . Wijs hem aan op de bestaande tabel en hij leest en schrijft zonder morren. <?php namespace Federation\\Plugin\\System\\Competitions\\Table; use Joomla\\CMS\\Table\\Table; use Joomla\\Database\\DatabaseDriver; class MatchTable extends Table { public function __construct(DatabaseDriver $db) { parent::__construct('#__comp_matches', 'id', $db); } } De enige vertaalstap was de prefix. De oude installatie liet tabellen achter als jos_comp_matches . Joomla 5 vervangt #__ door de prefix die de nieuwe installatie gebruikt, dus één RENAME TABLE per tabel lost dat op. Je behoudt iedere rij, iedere primary key en iedere foreign reference: RENAME TABLE jos_comp_matches TO j5x_comp_matches; RENAME TABLE jos_comp_seasons TO j5x_comp_seasons; RENAME TABLE jos_comp_teams TO j5x_comp_teams; -- herhaal voor de rest Als je niet kunt renamen (live site, replicatie, audit log) is het alternatief om de prefix te overschrijven in de Table -subklasse: parent::__construct('jos_comp_matches', 'id', $db); Lelijk, maar het werkt en het laat je de rename uitstellen naar een onderhoudsvenster. Het plugin-skelet Een Joomla 5 system plugin staat in plugins/system/competitions/ . Het manifest, de service provider en de plugin-klasse zitten allemaal in die map. Dit is het skelet dat we hebben uitgerold, teruggebracht tot de kern: <?php // plugins/system/competitions/services/provider.php defined('_JEXEC') or die; use Joomla\\CMS\\Extension\\PluginInterface; use Joomla\\CMS\\Plugin\\PluginHelper; use Joomla\\DI\\Container; use Joomla\\DI\\ServiceProviderInterface; use Joomla\\Event\\DispatcherInterface; use Federation\\Plugin\\System\\Competitions\\Extension\\Competitions; return new class implements ServiceProviderInterface { public function register(Container $container): void { $container->set(PluginInterface::class, function (Container $c) { $plugin = new Competitions( $c->get(DispatcherInterface::class), (array) PluginHelper::getPlugin('system', 'competitions') ); $plugin->setApplication(\\Joomla\\CMS\\Factory::getApplicat",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/joomla-component-to-plugin/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla 2.5 component naar Joomla 5 plugin: geen rewrite","item":"https://pier.abn.company/nl/blog/joomla-component-to-plugin/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Moet ik het hele component converteren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De meeste legacy components hebben één of twee views die het publieke verkeer trekken. Til die in een plugin en laat het schaarse adminwerk over aan een com_ajax-endpoint of directe table-tooling."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Blijven de oude URL's werken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, mits je ze claimt in onAfterRoute en een 301 .htaccess-regel toevoegt voor eventuele legacy querystring-patronen. Trek de URL-inventaris uit je access logs voordat je begint."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe zit het met ACL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Gebruik de core ACL van Joomla 5 op de com_ajax-endpoints van de plugin. ACL-regels werken per usergroup, niet per extensietype, dus je hebt geen component-manifest nodig om toegang af te schermen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/joomla-component-to-plugin/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 055</span>
+      </div>
+      <p class="eyebrow"><span class="n">055 —</span>Joomla</p>
+      <h1 class="display-l post-title">Joomla 2.5 component naar Joomla 5 plugin: geen rewrite</h1>
+      <p class="lede post-lede">Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-02T06:40:49.021Z">2 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+      <img src="/blog/joomla-component-to-plugin/hero.jpg" alt="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 055</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 belandde er een Loom in onze inbox van een agency lead uit Utrecht. De clip liet een Joomla 2.5 site zien die nog altijd een custom <code>com_competitions</code> component draait voor een regionale sportbond. Twaalf jaar wedstrijden, uitslagen en spelersdossiers stonden in negen tabellen met prefix <code>jos_comp_</code>. De hostingmaatschappij had net gemaild: PHP 8.2 in augustus, geen uitzonderingen. Een volledige rewrite was geen optie. De data, in hun woorden, was heilig.</p>
+
+<p>Dit is de playbook die we gebruikten om die codebase op Joomla 5 te tillen als plugin, met het originele schema intact. Heb je een Joomla 2.5 component dat niemand durft te herschrijven, dan past het onderstaande recept met minimale aanpassingen op jouw situatie.</p>
+
+<h2>De inventaris waarmee we begonnen</h2>
+
+<p>Voordat er ook maar één regel code verschuift, heb je een eerlijke lijst nodig van wat het oude component eigenlijk doet. Voor de bondsite zag dat er zo uit:</p>
+
+<ul>
+<li>Negen tabellen, naamconventie <code>#__comp_*</code>, foreign keys op integer ID, geen constraints gedeclareerd.</li>
+<li>Eén frontend lijstview (<code>views/fixtures</code>) en één detailview per wedstrijd.</li>
+<li>Een backend met zeven lijstviews, vijf edit-formulieren en een custom XML-formulier voor schorsingen.</li>
+<li>Drie router-regels in <code>router.php</code> die URL's produceren in de stijl <code>/competitions/2025/eredivisie/match-42</code>.</li>
+<li>Rond de 4.200 regels PHP, het meeste in <code>helpers/</code> en <code>models/</code>.</li>
+</ul>
+
+<p>Wat het <em>niet</em> heeft: tests, namespacing, dependency injection of cron jobs. De backend wordt twee keer per seizoen gebruikt voor schorsingen. Wedstrijden komen binnen via een CSV-import die 's nachts draait.</p>
+
+<h2>Waarom een plugin, en geen port van het component</h2>
+
+<p>Een 1:1 port van Joomla 2.5 component naar Joomla 5 component is serieus werk. Je erft het volledige MVC-oppervlak: backend-formulieren, ACL-regels, installscripts, taaloverrides. <a href="https://docs.joomla.org/J4.x:Component_namespace">Joomla 4 introduceerde namespaced extension layouts</a> en Joomla 5 dwingt ze af, wat betekent dat ieder bestand wordt aangeraakt, iedere <code>JFactory</code>-call wordt herschreven en iedere form XML opnieuw bekeken.</p>
+
+<p>De bondsite had het meeste daarvan niet nodig. De fixtures en wedstrijddetails zijn read-only aan de frontend. De backend wordt twee keer per jaar gebruikt. De vraag wordt dus: kunnen we de publieke URL's serveren vanuit een <em>plugin</em> en het schaarse backendwerk elders afhandelen? Ja, en de truc is om te leunen op het event-systeem van Joomla in plaats van een MVC-stack opnieuw te bouwen.</p>
+
+<p>We kwamen uit op een hybride opzet. Een <strong>system plugin</strong> verzorgt de routing en rendering voor de publieke pagina's. Een <strong>console plugin</strong> onder <code>plugins/console/</code> doet de nachtelijke CSV-import. De twee schorsingsmomenten per jaar verhuisden naar een klein AJAX-endpoint binnen diezelfde system plugin. Geen component-pakket, geen admin-menustructuur, geen toolbars.</p>
+
+<h2>Het datamodel behouden</h2>
+
+<p>Regel één: blijf van de tabellen af. Iedere migratie die belooft 'gewoon een rename' te zijn, wordt een regressiejacht van drie weken. De Joomla 5 <code>Table</code>-klasse is namespaced maar gedraagt zich verder als de oude <code>JTable</code>. Wijs hem aan op de bestaande tabel en hij leest en schrijft zonder morren.</p>
+
+<pre><code class="lang-php">&lt;?php
+namespace Federation\Plugin\System\Competitions\Table;
+
+use Joomla\CMS\Table\Table;
+use Joomla\Database\DatabaseDriver;
+
+class MatchTable extends Table
+{
+    public function __construct(DatabaseDriver $db)
+    {
+        parent::__construct('#__comp_matches', 'id', $db);
+    }
+}
+</code></pre>
+
+<p>De enige vertaalstap was de prefix. De oude installatie liet tabellen achter als <code>jos_comp_matches</code>. Joomla 5 vervangt <code>#__</code> door de prefix die de nieuwe installatie gebruikt, dus één <code>RENAME TABLE</code> per tabel lost dat op. Je behoudt iedere rij, iedere primary key en iedere foreign reference:</p>
+
+<pre><code class="lang-sql">RENAME TABLE jos_comp_matches TO j5x_comp_matches;
+RENAME TABLE jos_comp_seasons TO j5x_comp_seasons;
+RENAME TABLE jos_comp_teams   TO j5x_comp_teams;
+-- herhaal voor de rest
+</code></pre>
+
+<p>Als je niet kunt renamen (live site, replicatie, audit log) is het alternatief om de prefix te overschrijven in de <code>Table</code>-subklasse:</p>
+
+<pre><code class="lang-php">parent::__construct('jos_comp_matches', 'id', $db);
+</code></pre>
+
+<p>Lelijk, maar het werkt en het laat je de rename uitstellen naar een onderhoudsvenster.</p>
+
+<h2>Het plugin-skelet</h2>
+
+<p>Een Joomla 5 system plugin staat in <code>plugins/system/competitions/</code>. Het manifest, de service provider en de plugin-klasse zitten allemaal in die map. Dit is het skelet dat we hebben uitgerold, teruggebracht tot de kern:</p>
+
+<pre><code class="lang-php">&lt;?php
+// plugins/system/competitions/services/provider.php
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Extension\PluginInterface;
+use Joomla\CMS\Plugin\PluginHelper;
+use Joomla\DI\Container;
+use Joomla\DI\ServiceProviderInterface;
+use Joomla\Event\DispatcherInterface;
+use Federation\Plugin\System\Competitions\Extension\Competitions;
+
+return new class implements ServiceProviderInterface {
+    public function register(Container $container): void
+    {
+        $container-&gt;set(PluginInterface::class, function (Container $c) {
+            $plugin = new Competitions(
+                $c-&gt;get(DispatcherInterface::class),
+                (array) PluginHelper::getPlugin('system', 'competitions')
+            );
+            $plugin-&gt;setApplication(\Joomla\CMS\Factory::getApplication());
+            return $plugin;
+        });
+    }
+};
+</code></pre>
+
+<p>De extension-klasse is waar de events worden aangesloten. Voor een publieke read-view doen twee events het meeste werk: <code>onAfterRoute</code> om het URL-patroon van de bond te herkennen en <code>onAfterDispatch</code> om te renderen. De volledige lijst system events staat in <a href="https://docs.joomla.org/Plugin/Events/System">de Joomla-documentatie</a>.</p>
+
+<pre><code class="lang-php">&lt;?php
+namespace Federation\Plugin\System\Competitions\Extension;
+
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\Event\SubscriberInterface;
+
+final class Competitions extends CMSPlugin implements SubscriberInterface
+{
+    public static function getSubscribedEvents(): array
+    {
+        return [
+            'onAfterRoute'    =&gt; 'handleRoute',
+            'onAfterDispatch' =&gt; 'renderIfOurs',
+        ];
+    }
+
+    public function handleRoute(): void
+    {
+        $path = trim(\Joomla\CMS\Uri\Uri::getInstance()-&gt;getPath(), '/');
+        if (!str_starts_with($path, 'competitions/')) {
+            return;
+        }
+        $this-&gt;getApplication()-&gt;input-&gt;set('comp_route', explode('/', $path));
+    }
+
+    public function renderIfOurs(): void
+    {
+        $segments = $this-&gt;getApplication()-&gt;input-&gt;get('comp_route', null, 'array');
+        if (!$segments) {
+            return;
+        }
+        echo (new Renderer())-&gt;render($segments);
+        $this-&gt;getApplication()-&gt;close();
+    }
+}
+</code></pre>
+
+<p>Dat is de hele pipeline. Geen component-installatie, geen admin-menu's, geen toolbars. De renderer is een klasse van 200 regels die wedstrijden laadt via de <code>MatchTable</code> hierboven, ze door een Twig-template haalt en HTML teruggeeft. Niks bijzonders en niks wat het oude component anders deed.</p>
+
+<h2>De oude URL's opvangen</h2>
+
+<p>De bond had twaalf jaar aan inbound links naar URL's als <code>/competitions/2017/eerste-divisie/match-1923</code>. Die breken was geen optie. De plugin claimt de URL-ruimte vóór de router van Joomla door <code>onAfterRoute</code> aan te haken en sluit het dispatch-proces vervolgens kort met <code>$app-&gt;close()</code> zodra hij gerenderd heeft.</p>
+
+<p>Voor de handvol legacy-patronen die wél veranderden (de oude <code>?option=com_competitions&amp;view=match&amp;id=42</code> querystrings) vertaalt een klein <code>.htaccess</code>-blok vóór Joomla ze:</p>
+
+<pre><code class="lang-apache">RewriteCond %{QUERY_STRING} (^|&amp;)option=com_competitions&amp;view=match&amp;id=([0-9]+)
+RewriteRule ^index\.php$ /competitions/match-%2? [R=301,L]
+</code></pre>
+
+<p>301, geen 302. Zoekmachines moeten de oude URL's netjes uitfaseren. De <a href="https://httpd.apache.org/docs/2.4/rewrite/intro.html">Apache mod_rewrite docs</a> zijn de moeite van een herlezing waard als jouw patronen pittiger zijn dan deze.</p>
+
+<h2>Admin zonder component</h2>
+
+<p>Een volledig Joomla 5 admin-component bouwen voor twee edits per jaar is overkill. Twee patronen werken, afhankelijk van hoe vaak editors echt inloggen.</p>
+
+<h3>Klein AJAX-endpoint via com_ajax</h3>
+
+<p>Voor de schorsingstabel exposeert dezelfde plugin een backend-view via <code>com_ajax</code>. Eén menulink wijst naar <code>/administrator/index.php?option=com_ajax&amp;plugin=competitions&amp;task=sanctions&amp;format=html</code>. De plugin rendert een lijst, een edit-formulier en een save-handler. Twee admin-gebruikers, allebei tevreden.</p>
+
+<h3>CSV erin via een console plugin</h3>
+
+<p>De nachtelijke fixture-import was het op één na grootste stuk van het oude component. In Joomla 5 wordt het een CLI-plugin die je draait via <code>php cli/joomla.php fixtures:import path/to/file.csv</code>. De cron-aanroep is één regel, de code staat in <code>plugins/console/fixtures/</code> en de import gebruikt dezelfde <code>MatchTable</code> als de frontend. Eén model, één bron van waarheid.</p>
+
+<aside class="callout">
+<p><strong>PHP 8.2 brengt iedere dynamic property in je oude code naar boven.</strong> De <code>JModel</code>-subklassen van de bond zetten members als <code>$this-&gt;cache_enabled = false</code> zonder ze te declareren. Onder 8.2 geven die deprecation notices; in striktere setups gaan ze fataal. Draai de gemigreerde plugin op een staging-kopie met <code>error_reporting(E_ALL)</code> voordat je DNS omzet. De <a href="https://www.php.net/manual/en/migration82.deprecated.php">PHP 8.2 deprecation notes</a> bevatten de volledige lijst.</p>
+</aside>
+
+<h2>Na de cutover</h2>
+
+<p>De lift kostte acht werkdagen. Vier waren het plugin-werk zelf, vier waren het testen van routes tegen de live URL-inventaris die we uit de access logs trokken. De oude <code>com_competitions</code>-map werd hernoemd naar <code>com_competitions.disabled</code> en twee weken op schijf gelaten voor het geval we terug moesten rollen. Dat hoefde niet.</p>
+
+<p>Een paar dingen waren het waard om onderweg te doen:</p>
+
+<ul>
+<li>Maak een snapshot van de database vóór de prefix-rename. <code>mysqldump --single-transaction</code> met een timestamp in de bestandsnaam.</li>
+<li>Pin de PHP-versie van de hosting expliciet op 8.2. 'Latest' is geen versie.</li>
+<li>Gooi de overgebleven <code>jos_session</code>- en <code>jos_messages</code>-tabellen weg zodra Joomla 5 zijn eigen equivalenten heeft weggeschreven.</li>
+<li>Bewaar een kopie van de oude <code>configuration.php</code>. De secret key erin gebruikt Joomla 5 niet, maar alles wat je ermee versleuteld hebt (opgeslagen API-tokens voor de CSV-feed, in ons geval) heeft de oude sleutel nodig om te decrypten voordat je het opnieuw versleutelt onder de nieuwe.</li>
+</ul>
+
+<p>Toen we Pier bouwden liepen we bij meerdere agency-klanten tegen precies dit patroon aan, waarbij de audit op live tabellen plaatsvindt en achter iedere wijziging een one-click undo nodig is. Het werd uiteindelijk een combinatie van de <a href="/#database">MySQL-editor</a> met per-rij <a href="/#features">versiegeschiedenis</a>, zodat een prefix-rename of een opschoonquery op een <a href="/">legacy site</a> teruggedraaid kan worden zonder een restore vanuit de dump.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: open de <code>install.sql</code> van het oude component, lijst iedere <code>CREATE TABLE</code> op en schrijf de bijbehorende <code>RENAME TABLE</code>-statements weg in een bestand. Dat bestand is de ruggengraat van de migratie. Al het andere hangt eraan.</p>
+    </div>
+
+    <aside class="pullquote">Een Joomla 2.5 component heeft geen port nodig. Behoud de tabellen, til het read-pad in een plugin en laat events doen wat MVC vroeger deed.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Moet ik het hele component converteren?</p>
+      <p class="faq-a">Nee. De meeste legacy components hebben één of twee views die het publieke verkeer trekken. Til die in een plugin en laat het schaarse adminwerk over aan een com_ajax-endpoint of directe table-tooling.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Blijven de oude URL&#39;s werken?</p>
+      <p class="faq-a">Ja, mits je ze claimt in onAfterRoute en een 301 .htaccess-regel toevoegt voor eventuele legacy querystring-patronen. Trek de URL-inventaris uit je access logs voordat je begint.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe zit het met ACL?</p>
+      <p class="faq-a">Gebruik de core ACL van Joomla 5 op de com_ajax-endpoints van de plugin. ACL-regels werken per usergroup, niet per extensietype, dus je hebt geen component-manifest nodig om toegang af te schermen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/latin1-to-utf8mb4-joomla-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.webp" type="image/webp">
+        <img src="/nl/blog/latin1-to-utf8mb4-joomla-migration/hero.jpg" alt="Bovenaanzicht SQL-script met utf8mb4-commando&#39;s, mojibake-correctie, messing plaatje, loep en lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Latin1 naar utf8mb4 op oude Joomla: zonder mojibake migreren</h3>
+      <span class="pc-lede">Een Nederlands bureau erfde een Joomla-site uit 2011. Alles leek prima tot iemand op een accent zocht. Zo migreer je latin1 naar utf8mb4 zonder mojibake.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/mapping-php-include-dependencies/hero.webp" type="image/webp">
+        <img src="/nl/blog/mapping-php-include-dependencies/hero.jpg" alt="Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>14 PHP-includes per pagina: dependencies in kaart brengen</h3>
+      <span class="pc-lede">Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/joomla-component-to-plugin/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
