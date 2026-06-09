@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>slow_query_log lezen op shared hosting: vier patronen · Pier — Blog</title>
+<meta name="description" content="Vier MySQL slow_query_log-patronen die het grootste deel van de pijn op shared hosting verklaren. De EXPLAIN die je krijgt, de index die het oplost, en wat je kunt laten staan.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, wordpress, databases, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/slow-query-log-shared-host-patterns/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/slow-query-log-shared-host-patterns/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="slow_query_log lezen op shared hosting: vier patronen">
+<meta property="og:description" content="Vier MySQL slow_query_log-patronen die het grootste deel van de pijn op shared hosting verklaren. De EXPLAIN die je krijgt, de index die het oplost, en wat je kunt laten staan.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van MySQL slow query log met rode potloodnotities, manila tabs, EXPLAIN-vel, koperen plaatje, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T09:22:17.848Z">
+<meta property="article:modified_time" content="2026-06-09T09:22:17.848Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="slow_query_log lezen op shared hosting: vier patronen">
+<meta name="twitter:description" content="Vier MySQL slow_query_log-patronen die het grootste deel van de pijn op shared hosting verklaren. De EXPLAIN die je krijgt, de index die het oplost, en wat je kunt laten staan.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van MySQL slow query log met rode potloodnotities, manila tabs, EXPLAIN-vel, koperen plaatje, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/slow-query-log-shared-host-patterns/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/"},
+  "url":"https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/",
+  "headline":"slow_query_log lezen op shared hosting: vier patronen",
+  "description":"Vier MySQL slow_query_log-patronen die het grootste deel van de pijn op shared hosting verklaren. De EXPLAIN die je krijgt, de index die het oplost, en wat je kunt laten staan.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van MySQL slow query log met rode potloodnotities, manila tabs, EXPLAIN-vel, koperen plaatje, lakzegel."
+  },
+  "datePublished":"2026-06-09T09:22:17.848Z",
+  "dateModified":"2026-06-09T09:22:17.848Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, wordpress, databases, php, operations",
+  "wordCount":1436,
+  "articleSection":"Databases",
+  "articleBody":"Dinsdagmiddag, een site die je vorige maand hebt overgenomen van een andere freelancer, en de CPU-grafiek van de host piekt elke negentig seconden. Je klikt wat rond in cPanel, vindt phpMyAdmin, en de homepage doet vier seconden tot first byte. Je zou er graag een profiler aan hangen, maar je hebt geen shell-toegang. Wat je wel hebt is slow_query_log (de hostingmaatschappij heeft het aan laten staan, of je hebt het zelf aangezet) en 12.000 regels van de laatste 24 uur in /home/oldsite/logs/ . De meeste regels zien er hetzelfde uit. Dat is het goede nieuws. Op een legacy site verklaren vier querypatronen ongeveer 80% van wat slow_query_log laat zien. De andere 20% is echt interessant werk; de vier hieronder zijn meestal een kwartiertje werk zodra je ze kunt lezen. Waar het logbestand staat als je geen root hebt Op shared hosting staat de slow query log bijna nooit in /var/log/mysql/ . Hosters leiden het per account om, omdat ze niet willen dat je queries van andere klanten ziet. De twee locaties die je echt tegenkomt: # cPanel / DirectAdmin / Plesk /home/<account>/logs/slow_query.log ~/tmp/slow_query.log # Managed WP-hosting (vaak uitgeschakeld, soms read-only) /var/log/mysql-slow.log Is het bestand leeg, kijk dan naar long_query_time . Op shared hosting staat die standaard meestal op 2.0 seconden, en een query die MySQL 400 keer per minuut bestookt op 1,2 seconden per stuk komt zo nooit in beeld. Kun je SQL uitvoeren, zet de drempel dan tijdelijk lager: SET GLOBAL long_query_time = 0.5; SET GLOBAL slow_query_log = 'ON'; De meeste shared hosts weigeren SET GLOBAL van een onbevoorrechte gebruiker. Zo ja, open een ticket en vraag of ze het voor jouw account willen instellen. Dit is een standaardverzoek en ze hebben er een runbook voor. De MySQL reference manual beschrijft de variabelen volledig als support tegenspartelt. Zodra er data binnenkomt, lees het log eerst rauw door voordat je mysqldumpslow of pt-query-digest erbij pakt. Je wilt eerst de vorm van de ruis voelen. Patroon 1: autoload die de database opvrat De allergrootste klassieker op een WordPress-site die langer dan drie jaar draait: SELECT option_name, option_value FROM wp_options WHERE autoload = 'yes'; Dit draait bij elke request. Het zou een paar honderd kilobyte moeten teruggeven. Op de site uit het voorbeeld was het 47 MB. De oorzaak is bijna altijd een plugin die naar wp_options schrijft met autoload = 'yes' voor dingen die niet zouden moeten autoladen: transients die hun expiry zijn vergeten, grote arrays met gecachte API-responses, de zevendaagse rolling stats van een analyticsplugin. De query zelf is prima. De data is wat kapot is. EXPLAIN ziet er gezond uit: +----+-------------+------------+------+----------+------+ | id | select_type | table | type | key | rows | +----+-------------+------------+------+----------+------+ | 1 | SIMPLE | wp_options | ref | autoload | 1432 | +----+-------------+------------+------+----------+------+ De index wordt gebruikt. Het probleem is het aantal bytes dat teruggegeven wordt. Spoor de boosdoeners op: SELECT option_name, LENGTH(option_value) AS bytes FROM wp_options WHERE autoload = 'yes' ORDER BY bytes DESC LIMIT 20; Alles boven de 100 KB is verdacht. Alles boven de 1 MB is bijna altijd fout. Achterhaal per regel de plugin en zet vervolgens autoload uit of verwijder de rij: UPDATE wp_options SET autoload = 'no' WHERE option_name = 'gravityform_cache_meta'; Maak eerst een back-up. wp_options is de WordPress-tabel die je het makkelijkst sloopt. De wp_load_alloptions -referentie is het lezen waard als je wilt begrijpen hoe WordPress het resultaat bij elke request inleest. Patroon 2: ORDER BY post_date zonder dekkende index Het op één na meest voorkomende patroon, van dezelfde site: SELECT SQL_CALC_FOUND_ROWS wp_posts.ID FROM wp_posts WHERE wp_posts.post_type = 'product' AND wp_posts.post_status = 'publish' ORDER BY wp_posts.post_date DESC LIMIT 0, 12; WooCommerce-shoppagina, standaard gesorteerd op datum. 0,9 seconde per aanroep. Er zijn 84.000 producten. De standaard WordPress-index op wp_posts dekt (post_type, post_status, post_date, ID) en heet type_status_date . Ontbreekt die (een vorige ontwikkelaar heeft hem gedropt, of de tabel is opgebouwd uit een gedeeltelijke dump), dan valt MySQL terug op een filesort: Extra: Using where; Using filesort Dat woord, \"filesort\", is je signaal. Het betekent dat MySQL de resultaten na het inlezen sorteert, wat op een grote tabel traag is. Zet de index terug: ALTER TABLE wp_posts ADD INDEX type_status_date (post_type, post_status, post_date, ID); Doe dit in een rustig uur. Op InnoDB met MySQL 5.7 of nieuwer is dit een online operatie, maar het vreet alsnog IO en zet aan het begin en eind kort een lock op. Nu je er toch bent: sloop SQL_CALC_FOUND_ROWS als de aanroepende code dat toelaat. WordPress core gebruikt het voor paginatie-tellingen, maar het dwingt MySQL de volledige resultset te materialiseren, wat de kosten ongeveer verdubbelt. Een aparte SELECT COUNT(*) is s",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"slow_query_log lezen op shared hosting: vier patronen","item":"https://pier.abn.company/nl/blog/slow-query-log-shared-host-patterns/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waar zet shared hosting het slow_query_log neer?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Meestal in /home/<account>/logs/slow_query.log of ~/tmp/slow_query.log op cPanel-achtige hosts. Managed WP-hosters zetten het vaak standaard uit; open een ticket en vraag support om het voor jouw account aan te zetten."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom toont mijn slow log geen queries die ik wel in Query Monitor zie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Je long_query_time staat waarschijnlijk op 1.0 of 2.0 seconden. Snelle queries die honderden keren per minuut draaien komen nooit boven die drempel uit. Zet hem tijdelijk op 0.5 of 0 en kijk opnieuw."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ALTER TABLE wp_posts veilig op een live site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op InnoDB met MySQL 5.7 of nieuwer is een index toevoegen een online operatie. Het gebruikt wel IO en zet aan het begin en eind kort een lock op, dus doe het in een rustig uur en maak eerst een back-up."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/slow-query-log-shared-host-patterns/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 059</span>
+      </div>
+      <p class="eyebrow"><span class="n">059 —</span>Databases</p>
+      <h1 class="display-l post-title">slow_query_log lezen op shared hosting: vier patronen</h1>
+      <p class="lede post-lede">Vier MySQL slow_query_log-patronen die het grootste deel van de pijn op shared hosting verklaren. De EXPLAIN die je krijgt, de index die het oplost, en wat je kunt laten staan.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T09:22:17.848Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/slow-query-log-shared-host-patterns/hero.webp" type="image/webp">
+      <img src="/blog/slow-query-log-shared-host-patterns/hero.jpg" alt="Bovenaanzicht van MySQL slow query log met rode potloodnotities, manila tabs, EXPLAIN-vel, koperen plaatje, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 059</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Dinsdagmiddag, een site die je vorige maand hebt overgenomen van een andere freelancer, en de CPU-grafiek van de host piekt elke negentig seconden. Je klikt wat rond in cPanel, vindt phpMyAdmin, en de homepage doet vier seconden tot first byte. Je zou er graag een profiler aan hangen, maar je hebt geen shell-toegang. Wat je wel hebt is <code>slow_query_log</code> (de hostingmaatschappij heeft het aan laten staan, of je hebt het zelf aangezet) en 12.000 regels van de laatste 24 uur in <code>/home/oldsite/logs/</code>.</p>
+<p>De meeste regels zien er hetzelfde uit. Dat is het goede nieuws. Op een <a href="/">legacy site</a> verklaren vier querypatronen ongeveer 80% van wat slow_query_log laat zien. De andere 20% is echt interessant werk; de vier hieronder zijn meestal een kwartiertje werk zodra je ze kunt lezen.</p>
+<h2>Waar het logbestand staat als je geen root hebt</h2>
+<p>Op shared hosting staat de slow query log bijna nooit in <code>/var/log/mysql/</code>. Hosters leiden het per account om, omdat ze niet willen dat je queries van andere klanten ziet. De twee locaties die je echt tegenkomt:</p>
+<pre><code class="lang-bash"># cPanel / DirectAdmin / Plesk
+/home/&lt;account&gt;/logs/slow_query.log
+~/tmp/slow_query.log
+
+# Managed WP-hosting (vaak uitgeschakeld, soms read-only)
+/var/log/mysql-slow.log</code></pre>
+<p>Is het bestand leeg, kijk dan naar <code>long_query_time</code>. Op shared hosting staat die standaard meestal op <code>2.0</code> seconden, en een query die MySQL 400 keer per minuut bestookt op 1,2 seconden per stuk komt zo nooit in beeld. Kun je SQL uitvoeren, zet de drempel dan tijdelijk lager:</p>
+<pre><code class="lang-sql">SET GLOBAL long_query_time = 0.5;
+SET GLOBAL slow_query_log = 'ON';</code></pre>
+<p>De meeste shared hosts weigeren <code>SET GLOBAL</code> van een onbevoorrechte gebruiker. Zo ja, open een ticket en vraag of ze het voor jouw account willen instellen. Dit is een standaardverzoek en ze hebben er een runbook voor. De <a href="https://dev.mysql.com/doc/refman/8.0/en/slow-query-log.html">MySQL reference manual</a> beschrijft de variabelen volledig als support tegenspartelt.</p>
+<p>Zodra er data binnenkomt, lees het log eerst rauw door voordat je <code>mysqldumpslow</code> of <code>pt-query-digest</code> erbij pakt. Je wilt eerst de vorm van de ruis voelen.</p>
+<h2>Patroon 1: autoload die de database opvrat</h2>
+<p>De allergrootste klassieker op een WordPress-site die langer dan drie jaar draait:</p>
+<pre><code class="lang-sql">SELECT option_name, option_value FROM wp_options WHERE autoload = 'yes';</code></pre>
+<p>Dit draait bij elke request. Het zou een paar honderd kilobyte moeten teruggeven. Op de site uit het voorbeeld was het 47 MB.</p>
+<p>De oorzaak is bijna altijd een plugin die naar <code>wp_options</code> schrijft met <code>autoload = 'yes'</code> voor dingen die niet zouden moeten autoladen: transients die hun expiry zijn vergeten, grote arrays met gecachte API-responses, de zevendaagse rolling stats van een analyticsplugin. De query zelf is prima. De data is wat kapot is.</p>
+<p>EXPLAIN ziet er gezond uit:</p>
+<pre><code class="lang-sql">+----+-------------+------------+------+----------+------+
+| id | select_type | table      | type | key      | rows |
++----+-------------+------------+------+----------+------+
+|  1 | SIMPLE      | wp_options | ref  | autoload | 1432 |
++----+-------------+------------+------+----------+------+</code></pre>
+<p>De index wordt gebruikt. Het probleem is het aantal bytes dat teruggegeven wordt. Spoor de boosdoeners op:</p>
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 20;</code></pre>
+<p>Alles boven de 100 KB is verdacht. Alles boven de 1 MB is bijna altijd fout. Achterhaal per regel de plugin en zet vervolgens autoload uit of verwijder de rij:</p>
+<pre><code class="lang-sql">UPDATE wp_options SET autoload = 'no' WHERE option_name = 'gravityform_cache_meta';</code></pre>
+<p>Maak eerst een back-up. <code>wp_options</code> is de WordPress-tabel die je het makkelijkst sloopt. De <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">wp_load_alloptions</a>-referentie is het lezen waard als je wilt begrijpen hoe WordPress het resultaat bij elke request inleest.</p>
+<h2>Patroon 2: ORDER BY post_date zonder dekkende index</h2>
+<p>Het op één na meest voorkomende patroon, van dezelfde site:</p>
+<pre><code class="lang-sql">SELECT SQL_CALC_FOUND_ROWS wp_posts.ID
+FROM wp_posts
+WHERE wp_posts.post_type = 'product'
+  AND wp_posts.post_status = 'publish'
+ORDER BY wp_posts.post_date DESC
+LIMIT 0, 12;</code></pre>
+<p>WooCommerce-shoppagina, standaard gesorteerd op datum. 0,9 seconde per aanroep. Er zijn 84.000 producten. De standaard WordPress-index op <code>wp_posts</code> dekt <code>(post_type, post_status, post_date, ID)</code> en heet <code>type_status_date</code>. Ontbreekt die (een vorige ontwikkelaar heeft hem gedropt, of de tabel is opgebouwd uit een gedeeltelijke dump), dan valt MySQL terug op een filesort:</p>
+<pre><code class="lang-sql">Extra: Using where; Using filesort</code></pre>
+<p>Dat woord, "filesort", is je signaal. Het betekent dat MySQL de resultaten na het inlezen sorteert, wat op een grote tabel traag is. Zet de index terug:</p>
+<pre><code class="lang-sql">ALTER TABLE wp_posts
+ADD INDEX type_status_date (post_type, post_status, post_date, ID);</code></pre>
+<p>Doe dit in een rustig uur. Op InnoDB met MySQL 5.7 of nieuwer is dit een online operatie, maar het vreet alsnog IO en zet aan het begin en eind kort een lock op.</p>
+<p>Nu je er toch bent: sloop <code>SQL_CALC_FOUND_ROWS</code> als de aanroepende code dat toelaat. WordPress core gebruikt het voor paginatie-tellingen, maar het dwingt MySQL de volledige resultset te materialiseren, wat de kosten ongeveer verdubbelt. Een aparte <code>SELECT COUNT(*)</code> is sneller op elke tabel boven een paar duizend rijen.</p>
+<h2>Patroon 3: LIKE '%term%' op post_content</h2>
+<pre><code class="lang-sql">SELECT * FROM wp_posts
+WHERE post_status = 'publish'
+  AND (post_title LIKE '%boiler%' OR post_content LIKE '%boiler%');</code></pre>
+<p>Zoekvak. Twee seconden. Elke keer.</p>
+<p>Een LIKE met een wildcard aan het begin kan geen B-tree-index gebruiken. Het scant altijd. Op een site met 40.000 posts en een gemiddelde <code>post_content</code> van 8 KB lees je per zoekopdracht zo'n 300 MB aan data. De oplossing is geen index. De oplossing is stoppen met zoeken via LIKE.</p>
+<p>Drie opties, oplopend in moeite:</p>
+<ol>
+<li><strong>Installeer Relevanssi of SearchWP.</strong> Die bouwen hun eigen indextabel. Vijf minuten, werkt.</li>
+<li><strong>MySQL FULLTEXT-index.</strong> Native, geen plugin. Werkt prima voor Latijnse scripts; minder goed voor CJK zonder tokenizer. <code>ALTER TABLE wp_posts ADD FULLTEXT(post_title, post_content);</code> en herschrijf de query naar <code>MATCH() AGAINST()</code>.</li>
+<li><strong>Externe zoekoplossing</strong> (Algolia, Meilisearch, Typesense). Voor de meeste legacy sites overkill.</li>
+</ol>
+<p>Kun je de zoekfunctie helemaal niet aanpassen, beperk dan op zijn minst de scope:</p>
+<pre><code class="lang-sql">AND post_type IN ('post', 'page', 'product')
+AND post_date &gt; '2022-01-01'</code></pre>
+<p>Kleinere scan, dezelfde UX voor 95% van de queries.</p>
+<h2>Patroon 4: de pluginloop die N+1 wordt</h2>
+<p>Deze ziet er niet uit als een trage query. Het lijken 600 identieke snelle queries.</p>
+<pre><code class="lang-sql">SELECT meta_value FROM wp_postmeta WHERE post_id = 12847 AND meta_key = '_stock_status';
+SELECT meta_value FROM wp_postmeta WHERE post_id = 12848 AND meta_key = '_stock_status';
+SELECT meta_value FROM wp_postmeta WHERE post_id = 12849 AND meta_key = '_stock_status';
+... 597 more</code></pre>
+<p>Elke query kost 3 ms. Totaal: 1,8 seconde per pagina. Geen enkele overschrijdt <code>long_query_time = 0.5</code>, dus ze duiken nooit op in de slow log. Je vindt ze door <code>long_query_time = 0</code> te zetten voor één minuut en mee te kijken, of door Query Monitor aan te zetten voor één ingelogde admin-sessie.</p>
+<p>De oorzaak heeft altijd dezelfde vorm: een loop over posts die per rij <code>get_post_meta()</code> aanroept, zonder dat <code>update_meta_cache()</code> de cache vult en zonder <code>'update_post_meta_cache' =&gt; true</code> op de bovenliggende <code>get_posts()</code>. Een WooCommerce-shortcode die producten op voorraadstatus lijst. Een custom widget die laatst-bijgewerkt-datums ophaalt. Een themafooter die reacties per categorie telt.</p>
+<p>Fix het in de applicatielaag:</p>
+<pre><code class="lang-php">$ids = wp_list_pluck( $products, 'ID' );
+update_meta_cache( 'post', $ids ); // één query, vult de cache
+foreach ( $products as $product ) {
+    $stock = get_post_meta( $product-&gt;ID, '_stock_status', true );
+    // ...
+}</code></pre>
+<p>Eén query in plaats van 600. De slow log valt vanzelf stil zodra de buffer pool niet meer aan het thrashen is.</p>
+<aside class="callout">Een query die 400 keer per minuut draait op 0,4 seconde kost meer dan een query die één keer per minuut 8 seconden duurt. Sorteer de log op totale wandkloktijd, niet op tijd-per-query. <code>pt-query-digest</code> doet dat standaard; <code>mysqldumpslow -s t</code> ook.</aside>
+<h2>De volgorde waarin je triage doet</h2>
+<p>Open de log, groepeer identieke queries op fingerprint, en stel per cluster de vraag: hoeveel wandkloktijd per uur kost dit? Patroon 1 beantwoordt zichzelf meestal binnen dertig seconden in <code>wp_options</code>. Patroon 2 is één <code>ALTER TABLE</code>. Patroon 3 is een plugin-installatie. Patroon 4 vereist een ontwikkelaar, maar je kunt het in- of uitsluiten door Query Monitor op een staging-kopie aan te zetten en de homepage te herladen.</p>
+<p>Fix je autoload eerst, dan worden vrijwel alle andere patronen als bijwerking iets sneller. Minder druk op de InnoDB buffer pool betekent dat meer van <code>wp_posts</code> in het geheugen blijft, wat weer betekent dat filesorts en full scans minder fysieke IO doen.</p>
+<h2>Wat je vandaag nog kunt doen</h2>
+<p>Trek de slow_query_log van gisteren naar je laptop, sorteer de top 20 queries op totale wandkloktijd, en kijk of het eerste cluster overeenkomt met Patroon 1. Zo ja, dan heb je een fix die je binnen een uur kunt uitrollen, en die één <code>UPDATE</code> verwijderd is van een snellere homepage. Toen we <a href="https://pier.abn.company">Pier</a> bouwden kwamen we dit op vrijwel elke andere site tegen waar we op dockten. Hoe we het uiteindelijk hebben opgelost: een slow-query-view die het log koppelt aan tabelgroottes en de <a href="/#database">MySQL editor</a> in één paneel, met <a href="/#features">versiegeschiedenis</a> op elke UPDATE zodat een verkeerde autoload-toggle terugdraaien één toetsaanslag is.</p>
+    </div>
+
+    <aside class="pullquote">Vier querypatronen verklaren ongeveer 80% van de ruis in slow_query_log op verouderde WordPress-sites: opgeblazen autoload, ontbrekende index, LIKE met wildcard vooraan, en N+1-loops.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waar zet shared hosting het slow_query_log neer?</p>
+      <p class="faq-a">Meestal in /home/&lt;account&gt;/logs/slow_query.log of ~/tmp/slow_query.log op cPanel-achtige hosts. Managed WP-hosters zetten het vaak standaard uit; open een ticket en vraag support om het voor jouw account aan te zetten.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom toont mijn slow log geen queries die ik wel in Query Monitor zie?</p>
+      <p class="faq-a">Je long_query_time staat waarschijnlijk op 1.0 of 2.0 seconden. Snelle queries die honderden keren per minuut draaien komen nooit boven die drempel uit. Zet hem tijdelijk op 0.5 of 0 en kijk opnieuw.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is ALTER TABLE wp_posts veilig op een live site?</p>
+      <p class="faq-a">Op InnoDB met MySQL 5.7 of nieuwer is een index toevoegen een online operatie. Het gebruikt wel IO en zet aan het begin en eind kort een lock op, dus doe het in een rustig uur en maak eerst een back-up.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Bovenaanzicht op linnen: MySQL-werkblad, phpMyAdmin-uitdraai, TTFB-grafiek, manilla tab, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>40GB wp_options autoload: één nacht terug naar 800ms TTFB</h3>
+      <span class="pc-lede">Een Loom om 23:41, homepage-TTFB boven acht seconden, en een wp_options-tabel die stil naar 40GB was gegroeid. Drie SQL-statements, één lange nacht.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-mysql-maintainer-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-mysql-maintainer-cheatsheet/hero.jpg" alt="Open houten kaartenbaklade op eiken bureau, messing labelhouder, waaiervormige indexkaarten, rood verzegeld papieren label." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>14 mei 2026</span></span>
+      <h3>WordPress MySQL queries: spiekbriefje voor legacy beheer</h3>
+      <span class="pc-lede">De handvol SQL-queries die een verouderde WordPress-site redden op dinsdagavond: URL-paar, autoload-audit, revisies opschonen, wachtwoord, transients.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/slow-query-log-shared-host-patterns/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
