@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Staging via alleen SFTP: het lftp-en-rewrite draaiboek · Pier — Blog</title>
+<meta name="description" content="Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, wordpress, sftp, mysql, htaccess, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Staging via alleen SFTP: het lftp-en-rewrite draaiboek">
+<meta property="og:description" content="Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Inkttekening mappenboom, rsync-werkblad, manila SFTP-tab, messing STAGING-label, rode lakzegel op .htaccess-uitdraai.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T20:40:58.558Z">
+<meta property="article:modified_time" content="2026-06-09T20:40:58.558Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Staging via alleen SFTP: het lftp-en-rewrite draaiboek">
+<meta name="twitter:description" content="Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Inkttekening mappenboom, rsync-werkblad, manila SFTP-tab, messing STAGING-label, rode lakzegel op .htaccess-uitdraai.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/sftp-only-staging-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/sftp-only-staging-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/sftp-only-staging-playbook/"},
+  "url":"https://pier.abn.company/nl/blog/sftp-only-staging-playbook/",
+  "headline":"Staging via alleen SFTP: het lftp-en-rewrite draaiboek",
+  "description":"Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/sftp-only-staging-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Inkttekening mappenboom, rsync-werkblad, manila SFTP-tab, messing STAGING-label, rode lakzegel op .htaccess-uitdraai."
+  },
+  "datePublished":"2026-06-09T20:40:58.558Z",
+  "dateModified":"2026-06-09T20:40:58.558Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, wordpress, sftp, mysql, htaccess, tooling",
+  "wordCount":1837,
+  "articleSection":"Workflow",
+  "articleBody":"Het is vrijdag 17:40. Een WooCommerce-winkel bij een Nederlandse reseller-host moet naar PHP 8.2 voordat de provider er maandag de knop omzet. De site is twaalf jaar oud, de ontwikkelaar die hem ooit gebouwd heeft is onbereikbaar, en het hostingpakket is de goedkope variant: cPanel, SFTP, MySQL via de publieke socket, geen SSH-shell, geen git, geen Docker, geen staging-slot. De opdracht luidt &ldquo;zorg dat de checkout blijft werken na de PHP-upgrade.&rdquo; Zonder een manier om te testen is die opdracht onbeantwoordbaar. In deze situatie zit een verrassend groot deel van de legacy sites nog steeds. De hostingmarkt is in tweeën gespleten. Managed pakketten geven je push-to-deploy, container-slots en one-click staging. Budgetpakketten geven je SFTP en een phpMyAdmin-tab. De meeste WordPress-, Drupal-, Joomla- en Magento-sites die we onder handen krijgen draaien op een budgetpakket, omdat dat tien jaar geleden is afgesloten en niemand een reden heeft gehad om te wisselen. Hieronder staat het draaiboek dat we gebruiken als de host alleen SFTP biedt en vrijwel niets anders. De vorm is voor elk CMS hetzelfde: trek productie naar beneden, push een kopie naar een naburige locatie, herschrijf de URLs in code en database, en zet die kopie achter Basic Auth zodat zoekmachines en klanten hem niet kunnen vinden. De SFTP-only beperking SFTP is een subsysteem van SSH. Het protocol is hetzelfde. De reden dat een host SFTP kan aanbieden zonder shell-toegang te geven is dat sshd zo te configureren is dat hij file-transfers accepteert en al het andere weigert. Op de meeste goedkope hosts zien de relevante regels in /etc/ssh/sshd_config er ongeveer zo uit: Match Group sftponly ChrootDirectory /home/%u ForceCommand internal-sftp AllowTcpForwarding no X11Forwarding no Die ForceCommand internal-sftp is de poort. Je kunt inloggen, files listen, uploaden, downloaden. Een command draaien kan niet. Dat betekent geen rsync op de server, geen mysqldump , geen wp-cli , geen tar . Alles moet vanaf je laptop gebeuren, met de remote behandeld als een domme filesystem. Het goede nieuws is dat het OpenSSH-project het SFTP-subsysteem helder documenteert en het protocol breed ondersteund is. sftp(1) op jouw machine praat met sftp-server(8) op die van hen, en dat is het hele oppervlak waar je mee mag werken. De mappenstructuur Voordat er ook maar één bestand verplaatst wordt, bepaal je waar de kopie komt te staan. Twee opties werken: Naburige subdirectory. Plaats de staging-kopie op /public_html/staging/ zodat hij op https://example.com/staging/ draait. Simpelst, goedkoopst, geen DNS-wijzigingen. Subdomein. Maak staging.example.com aan in het DNS-paneel van de host en wijs het aan een naburige map zoals /public_html_staging/ . Schonere URLs, makkelijker om cookies te scopen, makkelijker apart af te schermen. De subdomein-variant heeft de voorkeur als het CMS absolute URLs in de database schrijft, en dat doen WordPress, Magento en Joomla allemaal. Een staging-URL van https://staging.example.com/ is één enkel search-replace-doel. https://example.com/staging/ zijn er twee: de host en het pad-prefix. Dat verschil telt zwaar als je tienduizend rijen moet herschrijven. Als je alleen een subdirectory kunt krijgen, kies dan een naam die niet te raden is en die niet in de standaard-DNS-template van de host staat. /staging/ is prima zolang je hem ook achter Basic Auth zet. /dev/ , /test/ en /preview/ worden binnen een paar uur door bots gevonden. Productie binnenhalen met lftp Zonder shell op de server kun je daar geen rsync draaien. Je kunt de server ook niet de boel laten inpakken tot een tarball voor één enkele download. Beide kanten van de SFTP-sessie zijn dom. Productie binnenhalen betekent dus zoveel parallelle SFTP-transfers openen dat de bandbreedte vol zit voordat de protocol-overhead de bottleneck wordt. De tool die we pakken is lftp . Hij spreekt SFTP, doet directory-mirroring met dezelfde semantiek als rsync, en parallelliseert transfers zonder dat er iets op de server hoeft te draaien. Een pull ziet er zo uit: lftp -u user,'password' sftp://sftp.example.com -e \" set sftp:auto-confirm yes; set net:connection-limit 8; mirror --parallel=8 --only-newer --exclude-glob '*.log' \\ --exclude-glob 'wp-content/cache/*' \\ /public_html/ ~/sites/example.com/prod/; bye\" Acht parallelle streams is de sweet spot op de meeste consumentenverbindingen. Meer dan dat en de SSH-daemon van de host begint connecties te weigeren. De --only-newer -vlag maakt van de tweede pull een incremental: alleen bestanden met een nieuwere mtime dan de lokale kopie worden gedownload. Bij een WordPress-installatie van 4 GB met 80.000 mediabestanden duurt de eerste pull een avond. De tweede duurt één koffie. Heb je lftp niet bij de hand, dan werkt rclone met de sftp -backend vergelijkbaar: rclone sync :sftp:public_html ~/sites/example.com/prod --sftp-host sftp.example.com . Hetzelfde patroon. Let op cache-directories. WordPress onder W3 Total Cache, Magento onder var/cache/ en Dru",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/sftp-only-staging-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Staging via alleen SFTP: het lftp-en-rewrite draaiboek","item":"https://pier.abn.company/nl/blog/sftp-only-staging-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik rsync direct over SFTP gebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. rsync heeft zijn binary aan beide kanten nodig én een shell om hem aan te roepen. Geeft de host je alleen SFTP, gebruik dan het mirror-command van lftp of rclone met de sftp-backend."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat breekt er als ik URLs in een SQL-dump met sed search-and-replace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress en Magento bewaren PHP serialized arrays met URLs erin. Serialized strings coderen hun eigen lengte, dus een naïeve replace maakt ze onparseerbaar en de data verdwijnt geruisloos."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heb ik een aparte database nodig voor staging?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, of in elk geval een aparte set tabellen in dezelfde database. De productie-database delen met herschreven URLs erin lekt staging-URLs via cron of webhooks terug naar productie."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/sftp-only-staging-playbook/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 072</span>
+      </div>
+      <p class="eyebrow"><span class="n">072 —</span>Workflow</p>
+      <h1 class="display-l post-title">Staging via alleen SFTP: het lftp-en-rewrite draaiboek</h1>
+      <p class="lede post-lede">Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T20:40:58.558Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/sftp-only-staging-playbook/hero.webp" type="image/webp">
+      <img src="/blog/sftp-only-staging-playbook/hero.jpg" alt="Inkttekening mappenboom, rsync-werkblad, manila SFTP-tab, messing STAGING-label, rode lakzegel op .htaccess-uitdraai." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 072</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is vrijdag 17:40. Een WooCommerce-winkel bij een Nederlandse reseller-host moet naar PHP 8.2 voordat de provider er maandag de knop omzet. De site is twaalf jaar oud, de ontwikkelaar die hem ooit gebouwd heeft is onbereikbaar, en het hostingpakket is de goedkope variant: cPanel, SFTP, MySQL via de publieke socket, geen SSH-shell, geen git, geen Docker, geen staging-slot. De opdracht luidt &ldquo;zorg dat de checkout blijft werken na de PHP-upgrade.&rdquo; Zonder een manier om te testen is die opdracht onbeantwoordbaar.</p><p>In deze situatie zit een verrassend groot deel van de <a href="/">legacy sites</a> nog steeds. De hostingmarkt is in tweeën gespleten. Managed pakketten geven je push-to-deploy, container-slots en one-click staging. Budgetpakketten geven je SFTP en een phpMyAdmin-tab. De meeste WordPress-, Drupal-, Joomla- en Magento-sites die we onder handen krijgen draaien op een budgetpakket, omdat dat tien jaar geleden is afgesloten en niemand een reden heeft gehad om te wisselen.</p><p>Hieronder staat het draaiboek dat we gebruiken als de host alleen SFTP biedt en vrijwel niets anders. De vorm is voor elk CMS hetzelfde: trek productie naar beneden, push een kopie naar een naburige locatie, herschrijf de URLs in code en database, en zet die kopie achter Basic Auth zodat zoekmachines en klanten hem niet kunnen vinden.</p><h2>De SFTP-only beperking</h2><p>SFTP is een subsysteem van SSH. Het protocol is hetzelfde. De reden dat een host SFTP kan aanbieden zonder shell-toegang te geven is dat <code>sshd</code> zo te configureren is dat hij file-transfers accepteert en al het andere weigert. Op de meeste goedkope hosts zien de relevante regels in <code>/etc/ssh/sshd_config</code> er ongeveer zo uit:</p><pre><code class="lang-text">Match Group sftponly
+    ChrootDirectory /home/%u
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no</code></pre><p>Die <code>ForceCommand internal-sftp</code> is de poort. Je kunt inloggen, files listen, uploaden, downloaden. Een command draaien kan niet. Dat betekent geen <code>rsync</code> op de server, geen <code>mysqldump</code>, geen <code>wp-cli</code>, geen <code>tar</code>. Alles moet vanaf je laptop gebeuren, met de remote behandeld als een domme filesystem.</p><p>Het goede nieuws is dat het OpenSSH-project het SFTP-subsysteem helder documenteert en het protocol breed ondersteund is. <a href="https://man.openbsd.org/sftp">sftp(1)</a> op jouw machine praat met <a href="https://man.openbsd.org/sftp-server">sftp-server(8)</a> op die van hen, en dat is het hele oppervlak waar je mee mag werken.</p><h2>De mappenstructuur</h2><p>Voordat er ook maar één bestand verplaatst wordt, bepaal je waar de kopie komt te staan. Twee opties werken:</p><ul><li><strong>Naburige subdirectory.</strong> Plaats de staging-kopie op <code>/public_html/staging/</code> zodat hij op <code>https://example.com/staging/</code> draait. Simpelst, goedkoopst, geen DNS-wijzigingen.</li><li><strong>Subdomein.</strong> Maak <code>staging.example.com</code> aan in het DNS-paneel van de host en wijs het aan een naburige map zoals <code>/public_html_staging/</code>. Schonere URLs, makkelijker om cookies te scopen, makkelijker apart af te schermen.</li></ul><p>De subdomein-variant heeft de voorkeur als het CMS absolute URLs in de database schrijft, en dat doen WordPress, Magento en Joomla allemaal. Een staging-URL van <code>https://staging.example.com/</code> is één enkel search-replace-doel. <code>https://example.com/staging/</code> zijn er twee: de host en het pad-prefix. Dat verschil telt zwaar als je tienduizend rijen moet herschrijven.</p><p>Als je alleen een subdirectory kunt krijgen, kies dan een naam die niet te raden is en die niet in de standaard-DNS-template van de host staat. <code>/staging/</code> is prima zolang je hem ook achter Basic Auth zet. <code>/dev/</code>, <code>/test/</code> en <code>/preview/</code> worden binnen een paar uur door bots gevonden.</p><h2>Productie binnenhalen met lftp</h2><p>Zonder shell op de server kun je daar geen <code>rsync</code> draaien. Je kunt de server ook niet de boel laten inpakken tot een tarball voor één enkele download. Beide kanten van de SFTP-sessie zijn dom. Productie binnenhalen betekent dus zoveel parallelle SFTP-transfers openen dat de bandbreedte vol zit voordat de protocol-overhead de bottleneck wordt.</p><p>De tool die we pakken is <a href="https://lftp.yar.ru/lftp-man.html">lftp</a>. Hij spreekt SFTP, doet directory-mirroring met dezelfde semantiek als rsync, en parallelliseert transfers zonder dat er iets op de server hoeft te draaien. Een pull ziet er zo uit:</p><pre><code class="lang-bash">lftp -u user,'password' sftp://sftp.example.com -e "
+  set sftp:auto-confirm yes;
+  set net:connection-limit 8;
+  mirror --parallel=8 --only-newer --exclude-glob '*.log' \
+         --exclude-glob 'wp-content/cache/*' \
+         /public_html/ ~/sites/example.com/prod/;
+  bye"</code></pre><p>Acht parallelle streams is de sweet spot op de meeste consumentenverbindingen. Meer dan dat en de SSH-daemon van de host begint connecties te weigeren. De <code>--only-newer</code>-vlag maakt van de tweede pull een incremental: alleen bestanden met een nieuwere mtime dan de lokale kopie worden gedownload. Bij een WordPress-installatie van 4&nbsp;GB met 80.000 mediabestanden duurt de eerste pull een avond. De tweede duurt één koffie.</p><p>Heb je lftp niet bij de hand, dan werkt <a href="https://rclone.org/sftp/">rclone</a> met de <code>sftp</code>-backend vergelijkbaar: <code>rclone sync :sftp:public_html ~/sites/example.com/prod --sftp-host sftp.example.com</code>. Hetzelfde patroon.</p><aside class="callout"><strong>Let op cache-directories.</strong> WordPress onder W3 Total Cache, Magento onder <code>var/cache/</code> en Drupal onder <code>sites/default/files/php/</code> dumpen veel kleine bestanden die je niet wilt hebben en die vaak verouderde permissies meedragen. Sluit ze uit bij het binnenhalen, niet achteraf.</aside><h2>De database exporteren zonder shell-toegang</h2><p>Zonder shell valt <code>mysqldump</code> op de server af. Drie opties blijven over:</p><ol><li><strong>phpMyAdmin Export.</strong> Werkt voor databases tot ongeveer 200&nbsp;MB. Daarboven kapt de PHP-execution-timeout de export halverwege af.</li><li><strong>Directe MySQL-verbinding vanaf je laptop.</strong> Staat de host remote MySQL toe (veel cPanel-hosts doen dat, achter een allowlist), voeg dan je IP toe en draai <code>mysqldump -h db.example.com -u user -p dbname &gt; prod.sql</code>. Dit is de snelste en betrouwbaarste optie.</li><li><strong>Een wegwerp-PHP-script.</strong> Zet één <code>dump.php</code> in de document root die <code>SHOW TABLES</code>- en <code>SELECT *</code>-output streamt als SQL. Verwijder het script zodra de dump klaar is.</li></ol><p>Voor grotere databases werkt de derde route, omdat PHP's <code>fputs</code> naar <code>php://output</code> zo snel streamt als het netwerk toelaat, zonder execution timeout als je <code>ignore_user_abort(true)</code> zet en de rijen in chunks leest. Driehonderd regels code, één IP-allowlist op het script, en direct verwijderen zodra de dump op schijf staat.</p><h2>URLs herschrijven zonder serialized data te slopen</h2><p>Hier struikelen de meeste SFTP-only staging-pogingen. De naïeve aanpak is de SQL-dump in een editor openen, <code>https://example.com</code> vervangen door <code>https://staging.example.com</code> en importeren. Op een statische HTML-site werkt dat. Op WordPress, Magento, of wat dan ook dat PHP serialized arrays in de database opslaat, corrupteert het de database.</p><p>Serialized strings coderen hun eigen lengte. Een waarde als:</p><pre><code class="lang-php">s:18:"https://example.com";</code></pre><p>wordt na een domme replace:</p><pre><code class="lang-php">s:18:"https://staging.example.com";</code></pre><p>De <code>s:18</code> zegt nog steeds dat de string 18 bytes lang is. De string is nu 26 bytes. PHP's unserialize geeft <code>false</code> terug, en de option, de widget, de theme-setting, het adres-record, wat het ook was, verdwijnt geruisloos uit de admin-UI.</p><p>De fix is een tool gebruiken die de database doorloopt, elke waarde unserializet, de replace uitvoert op de strings binnen de structuur, en weer reserializeert. Voor sites waar je wel PHP op de host kunt draaien maar geen shell hebt, is <a href="https://interconnectit.com/products/search-and-replace-for-wordpress-databases/">Search Replace DB</a> de standaard. Upload de map via SFTP, open hem in de browser, draai de replace, verwijder de map.</p><p>Voor Drupal 9 en 10 is het equivalent het drush-command <code>search_replace</code>, maar drush heeft een shell nodig. Heb je die niet, dan is de route: database exporteren naar je laptop, lokaal een PHP-script met dezelfde logica draaien, en de herschreven dump weer uploaden. Magento 2 bewaart zijn base URL in <code>core_config_data</code>; een gewone SQL-update is daar veilig omdat de URLs niet binnenin serialized arrays genest zitten:</p><pre><code class="lang-sql">UPDATE core_config_data
+SET value = 'https://staging.example.com/'
+WHERE path IN ('web/unsecure/base_url', 'web/secure/base_url');</code></pre><p>Bij WordPress is de tweede pass die je niet moet vergeten <code>wp_options</code>: rijen als <code>siteurl</code>, <code>home</code>, en elke gecachte transient die de oude URL hardcoded heeft staan. De tool van interconnect/it pakt ze allemaal. <a href="https://developer.wordpress.org/cli/commands/search-replace/">De search-replace-docs van WP-CLI</a> leggen het serialized-data-probleem uitgebreider uit en zijn de moeite waard, ook als je WP-CLI niet direct op de host kunt draaien.</p><h2>De staging-kopie afschermen</h2><p>Een staging-site die iedereen kan bereiken is geen staging-site. Het is een duplicate-content-penalty die staat te wachten om binnen te komen, een checkout-funnel die echte klanten in verwarring brengt, en op een WooCommerce-site een manier om per ongeluk echte orders aan te nemen. Drie dingen komen in de staging document root voordat ook maar iemand de URL aanklikt.</p><p><strong>Basic Auth op de hele subdir.</strong> Genereer lokaal een <code>.htpasswd</code>-bestand (<code>htpasswd -c .htpasswd staging</code>) en zet beide bestanden erin:</p><pre><code class="lang-apache"># .htaccess in /staging/ of de staging-docroot
+AuthType Basic
+AuthName "Staging"
+AuthUserFile /home/example/staging/.htpasswd
+Require valid-user</code></pre><p>De <a href="https://httpd.apache.org/docs/current/howto/auth.html">authentication howto</a> van Apache is de referentie als de host iets anders dan mod_auth_basic draait.</p><p><strong>Een robots.txt die alles blokkeert.</strong> Voor de zekerheid, mocht Basic Auth ooit tijdens een deploy wegvallen:</p><pre><code class="lang-text">User-agent: *
+Disallow: /</code></pre><p><strong>Een meta noindex op elke pagina.</strong> Voor WordPress is de simpelste route een <code>mu-plugin</code> van één regel die <code>&lt;meta name="robots" content="noindex,nofollow"&gt;</code> aan <code>wp_head</code> toevoegt zodra de host header matcht met staging. Voor Magento: zet <em>Stores &gt; Configuration &gt; Design &gt; HTML Head &gt; Default Robots</em> op <code>NOINDEX, NOFOLLOW</code>. De <a href="https://developers.google.com/search/docs/crawling-indexing/block-indexing">indexing-block-documentatie van Google</a> beschrijft de meta-tag- en header-varianten als je beide nodig hebt.</p><p>Eén minder voor de hand liggende valkuil: payment gateways. Stripe, Mollie, Adyen en PayPal whitelisten allemaal de productie-webhook-URL. Je staging-kopie lijkt betalingen aan te nemen en bevestigt ze vervolgens geruisloos niet. Zet de keys op test-modus in het config-bestand van de staging-kopie (<code>wp-config.php</code>, <code>env.php</code>, <code>settings.php</code>) vóór de eerste checkout-test, niet erna.</p><h2>De refresh-routine</h2><p>De eerste keer dat je een staging-kopie opbouwt is de dure. Daarna wil je een one-command refresh die productie-deltas binnenhaalt, ze naar de staging-directory pusht, en de database-rewrite opnieuw draait. Gescript kost een refresh een paar minuten:</p><pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+SITE=example.com
+LOCAL=~/sites/$SITE
+
+# 1. Pull productie
+lftp -u "$FTP_USER,$FTP_PASS" sftp://sftp.$SITE \
+  -e "mirror --parallel=8 --only-newer /public_html/ $LOCAL/prod/; bye"
+
+# 2. Push naar staging-directory (omgevings-specifieke files behouden)
+lftp -u "$FTP_USER,$FTP_PASS" sftp://sftp.$SITE \
+  -e "mirror -R --parallel=8 --only-newer \
+       --exclude-glob 'wp-config.php' \
+       --exclude-glob '.htaccess' \
+       $LOCAL/prod/ /public_html_staging/; bye"
+
+# 3. Dump prod DB naar laptop
+mysqldump -h db.$SITE -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" &gt; $LOCAL/prod.sql
+
+# 4. URLs in dump herschrijven (handelt WP serialized data af)
+php $LOCAL/scripts/serialized-replace.php \
+   "https://$SITE" "https://staging.$SITE" \
+   &lt; $LOCAL/prod.sql &gt; $LOCAL/staging.sql
+
+# 5. Importeren in staging-DB
+mysql -h db.$SITE -u "$DB_USER" -p"$DB_PASS" "${DB_NAME}_staging" &lt; $LOCAL/staging.sql
+
+echo "Staging ververst: https://staging.$SITE"</code></pre><p><code>wp-config.php</code> en <code>.htaccess</code> uitsluiten bij de push is het deel dat mensen vergeten. Beide bestanden zijn omgevings-specifiek. De staging-<code>wp-config.php</code> wijst naar de staging-database. De staging-<code>.htaccess</code> bevat de Basic Auth-regels. Een van beide overschrijven vanuit productie breekt de staging-site geruisloos, meestal halverwege een refresh die je startte omdat je nog vóór het einde van de dag iets wilde testen.</p><p>Toen we Pier bouwden liepen we tegen exact dit soort probleem aan bij een van onze beta-klanten, een klein Nederlands bureau dat zes WooCommerce-sites bij een budget-reseller draaide. Wat we uiteindelijk hebben gedaan is de remote SFTP-filesystem en de MySQL-verbinding als één dockbaar doel behandelen, met de <a href="/#features">version history</a> bovenop beide, zodat een serialized-safe rewrite plaatsvindt vóór er ook maar één bestand of rij de staging-kopie raakt. De <a href="/#database">MySQL editor</a> kostte het langst om goed te krijgen, omdat hij serialized blobs moest detecteren en weigeren ze met de hand te herschrijven.</p><p>Heb je een SFTP-only site waar je al een tijd niet aan durft te beginnen, dan is de kleinste eerste stap: tijd vanavond op je verbinding hoelang een <code>lftp mirror</code> van de docroot duurt. Het getal dat je terugkrijgt is de bodem onder elke andere beslissing in dit draaiboek.</p>
+    </div>
+
+    <aside class="pullquote">Een echte staging-omgeving bouwen op een SFTP-only host kan. De truc zit in lftp voor parallelle transfer en een serialized-safe URL-rewrite, niet in rsync en sed.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik rsync direct over SFTP gebruiken?</p>
+      <p class="faq-a">Nee. rsync heeft zijn binary aan beide kanten nodig én een shell om hem aan te roepen. Geeft de host je alleen SFTP, gebruik dan het mirror-command van lftp of rclone met de sftp-backend.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat breekt er als ik URLs in een SQL-dump met sed search-and-replace?</p>
+      <p class="faq-a">WordPress en Magento bewaren PHP serialized arrays met URLs erin. Serialized strings coderen hun eigen lengte, dus een naïeve replace maakt ze onparseerbaar en de data verdwijnt geruisloos.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Heb ik een aparte database nodig voor staging?</p>
+      <p class="faq-a">Ja, of in elk geval een aparte set tabellen in dezelfde database. De productie-database delen met herschreven URLs erin lekt staging-URLs via cron of webhooks terug naar productie.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/fake-plugin-updates-wp-content/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp">
+        <img src="/nl/blog/fake-plugin-updates-wp-content/hero.jpg" alt="Bovenaanzicht van manilamap, grep-spiekbriefje, pluginlijst, SQL-blad, messing sleutel en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Valse plugin-updates in wp-content: zeven audit-signalen</h3>
+      <span class="pc-lede">Praktische audit voor valse plugin-updates en supply-chain malware in wp-content. Zeven signalen, met grep en SQL die je direct kunt draaien.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Plat overzicht: papieren waterval-grafiek met balken, koperen stopwatch op 2,3s, manila CHECKOUT-tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>WooCommerce checkout audit: de plugin van 2,3 seconden</h3>
+      <span class="pc-lede">Loom van een Nederlands bureau: WooCommerce checkout hangt drie seconden op elke postcodewijziging. De audit van twintig minuten die de plugin vindt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/sftp-only-staging-playbook/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

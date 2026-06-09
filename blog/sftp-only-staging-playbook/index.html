@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Staging over SFTP only: the rsync-and-rewrite playbook · Pier — Blog</title>
+<meta name="description" content="A working staging environment for legacy sites on bargain hosts that give you SFTP and nothing else. No shell, no git, no Docker. Just rsync, a search-replace, and a locked-down subdir.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, wordpress, sftp, mysql, htaccess, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Staging over SFTP only: the rsync-and-rewrite playbook">
+<meta property="og:description" content="A working staging environment for legacy sites on bargain hosts that give you SFTP and nothing else. No shell, no git, no Docker. Just rsync, a search-replace, and a locked-down subdir.">
+<meta property="og:url" content="https://pier.abn.company/blog/sftp-only-staging-playbook/">
+<meta property="og:image" content="https://pier.abn.company/blog/sftp-only-staging-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/sftp-only-staging-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Inked directory-tree blueprint, rsync run-sheet, manila SFTP tab, brass STAGING tag, red wax seal on .htaccess printout.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T20:40:58.558Z">
+<meta property="article:modified_time" content="2026-06-09T20:40:58.558Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Staging over SFTP only: the rsync-and-rewrite playbook">
+<meta name="twitter:description" content="A working staging environment for legacy sites on bargain hosts that give you SFTP and nothing else. No shell, no git, no Docker. Just rsync, a search-replace, and a locked-down subdir.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/sftp-only-staging-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Inked directory-tree blueprint, rsync run-sheet, manila SFTP tab, brass STAGING tag, red wax seal on .htaccess printout.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/sftp-only-staging-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/sftp-only-staging-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/sftp-only-staging-playbook/"},
+  "url":"https://pier.abn.company/blog/sftp-only-staging-playbook/",
+  "headline":"Staging over SFTP only: the rsync-and-rewrite playbook",
+  "description":"A working staging environment for legacy sites on bargain hosts that give you SFTP and nothing else. No shell, no git, no Docker. Just rsync, a search-replace, and a locked-down subdir.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/sftp-only-staging-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Inked directory-tree blueprint, rsync run-sheet, manila SFTP tab, brass STAGING tag, red wax seal on .htaccess printout."
+  },
+  "datePublished":"2026-06-09T20:40:58.558Z",
+  "dateModified":"2026-06-09T20:40:58.558Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"workflow, wordpress, sftp, mysql, htaccess, tooling",
+  "wordCount":1861,
+  "articleSection":"Workflow",
+  "articleBody":"It is 17:40 on a Friday. A WooCommerce store on a Dutch reseller host needs to move to PHP 8.2 before its provider flips the switch on Monday. The site is twelve years old, the developer who originally built it is unreachable, and the hosting plan is the cheap one: cPanel, SFTP, MySQL over the public socket, no SSH shell, no git, no Docker, no staging slot. The brief is &ldquo;make sure the checkout still works after the PHP bump.&rdquo; Without a way to test, the brief is unanswerable. This is the situation a surprising number of legacy sites still live in. The hosting market has bifurcated. Managed plans give you push-to-deploy, container slots, and one-click staging. Bargain plans give you SFTP and a phpMyAdmin tab. Most of the WordPress, Drupal, Joomla and Magento sites we touch sit on bargain plans, because that is what was bought ten years ago and nobody has had a reason to change it. What follows is the playbook we use when the host gives us SFTP and almost nothing else. The shape is the same across CMSes: pull production down, push a copy to a sibling location, rewrite the URLs in code and database, and lock the copy behind Basic Auth so search engines and customers cannot find it. The SFTP-only constraint SFTP is a subsystem of SSH. The protocol is the same. The reason a host can offer SFTP without giving you shell access is that sshd can be configured to accept file transfer and reject everything else. On most cheap hosts the relevant lines in /etc/ssh/sshd_config look something like this: Match Group sftponly ChrootDirectory /home/%u ForceCommand internal-sftp AllowTcpForwarding no X11Forwarding no That ForceCommand internal-sftp is the gate. You can log in, list files, upload, download. You cannot run a command. That means no rsync on the server, no mysqldump , no wp-cli , no tar . Everything has to happen from your laptop, with the remote treated as a dumb filesystem. The good news is that the OpenSSH project documents the SFTP subsystem clearly and the protocol is well-supported. sftp(1) on your machine talks to sftp-server(8) on theirs, and that is the entire surface area you have to work with. The directory plan Before any files move, decide where the copy will live. Two options work: Sibling subdirectory. Place the staging copy at /public_html/staging/ so it lives at https://example.com/staging/ . Simplest, cheapest, no DNS changes. Subdomain. Create staging.example.com in the host's DNS panel and point it at a sibling directory like /public_html_staging/ . Cleaner URLs, easier to scope cookies, easier to lock down separately. The subdomain version is preferable when the CMS writes absolute URLs into the database, which WordPress, Magento and Joomla all do. A staging URL of https://staging.example.com/ is a single search-replace target. https://example.com/staging/ is two: the host and the path prefix. The difference matters when you have to rewrite ten thousand rows. If you can only have a subdirectory, pick a name that is not guessable and is not in the host's default DNS template. /staging/ is fine if you are also putting it behind Basic Auth. /dev/ , /test/ and /preview/ get found by bots within hours. Pulling production down with lftp Without a shell on the server, you cannot run rsync there. You also cannot have the server compress the tree into a tarball for a single download. Both ends of the SFTP session are dumb. So pulling production down means opening enough parallel SFTP transfers that the bandwidth saturates before the protocol overhead becomes the bottleneck. The tool we reach for is lftp . It speaks SFTP, it does directory mirroring with the same semantics as rsync, and it parallelises transfers without needing anything on the server. A pull looks like this: lftp -u user,'password' sftp://sftp.example.com -e \" set sftp:auto-confirm yes; set net:connection-limit 8; mirror --parallel=8 --only-newer --exclude-glob '*.log' \\ --exclude-glob 'wp-content/cache/*' \\ /public_html/ ~/sites/example.com/prod/; bye\" Eight parallel streams is the sweet spot on most consumer connections. More than that and the host's SSH daemon starts refusing connections. The --only-newer flag turns the second pull into an incremental: only files whose mtime is newer than the local copy come down. On a 4 GB WordPress install with 80,000 media files, the first pull takes an evening. The second takes a coffee. If lftp is not in the toolbox, rclone with the sftp backend works similarly: rclone sync :sftp:public_html ~/sites/example.com/prod --sftp-host sftp.example.com . The pattern is the same. Watch out for cache directories. WordPress under W3 Total Cache, Magento under var/cache/ , and Drupal under sites/default/files/php/ will all download many small files that you do not want and that often have stale permissions. Exclude them at pull time, not after. Exporting the database without shell access With no shell, mysqldump on the server is out. Three options remain: phpMyAdmin Export. Works for databases u",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/sftp-only-staging-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Staging over SFTP only: the rsync-and-rewrite playbook","item":"https://pier.abn.company/blog/sftp-only-staging-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I use rsync directly over SFTP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. rsync needs its binary on both ends and a shell to invoke it. If the host gives you SFTP only, use lftp's mirror command or rclone with the sftp backend instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What breaks if I search-and-replace URLs in a SQL dump with sed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress and Magento store PHP serialized arrays containing URLs. Serialized strings encode their length, so a naive replace makes them unparseable and the data silently disappears."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a separate database for staging?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, or at minimum a separate set of tables in the same database. Sharing the production database with rewritten URLs in it will leak staging URLs back into production via cron or webhook."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I keep staging from being indexed by Google?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Layer three defences: Basic Auth on the directory, a robots.txt that disallows everything, and a meta noindex tag added by the CMS when the host header matches the staging domain."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 072</span>
+      </div>
+      <p class="eyebrow"><span class="n">072 —</span>Workflow</p>
+      <h1 class="display-l post-title">Staging over SFTP only: the rsync-and-rewrite playbook</h1>
+      <p class="lede post-lede">A working staging environment for legacy sites on bargain hosts that give you SFTP and nothing else. No shell, no git, no Docker. Just rsync, a search-replace, and a locked-down subdir.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T20:40:58.558Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/sftp-only-staging-playbook/hero.webp" type="image/webp">
+      <img src="/blog/sftp-only-staging-playbook/hero.jpg" alt="Inked directory-tree blueprint, rsync run-sheet, manila SFTP tab, brass STAGING tag, red wax seal on .htaccess printout." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 072</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is 17:40 on a Friday. A WooCommerce store on a Dutch reseller host needs to move to PHP 8.2 before its provider flips the switch on Monday. The site is twelve years old, the developer who originally built it is unreachable, and the hosting plan is the cheap one: cPanel, SFTP, MySQL over the public socket, no SSH shell, no git, no Docker, no staging slot. The brief is &ldquo;make sure the checkout still works after the PHP bump.&rdquo; Without a way to test, the brief is unanswerable.</p><p>This is the situation a surprising number of <a href="/">legacy sites</a> still live in. The hosting market has bifurcated. Managed plans give you push-to-deploy, container slots, and one-click staging. Bargain plans give you SFTP and a phpMyAdmin tab. Most of the WordPress, Drupal, Joomla and Magento sites we touch sit on bargain plans, because that is what was bought ten years ago and nobody has had a reason to change it.</p><p>What follows is the playbook we use when the host gives us SFTP and almost nothing else. The shape is the same across CMSes: pull production down, push a copy to a sibling location, rewrite the URLs in code and database, and lock the copy behind Basic Auth so search engines and customers cannot find it.</p><h2>The SFTP-only constraint</h2><p>SFTP is a subsystem of SSH. The protocol is the same. The reason a host can offer SFTP without giving you shell access is that <code>sshd</code> can be configured to accept file transfer and reject everything else. On most cheap hosts the relevant lines in <code>/etc/ssh/sshd_config</code> look something like this:</p><pre><code class="lang-text">Match Group sftponly
+    ChrootDirectory /home/%u
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+    X11Forwarding no</code></pre><p>That <code>ForceCommand internal-sftp</code> is the gate. You can log in, list files, upload, download. You cannot run a command. That means no <code>rsync</code> on the server, no <code>mysqldump</code>, no <code>wp-cli</code>, no <code>tar</code>. Everything has to happen from your laptop, with the remote treated as a dumb filesystem.</p><p>The good news is that the OpenSSH project documents the SFTP subsystem clearly and the protocol is well-supported. <a href="https://man.openbsd.org/sftp">sftp(1)</a> on your machine talks to <a href="https://man.openbsd.org/sftp-server">sftp-server(8)</a> on theirs, and that is the entire surface area you have to work with.</p><h2>The directory plan</h2><p>Before any files move, decide where the copy will live. Two options work:</p><ul><li><strong>Sibling subdirectory.</strong> Place the staging copy at <code>/public_html/staging/</code> so it lives at <code>https://example.com/staging/</code>. Simplest, cheapest, no DNS changes.</li><li><strong>Subdomain.</strong> Create <code>staging.example.com</code> in the host's DNS panel and point it at a sibling directory like <code>/public_html_staging/</code>. Cleaner URLs, easier to scope cookies, easier to lock down separately.</li></ul><p>The subdomain version is preferable when the CMS writes absolute URLs into the database, which WordPress, Magento and Joomla all do. A staging URL of <code>https://staging.example.com/</code> is a single search-replace target. <code>https://example.com/staging/</code> is two: the host and the path prefix. The difference matters when you have to rewrite ten thousand rows.</p><p>If you can only have a subdirectory, pick a name that is not guessable and is not in the host's default DNS template. <code>/staging/</code> is fine if you are also putting it behind Basic Auth. <code>/dev/</code>, <code>/test/</code> and <code>/preview/</code> get found by bots within hours.</p><h2>Pulling production down with lftp</h2><p>Without a shell on the server, you cannot run <code>rsync</code> there. You also cannot have the server compress the tree into a tarball for a single download. Both ends of the SFTP session are dumb. So pulling production down means opening enough parallel SFTP transfers that the bandwidth saturates before the protocol overhead becomes the bottleneck.</p><p>The tool we reach for is <a href="https://lftp.yar.ru/lftp-man.html">lftp</a>. It speaks SFTP, it does directory mirroring with the same semantics as rsync, and it parallelises transfers without needing anything on the server. A pull looks like this:</p><pre><code class="lang-bash">lftp -u user,'password' sftp://sftp.example.com -e "
+  set sftp:auto-confirm yes;
+  set net:connection-limit 8;
+  mirror --parallel=8 --only-newer --exclude-glob '*.log' \
+         --exclude-glob 'wp-content/cache/*' \
+         /public_html/ ~/sites/example.com/prod/;
+  bye"</code></pre><p>Eight parallel streams is the sweet spot on most consumer connections. More than that and the host's SSH daemon starts refusing connections. The <code>--only-newer</code> flag turns the second pull into an incremental: only files whose mtime is newer than the local copy come down. On a 4&nbsp;GB WordPress install with 80,000 media files, the first pull takes an evening. The second takes a coffee.</p><p>If lftp is not in the toolbox, <a href="https://rclone.org/sftp/">rclone</a> with the <code>sftp</code> backend works similarly: <code>rclone sync :sftp:public_html ~/sites/example.com/prod --sftp-host sftp.example.com</code>. The pattern is the same.</p><aside class="callout"><strong>Watch out for cache directories.</strong> WordPress under W3 Total Cache, Magento under <code>var/cache/</code>, and Drupal under <code>sites/default/files/php/</code> will all download many small files that you do not want and that often have stale permissions. Exclude them at pull time, not after.</aside><h2>Exporting the database without shell access</h2><p>With no shell, <code>mysqldump</code> on the server is out. Three options remain:</p><ol><li><strong>phpMyAdmin Export.</strong> Works for databases under about 200&nbsp;MB. Above that the PHP execution timeout kills the export halfway.</li><li><strong>Direct MySQL connection from your laptop.</strong> If the host allows remote MySQL (many cPanel hosts do, behind an allowlist), add your IP and run <code>mysqldump -h db.example.com -u user -p dbname &gt; prod.sql</code>. This is the fastest and most reliable option.</li><li><strong>A throwaway PHP script.</strong> Drop a single <code>dump.php</code> into the document root that streams <code>SHOW TABLES</code> and <code>SELECT *</code> output as SQL. Delete it the moment the dump finishes.</li></ol><p>For larger databases the third route works because PHP's <code>fputs</code> to <code>php://output</code> streams as fast as the network allows, with no execution timeout if you set <code>ignore_user_abort(true)</code> and chunk the row reads. Three hundred lines of code, one IP allowlist on the script, and an immediate delete after the dump finishes on disk.</p><h2>Rewriting URLs without breaking serialized data</h2><p>This is where most SFTP-only staging attempts fall over. The naive move is to open the SQL dump in an editor, find-and-replace <code>https://example.com</code> with <code>https://staging.example.com</code>, and import. On a static-HTML site this works. On WordPress, Magento, or anything else that stores PHP serialized arrays in the database, it corrupts the database.</p><p>Serialized strings encode their own length. A row like:</p><pre><code class="lang-php">s:18:"https://example.com";</code></pre><p>becomes, after a dumb replace:</p><pre><code class="lang-php">s:18:"https://staging.example.com";</code></pre><p>The <code>s:18</code> still says the string is 18 bytes long. The string is now 26 bytes. PHP's unserialize will return <code>false</code>, and the option, the widget, the theme setting, the address record, whatever it was, will silently disappear from the admin UI.</p><p>The fix is to use a tool that walks the database, unserializes each value, performs the replacement on the strings inside the structure, and reserializes. For sites where you can run PHP on the host but not a shell, <a href="https://interconnectit.com/products/search-and-replace-for-wordpress-databases/">Search Replace DB</a> is the standard. Upload the folder via SFTP, hit it in the browser, run the replace, delete the folder.</p><p>For Drupal 9 and 10, the equivalent is the <code>search_replace</code> drush command, but drush needs a shell. Without one, exporting the database to your laptop, running a local PHP script with the same logic, and uploading the rewritten dump is the route. Magento 2 stores its base URL in <code>core_config_data</code>; a plain SQL update is safe because the URLs are not nested inside serialized arrays:</p><pre><code class="lang-sql">UPDATE core_config_data
+SET value = 'https://staging.example.com/'
+WHERE path IN ('web/unsecure/base_url', 'web/secure/base_url');</code></pre><p>For WordPress, after the search-replace runs, the second pass to remember is <code>wp_options</code>: rows like <code>siteurl</code>, <code>home</code>, and any cached transient that hardcoded the old URL. The interconnect/it tool catches all of them. <a href="https://developer.wordpress.org/cli/commands/search-replace/">WP-CLI's search-replace docs</a> explain the serialized-data problem in more detail and are worth a read even when you cannot run WP-CLI directly on the host.</p><h2>Locking the staging copy down</h2><p>A staging site that anyone can reach is not a staging site. It is a duplicate-content penalty waiting to land, a checkout funnel that confuses real customers, and on a WooCommerce site, a way to accidentally take real orders. Three things go in the staging document root before anyone clicks the URL.</p><p><strong>Basic Auth on the whole subdir.</strong> Generate an <code>.htpasswd</code> file locally (<code>htpasswd -c .htpasswd staging</code>) and drop both files in:</p><pre><code class="lang-apache"># .htaccess in /staging/ or the staging docroot
+AuthType Basic
+AuthName "Staging"
+AuthUserFile /home/example/staging/.htpasswd
+Require valid-user</code></pre><p>Apache's <a href="https://httpd.apache.org/docs/current/howto/auth.html">authentication howto</a> is the reference if the host runs anything other than mod_auth_basic.</p><p><strong>A robots.txt that blocks everything.</strong> Belt and braces, in case Basic Auth ever lapses during a deploy:</p><pre><code class="lang-text">User-agent: *
+Disallow: /</code></pre><p><strong>A meta noindex on every page.</strong> For WordPress, the easiest path is a one-line <code>mu-plugin</code> that adds <code>&lt;meta name="robots" content="noindex,nofollow"&gt;</code> to <code>wp_head</code> when the host header matches staging. For Magento, set <em>Stores &gt; Configuration &gt; Design &gt; HTML Head &gt; Default Robots</em> to <code>NOINDEX, NOFOLLOW</code>. <a href="https://developers.google.com/search/docs/crawling-indexing/block-indexing">Google's indexing-block documentation</a> covers the meta-tag and header variants if you need both.</p><p>One non-obvious gotcha: payment gateways. Stripe, Mollie, Adyen and PayPal all whitelist the production webhook URL. Your staging copy will appear to take payments and then silently fail to confirm them. Switch the keys to test mode in the staging copy's config file (<code>wp-config.php</code>, <code>env.php</code>, <code>settings.php</code>) before the first checkout test, not after.</p><h2>The refresh routine</h2><p>The first build of a staging copy is the expensive one. After that, you want a one-command refresh that pulls production deltas down, ships them to the staging directory, and re-runs the database rewrite. Once it is scripted, refreshing takes minutes:</p><pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+SITE=example.com
+LOCAL=~/sites/$SITE
+
+# 1. Pull production
+lftp -u "$FTP_USER,$FTP_PASS" sftp://sftp.$SITE \
+  -e "mirror --parallel=8 --only-newer /public_html/ $LOCAL/prod/; bye"
+
+# 2. Push to staging directory (preserve env-specific files)
+lftp -u "$FTP_USER,$FTP_PASS" sftp://sftp.$SITE \
+  -e "mirror -R --parallel=8 --only-newer \
+       --exclude-glob 'wp-config.php' \
+       --exclude-glob '.htaccess' \
+       $LOCAL/prod/ /public_html_staging/; bye"
+
+# 3. Dump prod DB to laptop
+mysqldump -h db.$SITE -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" &gt; $LOCAL/prod.sql
+
+# 4. Rewrite URLs in dump (handles WP serialized data)
+php $LOCAL/scripts/serialized-replace.php \
+   "https://$SITE" "https://staging.$SITE" \
+   &lt; $LOCAL/prod.sql &gt; $LOCAL/staging.sql
+
+# 5. Import to staging DB
+mysql -h db.$SITE -u "$DB_USER" -p"$DB_PASS" "${DB_NAME}_staging" &lt; $LOCAL/staging.sql
+
+echo "Staging refreshed: https://staging.$SITE"</code></pre><p>Excluding <code>wp-config.php</code> and <code>.htaccess</code> on the push is the part people forget. Both files are environment-specific. The staging <code>wp-config.php</code> points at the staging database. The staging <code>.htaccess</code> has the Basic Auth lines. Overwriting either from production breaks the staging site silently, usually halfway through a refresh you started because you needed to test something before the end of the day.</p><p>When we built Pier we ran into this exact shape of problem with one of our beta customers, a small Dutch agency keeping six WooCommerce sites on a bargain reseller. The way we ended up handling it was to treat the remote SFTP filesystem and the MySQL connection as a single dockable target, with the <a href="/#features">version history</a> sitting on top of both so a serialized-safe rewrite happens before any file or row touches the staging copy. The <a href="/#database">MySQL editor</a> took the longest to get right because it had to detect serialized blobs and refuse to rewrite them by hand.</p><p>If you have an SFTP-only site you have been avoiding touching, the smallest first step is to time how long an <code>lftp mirror</code> of the docroot takes on your connection tonight. The number it gives you back is the floor on every other decision in this playbook.</p>
+    </div>
+
+    <aside class="pullquote">You can build a real staging environment on an SFTP-only host. The trick is lftp for parallel transfer and a serialized-safe URL rewrite, not rsync and sed.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I use rsync directly over SFTP?</p>
+      <p class="faq-a">No. rsync needs its binary on both ends and a shell to invoke it. If the host gives you SFTP only, use lftp&#39;s mirror command or rclone with the sftp backend instead.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What breaks if I search-and-replace URLs in a SQL dump with sed?</p>
+      <p class="faq-a">WordPress and Magento store PHP serialized arrays containing URLs. Serialized strings encode their length, so a naive replace makes them unparseable and the data silently disappears.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I need a separate database for staging?</p>
+      <p class="faq-a">Yes, or at minimum a separate set of tables in the same database. Sharing the production database with rewritten URLs in it will leak staging URLs back into production via cron or webhook.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I keep staging from being indexed by Google?</p>
+      <p class="faq-a">Layer three defences: Basic Auth on the directory, a robots.txt that disallows everything, and a meta noindex tag added by the CMS when the host header matches the staging domain.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/fake-plugin-updates-wp-content/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/fake-plugin-updates-wp-content/hero.webp" type="image/webp">
+        <img src="/blog/fake-plugin-updates-wp-content/hero.jpg" alt="Overhead photo of opened manila folder, grep cheat-sheet, plugin listing, SQL run-sheet, brass key, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Fake plugin updates in wp-content: seven signatures to audit</h3>
+      <span class="pc-lede">A practical audit for spotting fake plugin updates and supply-chain malware inside wp-content. Seven signatures, with the grep and SQL to actually run.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Overhead flat-lay: paper waterfall chart with bars, brass stopwatch at 2.3s, manila CHECKOUT tab, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 May 2026</span></span>
+      <h3>WooCommerce checkout audit: hunting the 2.3s plugin</h3>
+      <span class="pc-lede">A Loom from a Dutch agency: WooCommerce checkout hanging three seconds on every postcode change. Here is the twenty-minute audit that finds the plugin.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
