@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Custom PHP framework or spaghetti: the five-question test · Pier — Blog</title>
+<meta name="description" content="You opened the repo, saw a folder called lib, and found a 4,200-line file called functions.php. Before you quote a rewrite, run these five questions.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, architecture, wordpress, tooling, migration">
+
+<link rel="canonical" href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Custom PHP framework or spaghetti: the five-question test">
+<meta property="og:description" content="You opened the repo, saw a folder called lib, and found a 4,200-line file called functions.php. Before you quote a rewrite, run these five questions.">
+<meta property="og:url" content="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<meta property="og:image" content="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper test sheet with ticks, manila folder showing printed code, sketch, brass plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T16:22:11.029Z">
+<meta property="article:modified_time" content="2026-06-09T16:22:11.029Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Architecture">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="migration">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Custom PHP framework or spaghetti: the five-question test">
+<meta name="twitter:description" content="You opened the repo, saw a folder called lib, and found a 4,200-line file called functions.php. Before you quote a rewrite, run these five questions.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper test sheet with ticks, manila folder showing printed code, sketch, brass plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Architecture">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/custom-php-framework-or-spaghetti/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/custom-php-framework-or-spaghetti/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/custom-php-framework-or-spaghetti/"},
+  "url":"https://pier.abn.company/blog/custom-php-framework-or-spaghetti/",
+  "headline":"Custom PHP framework or spaghetti: the five-question test",
+  "description":"You opened the repo, saw a folder called lib, and found a 4,200-line file called functions.php. Before you quote a rewrite, run these five questions.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/custom-php-framework-or-spaghetti/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper test sheet with ticks, manila folder showing printed code, sketch, brass plate, red wax seal."
+  },
+  "datePublished":"2026-06-09T16:22:11.029Z",
+  "dateModified":"2026-06-09T16:22:11.029Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, architecture, wordpress, tooling, migration",
+  "wordCount":1354,
+  "articleSection":"Architecture",
+  "articleBody":"It's Tuesday morning. A Dutch agency we work with just took over a website from an in-house developer who retired in 2022. The repo is 1.4 GB. The folder structure has a /lib directory, a /modules directory, a /classes directory, and one file at the root called config.php that contains thirty-seven define() calls. You open /lib/functions.php . It's 4,217 lines long. There is no readme. The client wants to know two things by Friday. Can you maintain it. Can you extend it. What they really want to know, though they have not said it out loud, is whether the previous developer built a custom PHP framework or just kept piling files on top of each other for eight years. Those two situations look identical from outside the repo. They are not the same project to take on. These five questions, run in under an hour, will tell you which one you bought. Question one. The front controller Open the .htaccess at the document root. If you see something like this, somebody thought about architecture: RewriteEngine On RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d RewriteRule ^(.*)$ index.php?route=$1 [QSA,L] That block rewrites every request to a single entry point. Whether index.php then dispatches well or badly is a separate question, but the previous developer chose to route requests through one file. That is the front-controller pattern. It's how Laravel, Symfony, WordPress' own index.php , and every real PHP framework since 2008 has worked. The Apache mod_rewrite reference explains what those flags do if you've never had to debug an infinite redirect loop on a Friday. Now check the alternative. If /admin/ contains thirty-eight .php files named edit-user.php , delete-user.php , edit-order.php , edit-order-shipping.php , edit-order-shipping-address.php , the previous developer added a file every time a feature was asked for. That is spaghetti, no matter how much shared code the files include. Score it. Front controller present, +1. Per-page .php files, 0. Question two. Where credentials live Run this in the project root: grep -rEn \"mysqli_connect|new PDO|mysql_connect\" --include=\"*.php\" | wc -l The -E matters. GNU grep accepts \\| as alternation in basic mode, BSD grep on macOS does not, and the silent zero you get back will lie to you. With ERE turned on, both behave. If you get back 1 , the developer centralised the database connection. If you get back 47 , they did not. Forty-seven separate connections also means forty-seven copies of the password, which means rotating the password requires editing forty-seven files, which means nobody has rotated the password since 2019. A real custom framework, even a janky one, will have a Database class or at least a db.php that gets included once. Spaghetti repeats the connection in every file because the developer copy-pasted from the previous file when starting a new one. You will also frequently find the credentials hard-coded in the same line, which is its own conversation with the client. Question three. The routing layer You found a front controller in question one. Good. Now find the routing table. Where is the list of URLs the app responds to. In a framework, this lives in one place. It looks like: $routes = [ 'GET /orders' => 'OrderController@index', 'POST /orders' => 'OrderController@create', 'GET /orders/{id}' => 'OrderController@show', ]; Or a config array. Or a routes.php file. Or annotations on controller classes if the developer was feeling ambitious. The point is there is one place you can read top-to-bottom to learn the URL surface of the application. In spaghetti, there is no routing layer because the routing is the file system. The URL /admin/edit-user.php maps to the file /admin/edit-user.php because that's how Apache served PHP in 2003 and the developer never changed it. To learn the URL surface, you find . -name \"*.php\" . That is not a framework. Question four. Naming and conventions Pick twenty function names at random from across the code base. Write them down. A custom framework, even one whose conventions are not PSR-12, will use one convention. Maybe everything is app_get_user , app_save_order , app_send_email . Maybe it's App\\Repo\\UserRepo::find . Maybe it's ugly Hungarian like fn_get_user_arr . The point is: there is a pattern. The developer chose one and stuck with it. Spaghetti has six conventions because six different copy-paste origins seeded the codebase. You will see, all in the same project, all doing the same thing, none calling each other: get_user_by_id($id); getUserData($userId); db_user_get($id); fetch_user($id); user_load($id); function GetUserInfo($Id) { /* ... */ } The PHP-FIG standards document what consistency tends to look like in practice. Their presence in a codebase proves nothing about quality on its own, but their absence proves there was never one developer with a plan. Question five. The deletion test Pick a file that looks unreferenced. Maybe /lib/helpers-old.php . Delete it. Reload the home page. If t",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/custom-php-framework-or-spaghetti/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Custom PHP framework or spaghetti: the five-question test","item":"https://pier.abn.company/blog/custom-php-framework-or-spaghetti/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What if the code has a front controller but no routing table?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "That's the start of a framework the developer never finished. Treat anything written after year two as untrusted and grep for the URL mapping in headers, switch statements, or inline if-blocks."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does using WordPress count as a custom framework?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress is the framework. What sits in wp-content/themes/ or wp-content/plugins/ is what you score. The five questions apply to that code, not to WP core."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I run this test on a Magento 1 site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Magento 1 has a real front controller and routing, so questions one and three score automatic points. The credential, naming, and deletion tests still reveal a lot about the local modules."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a fair quote for a 2-out-of-5 codebase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hourly, not fixed-fee. Refuse fixed-fee work on spaghetti. The blast radius of any change is unknown until proven otherwise, and you will eat the unknown if you committed a price."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 067</span>
+      </div>
+      <p class="eyebrow"><span class="n">067 —</span>Architecture</p>
+      <h1 class="display-l post-title">Custom PHP framework or spaghetti: the five-question test</h1>
+      <p class="lede post-lede">You opened the repo, saw a folder called lib, and found a 4,200-line file called functions.php. Before you quote a rewrite, run these five questions.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T16:22:11.029Z">9 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/custom-php-framework-or-spaghetti/hero.webp" type="image/webp">
+      <img src="/blog/custom-php-framework-or-spaghetti/hero.jpg" alt="Overhead photo of paper test sheet with ticks, manila folder showing printed code, sketch, brass plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 067</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It's Tuesday morning. A Dutch agency we work with just took over a website from an in-house developer who retired in 2022. The repo is 1.4 GB. The folder structure has a <code>/lib</code> directory, a <code>/modules</code> directory, a <code>/classes</code> directory, and one file at the root called <code>config.php</code> that contains thirty-seven <code>define()</code> calls. You open <code>/lib/functions.php</code>. It's 4,217 lines long. There is no readme.</p>
+<p>The client wants to know two things by Friday. Can you maintain it. Can you extend it.</p>
+<p>What they really want to know, though they have not said it out loud, is whether the previous developer built a custom PHP framework or just kept piling files on top of each other for eight years. Those two situations look identical from outside the repo. They are not the same project to take on. These five questions, run in under an hour, will tell you which one you bought.</p>
+<h2>Question one. The front controller</h2>
+<p>Open the <code>.htaccess</code> at the document root. If you see something like this, somebody thought about architecture:</p>
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]</code></pre>
+<p>That block rewrites every request to a single entry point. Whether <code>index.php</code> then dispatches well or badly is a separate question, but the previous developer chose to route requests through one file. That is the front-controller pattern. It's how Laravel, Symfony, WordPress' own <code>index.php</code>, and every real PHP framework since 2008 has worked. The <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">Apache mod_rewrite reference</a> explains what those flags do if you've never had to debug an infinite redirect loop on a Friday.</p>
+<p>Now check the alternative. If <code>/admin/</code> contains thirty-eight <code>.php</code> files named <code>edit-user.php</code>, <code>delete-user.php</code>, <code>edit-order.php</code>, <code>edit-order-shipping.php</code>, <code>edit-order-shipping-address.php</code>, the previous developer added a file every time a feature was asked for. That is spaghetti, no matter how much shared code the files include.</p>
+<p>Score it. Front controller present, +1. Per-page <code>.php</code> files, 0.</p>
+<h2>Question two. Where credentials live</h2>
+<p>Run this in the project root:</p>
+<pre><code class="lang-bash">grep -rEn "mysqli_connect|new PDO|mysql_connect" --include="*.php" | wc -l</code></pre>
+<p>The <code>-E</code> matters. GNU grep accepts <code>\|</code> as alternation in basic mode, BSD grep on macOS does not, and the silent zero you get back will lie to you. With ERE turned on, both behave.</p>
+<p>If you get back <code>1</code>, the developer centralised the database connection. If you get back <code>47</code>, they did not. Forty-seven separate connections also means forty-seven copies of the password, which means rotating the password requires editing forty-seven files, which means nobody has rotated the password since 2019.</p>
+<p>A real custom framework, even a janky one, will have a <code>Database</code> class or at least a <code>db.php</code> that gets included once. Spaghetti repeats the connection in every file because the developer copy-pasted from the previous file when starting a new one. You will also frequently find the credentials hard-coded in the same line, which is its own conversation with the client.</p>
+<h2>Question three. The routing layer</h2>
+<p>You found a front controller in question one. Good. Now find the routing table. Where is the list of URLs the app responds to.</p>
+<p>In a framework, this lives in one place. It looks like:</p>
+<pre><code class="lang-php">$routes = [
+    'GET  /orders'         =&gt; 'OrderController@index',
+    'POST /orders'         =&gt; 'OrderController@create',
+    'GET  /orders/{id}'    =&gt; 'OrderController@show',
+];</code></pre>
+<p>Or a config array. Or a <code>routes.php</code> file. Or annotations on controller classes if the developer was feeling ambitious. The point is there is one place you can read top-to-bottom to learn the URL surface of the application.</p>
+<p>In spaghetti, there is no routing layer because the routing <em>is</em> the file system. The URL <code>/admin/edit-user.php</code> maps to the file <code>/admin/edit-user.php</code> because that's how Apache served PHP in 2003 and the developer never changed it. To learn the URL surface, you <code>find . -name "*.php"</code>. That is not a framework.</p>
+<h2>Question four. Naming and conventions</h2>
+<p>Pick twenty function names at random from across the code base. Write them down.</p>
+<p>A custom framework, even one whose conventions are not PSR-12, will use one convention. Maybe everything is <code>app_get_user</code>, <code>app_save_order</code>, <code>app_send_email</code>. Maybe it's <code>App\Repo\UserRepo::find</code>. Maybe it's ugly Hungarian like <code>fn_get_user_arr</code>. The point is: there is a pattern. The developer chose one and stuck with it.</p>
+<p>Spaghetti has six conventions because six different copy-paste origins seeded the codebase. You will see, all in the same project, all doing the same thing, none calling each other:</p>
+<pre><code class="lang-php">get_user_by_id($id);
+getUserData($userId);
+db_user_get($id);
+fetch_user($id);
+user_load($id);
+function GetUserInfo($Id) { /* ... */ }</code></pre>
+<p>The <a href="https://www.php-fig.org/psr/">PHP-FIG standards</a> document what consistency tends to look like in practice. Their presence in a codebase proves nothing about quality on its own, but their absence proves there was never one developer with a plan.</p>
+<h2>Question five. The deletion test</h2>
+<p>Pick a file that looks unreferenced. Maybe <code>/lib/helpers-old.php</code>. Delete it. Reload the home page.</p>
+<p>If the site still works, the file was not in use, and the previous developer was confident enough about dependencies that they did not include it from the bootstrap "just in case." That is a small data point for framework.</p>
+<p>If the site shows a fatal because <code>helpers-old.php</code> was being included from <code>/lib/init.php</code> which was being included from <code>/index.php</code>, you have learned that the include graph is a mesh, not a tree, and the developer did not know which files were live either. Strong signal for spaghetti.</p>
+<p>A real framework has an autoloader. Per the <a href="https://www.php.net/manual/en/language.oop5.autoload.php">php.net autoloading documentation</a>, the autoloader resolves class names to file paths on demand. If you see <code>spl_autoload_register</code> or a Composer <code>autoload.php</code> at the top of the bootstrap, deletion is safe. If you see ninety-two <code>require_once</code> calls in <code>init.php</code>, deletion is roulette.</p>
+<aside class="callout">Don't run the deletion test in production. Take a copy. PHP's Zend OPcache will keep a compiled version of the file in memory long after you've removed it from disk, often for the lifetime of the FPM worker, and persistent mysqli connections can mask a half-broken bootstrap for another thirty seconds on top of that. You can convince yourself a file is unused when it is very much in use; you just haven't hit a cold worker yet.</aside>
+<h2>Reading the result</h2>
+<p>Five points possible. The split tends to be binary in practice, not gradual.</p>
+<p>Four or five out of five means you have inherited an under-documented but real custom PHP framework. Treat it like an internal Symfony fork. Onboard the conventions, write a one-page README, and quote maintenance at maintenance rates. The work is unglamorous but bounded.</p>
+<p>Two or fewer means the previous developer did not build a framework. They built a website out of files, one feature at a time, for eight years. You can still maintain it. You should quote it differently. Every change has unknown blast radius until proven otherwise. A bug fix is a half-day minimum because half of it is figuring out which of the six <code>get-user</code> functions the broken page is calling. Price accordingly, or walk away.</p>
+<p>Three is the dangerous middle. The developer started with a plan and abandoned it after year two. The first half of the code looks like a framework. The second half looks like spaghetti grafted onto it. Those projects rot in the worst way: the team assumes the framework rules apply, then trips on the part where they don't.</p>
+<h2>The tool we built for the next thousand of these</h2>
+<p>When we built <a href="/">Pier</a> we ran into this exact thing on almost every <a href="/">legacy site</a> we docked with, because the 3-out-of-5 case is the median, not the outlier. The way we ended up handling it was to ship a project-wide grep over the live FTP filesystem and our <a href="/#database">MySQL editor</a> side by side, so the answers to questions two through five take minutes instead of an afternoon, and every edit you make while exploring lands in <a href="/#features">version history</a> without you having to think about it.</p>
+<h2>The smallest move today</h2>
+<p>If you have one of these projects open right now, run the <code>grep</code> from question two and count the database connections. That number alone, before you read any other line of code, will tell you most of what you need to know about which of the two projects you actually bought.</p>
+    </div>
+
+    <aside class="pullquote">Front controller, one DB connection, a routing table, one naming convention, and a safe deletion. Five points; under three means quote by the hour, not the project.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What if the code has a front controller but no routing table?</p>
+      <p class="faq-a">That&#39;s the start of a framework the developer never finished. Treat anything written after year two as untrusted and grep for the URL mapping in headers, switch statements, or inline if-blocks.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does using WordPress count as a custom framework?</p>
+      <p class="faq-a">WordPress is the framework. What sits in wp-content/themes/ or wp-content/plugins/ is what you score. The five questions apply to that code, not to WP core.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I run this test on a Magento 1 site?</p>
+      <p class="faq-a">Yes. Magento 1 has a real front controller and routing, so questions one and three score automatic points. The credential, naming, and deletion tests still reveal a lot about the local modules.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What&#39;s a fair quote for a 2-out-of-5 codebase?</p>
+      <p class="faq-a">Hourly, not fixed-fee. Refuse fixed-fee work on spaghetti. The blast radius of any change is unknown until proven otherwise, and you will eat the unknown if you committed a price.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/joomla-component-to-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+        <img src="/blog/joomla-component-to-plugin/hero.jpg" alt="Two layered paper sheets labeled Joomla 2.5 Component and Joomla 5 Plugin, brass tacks, ruler, pencil, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>2 June 2026</span></span>
+      <h3>Joomla 2.5 component to Joomla 5 plugin: skip the rewrite</h3>
+      <span class="pc-lede">An old Joomla 2.5 component still runs the client&#39;s catalogue. PHP 8.2 is coming. Here&#39;s how to lift it onto Joomla 5 as a plugin without touching the schema.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/mapping-php-include-dependencies/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/mapping-php-include-dependencies/hero.webp" type="image/webp">
+        <img src="/blog/mapping-php-include-dependencies/hero.jpg" alt="Hand-drawn PHP include graph on graph paper with ink nodes, tally sheet, manila tabs, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>27 May 2026</span></span>
+      <h3>14 PHP includes per page: a dependency-mapping playbook</h3>
+      <span class="pc-lede">Fourteen require statements at the top of every page, a sidebar that pulls in three more, and nobody on the team remembers why. Map the graph before you touch it.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

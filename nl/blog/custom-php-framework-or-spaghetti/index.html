@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Custom PHP-framework of spaghetti: een test in vijf vragen · Pier — Blog</title>
+<meta name="description" content="Je opent de repo, ziet een map lib en vindt een functions.php van 4.200 regels. Voordat je een rewrite offreert, loop je deze vijf vragen langs.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, architecture, wordpress, tooling, migration">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Custom PHP-framework of spaghetti: een test in vijf vragen">
+<meta property="og:description" content="Je opent de repo, ziet een map lib en vindt een functions.php van 4.200 regels. Voordat je een rewrite offreert, loop je deze vijf vragen langs.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren testblad met vinkjes, manilamap met printcode, schets, messing plaatje, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T16:22:11.029Z">
+<meta property="article:modified_time" content="2026-06-09T16:22:11.029Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Architecture">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="migration">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Custom PHP-framework of spaghetti: een test in vijf vragen">
+<meta name="twitter:description" content="Je opent de repo, ziet een map lib en vindt een functions.php van 4.200 regels. Voordat je een rewrite offreert, loop je deze vijf vragen langs.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren testblad met vinkjes, manilamap met printcode, schets, messing plaatje, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Architecture">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/custom-php-framework-or-spaghetti/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/"},
+  "url":"https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/",
+  "headline":"Custom PHP-framework of spaghetti: een test in vijf vragen",
+  "description":"Je opent de repo, ziet een map lib en vindt een functions.php van 4.200 regels. Voordat je een rewrite offreert, loop je deze vijf vragen langs.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren testblad met vinkjes, manilamap met printcode, schets, messing plaatje, rode lakzegel."
+  },
+  "datePublished":"2026-06-09T16:22:11.029Z",
+  "dateModified":"2026-06-09T16:22:11.029Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, architecture, wordpress, tooling, migration",
+  "wordCount":1360,
+  "articleSection":"Architecture",
+  "articleBody":"Het is dinsdagochtend. Een Nederlands bureau waarmee we werken heeft net een website overgenomen van een interne ontwikkelaar die in 2022 met pensioen ging. De repo is 1,4 GB. De mappenstructuur heeft een /lib , een /modules , een /classes , en in de root één bestand genaamd config.php met 37 define() -aanroepen. Je opent /lib/functions.php . Het bestand is 4.217 regels lang. Er is geen readme. De klant wil voor vrijdag twee dingen weten. Of je het kunt onderhouden. Of je het kunt uitbreiden. Wat ze eigenlijk willen weten, ook al spreken ze het niet uit, is of de vorige ontwikkelaar een custom PHP-framework heeft gebouwd of acht jaar lang bestanden op elkaar heeft gestapeld. Van buitenaf zien die twee situaties er identiek uit. Het zijn niet dezelfde projecten om over te nemen. Deze vijf vragen, in minder dan een uur uitgevoerd, vertellen je welke van de twee je hebt gekocht. Vraag één. De front controller Open de .htaccess in de document root. Zie je zoiets, dan heeft iemand nagedacht over architectuur: RewriteEngine On RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d RewriteRule ^(.*)$ index.php?route=$1 [QSA,L] Dat blok herschrijft elke request naar één entry point. Of index.php die request vervolgens netjes of slordig afhandelt is een aparte vraag, maar de vorige ontwikkelaar koos ervoor om requests via één bestand te routeren. Dat is het front-controller-patroon. Zo werken Laravel, Symfony, de eigen index.php van WordPress, en elk serieus PHP-framework sinds 2008. De Apache mod_rewrite-referentie legt uit wat die flags doen, mocht je nog nooit op een vrijdag een oneindige redirect-loop hebben gedebugd. Kijk nu naar het alternatief. Bevat /admin/ 38 .php -bestanden met namen als edit-user.php , delete-user.php , edit-order.php , edit-order-shipping.php , edit-order-shipping-address.php , dan voegde de vorige ontwikkelaar simpelweg een bestand toe elke keer dat er een feature werd gevraagd. Dat is spaghetti, hoeveel gedeelde code de bestanden ook includen. Tel het mee. Front controller aanwezig, +1. Eén .php -bestand per pagina, 0. Vraag twee. Waar de credentials staan Draai dit in de project root: grep -rEn \"mysqli_connect|new PDO|mysql_connect\" --include=\"*.php\" | wc -l De -E is belangrijk. GNU grep accepteert \\| als alternation in basic mode, BSD grep op macOS niet, en de stille nul die je terugkrijgt liegt tegen je. Met ERE aan gedragen ze zich beide hetzelfde. Krijg je 1 terug, dan heeft de ontwikkelaar de database-verbinding gecentraliseerd. Krijg je 47 terug, dan niet. 47 losse verbindingen betekent ook 47 kopieën van het wachtwoord, wat betekent dat het roteren van het wachtwoord vereist dat je 47 bestanden bewerkt, wat betekent dat niemand het wachtwoord sinds 2019 heeft geroteerd. Een echt custom framework, ook een rommelig framework, heeft een Database -class of in elk geval een db.php die één keer wordt geïncludeerd. Spaghetti herhaalt de verbinding in elk bestand omdat de ontwikkelaar bij het maken van een nieuw bestand uit het vorige plakte. Vaak vind je de credentials op diezelfde regel hard gecodeerd, en dat is een gesprek op zich met de klant. Vraag drie. De routing-laag In vraag één vond je een front controller. Mooi. Zoek nu de routing-tabel. Waar staat de lijst met URL's waarop de app reageert. In een framework staat dit op één plek. Het ziet eruit als: $routes = [ 'GET /orders' => 'OrderController@index', 'POST /orders' => 'OrderController@create', 'GET /orders/{id}' => 'OrderController@show', ]; Of een config-array. Of een routes.php . Of annotaties op controller-classes als de ontwikkelaar ambitieus was. Het punt is: er is één plek die je van boven naar beneden kunt lezen om het URL-oppervlak van de applicatie in beeld te krijgen. In spaghetti is er geen routing-laag, want de routing is het filesystem. De URL /admin/edit-user.php mapt naar het bestand /admin/edit-user.php omdat Apache zo PHP serveerde in 2003 en de ontwikkelaar dat nooit heeft veranderd. Om het URL-oppervlak te kennen doe je find . -name \"*.php\" . Dat is geen framework. Vraag vier. Naamgeving en conventies Kies willekeurig twintig functienamen uit de codebase. Schrijf ze op. Een custom framework, ook één waarvan de conventies geen PSR-12 zijn, gebruikt één conventie. Misschien is alles app_get_user , app_save_order , app_send_email . Misschien is het App\\Repo\\UserRepo::find . Misschien lelijke Hongaarse notatie als fn_get_user_arr . Het punt is: er is een patroon. De ontwikkelaar koos er één en hield zich eraan. Spaghetti heeft zes conventies omdat zes verschillende copy-paste-bronnen de codebase hebben bezaaid. Je ziet, allemaal in hetzelfde project, allemaal hetzelfde doend, zonder dat ze elkaar aanroepen: get_user_by_id($id); getUserData($userId); db_user_get($id); fetch_user($id); user_load($id); function GetUserInfo($Id) { /* ... */ } De PHP-FIG-standaarden documenteren hoe consistentie er in de praktijk uitziet. Hun aanwezigheid in een codebase bewijst op zichzelf niets over kwaliteit, ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Custom PHP-framework of spaghetti: een test in vijf vragen","item":"https://pier.abn.company/nl/blog/custom-php-framework-or-spaghetti/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat als de code wel een front controller heeft maar geen routing-tabel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dat is het begin van een framework dat de ontwikkelaar nooit heeft afgemaakt. Behandel alles wat na jaar twee is geschreven als onbetrouwbaar en grep naar de URL-mapping in headers, switch-statements of inline if-blokken."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Telt WordPress als custom framework?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "WordPress is het framework. Wat in wp-content/themes/ of wp-content/plugins/ staat, is wat je scoort. De vijf vragen gelden voor die code, niet voor WP core."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik deze test draaien op een Magento 1-site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Magento 1 heeft een echte front controller en routing, dus vraag één en drie scoren automatisch punten. De credential-, naamgevings- en verwijdertest onthullen nog steeds veel over de lokale modules."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 067</span>
+      </div>
+      <p class="eyebrow"><span class="n">067 —</span>Architecture</p>
+      <h1 class="display-l post-title">Custom PHP-framework of spaghetti: een test in vijf vragen</h1>
+      <p class="lede post-lede">Je opent de repo, ziet een map lib en vindt een functions.php van 4.200 regels. Voordat je een rewrite offreert, loop je deze vijf vragen langs.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T16:22:11.029Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/custom-php-framework-or-spaghetti/hero.webp" type="image/webp">
+      <img src="/blog/custom-php-framework-or-spaghetti/hero.jpg" alt="Bovenaanzicht van papieren testblad met vinkjes, manilamap met printcode, schets, messing plaatje, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 067</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is dinsdagochtend. Een Nederlands bureau waarmee we werken heeft net een website overgenomen van een interne ontwikkelaar die in 2022 met pensioen ging. De repo is 1,4 GB. De mappenstructuur heeft een <code>/lib</code>, een <code>/modules</code>, een <code>/classes</code>, en in de root één bestand genaamd <code>config.php</code> met 37 <code>define()</code>-aanroepen. Je opent <code>/lib/functions.php</code>. Het bestand is 4.217 regels lang. Er is geen readme.</p>
+<p>De klant wil voor vrijdag twee dingen weten. Of je het kunt onderhouden. Of je het kunt uitbreiden.</p>
+<p>Wat ze eigenlijk willen weten, ook al spreken ze het niet uit, is of de vorige ontwikkelaar een custom PHP-framework heeft gebouwd of acht jaar lang bestanden op elkaar heeft gestapeld. Van buitenaf zien die twee situaties er identiek uit. Het zijn niet dezelfde projecten om over te nemen. Deze vijf vragen, in minder dan een uur uitgevoerd, vertellen je welke van de twee je hebt gekocht.</p>
+<h2>Vraag één. De front controller</h2>
+<p>Open de <code>.htaccess</code> in de document root. Zie je zoiets, dan heeft iemand nagedacht over architectuur:</p>
+<pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?route=$1 [QSA,L]</code></pre>
+<p>Dat blok herschrijft elke request naar één entry point. Of <code>index.php</code> die request vervolgens netjes of slordig afhandelt is een aparte vraag, maar de vorige ontwikkelaar koos ervoor om requests via één bestand te routeren. Dat is het front-controller-patroon. Zo werken Laravel, Symfony, de eigen <code>index.php</code> van WordPress, en elk serieus PHP-framework sinds 2008. De <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">Apache mod_rewrite-referentie</a> legt uit wat die flags doen, mocht je nog nooit op een vrijdag een oneindige redirect-loop hebben gedebugd.</p>
+<p>Kijk nu naar het alternatief. Bevat <code>/admin/</code> 38 <code>.php</code>-bestanden met namen als <code>edit-user.php</code>, <code>delete-user.php</code>, <code>edit-order.php</code>, <code>edit-order-shipping.php</code>, <code>edit-order-shipping-address.php</code>, dan voegde de vorige ontwikkelaar simpelweg een bestand toe elke keer dat er een feature werd gevraagd. Dat is spaghetti, hoeveel gedeelde code de bestanden ook includen.</p>
+<p>Tel het mee. Front controller aanwezig, +1. Eén <code>.php</code>-bestand per pagina, 0.</p>
+<h2>Vraag twee. Waar de credentials staan</h2>
+<p>Draai dit in de project root:</p>
+<pre><code class="lang-bash">grep -rEn "mysqli_connect|new PDO|mysql_connect" --include="*.php" | wc -l</code></pre>
+<p>De <code>-E</code> is belangrijk. GNU grep accepteert <code>\|</code> als alternation in basic mode, BSD grep op macOS niet, en de stille nul die je terugkrijgt liegt tegen je. Met ERE aan gedragen ze zich beide hetzelfde.</p>
+<p>Krijg je <code>1</code> terug, dan heeft de ontwikkelaar de database-verbinding gecentraliseerd. Krijg je <code>47</code> terug, dan niet. 47 losse verbindingen betekent ook 47 kopieën van het wachtwoord, wat betekent dat het roteren van het wachtwoord vereist dat je 47 bestanden bewerkt, wat betekent dat niemand het wachtwoord sinds 2019 heeft geroteerd.</p>
+<p>Een echt custom framework, ook een rommelig framework, heeft een <code>Database</code>-class of in elk geval een <code>db.php</code> die één keer wordt geïncludeerd. Spaghetti herhaalt de verbinding in elk bestand omdat de ontwikkelaar bij het maken van een nieuw bestand uit het vorige plakte. Vaak vind je de credentials op diezelfde regel hard gecodeerd, en dat is een gesprek op zich met de klant.</p>
+<h2>Vraag drie. De routing-laag</h2>
+<p>In vraag één vond je een front controller. Mooi. Zoek nu de routing-tabel. Waar staat de lijst met URL's waarop de app reageert.</p>
+<p>In een framework staat dit op één plek. Het ziet eruit als:</p>
+<pre><code class="lang-php">$routes = [
+    'GET  /orders'         =&gt; 'OrderController@index',
+    'POST /orders'         =&gt; 'OrderController@create',
+    'GET  /orders/{id}'    =&gt; 'OrderController@show',
+];</code></pre>
+<p>Of een config-array. Of een <code>routes.php</code>. Of annotaties op controller-classes als de ontwikkelaar ambitieus was. Het punt is: er is één plek die je van boven naar beneden kunt lezen om het URL-oppervlak van de applicatie in beeld te krijgen.</p>
+<p>In spaghetti is er geen routing-laag, want de routing <em>is</em> het filesystem. De URL <code>/admin/edit-user.php</code> mapt naar het bestand <code>/admin/edit-user.php</code> omdat Apache zo PHP serveerde in 2003 en de ontwikkelaar dat nooit heeft veranderd. Om het URL-oppervlak te kennen doe je <code>find . -name "*.php"</code>. Dat is geen framework.</p>
+<h2>Vraag vier. Naamgeving en conventies</h2>
+<p>Kies willekeurig twintig functienamen uit de codebase. Schrijf ze op.</p>
+<p>Een custom framework, ook één waarvan de conventies geen PSR-12 zijn, gebruikt één conventie. Misschien is alles <code>app_get_user</code>, <code>app_save_order</code>, <code>app_send_email</code>. Misschien is het <code>App\Repo\UserRepo::find</code>. Misschien lelijke Hongaarse notatie als <code>fn_get_user_arr</code>. Het punt is: er is een patroon. De ontwikkelaar koos er één en hield zich eraan.</p>
+<p>Spaghetti heeft zes conventies omdat zes verschillende copy-paste-bronnen de codebase hebben bezaaid. Je ziet, allemaal in hetzelfde project, allemaal hetzelfde doend, zonder dat ze elkaar aanroepen:</p>
+<pre><code class="lang-php">get_user_by_id($id);
+getUserData($userId);
+db_user_get($id);
+fetch_user($id);
+user_load($id);
+function GetUserInfo($Id) { /* ... */ }</code></pre>
+<p>De <a href="https://www.php-fig.org/psr/">PHP-FIG-standaarden</a> documenteren hoe consistentie er in de praktijk uitziet. Hun aanwezigheid in een codebase bewijst op zichzelf niets over kwaliteit, maar hun afwezigheid bewijst dat er nooit één ontwikkelaar met een plan is geweest.</p>
+<h2>Vraag vijf. De verwijdertest</h2>
+<p>Kies een bestand dat ongebruikt lijkt. Bijvoorbeeld <code>/lib/helpers-old.php</code>. Verwijder het. Herlaad de homepage.</p>
+<p>Werkt de site nog, dan was het bestand niet in gebruik en was de vorige ontwikkelaar zeker genoeg van zijn dependencies om het niet "voor de zekerheid" vanuit de bootstrap te includen. Dat is een klein datapunt richting framework.</p>
+<p>Geeft de site een fatal omdat <code>helpers-old.php</code> werd geïncludeerd vanuit <code>/lib/init.php</code>, dat weer werd geïncludeerd vanuit <code>/index.php</code>, dan heb je geleerd dat de include-graph een netwerk is en geen boom, en dat de ontwikkelaar zelf ook niet wist welke bestanden actief waren. Sterk signaal voor spaghetti.</p>
+<p>Een echt framework heeft een autoloader. Volgens de <a href="https://www.php.net/manual/en/language.oop5.autoload.php">php.net-autoload-documentatie</a> resolvet de autoloader classnames naar bestandspaden op het moment dat ze nodig zijn. Zie je <code>spl_autoload_register</code> of een Composer-<code>autoload.php</code> bovenaan de bootstrap, dan is verwijderen veilig. Zie je 92 <code>require_once</code>-aanroepen in <code>init.php</code>, dan is verwijderen pure gok.</p>
+<aside class="callout">Voer de verwijdertest niet uit op productie. Maak een kopie. PHP's Zend OPcache houdt een gecompileerde versie van het bestand in geheugen lang nadat je het van schijf hebt gehaald, vaak voor de hele levensduur van de FPM-worker, en persistente mysqli-verbindingen kunnen een half kapotte bootstrap er nog dertig seconden bovenop maskeren. Je kunt jezelf ervan overtuigen dat een bestand ongebruikt is terwijl het juist volop in gebruik is, simpelweg omdat je nog geen koude worker hebt geraakt.</aside>
+<h2>Het resultaat lezen</h2>
+<p>Vijf punten mogelijk. In de praktijk is de uitslag binair, niet geleidelijk.</p>
+<p>Vier of vijf van de vijf betekent dat je een onder-gedocumenteerd maar echt custom PHP-framework hebt geërfd. Behandel het als een interne Symfony-fork. Maak de conventies eigen, schrijf een README van één pagina, en offreer onderhoud tegen onderhoudstarief. Het werk is onspectaculair maar afgebakend.</p>
+<p>Twee of minder betekent dat de vorige ontwikkelaar geen framework heeft gebouwd. De ontwikkelaar bouwde een website uit bestanden, één feature per keer, acht jaar lang. Onderhouden kan nog steeds. Je moet alleen anders offreren. Elke wijziging heeft onbekende impact tot het tegendeel bewezen is. Een bugfix is minimaal een halve dag, want de helft daarvan is uitzoeken welke van de zes <code>get-user</code>-functies de kapotte pagina aanroept. Prijs daarnaar, of loop weg.</p>
+<p>Drie is het gevaarlijke middenstuk. De ontwikkelaar begon met een plan en liet het na jaar twee varen. De eerste helft van de code ziet eruit als een framework. De tweede helft ziet eruit als spaghetti die erop is geënt. Die projecten rotten op de slechtste manier weg: het team gaat ervan uit dat de framework-regels gelden, en struikelt vervolgens over het deel waar dat niet zo is.</p>
+<h2>De tool die we voor de volgende duizend hiervan bouwden</h2>
+<p>Toen we <a href="/">Pier</a> bouwden liepen we hier op vrijwel elke <a href="/">legacy site</a> waarmee we aanlegden tegenaan, want het 3-uit-5-geval is de mediaan en niet de uitzondering. We pakten het uiteindelijk zo aan: een project-brede grep over het live FTP-filesystem naast onze <a href="/#database">MySQL editor</a>, zodat de antwoorden op vraag twee tot en met vijf minuten kosten in plaats van een middag, en elke wijziging die je tijdens het verkennen maakt belandt automatisch in de <a href="/#features">version history</a>, zonder dat je erover hoeft na te denken.</p>
+<h2>De kleinste zet vandaag</h2>
+<p>Heb je nu een van deze projecten openstaan, draai dan de <code>grep</code> uit vraag twee en tel de database-verbindingen. Dat getal alleen, voordat je ook maar één andere regel code leest, vertelt je het meeste van wat je moet weten over welk van de twee projecten je daadwerkelijk hebt gekocht.</p>
+    </div>
+
+    <aside class="pullquote">Front controller, één DB-verbinding, een routing-tabel, één naamgevingsconventie en een veilige verwijdering. Vijf punten; onder de drie offreer je per uur, niet per project.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat als de code wel een front controller heeft maar geen routing-tabel?</p>
+      <p class="faq-a">Dat is het begin van een framework dat de ontwikkelaar nooit heeft afgemaakt. Behandel alles wat na jaar twee is geschreven als onbetrouwbaar en grep naar de URL-mapping in headers, switch-statements of inline if-blokken.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Telt WordPress als custom framework?</p>
+      <p class="faq-a">WordPress is het framework. Wat in wp-content/themes/ of wp-content/plugins/ staat, is wat je scoort. De vijf vragen gelden voor die code, niet voor WP core.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik deze test draaien op een Magento 1-site?</p>
+      <p class="faq-a">Ja. Magento 1 heeft een echte front controller en routing, dus vraag één en drie scoren automatisch punten. De credential-, naamgevings- en verwijdertest onthullen nog steeds veel over de lokale modules.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-component-to-plugin/hero.jpg" alt="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>2 juni 2026</span></span>
+      <h3>Joomla 2.5 component naar Joomla 5 plugin: geen rewrite</h3>
+      <span class="pc-lede">Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/mapping-php-include-dependencies/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/mapping-php-include-dependencies/hero.webp" type="image/webp">
+        <img src="/nl/blog/mapping-php-include-dependencies/hero.jpg" alt="Handgetekend PHP-include-diagram op ruitjespapier met inktknopen, telstaat, manilla tabs, messing plaatje, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>14 PHP-includes per pagina: dependencies in kaart brengen</h3>
+      <span class="pc-lede">Veertien require-statements per pagina, een sidebar die er nog drie binnenhaalt en niemand weet meer waarom. Breng de graph in kaart voor je iets aanraakt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/custom-php-framework-or-spaghetti/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
