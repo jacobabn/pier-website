@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>SFTP-only deployment: a recipe that outlives the developer · Pier — Blog</title>
+<meta name="description" content="A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="sftp, ftp, workflow, operations, php">
+
+<link rel="canonical" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="SFTP-only deployment: a recipe that outlives the developer">
+<meta property="og:description" content="A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.">
+<meta property="og:url" content="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<meta property="og:image" content="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead still life on bone linen: aged SFTP deploy recipe, run-sheet, manila tab, brass key and plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T11:09:34.593Z">
+<meta property="article:modified_time" content="2026-06-09T11:09:34.593Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="SFTP-only deployment: a recipe that outlives the developer">
+<meta name="twitter:description" content="A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead still life on bone linen: aged SFTP deploy recipe, run-sheet, manila tab, brass key and plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/sftp-only-deployment-recipe-no-handover/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/"},
+  "url":"https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/",
+  "headline":"SFTP-only deployment: a recipe that outlives the developer",
+  "description":"A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead still life on bone linen: aged SFTP deploy recipe, run-sheet, manila tab, brass key and plate, red wax seal."
+  },
+  "datePublished":"2026-06-09T11:09:34.593Z",
+  "dateModified":"2026-06-09T11:09:34.593Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"sftp, ftp, workflow, operations, php",
+  "wordCount":936,
+  "articleSection":"Workflow",
+  "articleBody":"The handover that wasn't A Dutch agency we work with took over a WordPress site last month after the previous freelancer stopped answering email. They had three things: an SFTP credential, a MySQL connection string, and a wp-admin login. No git repository, no deploy script, no README, no notion of which files in /wp-content/mu-plugins/ were live and which were dead weight from 2019. This is the modal case for a small agency inheriting a legacy site . Not malice, just attrition. The person who built the site moved on, the documentation never existed, and the new owner is staring at a 14,000-file tree wondering which edit will take the homepage down. What follows is the SFTP-only deployment recipe we hand to teams in that position. It assumes nothing beyond what came in the credential email, and it is designed so the next person, after you also leave, can reverse-engineer the whole flow from the server alone. Mirror first, edit second Before any edit, pull the live tree to disk. Not as a backup, as the working copy. Every change you make should originate locally and travel up, never the other way around. lftp -u user,pass sftp://site.example.com \\ -e \"mirror --parallel=4 --verbose /public_html ./live; quit\" That gets you a faithful snapshot. Commit it immediately to a private git repo, even if you never push it anywhere: cd live git init git add -A git commit -m \"snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) from site.example.com\" The repo is for you, not for the server. Its purpose is to give you a diff every time you re-mirror, so you can see what cron jobs, plugins, or other admins have changed under your feet. A deploy that is one shell command and one symlink The pattern that survives handover is the one a stranger can read off the server. Use a release directory per deploy, keyed by timestamp, and a current symlink that points at whichever one is live. Apache's DocumentRoot follows the symlink, the swap is atomic, and rolling back is one ln -sfn . #!/usr/bin/env bash # deploy.sh - local, one-shot SFTP release set -euo pipefail STAMP=$(date -u +%Y%m%d-%H%M%S) REMOTE=\"/home/user/releases/$STAMP\" lftp -u \"$SFTP_USER,$SFTP_PASS\" \"sftp://$SFTP_HOST\" <<EOF mkdir -p $REMOTE mirror -R --parallel=4 --exclude-glob .git --exclude-glob node_modules/ ./live $REMOTE rm -f /home/user/public_html ln -s $REMOTE /home/user/public_html quit EOF echo \"released $STAMP\" Now you have a directory of dated releases on the server. A rollback is exactly: ssh user@site.example.com 'ln -sfn /home/user/releases/20260601-093014 /home/user/public_html' If you only have SFTP and no shell, the same thing works by uploading a tiny switch.php that takes a timestamp parameter and runs PHP's symlink() . Delete the helper after each use so it does not sit there as an unauth'd rollback endpoint. Some shared hosts disable symlink() via disable_functions in php.ini. Check with a one-line probe ( echo function_exists('symlink') ? 'ok' : 'no'; ) before designing the whole pipeline around it. If it is off, fall back to a deploy that renames the directory instead. Pinning the database side Files are the easy half. The database is where unattended sites grow strange. The recipe needs a dump that runs on every deploy and lands next to the release directory, so a future reader sees that release N had database state N. mysqldump --single-transaction --quick --routines --triggers \\ -h \"$DB_HOST\" -u \"$DB_USER\" -p\"$DB_PASS\" \"$DB_NAME\" \\ | gzip > \"./live/.releases/$STAMP.sql.gz\" The mysqldump manual covers the flags above; the important ones for a live site are --single-transaction (so you do not lock writes) and --quick (so it streams rather than buffers the whole table). Upload that file with the rest of the release. The directory /.releases/ at the root of the document tree is conventional enough that a future reader will open the most recent .sql.gz and understand what they are looking at without being told. Match every dump with a retention sweep so you do not fill the disk. If you have shell access: find /home/user/releases -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \\; If you only have SFTP, write a 20-line PHP cleanup script that the deploy uploads and triggers via a one-time URL, then removes itself. The README that lives on the server Everything above means nothing if the next person cannot find it. Drop a single file at /public_html/HANDOVER.md that explains the layout in plain English. Three short sections is enough: Releases: where they live, how the current symlink works, how to roll back. Database: where the dumps are, what the credentials file is called, where wp-config.php lives. Cron: the output of crontab -l , even if it is empty. Especially if it is empty. Then add this to .htaccess so the file is readable to the server but not the public: <Files \"HANDOVER.md\"> Require all denied </Files> The Apache mod_authz_core docs have the full list of directives if you want to scope it tighter, for example to a single office IP. The point is that the",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"SFTP-only deployment: a recipe that outlives the developer","item":"https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What if the host blocks PHP symlink()?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Use a rename-based deploy. Upload to a sibling directory, then rename the old public_html out of the way and the new one into place. SFTP supports rename even when shell access and symlinks are off."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a git server somewhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The local git repo exists only to give you diffs when you re-mirror. Push it to a private host later if the team wants offsite backup, but the deploy itself never touches git."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should I keep old releases on the server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Thirty days is a sensible default for low-traffic sites. Each release is roughly the size of the live tree, so plan for tree-size times retention-count of disk headroom."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about wp-config.php and other secrets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Keep them out of the mirrored tree. Store them in a parent directory that the document root includes via require_once, so a fresh deploy never overwrites the credentials with stale ones from your local copy."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 061</span>
+      </div>
+      <p class="eyebrow"><span class="n">061 —</span>Workflow</p>
+      <h1 class="display-l post-title">SFTP-only deployment: a recipe that outlives the developer</h1>
+      <p class="lede post-lede">A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T11:09:34.593Z">9 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/sftp-only-deployment-recipe-no-handover/hero.webp" type="image/webp">
+      <img src="/blog/sftp-only-deployment-recipe-no-handover/hero.jpg" alt="Overhead still life on bone linen: aged SFTP deploy recipe, run-sheet, manila tab, brass key and plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 061</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The handover that wasn't</h2><p>A Dutch agency we work with took over a WordPress site last month after the previous freelancer stopped answering email. They had three things: an SFTP credential, a MySQL connection string, and a wp-admin login. No git repository, no deploy script, no README, no notion of which files in <code>/wp-content/mu-plugins/</code> were live and which were dead weight from 2019.</p><p>This is the modal case for a small agency inheriting a <a href='/'>legacy site</a>. Not malice, just attrition. The person who built the site moved on, the documentation never existed, and the new owner is staring at a 14,000-file tree wondering which edit will take the homepage down.</p><p>What follows is the SFTP-only deployment recipe we hand to teams in that position. It assumes nothing beyond what came in the credential email, and it is designed so the next person, after you also leave, can reverse-engineer the whole flow from the server alone.</p><h2>Mirror first, edit second</h2><p>Before any edit, pull the live tree to disk. Not as a backup, as the working copy. Every change you make should originate locally and travel up, never the other way around.</p><pre><code class='lang-bash'>lftp -u user,pass sftp://site.example.com \
+  -e "mirror --parallel=4 --verbose /public_html ./live; quit"</code></pre><p>That gets you a faithful snapshot. Commit it immediately to a private git repo, even if you never push it anywhere:</p><pre><code class='lang-bash'>cd live
+git init
+git add -A
+git commit -m "snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) from site.example.com"</code></pre><p>The repo is for you, not for the server. Its purpose is to give you a diff every time you re-mirror, so you can see what cron jobs, plugins, or other admins have changed under your feet.</p><h2>A deploy that is one shell command and one symlink</h2><p>The pattern that survives handover is the one a stranger can read off the server. Use a release directory per deploy, keyed by timestamp, and a <code>current</code> symlink that points at whichever one is live. Apache's <code>DocumentRoot</code> follows the symlink, the swap is atomic, and rolling back is one <code>ln -sfn</code>.</p><pre><code class='lang-bash'>#!/usr/bin/env bash
+# deploy.sh - local, one-shot SFTP release
+set -euo pipefail
+
+STAMP=$(date -u +%Y%m%d-%H%M%S)
+REMOTE="/home/user/releases/$STAMP"
+
+lftp -u "$SFTP_USER,$SFTP_PASS" "sftp://$SFTP_HOST" &lt;&lt;EOF
+mkdir -p $REMOTE
+mirror -R --parallel=4 --exclude-glob .git --exclude-glob node_modules/ ./live $REMOTE
+rm -f /home/user/public_html
+ln -s $REMOTE /home/user/public_html
+quit
+EOF
+
+echo "released $STAMP"</code></pre><p>Now you have a directory of dated releases on the server. A rollback is exactly:</p><pre><code class='lang-bash'>ssh user@site.example.com 'ln -sfn /home/user/releases/20260601-093014 /home/user/public_html'</code></pre><p>If you only have SFTP and no shell, the same thing works by uploading a tiny <code>switch.php</code> that takes a timestamp parameter and runs <a href='https://www.php.net/manual/en/function.symlink.php'>PHP's <code>symlink()</code></a>. Delete the helper after each use so it does not sit there as an unauth'd rollback endpoint.</p><aside class='callout'>Some shared hosts disable <code>symlink()</code> via <code>disable_functions</code> in php.ini. Check with a one-line probe (<code>echo function_exists('symlink') ? 'ok' : 'no';</code>) before designing the whole pipeline around it. If it is off, fall back to a deploy that renames the directory instead.</aside><h2>Pinning the database side</h2><p>Files are the easy half. The database is where unattended sites grow strange. The recipe needs a dump that runs on every deploy and lands next to the release directory, so a future reader sees that release N had database state N.</p><pre><code class='lang-bash'>mysqldump --single-transaction --quick --routines --triggers \
+  -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
+  | gzip &gt; "./live/.releases/$STAMP.sql.gz"</code></pre><p>The <a href='https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html'>mysqldump manual</a> covers the flags above; the important ones for a live site are <code>--single-transaction</code> (so you do not lock writes) and <code>--quick</code> (so it streams rather than buffers the whole table). Upload that file with the rest of the release. The directory <code>/.releases/</code> at the root of the document tree is conventional enough that a future reader will open the most recent <code>.sql.gz</code> and understand what they are looking at without being told.</p><p>Match every dump with a retention sweep so you do not fill the disk. If you have shell access:</p><pre><code class='lang-bash'>find /home/user/releases -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \;</code></pre><p>If you only have SFTP, write a 20-line PHP cleanup script that the deploy uploads and triggers via a one-time URL, then removes itself.</p><h2>The README that lives on the server</h2><p>Everything above means nothing if the next person cannot find it. Drop a single file at <code>/public_html/HANDOVER.md</code> that explains the layout in plain English. Three short sections is enough:</p><ul><li><strong>Releases:</strong> where they live, how the <code>current</code> symlink works, how to roll back.</li><li><strong>Database:</strong> where the dumps are, what the credentials file is called, where wp-config.php lives.</li><li><strong>Cron:</strong> the output of <code>crontab -l</code>, even if it is empty. Especially if it is empty.</li></ul><p>Then add this to <code>.htaccess</code> so the file is readable to the server but not the public:</p><pre><code class='lang-apache'>&lt;Files "HANDOVER.md"&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre><p>The Apache <a href='https://httpd.apache.org/docs/current/mod/mod_authz_core.html#require'>mod_authz_core docs</a> have the full list of directives if you want to scope it tighter, for example to a single office IP. The point is that the documentation is co-located with the thing it documents. If the agency loses its password manager, the README still ships with the site.</p><h2>What to do today</h2><p>When we built Pier we kept hitting this exact pattern: small teams adopting a site mid-life with no deploy story. The way we ended up handling it was to make every edit a release by default, with full <a href='/#features'>version history</a> per file and a <a href='/#database'>MySQL editor</a> that snapshots tables alongside the file tree.</p><p>The smallest version of all of this is a mirror, a git init, and one HANDOVER.md committed before you touch anything. Twenty minutes of work that turns an inherited site into something the next person can also inherit.</p>
+    </div>
+
+    <aside class="pullquote">A deploy that one stranger can read off the server is the only deploy that outlives the person who set it up.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What if the host blocks PHP symlink()?</p>
+      <p class="faq-a">Use a rename-based deploy. Upload to a sibling directory, then rename the old public_html out of the way and the new one into place. SFTP supports rename even when shell access and symlinks are off.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I need a git server somewhere?</p>
+      <p class="faq-a">No. The local git repo exists only to give you diffs when you re-mirror. Push it to a private host later if the team wants offsite backup, but the deploy itself never touches git.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should I keep old releases on the server?</p>
+      <p class="faq-a">Thirty days is a sensible default for low-traffic sites. Each release is roughly the size of the live tree, so plan for tree-size times retention-count of disk headroom.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about wp-config.php and other secrets?</p>
+      <p class="faq-a">Keep them out of the mirrored tree. Store them in a parent directory that the document root includes via require_once, so a fresh deploy never overwrites the credentials with stale ones from your local copy.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/diffing-sftp-trees/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/diffing-sftp-trees/hero.webp" type="image/webp">
+        <img src="/blog/diffing-sftp-trees/hero.jpg" alt="Two printed SFTP directory listings on graph paper labelled Friday and Saturday, red thread between them, brass DIFF plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Diffing two SFTP trees: when &#39;nothing changed&#39; isn&#39;t true</h3>
+      <span class="pc-lede">A Saturday-morning ticket. The client swears nothing changed since Friday. Three shell commands that find the one file that actually did, and the diff to paste back.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wordpress-without-the-dashboard/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-without-the-dashboard/hero.jpg" alt="Brass skeleton key on a cream paper card with black stamped label and red wax seal, on scarred dark oak desk." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 May 2026</span></span>
+      <h3>WordPress without the dashboard: why some agencies live in the FTP</h3>
+      <span class="pc-lede">A look at why working WordPress agencies bypass wp-admin entirely and run their day from a file tree, a SQL prompt and a tail on the error log.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

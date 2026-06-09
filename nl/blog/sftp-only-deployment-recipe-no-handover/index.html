@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>SFTP-only deployment: een recept dat de developer overleeft · Pier — Blog</title>
+<meta name="description" content="Een omkeerbare SFTP-deploy zo opgezet dat de volgende eigenaar van de credentials de hele release-flow vanaf alleen de server kan reconstrueren.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="sftp, ftp, workflow, operations, php">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="SFTP-only deployment: een recept dat de developer overleeft">
+<meta property="og:description" content="Een omkeerbare SFTP-deploy zo opgezet dat de volgende eigenaar van de credentials de hele release-flow vanaf alleen de server kan reconstrueren.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht stilleven op linnen: oud SFTP-deployrecept, stappenlijst, manilla tab, messing sleutel, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T11:09:34.593Z">
+<meta property="article:modified_time" content="2026-06-09T11:09:34.593Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="ftp">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="SFTP-only deployment: een recept dat de developer overleeft">
+<meta name="twitter:description" content="Een omkeerbare SFTP-deploy zo opgezet dat de volgende eigenaar van de credentials de hele release-flow vanaf alleen de server kan reconstrueren.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht stilleven op linnen: oud SFTP-deployrecept, stappenlijst, manilla tab, messing sleutel, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/sftp-only-deployment-recipe-no-handover/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/"},
+  "url":"https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/",
+  "headline":"SFTP-only deployment: een recept dat de developer overleeft",
+  "description":"Een omkeerbare SFTP-deploy zo opgezet dat de volgende eigenaar van de credentials de hele release-flow vanaf alleen de server kan reconstrueren.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht stilleven op linnen: oud SFTP-deployrecept, stappenlijst, manilla tab, messing sleutel, rode lakzegel."
+  },
+  "datePublished":"2026-06-09T11:09:34.593Z",
+  "dateModified":"2026-06-09T11:09:34.593Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"sftp, ftp, workflow, operations, php",
+  "wordCount":949,
+  "articleSection":"Workflow",
+  "articleBody":"De overdracht die er nooit was Een Nederlands bureau waar we mee werken nam vorige maand een WordPress-site over nadat de vorige freelancer geen e-mail meer beantwoordde. Ze hadden drie dingen: een SFTP-credential, een MySQL-connection string en een wp-admin login. Geen git-repository, geen deploy-script, geen README, geen idee welke bestanden in /wp-content/mu-plugins/ nog gebruikt werden en welke dood gewicht waren uit 2019. Dit is het standaardgeval voor een klein bureau dat een verouderde site erft. Geen kwade opzet, gewoon verloop. De persoon die de site bouwde is verder gegaan, de documentatie heeft nooit bestaan, en de nieuwe eigenaar staart naar een tree van 14.000 bestanden en vraagt zich af welke edit de homepage offline gaat halen. Wat volgt is het SFTP-only deployment-recept dat we aan teams in die positie meegeven. Het gaat van niets meer uit dan wat in de credentials-mail stond, en het is zo opgezet dat de volgende persoon, nadat jij ook vertrekt, de hele flow vanaf alleen de server kan reverse-engineeren. Eerst spiegelen, dan pas bewerken Voor je iets bewerkt: trek de live tree naar je eigen schijf. Niet als back-up, maar als de working copy. Elke wijziging die je maakt moet lokaal ontstaan en naar boven reizen, nooit andersom. lftp -u user,pass sftp://site.example.com \\ -e \"mirror --parallel=4 --verbose /public_html ./live; quit\" Dat levert je een getrouwe snapshot. Commit hem meteen in een private git-repo, ook al push je hem nergens heen: cd live git init git add -A git commit -m \"snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) from site.example.com\" De repo is voor jou, niet voor de server. Het doel is dat je elke keer dat je opnieuw spiegelt een diff hebt, zodat je kunt zien wat cronjobs, plugins of andere admins onder je voeten hebben veranderd. Een deploy van één shell-command en één symlink Het patroon dat een overdracht overleeft, is het patroon dat een onbekende rechtstreeks van de server kan aflezen. Gebruik een release-directory per deploy, gekoppeld aan een timestamp, en een current symlink die wijst naar de versie die live is. Apache's DocumentRoot volgt de symlink, de wissel is atomic, en rollback is één ln -sfn . #!/usr/bin/env bash # deploy.sh - local, one-shot SFTP release set -euo pipefail STAMP=$(date -u +%Y%m%d-%H%M%S) REMOTE=\"/home/user/releases/$STAMP\" lftp -u \"$SFTP_USER,$SFTP_PASS\" \"sftp://$SFTP_HOST\" <<EOF mkdir -p $REMOTE mirror -R --parallel=4 --exclude-glob .git --exclude-glob node_modules/ ./live $REMOTE rm -f /home/user/public_html ln -s $REMOTE /home/user/public_html quit EOF echo \"released $STAMP\" Nu heb je een directory met gedateerde releases op de server. Een rollback is precies dit: ssh user@site.example.com 'ln -sfn /home/user/releases/20260601-093014 /home/user/public_html' Heb je alleen SFTP en geen shell, dan werkt hetzelfde door een mini- switch.php te uploaden die een timestamp als parameter neemt en PHP's symlink() aanroept. Verwijder het helper-bestand na elk gebruik, anders blijft het daar staan als rollback-endpoint zonder auth. Sommige shared hosts schakelen symlink() uit via disable_functions in php.ini. Check het met een one-liner ( echo function_exists('symlink') ? 'ok' : 'no'; ) voor je de hele pipeline eromheen ontwerpt. Staat het uit, val dan terug op een deploy die de directory hernoemt in plaats van een symlink legt. De database-kant vastpinnen Bestanden zijn de makkelijke helft. De database is waar onbeheerde sites rare dingen gaan doen. Het recept heeft een dump nodig die bij elke deploy meedraait en naast de release-directory landt, zodat een toekomstige lezer ziet dat release N hoorde bij database-staat N. mysqldump --single-transaction --quick --routines --triggers \\ -h \"$DB_HOST\" -u \"$DB_USER\" -p\"$DB_PASS\" \"$DB_NAME\" \\ | gzip > \"./live/.releases/$STAMP.sql.gz\" De mysqldump-handleiding behandelt bovenstaande flags; de belangrijkste voor een live site zijn --single-transaction (zodat je writes niet locked) en --quick (zodat het streamt in plaats van de hele tabel in geheugen te buffer). Upload dat bestand mee met de rest van de release. De directory /.releases/ in de root van de document tree is conventioneel genoeg dat een toekomstige lezer de meest recente .sql.gz opent en begrijpt waar hij naar kijkt zonder dat iemand het hem uitlegt. Koppel elke dump aan een retentie-sweep, anders loopt je schijf vol. Heb je shell-toegang: find /home/user/releases -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \\; Heb je alleen SFTP, schrijf dan een PHP-cleanup-script van twintig regels dat de deploy uploadt en via een eenmalige URL triggert, waarna het zichzelf verwijdert. De README die op de server woont Alles hierboven betekent niets als de volgende persoon het niet kan vinden. Plaats één bestand op /public_html/HANDOVER.md dat de structuur in begrijpelijk Nederlands uitlegt. Drie korte secties is genoeg: Releases: waar ze staan, hoe de current symlink werkt, hoe je rollbackt. Database: waar de dumps staan, hoe het credentials-bestand heet, waar wp-con",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"SFTP-only deployment: een recept dat de developer overleeft","item":"https://pier.abn.company/nl/blog/sftp-only-deployment-recipe-no-handover/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat als de host PHP-symlink() blokkeert?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Gebruik een deploy gebaseerd op rename. Upload naar een sibling-directory, hernoem dan de oude public_html opzij en de nieuwe op zijn plek. SFTP ondersteunt rename ook als shell-toegang en symlinks uitstaan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heb ik ergens een git-server nodig?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De lokale git-repo bestaat alleen om je diffs te geven als je opnieuw spiegelt. Push hem later naar een private host als het team offsite back-up wil, maar de deploy zelf raakt git nooit aan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe lang moet ik oude releases op de server bewaren?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dertig dagen is een verstandige default voor sites met weinig verkeer. Elke release is ongeveer zo groot als de live tree, dus reken op tree-grootte maal aantal-retenties aan schijfruimte."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 061</span>
+      </div>
+      <p class="eyebrow"><span class="n">061 —</span>Workflow</p>
+      <h1 class="display-l post-title">SFTP-only deployment: een recept dat de developer overleeft</h1>
+      <p class="lede post-lede">Een omkeerbare SFTP-deploy zo opgezet dat de volgende eigenaar van de credentials de hele release-flow vanaf alleen de server kan reconstrueren.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T11:09:34.593Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/sftp-only-deployment-recipe-no-handover/hero.webp" type="image/webp">
+      <img src="/blog/sftp-only-deployment-recipe-no-handover/hero.jpg" alt="Bovenaanzicht stilleven op linnen: oud SFTP-deployrecept, stappenlijst, manilla tab, messing sleutel, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 061</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De overdracht die er nooit was</h2><p>Een Nederlands bureau waar we mee werken nam vorige maand een WordPress-site over nadat de vorige freelancer geen e-mail meer beantwoordde. Ze hadden drie dingen: een SFTP-credential, een MySQL-connection string en een wp-admin login. Geen git-repository, geen deploy-script, geen README, geen idee welke bestanden in <code>/wp-content/mu-plugins/</code> nog gebruikt werden en welke dood gewicht waren uit 2019.</p><p>Dit is het standaardgeval voor een klein bureau dat een <a href='/'>verouderde site</a> erft. Geen kwade opzet, gewoon verloop. De persoon die de site bouwde is verder gegaan, de documentatie heeft nooit bestaan, en de nieuwe eigenaar staart naar een tree van 14.000 bestanden en vraagt zich af welke edit de homepage offline gaat halen.</p><p>Wat volgt is het SFTP-only deployment-recept dat we aan teams in die positie meegeven. Het gaat van niets meer uit dan wat in de credentials-mail stond, en het is zo opgezet dat de volgende persoon, nadat jij ook vertrekt, de hele flow vanaf alleen de server kan reverse-engineeren.</p><h2>Eerst spiegelen, dan pas bewerken</h2><p>Voor je iets bewerkt: trek de live tree naar je eigen schijf. Niet als back-up, maar als de working copy. Elke wijziging die je maakt moet lokaal ontstaan en naar boven reizen, nooit andersom.</p><pre><code class='lang-bash'>lftp -u user,pass sftp://site.example.com \
+  -e "mirror --parallel=4 --verbose /public_html ./live; quit"</code></pre><p>Dat levert je een getrouwe snapshot. Commit hem meteen in een private git-repo, ook al push je hem nergens heen:</p><pre><code class='lang-bash'>cd live
+git init
+git add -A
+git commit -m "snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ) from site.example.com"</code></pre><p>De repo is voor jou, niet voor de server. Het doel is dat je elke keer dat je opnieuw spiegelt een diff hebt, zodat je kunt zien wat cronjobs, plugins of andere admins onder je voeten hebben veranderd.</p><h2>Een deploy van één shell-command en één symlink</h2><p>Het patroon dat een overdracht overleeft, is het patroon dat een onbekende rechtstreeks van de server kan aflezen. Gebruik een release-directory per deploy, gekoppeld aan een timestamp, en een <code>current</code> symlink die wijst naar de versie die live is. Apache's <code>DocumentRoot</code> volgt de symlink, de wissel is atomic, en rollback is één <code>ln -sfn</code>.</p><pre><code class='lang-bash'>#!/usr/bin/env bash
+# deploy.sh - local, one-shot SFTP release
+set -euo pipefail
+
+STAMP=$(date -u +%Y%m%d-%H%M%S)
+REMOTE="/home/user/releases/$STAMP"
+
+lftp -u "$SFTP_USER,$SFTP_PASS" "sftp://$SFTP_HOST" &lt;&lt;EOF
+mkdir -p $REMOTE
+mirror -R --parallel=4 --exclude-glob .git --exclude-glob node_modules/ ./live $REMOTE
+rm -f /home/user/public_html
+ln -s $REMOTE /home/user/public_html
+quit
+EOF
+
+echo "released $STAMP"</code></pre><p>Nu heb je een directory met gedateerde releases op de server. Een rollback is precies dit:</p><pre><code class='lang-bash'>ssh user@site.example.com 'ln -sfn /home/user/releases/20260601-093014 /home/user/public_html'</code></pre><p>Heb je alleen SFTP en geen shell, dan werkt hetzelfde door een mini-<code>switch.php</code> te uploaden die een timestamp als parameter neemt en PHP's <a href='https://www.php.net/manual/en/function.symlink.php'><code>symlink()</code></a> aanroept. Verwijder het helper-bestand na elk gebruik, anders blijft het daar staan als rollback-endpoint zonder auth.</p><aside class='callout'>Sommige shared hosts schakelen <code>symlink()</code> uit via <code>disable_functions</code> in php.ini. Check het met een one-liner (<code>echo function_exists('symlink') ? 'ok' : 'no';</code>) voor je de hele pipeline eromheen ontwerpt. Staat het uit, val dan terug op een deploy die de directory hernoemt in plaats van een symlink legt.</aside><h2>De database-kant vastpinnen</h2><p>Bestanden zijn de makkelijke helft. De database is waar onbeheerde sites rare dingen gaan doen. Het recept heeft een dump nodig die bij elke deploy meedraait en naast de release-directory landt, zodat een toekomstige lezer ziet dat release N hoorde bij database-staat N.</p><pre><code class='lang-bash'>mysqldump --single-transaction --quick --routines --triggers \
+  -h "$DB_HOST" -u "$DB_USER" -p"$DB_PASS" "$DB_NAME" \
+  | gzip &gt; "./live/.releases/$STAMP.sql.gz"</code></pre><p>De <a href='https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html'>mysqldump-handleiding</a> behandelt bovenstaande flags; de belangrijkste voor een live site zijn <code>--single-transaction</code> (zodat je writes niet locked) en <code>--quick</code> (zodat het streamt in plaats van de hele tabel in geheugen te buffer). Upload dat bestand mee met de rest van de release. De directory <code>/.releases/</code> in de root van de document tree is conventioneel genoeg dat een toekomstige lezer de meest recente <code>.sql.gz</code> opent en begrijpt waar hij naar kijkt zonder dat iemand het hem uitlegt.</p><p>Koppel elke dump aan een retentie-sweep, anders loopt je schijf vol. Heb je shell-toegang:</p><pre><code class='lang-bash'>find /home/user/releases -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \;</code></pre><p>Heb je alleen SFTP, schrijf dan een PHP-cleanup-script van twintig regels dat de deploy uploadt en via een eenmalige URL triggert, waarna het zichzelf verwijdert.</p><h2>De README die op de server woont</h2><p>Alles hierboven betekent niets als de volgende persoon het niet kan vinden. Plaats één bestand op <code>/public_html/HANDOVER.md</code> dat de structuur in begrijpelijk Nederlands uitlegt. Drie korte secties is genoeg:</p><ul><li><strong>Releases:</strong> waar ze staan, hoe de <code>current</code> symlink werkt, hoe je rollbackt.</li><li><strong>Database:</strong> waar de dumps staan, hoe het credentials-bestand heet, waar wp-config.php staat.</li><li><strong>Cron:</strong> de output van <code>crontab -l</code>, ook als hij leeg is. Juist als hij leeg is.</li></ul><p>Voeg dit toe aan <code>.htaccess</code>, zodat het bestand leesbaar is voor de server maar niet voor de buitenwereld:</p><pre><code class='lang-apache'>&lt;Files "HANDOVER.md"&gt;
+  Require all denied
+&lt;/Files&gt;</code></pre><p>De Apache-<a href='https://httpd.apache.org/docs/current/mod/mod_authz_core.html#require'>mod_authz_core-documentatie</a> bevat de volledige lijst directives als je het strakker wilt scopen, bijvoorbeeld op één kantoor-IP. Waar het om gaat: de documentatie staat op dezelfde plek als wat hij documenteert. Raakt het bureau zijn password manager kwijt, dan reist de README nog steeds mee met de site.</p><h2>Wat je vandaag kunt doen</h2><p>Toen we Pier bouwden liepen we precies hier tegenaan: kleine teams die halverwege de levensloop een site overnemen zonder deploy-verhaal. De manier waarop wij het uiteindelijk hebben opgelost, was elke edit standaard een release maken, met volledige <a href='/#features'>versiehistorie</a> per bestand en een <a href='/#database'>MySQL editor</a> die tabellen samen met de file tree snapshot.</p><p>De kleinste variant van dit alles is een mirror, een git init en één HANDOVER.md die je committed voor je iets aanraakt. Twintig minuten werk waarmee je een geërfde site verandert in iets dat de volgende persoon ook kan erven.</p>
+    </div>
+
+    <aside class="pullquote">Een deploy die één onbekende rechtstreeks van de server kan aflezen, is de enige deploy die de persoon overleeft die hem heeft opgezet.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat als de host PHP-symlink() blokkeert?</p>
+      <p class="faq-a">Gebruik een deploy gebaseerd op rename. Upload naar een sibling-directory, hernoem dan de oude public_html opzij en de nieuwe op zijn plek. SFTP ondersteunt rename ook als shell-toegang en symlinks uitstaan.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Heb ik ergens een git-server nodig?</p>
+      <p class="faq-a">Nee. De lokale git-repo bestaat alleen om je diffs te geven als je opnieuw spiegelt. Push hem later naar een private host als het team offsite back-up wil, maar de deploy zelf raakt git nooit aan.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang moet ik oude releases op de server bewaren?</p>
+      <p class="faq-a">Dertig dagen is een verstandige default voor sites met weinig verkeer. Elke release is ongeveer zo groot als de live tree, dus reken op tree-grootte maal aantal-retenties aan schijfruimte.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=ftp">#ftp</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/diffing-sftp-trees/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/diffing-sftp-trees/hero.webp" type="image/webp">
+        <img src="/nl/blog/diffing-sftp-trees/hero.jpg" alt="Twee geprinte SFTP-mappenlijsten op ruitjespapier met labels vrijdag en zaterdag, rode draad ertussen, messing DIFF-plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Twee SFTP-trees diffen: vind het bestand dat veranderde</h3>
+      <span class="pc-lede">Zaterdagochtend, 09:14. De klant zweert dat er niets veranderd is sinds vrijdag. Drie shell-commands die het bestand vinden dat het wél deed.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-without-the-dashboard/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-without-the-dashboard/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-without-the-dashboard/hero.jpg" alt="Messing sleutel op crème papieren kaart met zwart gestempeld label en rode lakzegel, op donker eiken bureau." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>WordPress zonder dashboard: waarom bureaus in FTP wonen</h3>
+      <span class="pc-lede">Waarom ervaren WordPress-bureaus wp-admin overslaan en hun werkdag draaien vanuit een file tree, een SQL-prompt en een tail op het error log.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
