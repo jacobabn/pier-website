@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 1.9 naar Magento 2: zes weekenden live cutover · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, migration, databases, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 1.9 naar Magento 2: zes weekenden live cutover">
+<meta property="og:description" content="Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren cutover-kalender, Magento-migratieplan, messing plaatje, lakzegel, liniaal en potlood op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T08:33:05.295Z">
+<meta property="article:modified_time" content="2026-06-09T08:33:05.295Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 1.9 naar Magento 2: zes weekenden live cutover">
+<meta name="twitter:description" content="Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren cutover-kalender, Magento-migratieplan, messing plaatje, lakzegel, liniaal en potlood op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/"},
+  "url":"https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/",
+  "headline":"Magento 1.9 naar Magento 2: zes weekenden live cutover",
+  "description":"Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren cutover-kalender, Magento-migratieplan, messing plaatje, lakzegel, liniaal en potlood op linnen."
+  },
+  "datePublished":"2026-06-09T08:33:05.295Z",
+  "dateModified":"2026-06-09T08:33:05.295Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, php, mysql, migration, databases, architecture",
+  "wordCount":1785,
+  "articleSection":"Magento",
+  "articleBody":"De Loom van vrijdagavond kwam binnen om 23:41. Een bureau van 14 man in Utrecht draait een Magento 1.9.4.5-winkel voor een groothandel in verf, en had negentig dagen voordat hun PSP geen PHP 7.2-requests meer zou signen en Adobe de security-patches niet langer zou backporten. De winkel zette ongeveer €2,3 miljoen per jaar om. Catalogusupdates draaiden elke werkochtend vanuit een ERP-feed. De catalogus bevriezen voor een lang weekend zat er niet in, en een rebuild rond Black Friday al helemaal niet. We hadden zes weekenden om een live Magento 1.9-winkel naar Magento 2.4.7 te migreren zonder één bestelling of URL-rank te verliezen. Dit is het rebuild-plan dat daadwerkelijk hield. Het Magento 2-migratieplaybook hieronder gaat ervan uit dat je werkende back-ups hebt, een kopie van de productiedatabase die je wekelijks kunt verversen, en minstens één engineer die de officiële documentatie van de Adobe Commerce data migration tool helemaal heeft gelezen zonder iets over te slaan. De constraint die een catalogusbevriezing onmogelijk maakte De klassieke Magento 1 naar Magento 2-migratietutorial gaat uit van een freeze-window: writes op de bron stoppen, de data migration tool draaien, valideren, DNS omzetten, weer openzetten. Prima voor een shop met 200 SKU's en wekelijkse catalogusbewerkingen. Onmogelijk voor een groothandel met 14.000 SKU's, een ERP die elke ochtend prijzen pusht en een B2B-portaal dat om 23:30 nog orders van €8k binnenneemt. De data migration tool levert daarvoor een delta-mode. Na de initiële bulkmigratie volgt hij specifieke tabellen (sales_order, customer_entity, catalog_product_entity en nog een paar dozijn) via logtabellen en triggers die op de bron worden geïnstalleerd. Zolang de Magento 2-instantie aan de doelzijde bijblijft met de delta's, kun je in een DNS-swap van vijftien minuten omzetten in plaats van een freeze van twee dagen. Het lastige is niet het draaien van de tool. Het lastige is de delta-loop zes weken gezond houden terwijl developers tegelijkertijd thema's herbouwen, extensies vervangen en de integratie-shims schrijven die de oude Magento 1-frontend uit gewoonte aan elkaar plakte. Weekend 1: shadow-infrastructuur en de eerste bulk dump Het eerste weekend was puur infrastructuur. We zetten een Hetzner-bak op, installeerden Magento 2.4.7 op PHP 8.2 met OpenSearch 2.12, MariaDB 10.6, Redis 7 en Varnish 7.4. We hingen die achter een staging-hostname met basic auth. Nog geen verkeer. Nog geen thema. Daarna draaiden we de officiële data migration tool tegen een verse productie-dump. De bulkmigratie duurde 4u22m in de eerste pass en bracht de gebruikelijke rommel naar boven: php bin/magento migrate:data \\ -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml Fouten in de eerste run zagen er zo uit: [ERROR]: Source documents are not mapped: enterprise_logging_event [ERROR]: Class \"Vendor_Module_Helper_Data\" not found [ERROR]: Mismatch of entities in document: catalog_product_entity_varchar Drie patronen om te kennen. De enterprise-tabellen doen er alleen toe als je Magento Enterprise gebruikte; in Open Source komen ze in ignore -blokken in map.xml . De Helper not-found-fouten komen van third-party M1-modules die EAV-attributen registreerden die de migration tool vervolgens probeert te type-mappen. Als je het attribuut niet nodig hebt op M2, haal het dan uit het bronschema vóór de volgende pass. De mismatch-fouten betekenen meestal dat een varchar-kolom op M1 door een extensie is verlengd en de tool wil dat je dat in het mapbestand bevestigt. Zondagavond was de bulk-pass groen en bevatte de staging-instantie 14.103 producten, 28.440 klanten en 142.617 historische orders. Geen enkele jonger dan 48 uur. Daarvoor is de delta-loop bedoeld. Weekend 2 en 3: de delta-loop draaiende houden De delta-tool draait als een long-lived PHP-proces: php bin/magento migrate:delta \\ -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml Wij draaiden hem in een tmux-sessie op de staging-bak, met een systemd-unit die het proces in de gaten hield en bij exit herstartte. De triggers die hij op de M1-bron installeert zijn niet triviaal. Kijk eens wat er wordt aangemaakt: SHOW TRIGGERS LIKE 'sales_flat_order'; Je ziet dan trg_sales_flat_order_after_insert , _after_update , _after_delete , elk die de gewijzigde primary key wegschrijft naar een m2_cl_* -logtabel. Het delta-proces polt die logtabellen elke minuut en speelt de wijzigingen af op M2. Gaat de bron offline voor onderhoud en lopen de logtabellen vol, dan haalt het delta-proces de achterstand in. Groeien de logtabellen ongebreideld omdat het delta-proces dood is, dan kom je er op het slechtst mogelijke moment achter. We leerden te alerten op twee metrics: rijaantal van een willekeurige m2_cl_* -tabel boven de 5.000, en tijd-sinds-laatste-poll boven de 180 seconden. Allebei in hetzelfde Grafana-board dat het ops-team toch al openstond. Magento 1 sloeg complexe configuratiewaarden op als PHP-",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 1.9 naar Magento 2: zes weekenden live cutover","item":"https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt een migratie van Magento 1 naar Magento 2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor een catalogus van middelgrote omvang met actieve orders moet je rekenen op zes tot acht weekenden avondwerk plus één cutover-nacht. De bulkmigratie is snel; de delta-loop en het themawerk vreten je kalender op."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kun je Magento 1 en 2 echt parallel draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, via de delta-mode van de officiële data migration tool. Hij installeert triggers op de M1-bron en speelt wijzigingen elke minuut af op M2, zodat je voor de cutover alleen een korte DNS-swap nodig hebt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat gebeurt er met URL-rankings tijdens de migratie?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Die overleven het als je vóór de cutover de rewrite-tabel toetst aan echt organisch verkeer. Bouw een grootboek van aangeklikte URL's uit Search Console, diff dat tegen de nieuwe url_rewrite-tabel en 301 de gaten."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 058</span>
+      </div>
+      <p class="eyebrow"><span class="n">058 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 1.9 naar Magento 2: zes weekenden live cutover</h1>
+      <p class="lede post-lede">Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T08:33:05.295Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp">
+      <img src="/blog/magento-1-to-2-weekend-cutover/hero.jpg" alt="Bovenaanzicht van papieren cutover-kalender, Magento-migratieplan, messing plaatje, lakzegel, liniaal en potlood op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 058</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom van vrijdagavond kwam binnen om 23:41. Een bureau van 14 man in Utrecht draait een Magento 1.9.4.5-winkel voor een groothandel in verf, en had negentig dagen voordat hun PSP geen PHP 7.2-requests meer zou signen en Adobe de security-patches niet langer zou backporten. De winkel zette ongeveer €2,3 miljoen per jaar om. Catalogusupdates draaiden elke werkochtend vanuit een ERP-feed. De catalogus bevriezen voor een lang weekend zat er niet in, en een rebuild rond Black Friday al helemaal niet. We hadden zes weekenden om een live Magento 1.9-winkel naar Magento 2.4.7 te migreren zonder één bestelling of URL-rank te verliezen.</p><p>Dit is het rebuild-plan dat daadwerkelijk hield. Het Magento 2-migratieplaybook hieronder gaat ervan uit dat je werkende back-ups hebt, een kopie van de productiedatabase die je wekelijks kunt verversen, en minstens één engineer die de officiële documentatie van de Adobe Commerce data migration tool helemaal heeft gelezen zonder iets over te slaan.</p><h2>De constraint die een catalogusbevriezing onmogelijk maakte</h2><p>De klassieke Magento 1 naar Magento 2-migratietutorial gaat uit van een freeze-window: writes op de bron stoppen, de data migration tool draaien, valideren, DNS omzetten, weer openzetten. Prima voor een shop met 200 SKU's en wekelijkse catalogusbewerkingen. Onmogelijk voor een groothandel met 14.000 SKU's, een ERP die elke ochtend prijzen pusht en een B2B-portaal dat om 23:30 nog orders van €8k binnenneemt.</p><p>De data migration tool levert daarvoor een delta-mode. Na de initiële bulkmigratie volgt hij specifieke tabellen (sales_order, customer_entity, catalog_product_entity en nog een paar dozijn) via logtabellen en triggers die op de bron worden geïnstalleerd. Zolang de Magento 2-instantie aan de doelzijde bijblijft met de delta's, kun je in een DNS-swap van vijftien minuten omzetten in plaats van een freeze van twee dagen.</p><p>Het lastige is niet het draaien van de tool. Het lastige is de delta-loop zes weken gezond houden terwijl developers tegelijkertijd thema's herbouwen, extensies vervangen en de integratie-shims schrijven die de oude Magento 1-frontend uit gewoonte aan elkaar plakte.</p><h2>Weekend 1: shadow-infrastructuur en de eerste bulk dump</h2><p>Het eerste weekend was puur infrastructuur. We zetten een Hetzner-bak op, installeerden Magento 2.4.7 op PHP 8.2 met OpenSearch 2.12, MariaDB 10.6, Redis 7 en Varnish 7.4. We hingen die achter een staging-hostname met basic auth. Nog geen verkeer. Nog geen thema.</p><p>Daarna draaiden we de officiële data migration tool tegen een verse productie-dump. De bulkmigratie duurde 4u22m in de eerste pass en bracht de gebruikelijke rommel naar boven:</p><pre><code class="lang-bash">php bin/magento migrate:data \
+  -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml</code></pre><p>Fouten in de eerste run zagen er zo uit:</p><pre><code class="lang-text">[ERROR]: Source documents are not mapped: enterprise_logging_event
+[ERROR]: Class "Vendor_Module_Helper_Data" not found
+[ERROR]: Mismatch of entities in document: catalog_product_entity_varchar</code></pre><p>Drie patronen om te kennen. De enterprise-tabellen doen er alleen toe als je Magento Enterprise gebruikte; in Open Source komen ze in <code>ignore</code>-blokken in <code>map.xml</code>. De Helper not-found-fouten komen van third-party M1-modules die EAV-attributen registreerden die de migration tool vervolgens probeert te type-mappen. Als je het attribuut niet nodig hebt op M2, haal het dan uit het bronschema vóór de volgende pass. De mismatch-fouten betekenen meestal dat een varchar-kolom op M1 door een extensie is verlengd en de tool wil dat je dat in het mapbestand bevestigt.</p><p>Zondagavond was de bulk-pass groen en bevatte de staging-instantie 14.103 producten, 28.440 klanten en 142.617 historische orders. Geen enkele jonger dan 48 uur. Daarvoor is de delta-loop bedoeld.</p><h2>Weekend 2 en 3: de delta-loop draaiende houden</h2><p>De delta-tool draait als een long-lived PHP-proces:</p><pre><code class="lang-bash">php bin/magento migrate:delta \
+  -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml</code></pre><p>Wij draaiden hem in een tmux-sessie op de staging-bak, met een systemd-unit die het proces in de gaten hield en bij exit herstartte. De triggers die hij op de M1-bron installeert zijn niet triviaal. Kijk eens wat er wordt aangemaakt:</p><pre><code class="lang-sql">SHOW TRIGGERS LIKE 'sales_flat_order';</code></pre><p>Je ziet dan <code>trg_sales_flat_order_after_insert</code>, <code>_after_update</code>, <code>_after_delete</code>, elk die de gewijzigde primary key wegschrijft naar een <code>m2_cl_*</code>-logtabel. Het delta-proces polt die logtabellen elke minuut en speelt de wijzigingen af op M2. Gaat de bron offline voor onderhoud en lopen de logtabellen vol, dan haalt het delta-proces de achterstand in. Groeien de logtabellen ongebreideld omdat het delta-proces dood is, dan kom je er op het slechtst mogelijke moment achter.</p><p>We leerden te alerten op twee metrics: rijaantal van een willekeurige <code>m2_cl_*</code>-tabel boven de 5.000, en tijd-sinds-laatste-poll boven de 180 seconden. Allebei in hetzelfde Grafana-board dat het ops-team toch al openstond.</p><aside class="callout">Magento 1 sloeg complexe configuratiewaarden op als PHP-<code>serialize()</code>-blobs. Magento 2 gebruikt JSON. De data migration tool zet de meeste daarvan om, maar niet allemaal. Grep de brondatabase op <code>a:[0-9]+:{</code>-patronen in <code>core_config_data</code> en de <code>*_value</code>-tabellen vóór je cutover. Elk gemist geval is een runtime-fatal in de M2-admin. De historische reden dat dit ertoe doet is ook een <a href="https://owasp.org/www-community/vulnerabilities/Deserialization_of_untrusted_data">bekende deserialization-vector</a>.</aside><p>In weekend 3 herbouwde de tweede engineer het thema. We hebben het RWD-thema van M1 niet geport. Doe dat niet. We zijn vanuit Luma begonnen, hebben de merk-tokens overgezet en de vier templates herbouwd die ertoe doen: PDP, PLP, cart en checkout. De rest erfde over.</p><h2>Weekend 4: URL-rewrites en het SEO-grootboek</h2><p>Verreweg de belangrijkste reden waarom Magento-migraties worden teruggedraaid, is URL-drift. De data migration tool kopieert je <code>core_url_rewrite</code>-rijen van M1 naar de M2-<code>url_rewrite</code>-tabel, maar het schema is niet één-op-één. M1 sloeg category- en product-rewrites apart op van CMS-rewrites. M2 trekt ze samen en voegt <code>redirect_type</code> toe.</p><p>We trokken de live sitemap uit Google Search Console, dedupliceerden tegen een verse crawl en bouwden een CSV met elke URL die in de laatste 90 dagen organisch was aangeklikt. 11.847 URL's. Daarna schreven we een kleine vergelijkingsquery tegen staging:</p><pre><code class="lang-sql">SELECT s.url AS source_url
+FROM seo_ledger s
+LEFT JOIN url_rewrite u
+  ON u.request_path = TRIM(LEADING '/' FROM s.url)
+WHERE u.url_rewrite_id IS NULL;</code></pre><p>Dit gaf 312 URL's terug die in productieverkeer bestonden maar geen rewrite op M2 hadden. Ongeveer 200 waren CMS-pagina's gebouwd met een afgedankte M1-paginabouwer. De rest waren category-landingspagina's met custom URL-keys die jaren geleden in de admin waren gezet en nooit zijn doorgevoerd toen SKU's opnieuw werden getagd.</p><p>Voor elk schreven we een permanente redirect in <code>url_rewrite</code> met <code>redirect_type = 301</code>, naar de dichtstbijzijnde live pagina. De site verloor in de vier weken na de cutover nul rankingposities. Die ene zaterdag van grep en SQL was waarschijnlijk twee maanden post-launch SEO-werk waard.</p><h2>Weekend 5: payments, btw en de cutover-rehearsal</h2><p>Tegen weekend 5 draaide de M2-instantie, was het thema 90% rond en was de delta-loop al tien dagen schoon. Het overgebleven risico zat in de integratielaag: betalingen, ERP en btw.</p><p>De PSP-integratie was een custom M1-module uit 2018. Die hebben we niet geport. De M2-build gebruikt de officiële extensie van de PSP, die in 2023 is uitgebracht en 3DS2 correct afhandelt. Opgeslagen kaarttokens hebben we via de API van de PSP gemigreerd, niet via Magento, want dat is de enige weg die niet in strijd is met PCI.</p><p>De ERP-feed was de rommelige. De originele feed postte XML naar een SOAP-endpoint van een M1-module. We hadden de SOAP-endpoint op M2 kunnen herbouwen, maar het was 2026 en daar hadden we geen zin in. In plaats daarvan schreven we een kleine Symfony-service die tussen het ERP en Magento 2 ging zitten, het legacy-XML-formaat accepteerde en vertaalde naar M2 REST-calls. Het ERP-team hoefde nergens aan te komen. De vertaalservice is 412 regels PHP en een docker-compose-bestand.</p><p>Daarna deden we een volledige cutover-rehearsal. We zetten DNS om voor een intern testdomein, draaiden een gefaseerde checkout van winkelwagen tot PSP-bevestiging, controleerden of de order in het ERP verscheen en rolden DNS terug. De rehearsal bracht één bug naar boven: de standaard btw-berekening op M2 rondde btw anders af dan M1, op specifieke gemengde-btw-winkelwagens 0,01 EUR verschil. We patchten de afrondingsmodus in <code>core_config_data</code> (<code>tax/calculation/algorithm</code> op <code>TOTAL_BASE_CALCULATION</code>) en het verschil verdween.</p><h2>Weekend 6: de cutover zelf</h2><p>De daadwerkelijke cutover duurde 38 minuten. Het draaiboek:</p><ol><li>Pauzeer de ERP-feed om 22:00 op zaterdag.</li><li>Laatste delta-run, controleer dat er nul rijen in de <code>m2_cl_*</code>-logtabellen staan.</li><li>Zet M1 in maintenance mode.</li><li>Laatste integriteits-SQL: ordertellingen, klanttellingen en producttellingen kloppen in beide databases.</li><li>Zet DNS om naar de M2-bak. De TTL was de dinsdag ervoor al verlaagd naar 60s.</li><li>Smoke-test checkout, admin, ERP-feed (gehervat) en search.</li><li>Schakel de triggers van de delta-tool op de M1-bron uit. Ze laten draaien op een bevroren bron vreet schijf.</li></ol><p>Stap 7 vergeten teams. De triggers die door de data migration tool zijn geïnstalleerd blijven staan tot je ze laat vallen. Maanden later, als iemand de oude M1-database opduikt voor analyse, schrijven die triggers vrolijk door naar logtabellen die geen afnemer meer hebben.</p><pre><code class="lang-sql">DROP TRIGGER IF EXISTS trg_sales_flat_order_after_insert;
+DROP TRIGGER IF EXISTS trg_sales_flat_order_after_update;
+DROP TRIGGER IF EXISTS trg_sales_flat_order_after_delete;</code></pre><h2>Wat we van de oude winkel hebben behouden</h2><p>Drie dingen zijn letterlijk overgenomen en het team was blij dat we ze niet hebben gemoderniseerd:</p><ul><li>De legacy klantgroep-ID's. Het B2B-portaal had prijsstaffel-logica gekoppeld aan specifieke integer-ID's. We hebben ze één-op-één gemapt.</li><li>De product-URL-keys. Niet de templates eromheen. Alleen de keys zelf. Search rankings zitten in die slugs.</li><li>De order-increment-ID's. Klantenservice had jarenlange muscle memory rond het M1-prefix. We hebben de bestaande sequence verlengd in plaats van opnieuw te beginnen.</li></ul><p>De bredere les is dat een Magento 2-migratie vooral een oefening in terughoudendheid is. De verleiding om het datamodel te herschrijven, de catalogusboom op te schonen of de URL-keys te repareren is reëel, en elk van die beslissingen ruilt engineering-smaak in voor SEO-positie en verwarring bij klantenservice. Kies de kleinst mogelijke wijzigingsset.</p><h2>De oude winkel bewerken terwijl de nieuwe gebouwd werd</h2><p>Zes weekenden lang moest het bureau-team een <a href="/">verouderde site</a> blijven bewerken terwijl er parallel een rebuild draaide. Dat is het deel van een Magento-migratie waar niemand over schrijft. Elk CMS-blok dat op M1 wordt aangeraakt, moet vóór de cutover op M2 zijn gereproduceerd. Elke catalogusregel. Elke promotie. De delta-tool doet gestructureerde data, geen redactie.</p><p>Die redactionele wijzigingen volgden we de eerste twee weekenden in een gedeeld Notion-board en dat werd een puinhoop. Vanaf weekend 3 werkten we direct op de M1-bestanden via Pier, wat ons één auditlog gaf van elke PHTML-, layout-XML- en CMS-blok-edit. Toen we Pier bouwden kwamen we precies dit patroon tegen bij een handvol Magento-klanten, en wat eruit kwam was een per-bestand <a href="/#features">version history</a> gekoppeld aan een <a href="/#database">MySQL editor</a> voor de <code>cms_block</code>- en <code>cms_page</code>-tabellen, zodat de M2-rebuild een definitieve lijst had van wat met diffs gespiegeld moest worden.</p><h2>Het kleinste wat je vandaag kunt doen</h2><p>Heb je nog een Magento 1-winkel draaien, dan zijn de eerste nuttige 30 minuten: dump <code>core_config_data</code> en grep op geserialiseerde PHP. Elk blok <code>a:N:{...}</code> is een toekomstige fatal in de M2-admin en een bekend <a href="https://www.php.net/manual/en/function.unserialize.php">unserialize</a>-risico. Vind ze nu, terwijl je nog tijd hebt om te kiezen hoe je elk geval afhandelt. De migration tool is een stuk vrolijker over drie maanden, als je hem echt draait.</p>
+    </div>
+
+    <aside class="pullquote">Een cutover van Magento 1 naar Magento 2 overleeft weekendwerk alleen als je de delta-loop gezond houdt, URL-rewrites toetst aan echt verkeer en de drang om het datamodel te herontwerpen weet te onderdrukken.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt een migratie van Magento 1 naar Magento 2?</p>
+      <p class="faq-a">Voor een catalogus van middelgrote omvang met actieve orders moet je rekenen op zes tot acht weekenden avondwerk plus één cutover-nacht. De bulkmigratie is snel; de delta-loop en het themawerk vreten je kalender op.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kun je Magento 1 en 2 echt parallel draaien?</p>
+      <p class="faq-a">Ja, via de delta-mode van de officiële data migration tool. Hij installeert triggers op de M1-bron en speelt wijzigingen elke minuut af op M2, zodat je voor de cutover alleen een korte DNS-swap nodig hebt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat gebeurt er met URL-rankings tijdens de migratie?</p>
+      <p class="faq-a">Die overleven het als je vóór de cutover de rewrite-tabel toetst aan echt organisch verkeer. Bouw een grootboek van aangeklikte URL&#39;s uit Search Console, diff dat tegen de nieuwe url_rewrite-tabel en 301 de gaten.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-component-to-plugin/hero.jpg" alt="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>2 juni 2026</span></span>
+      <h3>Joomla 2.5 component naar Joomla 5 plugin: geen rewrite</h3>
+      <span class="pc-lede">Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-csv-import-without-downtime/hero.jpg" alt="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Magento CSV-import zonder downtime: 9.000 rijen wisselen</h3>
+      <span class="pc-lede">Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

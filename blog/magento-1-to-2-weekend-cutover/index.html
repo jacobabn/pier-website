@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 1.9 to Magento 2: a six-weekend live cutover · Pier — Blog</title>
+<meta name="description" content="A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, migration, databases, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 1.9 to Magento 2: a six-weekend live cutover">
+<meta property="og:description" content="A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead view of a six-week paper cutover calendar, Magento migration run-sheet, brass plate, wax seal, ruler, pencil on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T08:33:05.295Z">
+<meta property="article:modified_time" content="2026-06-09T08:33:05.295Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 1.9 to Magento 2: a six-weekend live cutover">
+<meta name="twitter:description" content="A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead view of a six-week paper cutover calendar, Magento migration run-sheet, brass plate, wax seal, ruler, pencil on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/"},
+  "url":"https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/",
+  "headline":"Magento 1.9 to Magento 2: a six-weekend live cutover",
+  "description":"A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead view of a six-week paper cutover calendar, Magento migration run-sheet, brass plate, wax seal, ruler, pencil on linen."
+  },
+  "datePublished":"2026-06-09T08:33:05.295Z",
+  "dateModified":"2026-06-09T08:33:05.295Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, php, mysql, migration, databases, architecture",
+  "wordCount":1871,
+  "articleSection":"Magento",
+  "articleBody":"The Friday night Loom landed at 23:41. A 14-person agency in Utrecht, running a Magento 1.9.4.5 store for a wholesale paint distributor, had ninety days before their PSP stopped signing PHP 7.2 requests and Adobe stopped backporting security patches. The store turned over roughly €2.3M a year. Catalog updates ran every weekday morning from an ERP feed. Freezing the catalog for a long weekend was not on the table, and a Black Friday rebuild definitely was not. We had six weekends to move a live Magento 1.9 store to Magento 2.4.7 without losing an order or a URL rank. This is the rebuild plan that actually held. The Magento 2 migration playbook below assumes you have working backups, a copy of the production database you can refresh weekly, and at least one engineer who has read the official Adobe Commerce data migration tool docs without skipping anything. The constraint that ruled out a catalog freeze The classic Magento 1 to Magento 2 migration tutorial assumes a freeze window: cut writes on the source, run the data migration tool, validate, switch DNS, unfreeze. That is fine for a 200-SKU shop with weekly catalog edits. It is impossible for a wholesale store with a 14,000-SKU catalog, an ERP that pushes pricing every morning, and a B2B portal that takes EUR 8k orders at 23:30. The data migration tool ships with a delta mode designed for exactly this. After the initial bulk migration, it tails specific tables (sales_order, customer_entity, catalog_product_entity, and a few dozen others) using log tables and triggers installed on the source. As long as the destination Magento 2 instance stays current with the deltas, you can cut over in a fifteen-minute DNS swap rather than a two-day freeze. The hard part is not running the tool. The hard part is keeping the delta loop healthy for six weeks while developers also rebuild themes, replace extensions, and write the integration shims that the old Magento 1 frontend held together by habit. Weekend 1: shadow infrastructure and the first bulk dump The first weekend was infrastructure only. We provisioned a Hetzner box, installed Magento 2.4.7 on PHP 8.2 with OpenSearch 2.12, MariaDB 10.6, Redis 7, and Varnish 7.4. We pointed it at a staging hostname behind basic auth. No traffic yet. No theme yet. Then we ran the official data migration tool against a fresh production dump. The bulk migration took 4h22m on the first pass and surfaced the usual debris: php bin/magento migrate:data \\ -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml Errors in the first run looked like this: [ERROR]: Source documents are not mapped: enterprise_logging_event [ERROR]: Class \"Vendor_Module_Helper_Data\" not found [ERROR]: Mismatch of entities in document: catalog_product_entity_varchar Three patterns to know. The enterprise tables only matter if you used Magento Enterprise; in Open Source they go into ignore blocks in map.xml . The Helper not-found errors come from third-party M1 modules that registered EAV attributes the migration tool then tries to type-map; if you do not need the attribute on M2, drop it from the source schema before the next pass. The mismatch errors usually mean a varchar column was extended on M1 by an extension and the tool wants you to acknowledge it in the map file. By Sunday night the bulk pass was green and the staging instance had 14,103 products, 28,440 customers, and 142,617 historical orders. None of them less than 48 hours old. That is what the delta loop is for. Weekends 2 and 3: holding the delta loop The delta tool runs as a long-lived PHP process: php bin/magento migrate:delta \\ -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml We ran it inside a tmux session on the staging box, with a systemd unit watching the process and restarting it on exit. The triggers it installs on the M1 source are non-trivial. Look at what gets created: SHOW TRIGGERS LIKE 'sales_flat_order'; You will see trg_sales_flat_order_after_insert , _after_update , _after_delete , each writing the changed primary key into a m2_cl_* log table. The delta process polls those log tables every minute and replays the changes on M2. If the source goes down for maintenance and the log tables get backlogged, the delta process catches up. If the log tables grow without bound because the delta process is dead, you find out at the worst possible time. We learned to alert on two metrics: row count of any m2_cl_* table over 5,000, and time-since-last-poll over 180 seconds. Both went into the same Grafana board the ops team already watched. Magento 1 stored complex configuration values as PHP serialize() blobs. Magento 2 uses JSON. The data migration tool converts most of these, but not all. Grep the source database for a:[0-9]+:{ patterns in core_config_data and the *_value tables before you cut over. Any miss is a runtime fatal on the M2 admin. The historical reason this matters is also a known deserialization vector . Weekend ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 1.9 to Magento 2: a six-weekend live cutover","item":"https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How long should a Magento 1 to Magento 2 migration take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For a mid-size catalog with active orders, plan six to eight weekends of evening work plus one cutover night. Bulk migration is fast; the delta loop and theme work are what consume the calendar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you really run Magento 1 and 2 in parallel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, using the official data migration tool's delta mode. It installs triggers on the M1 source and replays changes onto M2 every minute, so you only need a short DNS swap to cut over."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What happens to URL rankings during the migration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "They survive if you audit the rewrite table against real organic traffic before cutover. Build a ledger of clicked URLs from Search Console, diff against the new url_rewrite table, and 301 the gaps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is the data migration tool still maintained in 2026?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, it ships with current Magento Open Source and Adobe Commerce releases. The config files for 1.9.x sources are still in the vendor package. Read the map.xml docs before your first run."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you need to freeze the catalog at any point?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only for the final cutover window, which is typically under an hour. Everything before that runs live, with the delta loop keeping M2 current against ongoing M1 edits."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 058</span>
+      </div>
+      <p class="eyebrow"><span class="n">058 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 1.9 to Magento 2: a six-weekend live cutover</h1>
+      <p class="lede post-lede">A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T08:33:05.295Z">9 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp">
+      <img src="/blog/magento-1-to-2-weekend-cutover/hero.jpg" alt="Overhead view of a six-week paper cutover calendar, Magento migration run-sheet, brass plate, wax seal, ruler, pencil on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 058</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Friday night Loom landed at 23:41. A 14-person agency in Utrecht, running a Magento 1.9.4.5 store for a wholesale paint distributor, had ninety days before their PSP stopped signing PHP 7.2 requests and Adobe stopped backporting security patches. The store turned over roughly €2.3M a year. Catalog updates ran every weekday morning from an ERP feed. Freezing the catalog for a long weekend was not on the table, and a Black Friday rebuild definitely was not. We had six weekends to move a live Magento 1.9 store to Magento 2.4.7 without losing an order or a URL rank.</p><p>This is the rebuild plan that actually held. The Magento 2 migration playbook below assumes you have working backups, a copy of the production database you can refresh weekly, and at least one engineer who has read the official Adobe Commerce data migration tool docs without skipping anything.</p><h2>The constraint that ruled out a catalog freeze</h2><p>The classic Magento 1 to Magento 2 migration tutorial assumes a freeze window: cut writes on the source, run the data migration tool, validate, switch DNS, unfreeze. That is fine for a 200-SKU shop with weekly catalog edits. It is impossible for a wholesale store with a 14,000-SKU catalog, an ERP that pushes pricing every morning, and a B2B portal that takes EUR 8k orders at 23:30.</p><p>The data migration tool ships with a delta mode designed for exactly this. After the initial bulk migration, it tails specific tables (sales_order, customer_entity, catalog_product_entity, and a few dozen others) using log tables and triggers installed on the source. As long as the destination Magento 2 instance stays current with the deltas, you can cut over in a fifteen-minute DNS swap rather than a two-day freeze.</p><p>The hard part is not running the tool. The hard part is keeping the delta loop healthy for six weeks while developers also rebuild themes, replace extensions, and write the integration shims that the old Magento 1 frontend held together by habit.</p><h2>Weekend 1: shadow infrastructure and the first bulk dump</h2><p>The first weekend was infrastructure only. We provisioned a Hetzner box, installed Magento 2.4.7 on PHP 8.2 with OpenSearch 2.12, MariaDB 10.6, Redis 7, and Varnish 7.4. We pointed it at a staging hostname behind basic auth. No traffic yet. No theme yet.</p><p>Then we ran the official data migration tool against a fresh production dump. The bulk migration took 4h22m on the first pass and surfaced the usual debris:</p><pre><code class="lang-bash">php bin/magento migrate:data \
+  -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml</code></pre><p>Errors in the first run looked like this:</p><pre><code class="lang-text">[ERROR]: Source documents are not mapped: enterprise_logging_event
+[ERROR]: Class "Vendor_Module_Helper_Data" not found
+[ERROR]: Mismatch of entities in document: catalog_product_entity_varchar</code></pre><p>Three patterns to know. The enterprise tables only matter if you used Magento Enterprise; in Open Source they go into <code>ignore</code> blocks in <code>map.xml</code>. The Helper not-found errors come from third-party M1 modules that registered EAV attributes the migration tool then tries to type-map; if you do not need the attribute on M2, drop it from the source schema before the next pass. The mismatch errors usually mean a varchar column was extended on M1 by an extension and the tool wants you to acknowledge it in the map file.</p><p>By Sunday night the bulk pass was green and the staging instance had 14,103 products, 28,440 customers, and 142,617 historical orders. None of them less than 48 hours old. That is what the delta loop is for.</p><h2>Weekends 2 and 3: holding the delta loop</h2><p>The delta tool runs as a long-lived PHP process:</p><pre><code class="lang-bash">php bin/magento migrate:delta \
+  -r vendor/magento/data-migration-tool/etc/opensource-to-opensource/1.9.4.5/config.xml</code></pre><p>We ran it inside a tmux session on the staging box, with a systemd unit watching the process and restarting it on exit. The triggers it installs on the M1 source are non-trivial. Look at what gets created:</p><pre><code class="lang-sql">SHOW TRIGGERS LIKE 'sales_flat_order';</code></pre><p>You will see <code>trg_sales_flat_order_after_insert</code>, <code>_after_update</code>, <code>_after_delete</code>, each writing the changed primary key into a <code>m2_cl_*</code> log table. The delta process polls those log tables every minute and replays the changes on M2. If the source goes down for maintenance and the log tables get backlogged, the delta process catches up. If the log tables grow without bound because the delta process is dead, you find out at the worst possible time.</p><p>We learned to alert on two metrics: row count of any <code>m2_cl_*</code> table over 5,000, and time-since-last-poll over 180 seconds. Both went into the same Grafana board the ops team already watched.</p><aside class="callout">Magento 1 stored complex configuration values as PHP <code>serialize()</code> blobs. Magento 2 uses JSON. The data migration tool converts most of these, but not all. Grep the source database for <code>a:[0-9]+:{</code> patterns in <code>core_config_data</code> and the <code>*_value</code> tables before you cut over. Any miss is a runtime fatal on the M2 admin. The historical reason this matters is also a <a href="https://owasp.org/www-community/vulnerabilities/Deserialization_of_untrusted_data">known deserialization vector</a>.</aside><p>Weekend 3 was when the second engineer rebuilt the theme. We did not port the M1 RWD theme. Nobody should. We started from Luma, ported the brand tokens, and rebuilt the four templates that mattered: PDP, PLP, cart, and checkout. Everything else inherited.</p><h2>Weekend 4: URL rewrites and the SEO ledger</h2><p>The single biggest reason Magento migrations get rolled back is URL drift. The data migration tool will copy your <code>core_url_rewrite</code> rows from M1 into the M2 <code>url_rewrite</code> table, but the schema is not one-to-one. M1 stored category and product rewrites separately from CMS rewrites. M2 unifies them and adds <code>redirect_type</code>.</p><p>We pulled the live sitemap from Google Search Console, deduplicated against a fresh crawl, and built a CSV of every URL that had received an organic click in the last 90 days. 11,847 URLs. Then we wrote a small comparison query against staging:</p><pre><code class="lang-sql">SELECT s.url AS source_url
+FROM seo_ledger s
+LEFT JOIN url_rewrite u
+  ON u.request_path = TRIM(LEADING '/' FROM s.url)
+WHERE u.url_rewrite_id IS NULL;</code></pre><p>This returned 312 URLs that existed in production traffic but had no rewrite on M2. About 200 were CMS pages built with a deprecated M1 page builder. The rest were category landing pages with custom URL keys set in the admin years ago and never propagated when SKUs were re-tagged.</p><p>For each, we wrote a permanent redirect into <code>url_rewrite</code> with <code>redirect_type = 301</code>, pointing at the closest live page. The site lost zero ranking positions in the four weeks after cutover. That single Saturday of grep and SQL was probably worth two months of post-launch SEO work.</p><h2>Weekend 5: payments, taxes, and the cutover rehearsal</h2><p>By weekend 5 the M2 instance was running, the theme was 90% there, and the delta loop had been clean for ten days. The remaining risk was the integration layer: payments, ERP, and tax.</p><p>The PSP integration was a custom M1 module written in 2018. We did not port it. The M2 build uses the PSP's official extension, which was released in 2023 and handles 3DS2 properly. We migrated stored card tokens through the PSP's API, not through Magento, which is the only way that does not violate PCI.</p><p>The ERP feed was the messy one. The original feed posted XML to a SOAP endpoint exposed by an M1 module. We could have rebuilt the SOAP endpoint on M2, but it was 2026 and we did not want to. Instead we wrote a small Symfony service that sat between the ERP and Magento 2, accepting the legacy XML format and translating it to M2 REST calls. The ERP team did not have to touch a thing. The translation service is 412 lines of PHP and a docker-compose file.</p><p>Then we did a full cutover rehearsal. We swapped DNS for an internal test domain, ran a staged checkout from cart through to PSP confirmation, validated the order appeared in the ERP, then rolled back DNS. The rehearsal surfaced one bug: the M2 default tax calculation rounded VAT differently from M1 by 0.01 EUR on certain mixed-VAT carts. We patched the rounding mode in <code>core_config_data</code> (<code>tax/calculation/algorithm</code> set to <code>TOTAL_BASE_CALCULATION</code>) and the diff vanished.</p><h2>Weekend 6: the cutover itself</h2><p>The actual cutover took 38 minutes. The runbook:</p><ol><li>Pause the ERP feed at 22:00 Saturday.</li><li>Final delta run, verify zero rows in <code>m2_cl_*</code> log tables.</li><li>Put M1 in maintenance mode.</li><li>Final integrity SQL: order counts, customer counts, product counts match across both databases.</li><li>Swap DNS to the M2 box. TTL had been lowered to 60s the previous Tuesday.</li><li>Smoke checkout, smoke admin, smoke ERP feed (unpaused), smoke search.</li><li>Disable the delta tool's triggers on the M1 source. Leaving them running on a frozen source eats disk.</li></ol><p>Step 7 is the one teams forget. Triggers installed by the data migration tool stay there until you drop them. Months later, when someone digs out the old M1 database for analysis, those triggers will happily write to log tables that no longer have a consumer.</p><pre><code class="lang-sql">DROP TRIGGER IF EXISTS trg_sales_flat_order_after_insert;
+DROP TRIGGER IF EXISTS trg_sales_flat_order_after_update;
+DROP TRIGGER IF EXISTS trg_sales_flat_order_after_delete;</code></pre><h2>What we kept from the old store</h2><p>Three things were preserved verbatim and the team was glad we did not modernize them:</p><ul><li>The legacy customer group IDs. The B2B portal had price tier logic keyed to specific integer IDs. We mapped them one-to-one.</li><li>The product URL keys. Not the templates around them. The keys themselves. Search rankings live in those slugs.</li><li>The order increment IDs. Customer service had years of muscle memory around the M1 prefix. We extended the existing sequence rather than starting over.</li></ul><p>The wider lesson is that a Magento 2 migration is mostly an exercise in restraint. The temptation to rewrite the data model, refactor the catalog tree, or fix the URL keys is real, and each one of those decisions trades engineering taste for SEO position and customer-service confusion. Pick the smallest possible change set.</p><h2>Editing the old store while the new one was built</h2><p>For six weekends the agency team had to keep editing a <a href="/">legacy site</a> while a parallel rebuild ran next to it. That is the part of a Magento migration nobody writes about. Every CMS block touched on M1 has to be reproduced on M2 before cutover. Every catalog rule. Every promotion. The delta tool handles structured data, not editorial.</p><p>We tracked these editorial changes in a shared Notion board for the first two weekends and it was a mess. By weekend 3 we had moved to working on the M1 files directly through Pier, which gave us a single audit log of every PHTML, layout XML, and CMS-block edit. When we built Pier we ran into this exact pattern across half a dozen Magento clients, and the way we ended up handling it was a per-file <a href="/#features">version history</a> tied to a <a href="/#database">MySQL editor</a> for the <code>cms_block</code> and <code>cms_page</code> tables, so the M2 rebuild had a definitive list of what to mirror with diffs.</p><h2>The smallest thing to do today</h2><p>If you have a Magento 1 store still running, the first useful 30 minutes is to dump <code>core_config_data</code> and grep it for serialized PHP. Every block of <code>a:N:{...}</code> is a future fatal on the M2 admin and a known <a href="https://www.php.net/manual/en/function.unserialize.php">unserialize</a> hazard. Find them now while you have time to choose how to handle each one. The migration tool will be much happier in three months when you actually run it.</p>
+    </div>
+
+    <aside class="pullquote">A Magento 1 to Magento 2 cutover survives weekend-only work if you keep the delta loop healthy, audit URL rewrites against real traffic, and resist redesigning the data model.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How long should a Magento 1 to Magento 2 migration take?</p>
+      <p class="faq-a">For a mid-size catalog with active orders, plan six to eight weekends of evening work plus one cutover night. Bulk migration is fast; the delta loop and theme work are what consume the calendar.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can you really run Magento 1 and 2 in parallel?</p>
+      <p class="faq-a">Yes, using the official data migration tool&#39;s delta mode. It installs triggers on the M1 source and replays changes onto M2 every minute, so you only need a short DNS swap to cut over.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What happens to URL rankings during the migration?</p>
+      <p class="faq-a">They survive if you audit the rewrite table against real organic traffic before cutover. Build a ledger of clicked URLs from Search Console, diff against the new url_rewrite table, and 301 the gaps.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is the data migration tool still maintained in 2026?</p>
+      <p class="faq-a">Yes, it ships with current Magento Open Source and Adobe Commerce releases. The config files for 1.9.x sources are still in the vendor package. Read the map.xml docs before your first run.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do you need to freeze the catalog at any point?</p>
+      <p class="faq-a">Only for the final cutover window, which is typically under an hour. Everything before that runs live, with the delta loop keeping M2 current against ongoing M1 edits.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/joomla-component-to-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+        <img src="/blog/joomla-component-to-plugin/hero.jpg" alt="Two layered paper sheets labeled Joomla 2.5 Component and Joomla 5 Plugin, brass tacks, ruler, pencil, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>2 June 2026</span></span>
+      <h3>Joomla 2.5 component to Joomla 5 plugin: skip the rewrite</h3>
+      <span class="pc-lede">An old Joomla 2.5 component still runs the client&#39;s catalogue. PHP 8.2 is coming. Here&#39;s how to lift it onto Joomla 5 as a plugin without touching the schema.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Overhead shot of printed CSV sheet, manila folder, brass key, ruler, red pencil, index cards, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Magento CSV import without downtime: a 9,000-row swap</h3>
+      <span class="pc-lede">A 23:41 Loom, a 9,043-row supplier CSV, and a storefront that could not go down. The post-mortem on how a Dutch agency staged the import without losing a minute of uptime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
