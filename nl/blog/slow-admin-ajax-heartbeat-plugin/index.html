@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Trage admin-ajax.php: 30 seconden terug naar één plugin · Pier — Blog</title>
+<meta name="description" content="Een WooCommerce-backend hing dertig seconden bij elke pagina. De trage request was steeds admin-ajax.php. Zo traceerden we hem naar één Heartbeat-plugin.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Trage admin-ajax.php: 30 seconden terug naar één plugin">
+<meta property="og:description" content="Een WooCommerce-backend hing dertig seconden bij elke pagina. De trage request was steeds admin-ajax.php. Zo traceerden we hem naar één Heartbeat-plugin.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht beige linnen met admin-ajax verzoekprint, gestapelde logafdruk, manilla map, messing plaat, liniaal, waszegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T07:41:29.868Z">
+<meta property="article:modified_time" content="2026-06-09T07:41:29.868Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Trage admin-ajax.php: 30 seconden terug naar één plugin">
+<meta name="twitter:description" content="Een WooCommerce-backend hing dertig seconden bij elke pagina. De trage request was steeds admin-ajax.php. Zo traceerden we hem naar één Heartbeat-plugin.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht beige linnen met admin-ajax verzoekprint, gestapelde logafdruk, manilla map, messing plaat, liniaal, waszegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/slow-admin-ajax-heartbeat-plugin/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/"},
+  "url":"https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/",
+  "headline":"Trage admin-ajax.php: 30 seconden terug naar één plugin",
+  "description":"Een WooCommerce-backend hing dertig seconden bij elke pagina. De trage request was steeds admin-ajax.php. Zo traceerden we hem naar één Heartbeat-plugin.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht beige linnen met admin-ajax verzoekprint, gestapelde logafdruk, manilla map, messing plaat, liniaal, waszegel."
+  },
+  "datePublished":"2026-06-09T07:41:29.868Z",
+  "dateModified":"2026-06-09T07:41:29.868Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, mysql, operations, tooling",
+  "wordCount":1423,
+  "articleSection":"WordPress",
+  "articleBody":"Om 23:41 op een dinsdag landde er een Loom in onze gedeelde inbox. Een Nederlands bureau van 22 mensen draaide een vijf jaar oude WooCommerce-shop voor een regionale retailer. Hun contentredacteur was kwaad naar bed gegaan. Elke save in de post-editor liep een halve minuut vast en sprong dan weer tot leven alsof er niets aan de hand was. De trage request was steeds hetzelfde pad: admin-ajax.php . Steeds rond de dertig seconden. Tegen de ochtend had het bureau een ticket bij de hosting aangemaakt. Tegen 10:00 had de hostingmaatschappij de schuld bij \"plugin-bloat\" gelegd en het ticket gesloten. De bureau-lead nam de Loom op met de vraag die elke freelancer uiteindelijk stelt: waar begin je nou eigenlijk. Eerst de access log lezen Voordat we WordPress openden, openden we de access log. SSH erin, de combined log tailen, kijken hoe een editor-refresh er vanuit het perspectief van de server uitziet. tail -f /var/log/nginx/access.log | grep admin-ajax Het patroon dook binnen een minuut op. \"POST /wp-admin/admin-ajax.php HTTP/2\" 200 412 30.014 \"POST /wp-admin/admin-ajax.php HTTP/2\" 200 412 29.987 \"POST /wp-admin/admin-ajax.php HTTP/2\" 200 412 30.122 Elke vijftien seconden, terwijl er een admin-tab openstond, bleef een request naar admin-ajax.php dertig seconden hangen voordat hij een minuscule payload teruggaf. De omvang van de response (412 bytes) was de verklikker. Dit was geen zware editor-save. Dit was de WordPress Heartbeat API die tikte, en iets dat eraan vasthing wachtte op iets anders. Heartbeat is een kleine JavaScript-poll die in de browser draait zodra een admin is ingelogd. Standaard pingt hij elke vijftien tot zestig seconden admin-ajax.php met de action heartbeat . Plugins haken erop in om autosave, lock-indicators, notificaties te leveren, alles wat near-real-time admin-data wil zonder WebSockets. De bedoeling is onschuldig. Het impactbereik, wanneer iets er een dure callback aan koppelt, is de hele admin. De heartbeat-receivers traceren WordPress stelt twee filters bloot bij elke heartbeat-tik: heartbeat_received en heartbeat_send . Elke plugin kan er werk aan koppelen. Om te vinden welke plugin dertig seconden per tik opat, schreven we een korte tracer en lieten die in wp-content/mu-plugins/ vallen. <?php // wp-content/mu-plugins/heartbeat-trace.php add_filter('heartbeat_received', function ($response, $data, $screen_id) { $bound = $GLOBALS['wp_filter']['heartbeat_received']->callbacks ?? []; $names = []; foreach ($bound as $priority => $set) { foreach ($set as $cb) { $fn = $cb['function']; if (is_array($fn)) { $names[] = (is_object($fn[0]) ? get_class($fn[0]) : $fn[0]) . '::' . $fn[1]; } elseif (is_string($fn)) { $names[] = $fn; } else { $names[] = 'closure@' . $priority; } } } error_log('[heartbeat] receivers: ' . implode(', ', $names)); return $response; }, 1, 3); Dit draait op prioriteit 1, vóór elke andere callback. Hij loopt het globale filter-array door, bouwt een lijst van gekoppelde functienamen op, schrijft die naar error_log en stapt dan opzij. mu-plugins laden bij elke request en kunnen niet vanuit wp-admin worden uitgeschakeld, wat ze ideaal maakt voor incident-tooling. Niemand kan je tracer per ongeluk halverwege het onderzoek deactiveren. Herlaad de editor, wacht één tik, tail de PHP error log: tail -f /var/log/php/error.log [heartbeat] receivers: WP_Auto_Updates::on_heartbeat, NinjaFormsLive\\Listener::sync, MainWP_Child::heartbeat Drie callbacks. Auto-updates is core. MainWP is de remote-management bridge van het bureau, die kenden we. De middelste was een forms-plugin die een \"live\" sync deed van submissions naar een externe CRM. De auteur ging er kennelijk van uit dat Heartbeat een gratis klok was. Dat was hij niet. De kosten bevestigen voordat we de stekker eruit trekken De verdachte kennen is niet hetzelfde als het bewijzen. We voegden een paar timing-filters toe: één op prioriteit 0 om de starttijd te stempelen, één op PHP_INT_MAX om het totaal te loggen. <?php add_filter('heartbeat_received', function ($r) { $GLOBALS['hb_t0'] = microtime(true); return $r; }, 0, 1); add_filter('heartbeat_received', function ($r) { $dt = microtime(true) - ($GLOBALS['hb_t0'] ?? microtime(true)); error_log(sprintf('[heartbeat] total %.2fs', $dt)); return $r; }, PHP_INT_MAX, 1); Herladen, wachten, kijken: [heartbeat] total 29.84s De MySQL slow query log vertelde de rest van het verhaal. De sync -methode van de plugin vuurde een wp_remote_post af op een HTTPS-endpoint met de standaard timeout van dertig seconden. De CRM was zes weken eerder achter een nieuwe Cloudflare-regel verplaatst die op het oude subdomein een 522 teruggaf. Elke vijftien seconden, in elke admin-tab, in elke editor-sessie, wachtte WordPress beleefd op een host die niet meer antwoordde. De \"plugin-bloat\"-theorie van de hostingmaatschappij was technisch correct en operationeel waardeloos. De patch die Heartbeat in leven hield Drie opties lagen op tafel. De eerste was de forms-plugin volledig uitschakelen. Dat zou de embeds breken",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Trage admin-ajax.php: 30 seconden terug naar één plugin","item":"https://pier.abn.company/nl/blog/slow-admin-ajax-heartbeat-plugin/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat is de WordPress Heartbeat API?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een ingebouwde JavaScript-poll die elke 15 tot 60 seconden admin-ajax.php aanroept zolang een admin is ingelogd. Hij voedt autosave, post-locking en de lock-indicator. Elke plugin kan er callbacks aan koppelen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom blijft admin-ajax.php precies 30 seconden hangen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dertig seconden is de standaard timeout die PHP aan wp_remote_post en wp_remote_get geeft. Een plugin roept een externe host aan die nooit reageert, en de request wacht de volledige timeout uit voordat hij terugkomt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik Heartbeat niet gewoon uitschakelen om een trage admin op te lossen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dat kan, met wp_deregister_script('heartbeat'), maar dan verlies je autosave, post-locking en waarschuwingen bij gelijktijdig bewerken. De specifieke trage callback uithaken is bijna altijd de betere fix."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 057</span>
+      </div>
+      <p class="eyebrow"><span class="n">057 —</span>WordPress</p>
+      <h1 class="display-l post-title">Trage admin-ajax.php: 30 seconden terug naar één plugin</h1>
+      <p class="lede post-lede">Een WooCommerce-backend hing dertig seconden bij elke pagina. De trage request was steeds admin-ajax.php. Zo traceerden we hem naar één Heartbeat-plugin.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T07:41:29.868Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/slow-admin-ajax-heartbeat-plugin/hero.webp" type="image/webp">
+      <img src="/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg" alt="Bovenaanzicht beige linnen met admin-ajax verzoekprint, gestapelde logafdruk, manilla map, messing plaat, liniaal, waszegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 057</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 op een dinsdag landde er een Loom in onze gedeelde inbox. Een Nederlands bureau van 22 mensen draaide een vijf jaar oude WooCommerce-shop voor een regionale retailer. Hun contentredacteur was kwaad naar bed gegaan. Elke save in de post-editor liep een halve minuut vast en sprong dan weer tot leven alsof er niets aan de hand was. De trage request was steeds hetzelfde pad: <code>admin-ajax.php</code>. Steeds rond de dertig seconden. Tegen de ochtend had het bureau een ticket bij de hosting aangemaakt. Tegen 10:00 had de hostingmaatschappij de schuld bij "plugin-bloat" gelegd en het ticket gesloten. De bureau-lead nam de Loom op met de vraag die elke freelancer uiteindelijk stelt: waar begin je nou eigenlijk.</p>
+
+<h2>Eerst de access log lezen</h2>
+<p>Voordat we WordPress openden, openden we de access log. SSH erin, de combined log tailen, kijken hoe een editor-refresh er vanuit het perspectief van de server uitziet.</p>
+<pre><code class="lang-bash">tail -f /var/log/nginx/access.log | grep admin-ajax</code></pre>
+<p>Het patroon dook binnen een minuut op.</p>
+<pre><code class="lang-bash">"POST /wp-admin/admin-ajax.php HTTP/2" 200 412 30.014
+"POST /wp-admin/admin-ajax.php HTTP/2" 200 412 29.987
+"POST /wp-admin/admin-ajax.php HTTP/2" 200 412 30.122</code></pre>
+<p>Elke vijftien seconden, terwijl er een admin-tab openstond, bleef een request naar <code>admin-ajax.php</code> dertig seconden hangen voordat hij een minuscule payload teruggaf. De omvang van de response (412 bytes) was de verklikker. Dit was geen zware editor-save. Dit was de WordPress <a href="https://developer.wordpress.org/plugins/javascript/heartbeat-api/">Heartbeat API</a> die tikte, en iets dat eraan vasthing wachtte op iets anders.</p>
+<p>Heartbeat is een kleine JavaScript-poll die in de browser draait zodra een admin is ingelogd. Standaard pingt hij elke vijftien tot zestig seconden <code>admin-ajax.php</code> met de action <code>heartbeat</code>. Plugins haken erop in om autosave, lock-indicators, notificaties te leveren, alles wat near-real-time admin-data wil zonder WebSockets. De bedoeling is onschuldig. Het impactbereik, wanneer iets er een dure callback aan koppelt, is de hele admin.</p>
+
+<h2>De heartbeat-receivers traceren</h2>
+<p>WordPress stelt twee filters bloot bij elke heartbeat-tik: <code>heartbeat_received</code> en <code>heartbeat_send</code>. Elke plugin kan er werk aan koppelen. Om te vinden welke plugin dertig seconden per tik opat, schreven we een korte tracer en lieten die in <code>wp-content/mu-plugins/</code> vallen.</p>
+<pre><code class="lang-php">&lt;?php
+// wp-content/mu-plugins/heartbeat-trace.php
+add_filter('heartbeat_received', function ($response, $data, $screen_id) {
+    $bound = $GLOBALS['wp_filter']['heartbeat_received']-&gt;callbacks ?? [];
+    $names = [];
+    foreach ($bound as $priority =&gt; $set) {
+        foreach ($set as $cb) {
+            $fn = $cb['function'];
+            if (is_array($fn)) {
+                $names[] = (is_object($fn[0]) ? get_class($fn[0]) : $fn[0]) . '::' . $fn[1];
+            } elseif (is_string($fn)) {
+                $names[] = $fn;
+            } else {
+                $names[] = 'closure@' . $priority;
+            }
+        }
+    }
+    error_log('[heartbeat] receivers: ' . implode(', ', $names));
+    return $response;
+}, 1, 3);</code></pre>
+<p>Dit draait op prioriteit 1, vóór elke andere callback. Hij loopt het globale filter-array door, bouwt een lijst van gekoppelde functienamen op, schrijft die naar <code>error_log</code> en stapt dan opzij. mu-plugins laden bij elke request en kunnen niet vanuit wp-admin worden uitgeschakeld, wat ze ideaal maakt voor incident-tooling. Niemand kan je tracer per ongeluk halverwege het onderzoek deactiveren.</p>
+<p>Herlaad de editor, wacht één tik, tail de PHP error log:</p>
+<pre><code class="lang-bash">tail -f /var/log/php/error.log
+
+[heartbeat] receivers: WP_Auto_Updates::on_heartbeat, NinjaFormsLive\Listener::sync, MainWP_Child::heartbeat</code></pre>
+<p>Drie callbacks. Auto-updates is core. MainWP is de remote-management bridge van het bureau, die kenden we. De middelste was een forms-plugin die een "live" sync deed van submissions naar een externe CRM. De auteur ging er kennelijk van uit dat Heartbeat een gratis klok was. Dat was hij niet.</p>
+
+<h2>De kosten bevestigen voordat we de stekker eruit trekken</h2>
+<p>De verdachte kennen is niet hetzelfde als het bewijzen. We voegden een paar timing-filters toe: één op prioriteit 0 om de starttijd te stempelen, één op <code>PHP_INT_MAX</code> om het totaal te loggen.</p>
+<pre><code class="lang-php">&lt;?php
+add_filter('heartbeat_received', function ($r) {
+    $GLOBALS['hb_t0'] = microtime(true);
+    return $r;
+}, 0, 1);
+
+add_filter('heartbeat_received', function ($r) {
+    $dt = microtime(true) - ($GLOBALS['hb_t0'] ?? microtime(true));
+    error_log(sprintf('[heartbeat] total %.2fs', $dt));
+    return $r;
+}, PHP_INT_MAX, 1);</code></pre>
+<p>Herladen, wachten, kijken:</p>
+<pre><code class="lang-bash">[heartbeat] total 29.84s</code></pre>
+<p>De MySQL slow query log vertelde de rest van het verhaal. De <code>sync</code>-methode van de plugin vuurde een <code>wp_remote_post</code> af op een HTTPS-endpoint met de standaard timeout van dertig seconden. De CRM was zes weken eerder achter een nieuwe Cloudflare-regel verplaatst die op het oude subdomein een 522 teruggaf. Elke vijftien seconden, in elke admin-tab, in elke editor-sessie, wachtte WordPress beleefd op een host die niet meer antwoordde. De "plugin-bloat"-theorie van de hostingmaatschappij was technisch correct en operationeel waardeloos.</p>
+
+<h2>De patch die Heartbeat in leven hield</h2>
+<p>Drie opties lagen op tafel.</p>
+<p>De eerste was de forms-plugin volledig uitschakelen. Dat zou de embeds breken die het bureau al twee jaar gebruikte op de contact- en offertepagina's van de retailer. Niet acceptabel.</p>
+<p>De tweede was Heartbeat globaal uitschakelen met <code>wp_deregister_script('heartbeat')</code>. Dat legt autosave, post-locking en de waarschuwing die afgaat zodra een andere editor dezelfde post opent, stil. Te tolereren voor een eenmanssite, pijnlijk voor een team van vier redacteuren die tegelijk aan dezelfde productcatalogus werken.</p>
+<p>De derde was de juiste. Haak de overtredende callback los, laat Heartbeat actief voor al het andere. Eén bestand in mu-plugins:</p>
+<pre><code class="lang-php">&lt;?php
+// wp-content/mu-plugins/throttle-forms-live-sync.php
+add_action('init', function () {
+    if (class_exists('NinjaFormsLive\\Listener')) {
+        remove_filter(
+            'heartbeat_received',
+            ['NinjaFormsLive\\Listener', 'sync'],
+            10
+        );
+    }
+}, 99);</code></pre>
+<p>Het prioriteit-argument doet ertoe. <a href="https://developer.wordpress.org/reference/functions/remove_filter/"><code>remove_filter</code></a> verwijdert een callback alleen als de prioriteit die je doorgeeft overeenkomt met de prioriteit waarop hij oorspronkelijk werd toegevoegd. Dat bevestigden we door de broncode van de plugin te lezen: <code>add_filter('heartbeat_received', [...], 10, 3)</code>. Hadden we klakkeloos de standaard 10 doorgegeven, dan was er fifty-fifty kans op een stille mis en een woedende redacteur geweest.</p>
+<p>Bij de volgende herlaad werd het stil in de access log. <code>admin-ajax.php</code> kwam terug in ongeveer 60 milliseconden in plaats van dertig seconden. De editor was weer bruikbaar. De forms werkten nog. Heartbeat tikte nog. Autosave bleef opslaan.</p>
+<p>Daarna openden we een kleine pull request tegen de forms-plugin. De auteur accepteerde hem binnen een week. De sync draait nu als wp-cron event eens per vijf minuten met een timeout van vijf seconden, in plaats van bij elke heartbeat met een timeout van dertig. Dat is de vorm die elke near-real-time integratie hoort te hebben: begrensd, gepland en geïsoleerd van het request-pad van de editor.</p>
+
+<h2>Een audit die je op elke overgenomen site kunt draaien</h2>
+<p>Heartbeat is niet het probleem. Het is een van de meest bruikbare ingebouwde onderdelen die WordPress meelevert. Het probleem is dat elke plugin er onbegrensd werk aan kan koppelen, en niets in core dwingt een timeout, een queue of een circuit breaker af. Wanneer je een vijf jaar oude installatie overneemt en de admin voelt zwaar, is de eerste plek om te kijken welke filters er deelnemers bij hebben gekregen.</p>
+<p>Een korte audit die je vandaag kunt draaien, op elke admin-pagina, als gebruiker met <code>manage_options</code>:</p>
+<pre><code class="lang-php">&lt;?php
+// wp-content/mu-plugins/heartbeat-audit.php
+add_action('admin_footer', function () {
+    if (!current_user_can('manage_options')) return;
+    $hooks = ['heartbeat_received', 'heartbeat_send', 'heartbeat_tick'];
+    foreach ($hooks as $hook) {
+        $cb = $GLOBALS['wp_filter'][$hook]-&gt;callbacks ?? [];
+        $count = 0;
+        foreach ($cb as $set) { $count += count($set); }
+        printf("&lt;!-- %s: %d callbacks --&gt;\n", $hook, $count);
+    }
+});</code></pre>
+<p>Plak hem erin. Open een willekeurige admin-pagina. Bekijk de broncode. Onderaan de HTML staat een comment met daarin hoeveel callbacks elke Heartbeat-hook draagt. Alles boven de drie is het onderzoeken waard. Alles boven de vijf is bijna zeker een regressie die staat te gebeuren.</p>
+<aside class="callout">Voordat je in productie iets met <code>remove_filter</code> doet, log de aanroep één keer met het derde <code>$screen_id</code>-argument. Sommige plugins doen alleen duur werk op specifieke schermen (de orderlijst, de media library, een custom post type). Een blanket-remove schakelt stilletjes features uit waar het team buiten de editor om op leunt, en dat merken ze pas lang nadat jij het ticket hebt gesloten.</aside>
+
+<h2>Hoe dit werk er meestal uitziet</h2>
+<p>Dit was een klein incident met een duidelijke schuldige. De meeste tickets over een trage admin die we zien volgen dezelfde vorm. Een plugin haakt zich vast aan een tik (Heartbeat, <code>shutdown</code>, <code>wp_loaded</code>) zonder na te denken over de failure-mode van datgene waar hij naar belt. Het endpoint verdwijnt. De plugin blijft wachten. De admin wordt traag. De host krijgt de schuld.</p>
+<p>Toen we <a href="/">Pier</a> bouwden om aan <a href="/">verouderde sites</a> zoals deze te dokken, was precies dit patroon een van de eerste onderzoeksworkflows die we erin draadden: access log tailen, een tracer-mu-plugin neerzetten, één editor-pagina vernieuwen, de error log teruglezen. De tracer-plugin en de uiteindelijke <code>remove_filter</code> komen beide als losse edits in de <a href="/#features">versiegeschiedenis</a> terecht, zodat beide met één toetsaanslag teruggedraaid kunnen worden.</p>
+<p>Als je een admin hebt die zwaar aanvoelt en je nog niet weet waarom, is de kleinste stap voor vanavond het audit-snippet hierboven in <code>mu-plugins</code> plakken, één wp-admin-pagina vernieuwen, en de HTML-comments onderaan lezen. Vijf minuten, geen plugin-activatie, geen service-restart. De helft van de diagnose is dan al gedaan.</p>
+    </div>
+
+    <aside class="pullquote">Als admin-ajax.php dertig seconden vasthangt voor een ingelogde redacteur, is het bijna altijd één plugin die onbegrensd werk aan het Heartbeat-filter koppelt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat is de WordPress Heartbeat API?</p>
+      <p class="faq-a">Een ingebouwde JavaScript-poll die elke 15 tot 60 seconden admin-ajax.php aanroept zolang een admin is ingelogd. Hij voedt autosave, post-locking en de lock-indicator. Elke plugin kan er callbacks aan koppelen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom blijft admin-ajax.php precies 30 seconden hangen?</p>
+      <p class="faq-a">Dertig seconden is de standaard timeout die PHP aan wp_remote_post en wp_remote_get geeft. Een plugin roept een externe host aan die nooit reageert, en de request wacht de volledige timeout uit voordat hij terugkomt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik Heartbeat niet gewoon uitschakelen om een trage admin op te lossen?</p>
+      <p class="faq-a">Dat kan, met wp_deregister_script(&#39;heartbeat&#39;), maar dan verlies je autosave, post-locking en waarschuwingen bij gelijktijdig bewerken. De specifieke trage callback uithaken is bijna altijd de betere fix.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Plat overzicht: papieren waterval-grafiek met balken, koperen stopwatch op 2,3s, manila CHECKOUT-tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>WooCommerce checkout audit: de plugin van 2,3 seconden</h3>
+      <span class="pc-lede">Loom van een Nederlands bureau: WooCommerce checkout hangt drie seconden op elke postcodewijziging. De audit van twintig minuten die de plugin vindt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-debug-constants/hero.jpg" alt="Bovenaanzicht van verouderd wp-config.php spiekbriefje met PHP debug-constanten, koperen presse-papier, liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 juni 2026</span></span>
+      <h3>wp-config.php debug constants: een werkbare cheatsheet</h3>
+      <span class="pc-lede">WordPress kent veertig gedocumenteerde wp-config.php constants. De meeste sites gebruiken er drie. Hier zijn de rest, als cheatsheet om in te plakken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
