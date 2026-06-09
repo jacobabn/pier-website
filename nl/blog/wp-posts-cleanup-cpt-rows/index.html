@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>wp_posts opschonen: 600 dode CPT-rijen veilig wissen · Pier — Blog</title>
+<meta name="description" content="Een staging-kopie, een kerkhof van 600 CPT-rijen, en vier foreign key-valluiken die een snelle DELETE veranderen in een week kapotte admin-schermen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-posts-cleanup-cpt-rows/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-posts-cleanup-cpt-rows/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="wp_posts opschonen: 600 dode CPT-rijen veilig wissen">
+<meta property="og:description" content="Een staging-kopie, een kerkhof van 600 CPT-rijen, en vier foreign key-valluiken die een snelle DELETE veranderen in een week kapotte admin-schermen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren SQL-werkblad, ER-blauwdruk, mapje, messing sleutel en plaatje, lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T15:29:58.494Z">
+<meta property="article:modified_time" content="2026-06-09T15:29:58.494Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="wp_posts opschonen: 600 dode CPT-rijen veilig wissen">
+<meta name="twitter:description" content="Een staging-kopie, een kerkhof van 600 CPT-rijen, en vier foreign key-valluiken die een snelle DELETE veranderen in een week kapotte admin-schermen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren SQL-werkblad, ER-blauwdruk, mapje, messing sleutel en plaatje, lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-posts-cleanup-cpt-rows/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/"},
+  "url":"https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/",
+  "headline":"wp_posts opschonen: 600 dode CPT-rijen veilig wissen",
+  "description":"Een staging-kopie, een kerkhof van 600 CPT-rijen, en vier foreign key-valluiken die een snelle DELETE veranderen in een week kapotte admin-schermen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren SQL-werkblad, ER-blauwdruk, mapje, messing sleutel en plaatje, lakzegel op linnen."
+  },
+  "datePublished":"2026-06-09T15:29:58.494Z",
+  "dateModified":"2026-06-09T15:29:58.494Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, mysql, databases, php, workflow",
+  "wordCount":1593,
+  "articleSection":"Databases",
+  "articleBody":"Een Nederlands bureau waar we mee samenwerken stuurde vorige donderdag een staging-dump door met één regel in het bericht: \"600 stuks. Geen enkele rendert nog ergens. Mogen we ze gewoon weggooien?\" De 600 in kwestie waren rijen in wp_posts met post_type = 'event_legacy' , een custom post type dat in 2021 was geregistreerd, twee jaar geleden uitgefaseerd, en sinds de laatste themarebuild niet meer in de codebase voorkwam. De rijen stonden er nog. De postmeta ook. De term relationships, de revisies, de zwevende comments, alles stond er nog. De kortste route naar een schone wp_posts -opschoning is niet DELETE FROM wp_posts WHERE post_type = 'event_legacy'; . Dat commando laat vier andere tabellen achter met pointers naar rijen die niet meer bestaan. Hieronder staat de exacte volgorde die we op een kopie van de database van het bureau hebben gedraaid. We gaan uit van een wp_ -tabelprefix en InnoDB. Pas beide aan voordat je gaat plakken. De schade in kaart brengen voor je DELETE draait De eerste klus is de omvang vaststellen. Niet \"hoeveel wp_posts -rijen\" maar \"hoeveel rijen er in elke tabel staan die naar die wp_posts -rijen wijzen.\" Op een typische WordPress-install zijn dat vijf tabellen: wp_posts zelf, wp_postmeta , wp_term_relationships , wp_comments , en wp_commentmeta . Revisies en autosaves staan binnen wp_posts met post_type = 'revision' en een post_parent die naar de bovenliggende rij wijst, dus die hebben een aparte sweep nodig. SELECT post_type, post_status, COUNT(*) AS n FROM wp_posts WHERE post_type = 'event_legacy' GROUP BY post_type, post_status; SELECT COUNT(*) AS meta_rows FROM wp_postmeta WHERE post_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy'); SELECT COUNT(*) AS term_links FROM wp_term_relationships WHERE object_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy'); SELECT COUNT(*) AS revisions FROM wp_posts WHERE post_type = 'revision' AND post_parent IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy'); SELECT COUNT(*) AS comments FROM wp_comments WHERE comment_post_ID IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy'); Bij de site van het bureau kwamen de antwoorden binnen: 612 in wp_posts , 7.344 in wp_postmeta (gemiddeld twaalf meta keys per rij, inclusief de overhead van ACF), 1.820 in wp_term_relationships verspreid over drie taxonomieën die ook al waren uitgefaseerd, 0 comments, en 488 revisies. Totaal aangeraakte rijen: 10.264. Zonder de cascading deletes zouden 9.652 daarvan zwevers zijn geworden zodra wp_posts zijn rijen liet vallen. Voor je iets verwijdert is ook dit nuttig: dump een handvol representatieve meta keys. SELECT meta_key, COUNT(*) AS n FROM wp_postmeta WHERE post_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy') GROUP BY meta_key ORDER BY n DESC LIMIT 30; Soms is een CPT met naam afgevoerd, maar zijn de meta keys hergebruikt voor een nieuwer type. Zie je _event_start -rijen die alleen aan event_legacy -posts hangen, prima. Hangen ze aan zowel event_legacy als event , dan is de meta key nog in gebruik en wil je alleen de rijen schrappen waarvan de post_id in de gedoemde set valt. De vier tabellen die stilletjes breken WordPress gebruikt geen foreign key-constraints. De $wpdb -abstractie behandelt elke relatie als een zachte pointer en vertrouwt erop dat de applicatie ze eerlijk houdt. Dat vertrouwen werkt prima tot je de applicatie omzeilt en in SQL gaat DELETEen. De vier pointers die zwevend achterblijven zijn: wp_postmeta.post_id wijst naar wp_posts.ID . Zwevende meta-rijen zijn onschadelijk voor de front-end, maar ze duiken op in elke SELECT die de admin over postmeta draait en ze stapelen voor eeuwig op. wp_term_relationships.object_id wijst naar wp_posts.ID . Zwevende rijen hier blazen wp_term_taxonomy.count op bij elke term, wat de bron is van de categorie- en tagtellingen in de admin. De getallen blijven fout staan tot wp_update_term_count_now() draait of je ze met de hand corrigeert. wp_comments.comment_post_ID wijst naar wp_posts.ID . Zwevende comments zijn onzichtbaar in de admin-queue, maar ze blijven opduiken in elke plugin die zijn eigen comment-query draait. wp_posts.post_parent op revisies, autosaves en bijlagen wijst naar de bovenliggende rij. Zwevende revisies kun je niet vanuit de admin opruimen, want er is geen bovenliggend scherm meer om te openen. De volgorde van de deletes is belangrijk, omdat de lookups in stap één afhangen van het feit dat de bovenliggende rijen er nog staan. Verwijder eerst wp_posts en de IN (SELECT ID FROM wp_posts ...) -subqueries in de afhankelijke deletes geven een lege set terug, waardoor al het andere zwevend achterblijft. De oplossing is de volgorde omdraaien: eerst de afhankelijken, daarna de ouders. De opschoning, op volgorde Voordat hier ook maar iets van draait: maak een hot backup. mysqldump --single-transaction --quick wp_database > backup.sql op een transactioneel InnoDB-schema geeft je een consistente snapshot zonder writes te locken. Controleer d",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"wp_posts opschonen: 600 dode CPT-rijen veilig wissen","item":"https://pier.abn.company/nl/blog/wp-posts-cleanup-cpt-rows/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom niet wp_delete_post() in een loop draaien in plaats van SQL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Werkt prima op kleine sets, maar bij 600 rijen vuurt het voor elke delete hooks af, blaast het de object cache op, en draait het synchrone indexupdates. SQL met de cascade in de juiste volgorde is sneller en voorspelbaarder."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Werkt dit op WordPress Multisite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, maar draai het apart tegen de wp_N_posts, wp_N_postmeta en wp_N_term_relationships van elke site. Multisite geeft elke blog zijn eigen geprefixte kopie van de contenttabellen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat met transients en rewrite rules die naar de CPT verwezen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Flush rewrites met wp rewrite flush, verwijder daarna transients in wp_options die op de oude post_type keyen. De meeste rewrite caches regenereren bij de volgende admin-pagina."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wp-posts-cleanup-cpt-rows/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 066</span>
+      </div>
+      <p class="eyebrow"><span class="n">066 —</span>Databases</p>
+      <h1 class="display-l post-title">wp_posts opschonen: 600 dode CPT-rijen veilig wissen</h1>
+      <p class="lede post-lede">Een staging-kopie, een kerkhof van 600 CPT-rijen, en vier foreign key-valluiken die een snelle DELETE veranderen in een week kapotte admin-schermen.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T15:29:58.494Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-posts-cleanup-cpt-rows/hero.webp" type="image/webp">
+      <img src="/blog/wp-posts-cleanup-cpt-rows/hero.jpg" alt="Bovenaanzicht van papieren SQL-werkblad, ER-blauwdruk, mapje, messing sleutel en plaatje, lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 066</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waar we mee samenwerken stuurde vorige donderdag een staging-dump door met één regel in het bericht: <em>"600 stuks. Geen enkele rendert nog ergens. Mogen we ze gewoon weggooien?"</em> De 600 in kwestie waren rijen in <code>wp_posts</code> met <code>post_type = 'event_legacy'</code>, een custom post type dat in 2021 was geregistreerd, twee jaar geleden uitgefaseerd, en sinds de laatste themarebuild niet meer in de codebase voorkwam. De rijen stonden er nog. De postmeta ook. De term relationships, de revisies, de zwevende comments, alles stond er nog. De kortste route naar een schone <code>wp_posts</code>-opschoning is niet <code>DELETE FROM wp_posts WHERE post_type = 'event_legacy';</code>. Dat commando laat vier andere tabellen achter met pointers naar rijen die niet meer bestaan.</p>
+
+<p>Hieronder staat de exacte volgorde die we op een kopie van de database van het bureau hebben gedraaid. We gaan uit van een <code>wp_</code>-tabelprefix en InnoDB. Pas beide aan voordat je gaat plakken.</p>
+
+<h2>De schade in kaart brengen voor je DELETE draait</h2>
+
+<p>De eerste klus is de omvang vaststellen. Niet "hoeveel <code>wp_posts</code>-rijen" maar "hoeveel rijen er in elke tabel staan die naar die <code>wp_posts</code>-rijen wijzen." Op een typische WordPress-install zijn dat vijf tabellen: <code>wp_posts</code> zelf, <code>wp_postmeta</code>, <code>wp_term_relationships</code>, <code>wp_comments</code>, en <code>wp_commentmeta</code>. Revisies en autosaves staan binnen <code>wp_posts</code> met <code>post_type = 'revision'</code> en een <code>post_parent</code> die naar de bovenliggende rij wijst, dus die hebben een aparte sweep nodig.</p>
+
+<pre><code class="lang-sql">SELECT post_type, post_status, COUNT(*) AS n
+FROM wp_posts
+WHERE post_type = 'event_legacy'
+GROUP BY post_type, post_status;
+
+SELECT COUNT(*) AS meta_rows
+FROM wp_postmeta
+WHERE post_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy');
+
+SELECT COUNT(*) AS term_links
+FROM wp_term_relationships
+WHERE object_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy');
+
+SELECT COUNT(*) AS revisions
+FROM wp_posts
+WHERE post_type = 'revision'
+  AND post_parent IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy');
+
+SELECT COUNT(*) AS comments
+FROM wp_comments
+WHERE comment_post_ID IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy');
+</code></pre>
+
+<p>Bij de site van het bureau kwamen de antwoorden binnen: 612 in <code>wp_posts</code>, 7.344 in <code>wp_postmeta</code> (gemiddeld twaalf meta keys per rij, inclusief de overhead van ACF), 1.820 in <code>wp_term_relationships</code> verspreid over drie taxonomieën die ook al waren uitgefaseerd, 0 comments, en 488 revisies. Totaal aangeraakte rijen: 10.264. Zonder de cascading deletes zouden 9.652 daarvan zwevers zijn geworden zodra <code>wp_posts</code> zijn rijen liet vallen.</p>
+
+<p>Voor je iets verwijdert is ook dit nuttig: dump een handvol representatieve meta keys.</p>
+
+<pre><code class="lang-sql">SELECT meta_key, COUNT(*) AS n
+FROM wp_postmeta
+WHERE post_id IN (SELECT ID FROM wp_posts WHERE post_type = 'event_legacy')
+GROUP BY meta_key
+ORDER BY n DESC
+LIMIT 30;
+</code></pre>
+
+<p>Soms is een CPT met naam afgevoerd, maar zijn de meta keys hergebruikt voor een nieuwer type. Zie je <code>_event_start</code>-rijen die alleen aan <code>event_legacy</code>-posts hangen, prima. Hangen ze aan zowel <code>event_legacy</code> als <code>event</code>, dan is de meta key nog in gebruik en wil je alleen de rijen schrappen waarvan de <code>post_id</code> in de gedoemde set valt.</p>
+
+<h2>De vier tabellen die stilletjes breken</h2>
+
+<p>WordPress gebruikt geen foreign key-constraints. <a href="https://developer.wordpress.org/reference/classes/wpdb/">De <code>$wpdb</code>-abstractie</a> behandelt elke relatie als een zachte pointer en vertrouwt erop dat de applicatie ze eerlijk houdt. Dat vertrouwen werkt prima tot je de applicatie omzeilt en in SQL gaat DELETEen. De vier pointers die zwevend achterblijven zijn:</p>
+
+<ul>
+  <li><code>wp_postmeta.post_id</code> wijst naar <code>wp_posts.ID</code>. Zwevende meta-rijen zijn onschadelijk voor de front-end, maar ze duiken op in elke <code>SELECT</code> die de admin over postmeta draait en ze stapelen voor eeuwig op.</li>
+  <li><code>wp_term_relationships.object_id</code> wijst naar <code>wp_posts.ID</code>. Zwevende rijen hier blazen <code>wp_term_taxonomy.count</code> op bij elke term, wat de bron is van de categorie- en tagtellingen in de admin. De getallen blijven fout staan tot <code>wp_update_term_count_now()</code> draait of je ze met de hand corrigeert.</li>
+  <li><code>wp_comments.comment_post_ID</code> wijst naar <code>wp_posts.ID</code>. Zwevende comments zijn onzichtbaar in de admin-queue, maar ze blijven opduiken in elke plugin die zijn eigen comment-query draait.</li>
+  <li><code>wp_posts.post_parent</code> op revisies, autosaves en bijlagen wijst naar de bovenliggende rij. Zwevende revisies kun je niet vanuit de admin opruimen, want er is geen bovenliggend scherm meer om te openen.</li>
+</ul>
+
+<p>De volgorde van de deletes is belangrijk, omdat de lookups in stap één afhangen van het feit dat de bovenliggende rijen er nog staan. Verwijder eerst <code>wp_posts</code> en de <code>IN (SELECT ID FROM wp_posts ...)</code>-subqueries in de afhankelijke deletes geven een lege set terug, waardoor al het andere zwevend achterblijft. De oplossing is de volgorde omdraaien: eerst de afhankelijken, daarna de ouders.</p>
+
+<h2>De opschoning, op volgorde</h2>
+
+<p>Voordat hier ook maar iets van draait: maak een hot backup. <code>mysqldump --single-transaction --quick wp_database &gt; backup.sql</code> op een transactioneel InnoDB-schema geeft je een consistente snapshot zonder writes te locken. Controleer dat het bestand niet leeg is en de tabelheaders bevat die je verwacht. Open daarna een transactie, zodat de hele reeks atomisch is.</p>
+
+<pre><code class="lang-sql">START TRANSACTION;
+
+-- 1. Cache the doomed IDs so every step uses the same set
+CREATE TEMPORARY TABLE doomed_ids AS
+SELECT ID FROM wp_posts WHERE post_type = 'event_legacy';
+
+-- 2. Revisions and autosaves first (children of the parent rows)
+DELETE FROM wp_posts
+WHERE post_type IN ('revision', 'auto-draft')
+  AND post_parent IN (SELECT ID FROM doomed_ids);
+
+-- 3. Postmeta
+DELETE FROM wp_postmeta
+WHERE post_id IN (SELECT ID FROM doomed_ids);
+
+-- 4. Term relationships (record the term_taxonomy_ids first, we need them)
+CREATE TEMPORARY TABLE touched_tt AS
+SELECT DISTINCT term_taxonomy_id
+FROM wp_term_relationships
+WHERE object_id IN (SELECT ID FROM doomed_ids);
+
+DELETE FROM wp_term_relationships
+WHERE object_id IN (SELECT ID FROM doomed_ids);
+
+-- 5. Commentmeta then comments
+DELETE FROM wp_commentmeta
+WHERE comment_id IN (
+  SELECT comment_ID FROM wp_comments
+  WHERE comment_post_ID IN (SELECT ID FROM doomed_ids)
+);
+
+DELETE FROM wp_comments
+WHERE comment_post_ID IN (SELECT ID FROM doomed_ids);
+
+-- 6. The parent rows
+DELETE FROM wp_posts
+WHERE ID IN (SELECT ID FROM doomed_ids);
+
+-- 7. Recount the term taxonomy counts we just invalidated
+UPDATE wp_term_taxonomy tt
+SET count = (
+  SELECT COUNT(*) FROM wp_term_relationships tr
+  WHERE tr.term_taxonomy_id = tt.term_taxonomy_id
+)
+WHERE tt.term_taxonomy_id IN (SELECT term_taxonomy_id FROM touched_tt);
+
+COMMIT;
+</code></pre>
+
+<p>Twee dingen zijn het opmerken waard. Ten eerste de temp table. MySQL evalueert gecorreleerde subqueries op elke rij van een DELETE opnieuw, dus dezelfde <code>SELECT ID FROM wp_posts WHERE post_type = 'event_legacy'</code> in vijf statements stoppen zou vijf volledige scans betekenen tegen een tabel die onderwijl krimpt. De temp table cachet de set eenmaal. Ten tweede de hertelling in stap zeven. Sla je die over, dan blijft <code>wp_term_taxonomy.count</code> opgeblazen met hoeveel term relationships je net hebt verwijderd. De categoriewidget blijft "Events (612)" tonen tot een post in die categorie via de admin wordt opgeslagen.</p>
+
+<aside class="callout">Als je install <code>wp_term_relationships</code> ook voor andere objecttypen dan posts gebruikt (WooCommerce hangt productattributen op dezelfde manier eraan, sommige membership-plugins doen dat ook), dan deelt de kolom <code>object_id</code> namespaces tussen <code>wp_posts.ID</code> en <code>wp_users.ID</code>. Filter de hertelling dan zorgvuldiger, anders zet je counts op nul voor termen die nog steeds geldige niet-post-objecten hebben hangen.</aside>
+
+<h3>Als de tabel te groot is om in één keer te verwijderen</h3>
+
+<p>Op de database van het bureau bevatte de oudertabel 1,4 miljoen rijen en draaide de opschoning in minder dan een seconde. Op een <code>wp_posts</code> van 60 miljoen rijen zal dezelfde DELETE een lange transactie open houden, de binlog opblazen, en replicatielag zichtbaar maken voor iedereen die meekijkt. Batch het dan. Het patroon dat werkt zonder de logica hierboven te veranderen, is om een <code>LIMIT</code> aan stap zes toe te voegen en te loopen tot <code>ROW_COUNT()</code> nul teruggeeft, waarbij je <code>doomed_ids</code> bovenaan elke batch opnieuw vult.</p>
+
+<h2>Controleren dat verder niets regresseerde</h2>
+
+<p>Draai dezelfde vijf count-queries van de audit nog een keer. Ze zouden over de hele linie nul moeten teruggeven, behalve <code>wp_posts</code> die nul rijen van <code>post_type = 'event_legacy'</code> zou moeten geven en het oorspronkelijke totaal van elk ander type. Voer daarna twee sanity checks uit die de audit niet ving:</p>
+
+<pre><code class="lang-sql">-- Orphan postmeta with no parent row anywhere
+SELECT COUNT(*) FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL;
+
+-- Orphan term_relationships with no parent row
+SELECT COUNT(*) FROM wp_term_relationships tr
+LEFT JOIN wp_posts p ON p.ID = tr.object_id
+WHERE p.ID IS NULL;
+</code></pre>
+
+<p>Geeft een van die twee een getal anders dan nul, dan heb je zwevers van een eerder voorval, niet van dit. Goed om van te weten, niet om in paniek over te raken. Een aparte opschoning met hetzelfde patroon ruimt het op. De <a href="https://developer.wordpress.org/reference/functions/wp_delete_post/">WordPress-documentatie voor <code>wp_delete_post()</code></a> somt precies op welke side effects de applicatielaag normaal afhandelt, een bruikbare checklist voor elke toekomstige uitfasering van een custom type.</p>
+
+<p>Daarna: flush de object cache (<code>wp cache flush</code> als WP-CLI op de machine staat), genereer de sitemap opnieuw (Yoast, RankMath en de core-sitemap cachen allemaal de lijst met post types), en herbouw elke persistente zoekindex. ElasticPress, Algolia en Relevanssi houden allemaal hun eigen kopieën van <code>wp_posts</code>-rijen en blijven de verwijderde rijen in de zoekresultaten teruggeven tot ze opnieuw zijn geïndexeerd. Zet tot slot een <code>410 Gone</code>-regel in <code>.htaccess</code> als de oude CPT-permalinks ooit door Google zijn geïndexeerd, zodat de crawler ze niet meer opvraagt.</p>
+
+<h2>Het bonnetje</h2>
+
+<p>Toen we Pier bouwden kwamen we dit patroon precies zo tegen op drie van de eerste tien <a href="/">verouderde sites</a> die we openden, en de volgorde van de stappen was telkens het ding dat niemand had opgeschreven. Daarom zit de reeks audit, dan temp table, dan cascade nu als bewaarde query in de <a href="/#database">MySQL-editor</a> die je tegen elk post_type kunt draaien, en elke stap landt als rij in de <a href="/#features">versiegeschiedenis</a>, zodat de undo één klik is als iets stroomafwaarts klaagt.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: draai de vijf audit-queries tegen je eigen staging-kopie en kijk hoeveel zwevende rijen je al hebt liggen van opschoningen die niet in de juiste volgorde zijn gegaan.</p>
+    </div>
+
+    <aside class="pullquote">wp_posts opschonen is mechanisch zodra de volgorde klopt: cache de gedoemde IDs, verwijder eerst de afhankelijken en daarna de ouders, en hertel tot slot de aangeraakte taxonomieën.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom niet wp_delete_post() in een loop draaien in plaats van SQL?</p>
+      <p class="faq-a">Werkt prima op kleine sets, maar bij 600 rijen vuurt het voor elke delete hooks af, blaast het de object cache op, en draait het synchrone indexupdates. SQL met de cascade in de juiste volgorde is sneller en voorspelbaarder.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Werkt dit op WordPress Multisite?</p>
+      <p class="faq-a">Ja, maar draai het apart tegen de wp_N_posts, wp_N_postmeta en wp_N_term_relationships van elke site. Multisite geeft elke blog zijn eigen geprefixte kopie van de contenttabellen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat met transients en rewrite rules die naar de CPT verwezen?</p>
+      <p class="faq-a">Flush rewrites met wp rewrite flush, verwijder daarna transients in wp_options die op de oude post_type keyen. De meeste rewrite caches regenereren bij de volgende admin-pagina.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/two-monitor-habit-legacy-sites/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/two-monitor-habit-legacy-sites/hero.webp" type="image/webp">
+        <img src="/nl/blog/two-monitor-habit-legacy-sites/hero.jpg" alt="Bovenaanzicht: twee vellen op linnen, inkt-FTP-boom en ER-diagram verbonden door rode draad, messing SEAM-plaatje ertussen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Twee schermen, één blik: FTP en MySQL bij legacy sites</h3>
+      <span class="pc-lede">Op een verouderde PHP-site zit de bug bijna altijd op de naad tussen bestandssysteem en database. Hier lees je waarom je de twee nooit los koppelt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/mysql-collation-mismatches-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/mysql-collation-mismatches-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/mysql-collation-mismatches-field-guide/hero.jpg" alt="Twee tekensetvellen op linnen, loep boven afwijkend teken, messing MySQL-plaatje, rode lakzegel, pen en liniaal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>MySQL collation-mismatches: een veldgids voor lege resultaten</h3>
+      <span class="pc-lede">Je zoekopdracht geeft niets terug. De rij staat er in phpMyAdmin. Welkom bij MySQL collation-mismatches, waar twee strings het oneens zijn over gelijk.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wp-posts-cleanup-cpt-rows/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
