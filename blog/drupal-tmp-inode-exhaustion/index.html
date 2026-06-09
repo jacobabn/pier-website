@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal 9 read-only at 16:08: a /tmp inode war story · Pier — Blog</title>
+<meta name="description" content="A Drupal 9 site went quietly read-only on a Tuesday afternoon. The disk was 39 percent full. /tmp had bytes to spare. Every single inode, though, was gone.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-tmp-inode-exhaustion/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal 9 read-only at 16:08: a /tmp inode war story">
+<meta property="og:description" content="A Drupal 9 site went quietly read-only on a Tuesday afternoon. The disk was 39 percent full. /tmp had bytes to spare. Every single inode, though, was gone.">
+<meta property="og:url" content="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/">
+<meta property="og:image" content="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of aged inode report &#39;df -i /tmp&#39; with circled 16:08, Drupal printout, manila tab, brass INODES plate, ruler, pencil, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T10:19:35.265Z">
+<meta property="article:modified_time" content="2026-06-09T10:19:35.265Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal 9 read-only at 16:08: a /tmp inode war story">
+<meta name="twitter:description" content="A Drupal 9 site went quietly read-only on a Tuesday afternoon. The disk was 39 percent full. /tmp had bytes to spare. Every single inode, though, was gone.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of aged inode report &#39;df -i /tmp&#39; with circled 16:08, Drupal printout, manila tab, brass INODES plate, ruler, pencil, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-tmp-inode-exhaustion/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/"},
+  "url":"https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/",
+  "headline":"Drupal 9 read-only at 16:08: a /tmp inode war story",
+  "description":"A Drupal 9 site went quietly read-only on a Tuesday afternoon. The disk was 39 percent full. /tmp had bytes to spare. Every single inode, though, was gone.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of aged inode report 'df -i /tmp' with circled 16:08, Drupal printout, manila tab, brass INODES plate, ruler, pencil, wax seal."
+  },
+  "datePublished":"2026-06-09T10:19:35.265Z",
+  "dateModified":"2026-06-09T10:19:35.265Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"drupal, php, operations, tooling",
+  "wordCount":1730,
+  "articleSection":"Drupal",
+  "articleBody":"The 16:08 ticket The Loom landed at 16:08 on a Tuesday. A lead at a Dutch agency we work with had a Drupal 9 corporate site that was, in his words, \"online but broken in a way I don't recognise.\" The homepage rendered. Logged-in editors could still load the admin. But every save attempt threw a white screen, every webform submission failed silently, and any freshly uploaded image returned a 500 the second time it was requested. He had already done the obvious things before sending the Loom. Cleared Drupal's cache with drush cr , which itself errored halfway through. Restarted php-fpm. Reloaded nginx. Tailed watchdog, which had no new entries in the last forty minutes — itself the first real clue, if you knew to read it that way. A CMS that has stopped writing to its own log table is not a healthy CMS. The hosting dashboard showed 39 percent disk used. Memory looked fine. Load average was 0.42. There was nothing in the nginx access log that looked unusual, just a quiet stream of bots. The PHP error log had a sea of identical lines: PHP Warning: file_put_contents(/tmp/...): failed to open stream: No space left on device No space left on device. On a disk that was 39 percent full. That message is the giveaway, but only if you have been bitten before. Linux returns ENOSPC for two distinct conditions: the block device is out of data blocks, or the filesystem is out of inodes. The error string is the same. The fix is not. Reading inodes, not bytes Three commands settled the diagnosis in under a minute. df -h /tmp # Filesystem Size Used Avail Use% Mounted on # /dev/vda1 80G 30G 46G 39% / df -i /tmp # Filesystem Inodes IUsed IFree IUse% Mounted on # /dev/vda1 5.0M 5.0M 0 100% / ls /tmp | wc -l # 4128911 Five million inodes allocated when the filesystem was created. Four point one million files currently sitting in /tmp. Nothing else on the partition had room to write a single new file, which is why anything that touched the temp directory was failing. Inodes are a fixed-size structure that ext4 allocates at format time, one per file or directory. The default ratio is one inode per 16 KB on most distributions. Once they are gone they are gone until you reformat or attach more storage. The ext4 design notes are blunt about this: inode count is a property of the filesystem at mkfs time, not a runtime tunable. The fact that the disk was 39 percent full was irrelevant. The site could not save a single session, write a single cache entry, or accept a single upload. What kept this hidden for as long as it did is that almost every hosting dashboard, every \"disk usage\" alert, and every cheap monitoring agent charts bytes, not inodes. The percentage gauge in the control panel had been creeping up by tenths of a percent for a year and nobody had any reason to look. The inode gauge does not exist on most panels. If it did, this ticket would have arrived as a warning in March, not a fire in October. Counting the temp directory A breakdown of /tmp by file pattern told us where to dig. find /tmp -maxdepth 1 -type f -name 'sess_*' | wc -l # 4112740 find /tmp -maxdepth 1 -type f -name 'twig_*' | wc -l # 8 find /tmp -maxdepth 1 -type f -name 'phpinfo*' | wc -l # 0 find /tmp -maxdepth 1 -type f -name 'image_*' | wc -l # 14 Four point one million PHP session files. None of them younger than nine months. The newest sess_* file in the directory was older than the agency's last Drupal core update. Whatever was supposed to be cleaning them up had not run in close to a year. The cause turned out to be a combination of two well-known but easily missed defaults. Debian and Ubuntu ship php.ini with session.gc_probability = 0 , deliberately disabling PHP's own session garbage collector. The expectation is that /etc/cron.d/php runs sessionclean every thirty minutes to expire old sessions. That cron file ships with the php-common package. On this server the file existed, but a previous admin had hand-edited php-fpm to set session.save_path = /tmp instead of the Debian default of /var/lib/php/sessions . The cron job looks at the default path. It cleaned an empty directory every thirty minutes for a year while /tmp filled up beside it. This is one of those config drifts that does nothing for a long time and then breaks everything in an afternoon. There is a short note about this exact pinch in the Debian PHP wiki that I wish more handover docs cited. The fix that stuck A working session cleanup was the immediate fix. A fresh /tmp policy was the lasting one. First, we cleared the backlog. rm -rf /tmp/* is the wrong instinct, because it removes screen sockets, X11 sockets, systemd-private directories and active session files for any user who happens to be logged in. Targeted is better. find /tmp -maxdepth 1 -type f -name 'sess_*' -mtime +1 -delete That ran for about ninety seconds and freed roughly 4.1 million inodes. df -i dropped to 2 percent used. The site started saving again before the find command had finished. Then we put session storage back",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal 9 read-only at 16:08: a /tmp inode war story","item":"https://pier.abn.company/blog/drupal-tmp-inode-exhaustion/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I check whether a Linux server is out of inodes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run df -i and compare IUse% against the disk-space output from df -h. Inode exhaustion shows the same ENOSPC error as a full disk but needs a different fix."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Debian set session.gc_probability to 0?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Debian and Ubuntu disable PHP's session garbage collector and rely on /etc/cron.d/php to run sessionclean every thirty minutes. If you move session.save_path, the cron stops finding the files."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where should Drupal 9 store its temporary files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Set $settings['file_temp_path'] in settings.php to a private path on the same volume as your site. The fallback to sys_get_temp_dir() routes uploads through shared system /tmp."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is rm -rf /tmp/* safe on a live server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It removes active session files, screen sockets, X11 sockets and systemd-private directories. Use find with -mtime and a name pattern to target only the files you mean."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/drupal-tmp-inode-exhaustion/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 060</span>
+      </div>
+      <p class="eyebrow"><span class="n">060 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal 9 read-only at 16:08: a /tmp inode war story</h1>
+      <p class="lede post-lede">A Drupal 9 site went quietly read-only on a Tuesday afternoon. The disk was 39 percent full. /tmp had bytes to spare. Every single inode, though, was gone.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T10:19:35.265Z">9 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-tmp-inode-exhaustion/hero.webp" type="image/webp">
+      <img src="/blog/drupal-tmp-inode-exhaustion/hero.jpg" alt="Overhead photo of aged inode report &#39;df -i /tmp&#39; with circled 16:08, Drupal printout, manila tab, brass INODES plate, ruler, pencil, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 060</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The 16:08 ticket</h2>
+<p>The Loom landed at 16:08 on a Tuesday. A lead at a Dutch agency we work with had a Drupal 9 corporate site that was, in his words, "online but broken in a way I don't recognise." The homepage rendered. Logged-in editors could still load the admin. But every save attempt threw a white screen, every webform submission failed silently, and any freshly uploaded image returned a 500 the second time it was requested.</p>
+<p>He had already done the obvious things before sending the Loom. Cleared Drupal's cache with <code>drush cr</code>, which itself errored halfway through. Restarted php-fpm. Reloaded nginx. Tailed watchdog, which had no new entries in the last forty minutes — itself the first real clue, if you knew to read it that way. A CMS that has stopped writing to its own log table is not a healthy CMS.</p>
+<p>The hosting dashboard showed 39 percent disk used. Memory looked fine. Load average was 0.42. There was nothing in the nginx access log that looked unusual, just a quiet stream of bots. The PHP error log had a sea of identical lines:</p>
+<pre><code class="lang-bash">PHP Warning:  file_put_contents(/tmp/...): failed to open stream: No space left on device</code></pre>
+<p>No space left on device. On a disk that was 39 percent full.</p>
+<p>That message is the giveaway, but only if you have been bitten before. Linux returns ENOSPC for two distinct conditions: the block device is out of data blocks, or the filesystem is out of inodes. The error string is the same. The fix is not.</p>
+<h2>Reading inodes, not bytes</h2>
+<p>Three commands settled the diagnosis in under a minute.</p>
+<pre><code class="lang-bash">df -h /tmp
+# Filesystem      Size  Used Avail Use% Mounted on
+# /dev/vda1        80G   30G   46G  39% /
+
+df -i /tmp
+# Filesystem     Inodes  IUsed IFree IUse% Mounted on
+# /dev/vda1        5.0M   5.0M     0  100% /
+
+ls /tmp | wc -l
+# 4128911</code></pre>
+<p>Five million inodes allocated when the filesystem was created. Four point one million files currently sitting in /tmp. Nothing else on the partition had room to write a single new file, which is why anything that touched the temp directory was failing.</p>
+<p>Inodes are a fixed-size structure that ext4 allocates at format time, one per file or directory. The default ratio is one inode per 16 KB on most distributions. Once they are gone they are gone until you reformat or attach more storage. The <a href="https://www.kernel.org/doc/html/latest/filesystems/ext4/overview.html">ext4 design notes</a> are blunt about this: inode count is a property of the filesystem at <code>mkfs</code> time, not a runtime tunable. The fact that the disk was 39 percent full was irrelevant. The site could not save a single session, write a single cache entry, or accept a single upload.</p>
+<p>What kept this hidden for as long as it did is that almost every hosting dashboard, every "disk usage" alert, and every cheap monitoring agent charts bytes, not inodes. The percentage gauge in the control panel had been creeping up by tenths of a percent for a year and nobody had any reason to look. The inode gauge does not exist on most panels. If it did, this ticket would have arrived as a warning in March, not a fire in October.</p>
+<h2>Counting the temp directory</h2>
+<p>A breakdown of /tmp by file pattern told us where to dig.</p>
+<pre><code class="lang-bash">find /tmp -maxdepth 1 -type f -name 'sess_*'   | wc -l
+# 4112740
+
+find /tmp -maxdepth 1 -type f -name 'twig_*'   | wc -l
+# 8
+
+find /tmp -maxdepth 1 -type f -name 'phpinfo*' | wc -l
+# 0
+
+find /tmp -maxdepth 1 -type f -name 'image_*'  | wc -l
+# 14</code></pre>
+<p>Four point one million PHP session files. None of them younger than nine months. The newest <code>sess_*</code> file in the directory was older than the agency's last Drupal core update. Whatever was supposed to be cleaning them up had not run in close to a year.</p>
+<p>The cause turned out to be a combination of two well-known but easily missed defaults. Debian and Ubuntu ship php.ini with <code>session.gc_probability = 0</code>, deliberately disabling PHP's own session garbage collector. The expectation is that <code>/etc/cron.d/php</code> runs <code>sessionclean</code> every thirty minutes to expire old sessions. That cron file ships with the <code>php-common</code> package. On this server the file existed, but a previous admin had hand-edited php-fpm to set <code>session.save_path = /tmp</code> instead of the Debian default of <code>/var/lib/php/sessions</code>. The cron job looks at the default path. It cleaned an empty directory every thirty minutes for a year while /tmp filled up beside it.</p>
+<p>This is one of those config drifts that does nothing for a long time and then breaks everything in an afternoon. There is a short note about this exact pinch in the <a href="https://wiki.debian.org/PHP">Debian PHP wiki</a> that I wish more handover docs cited.</p>
+<h2>The fix that stuck</h2>
+<p>A working session cleanup was the immediate fix. A fresh /tmp policy was the lasting one.</p>
+<p>First, we cleared the backlog. <code>rm -rf /tmp/*</code> is the wrong instinct, because it removes screen sockets, X11 sockets, systemd-private directories and active session files for any user who happens to be logged in. Targeted is better.</p>
+<pre><code class="lang-bash">find /tmp -maxdepth 1 -type f -name 'sess_*' -mtime +1 -delete</code></pre>
+<p>That ran for about ninety seconds and freed roughly 4.1 million inodes. <code>df -i</code> dropped to 2 percent used. The site started saving again before the find command had finished.</p>
+<p>Then we put session storage back where the Debian cron expected it.</p>
+<pre><code class="lang-ini">; /etc/php/8.2/fpm/php.ini
+session.save_path = /var/lib/php/sessions
+session.gc_maxlifetime = 1440</code></pre>
+<aside class="callout">Restarting php-fpm with active sessions in the old path will log every editor out at once. If the site is busy, schedule the restart, post a short banner, and copy the freshest <code>sess_*</code> files over before flipping the path. The session cookie travels with the user; the file behind it has to follow.</aside>
+<p>While we had the config open we also pinned Drupal's own temp directory away from /tmp. Drupal 9 reads <code>$settings['file_temp_path']</code> from <code>settings.php</code> and falls back to PHP's <code>sys_get_temp_dir()</code> when it is unset. The fallback meant every uploaded file, every image style derivative, and every aggregated CSS file went through /tmp on the way to its final home in <code>public://</code>. Pinning the path keeps Drupal's churn out of the system temp directory entirely.</p>
+<pre><code class="lang-php">// sites/default/settings.php
+$settings['file_temp_path'] = '/var/www/example.com/private/tmp';</code></pre>
+<p>Last, we added a belt-and-braces cron to sweep anything that did end up in /tmp older than a day, and a monitoring check that alerts when inode use passes 70 percent.</p>
+<pre><code class="lang-bash"># /etc/cron.d/tmp-sweep
+17 4 * * * root find /tmp -maxdepth 1 -type f -mtime +1 -delete
+
+# Inode check for the monitoring agent
+df -i / | awk 'NR==2 {gsub("%",""); if ($5+0 > 70) exit 2; else exit 0}'</code></pre>
+<p>To verify the new arrangement we waited an hour, logged a fresh editor in, and watched the session files materialise under <code>/var/lib/php/sessions</code> with the correct ownership and mode. We ran the distro's sessionclean by hand to confirm it now had a real directory to look at. The upload field, which had been the loudest symptom, was tested with a 4 MB image; the derivative landed where <code>file_temp_path</code> pointed and was moved into <code>public://</code> without touching /tmp. The five-minute verification is what separates "it works now" from "it works for the next admin who inherits this".</p>
+<p>That is the kind of check that earns its keep once every two years and looks like noise the rest of the time. Worth it.</p>
+<h2>Drupal's silent failure modes</h2>
+<p>The underlying cause was a misrouted PHP session path, which has nothing to do with Drupal. The reason it took an agency lead twenty minutes to narrow the failure to "something filesystem-shaped" is very much a Drupal story.</p>
+<p>Drupal 9 hides a surprising number of failures behind a generic white error or a silent webform 500. The image module queues a derivative and does not tell you it could not be written. The file module accepts an upload and only complains at the final move. The cache backends swallow a write failure and serve a stale page. This is not a defect. It is the cost of a CMS that tries to keep rendering whatever it can. But it means that whenever a site reaches the "online but broken in a way I don't recognise" state, the symptoms point at the symptoms, not the cause.</p>
+<p>You learn to check the unglamorous things first: disk, inodes, file permissions, the PHP error log, the cron log, the systemd journal. Drupal's own <a href="https://www.drupal.org/docs/getting-started/system-requirements">system requirements</a> page is matter-of-fact about the temp directory needing to be writable, but nothing in core warns when the temp directory it ended up using is the system /tmp, or when that directory has crossed half its inode budget. There is room for a small status report check. Until then, write your own.</p>
+<h2>Hardening the next site</h2>
+<p>The checklist we shipped with the post-mortem is short and worth pasting into any Drupal handover doc.</p>
+<ul>
+<li>Set <code>$settings['file_temp_path']</code> explicitly in every environment. Never let it fall back to <code>sys_get_temp_dir()</code>.</li>
+<li>Pin <code>session.save_path</code> in php-fpm, and confirm the distro's session cleanup cron points at the same path. <code>cat /etc/cron.d/php</code> is the source of truth.</li>
+<li>Alert on inode usage, not just disk usage. <code>df -i</code> and <code>df -h</code> can disagree by a lot.</li>
+<li>Add a periodic <code>find /tmp -maxdepth 1 -type f -mtime +N -delete</code> as a safety net, even when the application thinks it is cleaning up after itself.</li>
+<li>When a Drupal site is broken in a way nobody recognises, read the PHP error log before watchdog. The watchdog needs a writable database connection and a writable temp directory to even record a message.</li>
+</ul>
+<p>When we built Pier the tooling for this kind of forensic poke around a <a href="/">legacy site</a> was front of mind. The chat docks with the live FTP and MySQL, so checking the inode count, scanning the temp directory by file pattern, or pinning <code>file_temp_path</code> in <code>settings.php</code> all happen against the running site without an SSH session. Every edit lands with <a href="/#features">version history</a> attached, and the <a href="/#database">MySQL editor</a> is a tab away when the next question is "did the variable table actually update."</p>
+<p>The smallest thing worth doing today, on every Drupal site you currently maintain, is one command: <code>df -i</code>. If any partition is over 60 percent, you have weeks, not months, before something quiet breaks. Pin the temp paths and add the sweep cron now, while nothing is on fire.</p>
+    </div>
+
+    <aside class="pullquote">When a Drupal site goes read-only on a disk that looks fine, run df -i before anything else. Bytes and inodes are two different ENOSPCs.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How do I check whether a Linux server is out of inodes?</p>
+      <p class="faq-a">Run df -i and compare IUse% against the disk-space output from df -h. Inode exhaustion shows the same ENOSPC error as a full disk but needs a different fix.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does Debian set session.gc_probability to 0?</p>
+      <p class="faq-a">Debian and Ubuntu disable PHP&#39;s session garbage collector and rely on /etc/cron.d/php to run sessionclean every thirty minutes. If you move session.save_path, the cron stops finding the files.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Where should Drupal 9 store its temporary files?</p>
+      <p class="faq-a">Set $settings[&#39;file_temp_path&#39;] in settings.php to a private path on the same volume as your site. The fallback to sys_get_temp_dir() routes uploads through shared system /tmp.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is rm -rf /tmp/* safe on a live server?</p>
+      <p class="faq-a">No. It removes active session files, screen sockets, X11 sockets and systemd-private directories. Use find with -mtime and a name pattern to target only the files you mean.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/drupal-7-pharma-hack-walkthrough/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-pharma-hack-walkthrough/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-pharma-hack-walkthrough/hero.jpg" alt="Overhead photo on bone linen: annotated sitemap, .htaccess sheet, manila folder, CV page, brass Drupal 7 plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Drupal 7 pharma hack: tracing an old uploads injection</h3>
+      <span class="pc-lede">The customer&#39;s Google snippet read &#39;Buy Cialis 20mg&#39; but the page itself looked clean. Tracing the Drupal 7 pharma hack took us through htaccess cloaking and a forgotten CV upload.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/slow-admin-ajax-heartbeat-plugin/hero.webp" type="image/webp">
+        <img src="/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg" alt="Overhead bone linen with printed admin-ajax request trace, stapled log printout, manila folder tab, brass plate, ruler, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>9 June 2026</span></span>
+      <h3>Slow admin-ajax.php: tracing 30 seconds back to one plugin</h3>
+      <span class="pc-lede">A WooCommerce backend hung for 30 seconds on every page load. The slow request was always admin-ajax.php. Here is how we traced it to one Heartbeat plugin.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/drupal-tmp-inode-exhaustion/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
