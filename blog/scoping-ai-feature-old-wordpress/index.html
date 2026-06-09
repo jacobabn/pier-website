@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Scoping AI features on a 2014 WordPress site: a sober method · Pier — Blog</title>
+<meta name="description" content="A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, ai, php, workflow, operations, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/scoping-ai-feature-old-wordpress/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Scoping AI features on a 2014 WordPress site: a sober method">
+<meta property="og:description" content="A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.">
+<meta property="og:url" content="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+<meta property="og:image" content="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T18:52:13.804Z">
+<meta property="article:modified_time" content="2026-06-09T18:52:13.804Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Scoping AI features on a 2014 WordPress site: a sober method">
+<meta name="twitter:description" content="A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/scoping-ai-feature-old-wordpress/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/"},
+  "url":"https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/",
+  "headline":"Scoping AI features on a 2014 WordPress site: a sober method",
+  "description":"A client asks for 'just a small AI feature' on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal."
+  },
+  "datePublished":"2026-06-09T18:52:13.804Z",
+  "dateModified":"2026-06-09T18:52:13.804Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, ai, php, workflow, operations, architecture",
+  "wordCount":1487,
+  "articleSection":"AI",
+  "articleBody":"The Loom came in at 23:41 on a Tuesday. A founder of a five-person Dutch agency, talking over a shared screen of his client's wp-admin, saying the words every freelancer has heard this year: they just want a small AI feature, nothing crazy, maybe a chatbot on the product pages and a thing that rewrites the descriptions . The site was built in 2014. The theme folder had functions.php at 2,400 lines. Advanced Custom Fields was on v4. The header said Generator: WordPress 4.9.8 . Scoping an AI feature on a legacy site like that is not a technical problem first. It is a triage problem. The client thinks they are asking for one ticket. You are looking at six months of accumulated decisions someone else made, half of which will fight whatever you bolt on. This post is the scoping method we use before we quote a single hour. The conversation the client thinks they are having The client has seen ChatGPT write product copy. They have seen a competitor add a support widget. They have read that OpenAI's API costs fractions of a cent per call. From their seat, the ask is reasonable: pipe their product catalogue into a model, get better descriptions, maybe a chat thing on the side. They are budgeting two to four thousand euros and a fortnight. The conversation you are actually about to have involves PHP version constraints, a database that has been migrated twice and renamed once, an options table with 14,000 autoloaded rows, a caching plugin that intercepts REST routes, and the question of whether the host even allows outbound HTTPS to a third-party endpoint without a whitelist request. None of this is in the brief. The scoping method exists so you can have the second conversation without scaring the client out of the project. It runs in four passes. Pass one: the read-only audit Before any quote, before any architecture sketch, you spend two hours read-only on the live site. Not staging. The live site is the source of truth; staging is whatever someone copied in 2019. You are answering five questions, in this order. The actual runtime Drop a phpinfo.php in a non-public path, hit it, delete it. You want the PHP version, the loaded extensions, memory_limit , max_execution_time , and whether allow_url_fopen is on. A 2014 site will often still be on PHP 7.4 or, worse, 5.6 with a hosting panel that quietly refuses upgrades because a plugin in mu-plugins breaks above 7.2. If you are on anything below PHP 8.1, the OpenAI PHP clients you would reach for first do not install. The official openai-php/client requires 8.1+. You can roll your own with wp_remote_post , but that is a line item now, not an assumption. The database shape Connect to MySQL. Run three queries and write the answers down. SELECT COUNT(*) FROM wp_posts WHERE post_status = 'publish'; SELECT COUNT(*) FROM wp_options WHERE autoload = 'yes'; SELECT table_name, ROUND(data_length/1024/1024,1) AS mb FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY data_length DESC LIMIT 10; If wp_options autoload count is above 1,000, every page load is already dragging. If wp_postmeta is the biggest table by a wide margin, ACF is probably storing a serialised blob per post and you cannot query it without LIKE '%...%' . Both facts change how you design the AI feature's data layer. functions.php and mu-plugins Open wp-content/themes/<active>/functions.php and wp-content/mu-plugins/ . You are looking for filters on the_content , hooks on save_post , custom REST routes, and anything that mentions curl_exec or file_get_contents against an external host. This is where the previous developer's surprises live. A save_post hook that fires four other hooks is the reason your \"regenerate description\" button will time out. Host egress policy Some shared hosts block outbound HTTPS to anything except their own update servers. Test it from the box itself, not from your laptop. curl -sS -o /dev/null -w \"%{http_code}\\n\" https://api.openai.com/v1/models \\ -H \"Authorization: Bearer $KEY\" A 401 is fine. A timeout means you need a whitelist ticket, which on some Dutch hosts takes two weeks. The .htaccess reality Read the root .htaccess . If there is a caching layer rewriting requests before they hit PHP, your new REST endpoint will be cached as HTML the first time it returns, and every subsequent call will hand back stale JSON. The fix is one block, but only if you know it is there. <IfModule mod_rewrite.c> RewriteRule ^wp-json/myplugin/ - [L] </IfModule> Pass two: the feature, translated Now translate the client's ask into the smallest concrete thing that ships. \"A chatbot on the product pages\" is not a unit of work. \"A floating widget on single-product templates that POSTs to /wp-json/agency/v1/chat , which proxies to a model with a 1,200-token system prompt scoped to that product's title, description, and three custom fields\" is a unit of work. Do this in writing, in their language, before you talk hours. Two columns: what the client said, what that means in the codebase. The",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Scoping AI features on a 2014 WordPress site: a sober method","item":"https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why not just quote a fixed price for a small AI feature?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because on a 2014 codebase, the AI integration is rarely the expensive part. The expensive parts are PHP version constraints, host egress rules, and cache-plugin interference, none of which are visible from a brief."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is PHP 7.4 enough to run modern AI clients?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For the official openai-php/client, no. It requires PHP 8.1+. You can fall back to wp_remote_post against the REST API directly, but quote it as a deliberate choice, not an oversight."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should AI-generated content write straight to wp_posts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if you have a rollback path. Either snapshot the original post_content to postmeta before the write, or stage edits in a custom table and only promote on approval."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I stop a caching plugin from caching my AI REST route?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Exclude the route in the plugin's settings and send Cache-Control: no-store from PHP. On Apache, an early RewriteRule for the wp-json path keeps mod_rewrite out of the way."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/scoping-ai-feature-old-wordpress/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 070</span>
+      </div>
+      <p class="eyebrow"><span class="n">070 —</span>AI</p>
+      <h1 class="display-l post-title">Scoping AI features on a 2014 WordPress site: a sober method</h1>
+      <p class="lede post-lede">A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T18:52:13.804Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/scoping-ai-feature-old-wordpress/hero.webp" type="image/webp">
+      <img src="/blog/scoping-ai-feature-old-wordpress/hero.jpg" alt="Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 070</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom came in at 23:41 on a Tuesday. A founder of a five-person Dutch agency, talking over a shared screen of his client's wp-admin, saying the words every freelancer has heard this year: <em>they just want a small AI feature, nothing crazy, maybe a chatbot on the product pages and a thing that rewrites the descriptions</em>. The site was built in 2014. The theme folder had <code>functions.php</code> at 2,400 lines. Advanced Custom Fields was on v4. The header said <code>Generator: WordPress 4.9.8</code>.</p>
+
+<p>Scoping an AI feature on a <a href="/">legacy site</a> like that is not a technical problem first. It is a triage problem. The client thinks they are asking for one ticket. You are looking at six months of accumulated decisions someone else made, half of which will fight whatever you bolt on. This post is the scoping method we use before we quote a single hour.</p>
+
+<h2>The conversation the client thinks they are having</h2>
+
+<p>The client has seen ChatGPT write product copy. They have seen a competitor add a support widget. They have read that OpenAI's API costs fractions of a cent per call. From their seat, the ask is reasonable: pipe their product catalogue into a model, get better descriptions, maybe a chat thing on the side. They are budgeting two to four thousand euros and a fortnight.</p>
+
+<p>The conversation you are actually about to have involves PHP version constraints, a database that has been migrated twice and renamed once, an <code>options</code> table with 14,000 autoloaded rows, a caching plugin that intercepts REST routes, and the question of whether the host even allows outbound HTTPS to a third-party endpoint without a whitelist request. None of this is in the brief.</p>
+
+<p>The scoping method exists so you can have the second conversation without scaring the client out of the project. It runs in four passes.</p>
+
+<h2>Pass one: the read-only audit</h2>
+
+<p>Before any quote, before any architecture sketch, you spend two hours read-only on the live site. Not staging. The live site is the source of truth; staging is whatever someone copied in 2019. You are answering five questions, in this order.</p>
+
+<h3>The actual runtime</h3>
+
+<p>Drop a <code>phpinfo.php</code> in a non-public path, hit it, delete it. You want the PHP version, the loaded extensions, <code>memory_limit</code>, <code>max_execution_time</code>, and whether <code>allow_url_fopen</code> is on. A 2014 site will often still be on PHP 7.4 or, worse, 5.6 with a hosting panel that quietly refuses upgrades because a plugin in <code>mu-plugins</code> breaks above 7.2.</p>
+
+<p>If you are on anything below PHP 8.1, the OpenAI PHP clients you would reach for first do not install. The official <a href="https://github.com/openai-php/client">openai-php/client</a> requires 8.1+. You can roll your own with <code>wp_remote_post</code>, but that is a line item now, not an assumption.</p>
+
+<h3>The database shape</h3>
+
+<p>Connect to MySQL. Run three queries and write the answers down.</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) FROM wp_posts WHERE post_status = 'publish';
+SELECT COUNT(*) FROM wp_options WHERE autoload = 'yes';
+SELECT table_name, ROUND(data_length/1024/1024,1) AS mb
+  FROM information_schema.tables
+  WHERE table_schema = DATABASE()
+  ORDER BY data_length DESC LIMIT 10;</code></pre>
+
+<p>If <code>wp_options</code> autoload count is above 1,000, every page load is already dragging. If <code>wp_postmeta</code> is the biggest table by a wide margin, ACF is probably storing a serialised blob per post and you cannot query it without <code>LIKE '%...%'</code>. Both facts change how you design the AI feature's data layer.</p>
+
+<h3>functions.php and mu-plugins</h3>
+
+<p>Open <code>wp-content/themes/&lt;active&gt;/functions.php</code> and <code>wp-content/mu-plugins/</code>. You are looking for filters on <code>the_content</code>, hooks on <code>save_post</code>, custom REST routes, and anything that mentions <code>curl_exec</code> or <code>file_get_contents</code> against an external host. This is where the previous developer's surprises live. A <code>save_post</code> hook that fires four other hooks is the reason your &quot;regenerate description&quot; button will time out.</p>
+
+<h3>Host egress policy</h3>
+
+<p>Some shared hosts block outbound HTTPS to anything except their own update servers. Test it from the box itself, not from your laptop.</p>
+
+<pre><code class="lang-bash">curl -sS -o /dev/null -w "%{http_code}\n" https://api.openai.com/v1/models \
+  -H "Authorization: Bearer $KEY"</code></pre>
+
+<p>A 401 is fine. A timeout means you need a whitelist ticket, which on some Dutch hosts takes two weeks.</p>
+
+<h3>The .htaccess reality</h3>
+
+<p>Read the root <code>.htaccess</code>. If there is a caching layer rewriting requests before they hit PHP, your new REST endpoint will be cached as HTML the first time it returns, and every subsequent call will hand back stale JSON. The fix is one block, but only if you know it is there.</p>
+
+<pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+  RewriteRule ^wp-json/myplugin/ - [L]
+&lt;/IfModule&gt;</code></pre>
+
+<h2>Pass two: the feature, translated</h2>
+
+<p>Now translate the client's ask into the smallest concrete thing that ships. &quot;A chatbot on the product pages&quot; is not a unit of work. &quot;A floating widget on single-product templates that POSTs to <code>/wp-json/agency/v1/chat</code>, which proxies to a model with a 1,200-token system prompt scoped to that product's title, description, and three custom fields&quot; is a unit of work.</p>
+
+<p>Do this in writing, in their language, before you talk hours. Two columns: what the client said, what that means in the codebase. The translation is what they are actually buying. If they will not sign off on the translation, you are not ready to quote.</p>
+
+<aside class="callout"><strong>The hidden line item.</strong> Every AI feature on a legacy site has a quiet dependency: someone has to own the API key, the bill, and the rate-limit alerts after you leave. If the client does not have an ops person, you are signing up for that role whether you priced it or not. Name it in the proposal or carve it out explicitly.</aside>
+
+<h2>Pass three: the failure modes you quote for</h2>
+
+<p>The reason small AI features go over budget on old sites is not the AI part. It is the failure handling. You quote for these explicitly, by name, as line items.</p>
+
+<ul>
+<li><strong>The model is slow or down.</strong> Your endpoint needs a timeout below the host's <code>max_execution_time</code> and a graceful fallback. On a 30-second host limit, you set the HTTP client to 20 seconds and return a cached or canned response on timeout.</li>
+<li><strong>The cache plugin caches the AI response.</strong> WP Rocket, W3 Total Cache, and LiteSpeed will all happily cache a REST response as if it were static. You either exclude the route or send <code>Cache-Control: no-store</code> from PHP.</li>
+<li><strong>The content filter rewrites the output.</strong> If the site runs anything that hooks <code>the_content</code> (Yoast, a translation plugin, a custom shortcode parser), your AI-generated text will pass through it. Test the round-trip before you promise WYSIWYG.</li>
+<li><strong>The database write blows up an existing hook.</strong> Saving an AI-generated description via <code>wp_update_post</code> fires <code>save_post</code>, which on a 2014 site might fire four other things, one of which sends an email. Use <code>wp_update_post( $args, true, false )</code> with the third argument set to skip hooks, or write directly to <code>wp_posts</code> with a <code>$wpdb->update</code> call and a clear comment about why.</li>
+<li><strong>The API key leaks.</strong> If the client's developer copies the production <code>wp-config.php</code> to a staging box, the key goes with it. Store it via <a href="https://developer.wordpress.org/apis/wp-config-php/">wp-config constants</a> only, never in the options table, and rotate on handover.</li>
+</ul>
+
+<p>Each of those is a paragraph in the proposal. The client does not have to understand them, but they need to see that you do. This is what separates a quote that holds from a quote that doubles in week three.</p>
+
+<h2>Pass four: the version-history question</h2>
+
+<p>The last pass is the one most freelancers skip. Before you ship an AI feature that writes to the database, you decide how to undo it. The model will, at some point, generate a product description that the client hates, or worse, that is wrong. If your only rollback is &quot;restore last night's database backup,&quot; you have just become the person who lost a day of orders to fix a typo.</p>
+
+<p>On greenfield work this is trivial. On a 2014 site, it is a design decision. The options are: write to a custom table and only mirror to <code>wp_posts</code> on approval, snapshot the original <code>post_content</code> in postmeta before each write, or sit on top of a tool that gives you a <a href="/#features">version history</a> for every file and row change. Pick one, price it, and put it in the proposal.</p>
+
+<p>When we built Pier we ran into this exact thing on a customer's Magento 1 store: an AI rewrite job that touched 800 product descriptions and needed to be partially reverted six hours later. The way we ended up handling it was making every edit, file or row, undoable from a single history view, so the rollback was a click instead of a restore. The <a href="/#database">MySQL editor</a> ships with that built in now because of that incident.</p>
+
+<h2>What to do today</h2>
+
+<p>If you have an AI-feature ask sitting in your inbox right now, do pass one before you reply. Two hours, read-only, the five questions above. You will either send back a quote you trust or a one-paragraph email that says the site needs a PHP upgrade first. Either is better than the quote you would have sent tonight.</p>
+    </div>
+
+    <aside class="pullquote">Two hours of read-only audit on a 2014 WordPress site is worth more than two days of guessing what the AI feature will actually cost to ship.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why not just quote a fixed price for a small AI feature?</p>
+      <p class="faq-a">Because on a 2014 codebase, the AI integration is rarely the expensive part. The expensive parts are PHP version constraints, host egress rules, and cache-plugin interference, none of which are visible from a brief.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is PHP 7.4 enough to run modern AI clients?</p>
+      <p class="faq-a">For the official openai-php/client, no. It requires PHP 8.1+. You can fall back to wp_remote_post against the REST API directly, but quote it as a deliberate choice, not an oversight.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should AI-generated content write straight to wp_posts?</p>
+      <p class="faq-a">Only if you have a rollback path. Either snapshot the original post_content to postmeta before the write, or stage edits in a custom table and only promote on approval.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I stop a caching plugin from caching my AI REST route?</p>
+      <p class="faq-a">Exclude the route in the plugin&#39;s settings and send Cache-Control: no-store from PHP. On Apache, an early RewriteRule for the wp-json path keeps mod_rewrite out of the way.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=ai">#ai</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/transactional-email-migration-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+        <img src="/blog/transactional-email-migration-playbook/hero.jpg" alt="Overhead desk scene: SMTP run-sheet, envelope routing diagram, three manila folders, brass key, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Transactional email migration: keep the from-address</h3>
+      <span class="pc-lede">Your host is retiring shared SMTP in eighteen days and the from-address on three legacy sites cannot change. The playbook we ran on a Dutch agency&#39;s stack.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/blog/wp-config-debug-constants/hero.jpg" alt="Overhead photo of aged wp-config.php cheatsheet with PHP debug constants, brass paperweight, ruler, pencil, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 June 2026</span></span>
+      <h3>wp-config.php debug constants: a working cheatsheet</h3>
+      <span class="pc-lede">Forty documented wp-config.php constants ship with WordPress. Most sites use three of them. Here are the rest, written as a working cheatsheet you can paste in tonight.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/scoping-ai-feature-old-wordpress/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
