@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Transactionele e-mail migreren zonder verzendadres te wijzigen · Pier — Blog</title>
+<meta name="description" content="Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="migration, wordpress, php, operations, security, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/transactional-email-migration-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/transactional-email-migration-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Transactionele e-mail migreren zonder verzendadres te wijzigen">
+<meta property="og:description" content="Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T17:13:13.794Z">
+<meta property="article:modified_time" content="2026-06-09T17:13:13.794Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Transactionele e-mail migreren zonder verzendadres te wijzigen">
+<meta name="twitter:description" content="Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/transactional-email-migration-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/transactional-email-migration-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/transactional-email-migration-playbook/"},
+  "url":"https://pier.abn.company/nl/blog/transactional-email-migration-playbook/",
+  "headline":"Transactionele e-mail migreren zonder verzendadres te wijzigen",
+  "description":"Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/transactional-email-migration-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen."
+  },
+  "datePublished":"2026-06-09T17:13:13.794Z",
+  "dateModified":"2026-06-09T17:13:13.794Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"migration, wordpress, php, operations, security, workflow",
+  "wordCount":1605,
+  "articleSection":"Migration",
+  "articleBody":"De briefing van een Nederlands bureau waar we mee werken kwam op zondagavond om 23:41 binnen: hun host had laten weten dat gedeelde SMTP aan het einde van de maand uit zou gaan, en drie van hun oudste klanten leunden nog op PHP's mail() -functie via de lokale sendmail. Orderbevestigingen, wachtwoord-resets, herinneringen voor lidmaatschapsverlengingen, allemaal verstuurd vanaf noreply@theirclient.com via welke route de host op dat uur ook maar koos. Ze hadden achttien dagen om over te stappen op een transactionele provider zonder dat het verzendadres verschoof, zonder in de spam te belanden en zonder dat iemand op kantoor bij de klant er iets van zou merken. Dit is het draaiboek dat we hebben gevolgd. Elke migratie van transactionele e-mail op een legacy site heeft dezelfde vorm, ongeacht welke provider je uiteindelijk kiest (Postmark, SES, Mailgun, Postal, alles wat SMTP of REST spreekt). Het risico zit zelden in het aansluiten van de nieuwe provider. Het risico zit in de stukjes van de oude site die mail versturen vanaf plekken die niemand ooit heeft gedocumenteerd. Inventariseer wat er daadwerkelijk mail verstuurt Voordat je iets aanraakt: zoek elke plek waar de site een Message-ID op de lijn zet. Op een WordPress-site die al jaren draait is dat nooit alleen wp_mail() . Er is altijd: Een thema- functions.php die rechtstreeks mail() aanroept om plugins te omzeilen. Een WooCommerce-extensie waarvan de auteur de From: -header hard heeft ingebakken. Een cron-PHP-script in /home/site/scripts/ dat geen enkele plugin-scanner ooit zal zien. Een Drupal-module die drupal_mail() gebruikt met een eigen mail system class. Een oude phpList-installatie in een vergeten submap. Vind ze met grep, niet uit het hoofd: grep -rEn \"mail\\(|wp_mail|PHPMailer|drupal_mail|Swift_Mailer|Symfony\\\\\\\\Mailer\" \\ --include=\"*.php\" /var/www/ 2>/dev/null Controleer daarna de database op opgeslagen afzenders. WordPress verstopt ze in wp_options , WooCommerce heeft zijn eigen keys, contactformulier-plugins als Contact Form 7 en Gravity Forms houden er één per formulier op na: SELECT option_name, option_value FROM wp_options WHERE option_name IN ('admin_email','woocommerce_email_from_address', 'woocommerce_email_from_name','blogname') OR option_name LIKE '%_email%' OR option_value LIKE '%@%.%'; Schrijf het resultaat in een audit van twee kolommen waar je later op terugkomt. Pad, functie, huidige From-header, verwachte envelope sender. Zonder die tabel mis je iets, en dan komt er volgende dinsdag een wachtwoord-reset binnen vanaf www-data@srv042.hostingprovider.net . SPF en DKIM op orde voor de nieuwe verzender Het verzendadres dat je wilt behouden hoort bij een domein dat jij beheert, maar het IP en de signing keys gaan veranderen. Dit is het stuk dat bureaus het vaakst verkeerd doen. Ze wisselen de SMTP-credentials, en kijken dan een week lang toe hoe de deliverability instort omdat SPF nog steeds alleen de oude host autoriseert. De volgorde doet ertoe. Eerst DNS klaarzetten, verifiëren, en dán pas de applicatie aanpassen. Nooit andersom. SPF Voeg het mechanisme van de nieuwe provider toe naast het oude voor de duur van de overgang, en haal het oude er pas uit als je zeker weet dat er niets anders meer via die route verstuurt: theirclient.com. 300 IN TXT \"v=spf1 include:spf.oldhost.net include:spf.postmarkapp.com -all\" SPF kent een harde grens van tien DNS-lookups ( RFC 7208 §4.6.4 ). Op een site die Google Workspace, Microsoft 365 en een CRM al heeft staan, raak je die grens snel. Loop je er tegenaan, vlak SPF dan af met een betrouwbare SPF-tool en controleer opnieuw met dig vanuit minstens twee netwerken. DKIM Genereer de key in het dashboard van de nieuwe provider, plak het selector-record in DNS en controleer of de signature in een testverzending opduikt. De naam van de selector doet ertoe, want oude keys resolven vaak nog steeds: dig +short TXT 20260609._domainkey.theirclient.com Twee geldige DKIM-keys tegelijk live is geen probleem. Ontvangers accepteren elke signature die valideert. Wat wél een probleem is: live gaan met een key die NXDOMAIN teruggeeft, of een selector die de provider heeft geroteerd sinds jij die screenshot kopieerde. DMARC opbouwen vóór je de applicatie omzet Heeft het domein nog geen DMARC-record, begin dan niet bij p=reject . Begin met p=none en een rua-adres dat naar een mailbox wijst die je ook daadwerkelijk leest: _dmarc.theirclient.com. 300 IN TXT \"v=DMARC1; p=none; rua=mailto:dmarc@theirclient.com; fo=1;\" Laat dat minstens zeven dagen draaien en lees de aggregate reports. Je vindt een Mailchimp-account dat de marketingstagiair in 2022 heeft opgezet, een Zendesk die via jouw domein doorforwarded, en waarschijnlijk de monitoring van de host zelf die bounces vanaf jouw domein verstuurt. Los ze één voor één op, ga dan naar p=quarantine , daarna naar p=reject . De DMARC-RFC beschrijft de semantiek; de operationele fout is direct naar enforce springen. Wissel de applicatie zonder de From-header te wijzigen De schoon",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/transactional-email-migration-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Transactionele e-mail migreren zonder verzendadres te wijzigen","item":"https://pier.abn.company/nl/blog/transactional-email-migration-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Moet ik de oude SPF-include na de cutover laten staan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Laat hem de eerste week staan en check daarna de logs van de provider en je DMARC-rapporten. Heeft de oude host zeven dagen lang niets verstuurd, haal hem dan weg. Anders riskeer je een overflow van SPF-lookups."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik tegelijk met de provider ook het verzendadres wijzigen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Doe het niet. De transport-swap verandert al de signing keys en de geautoriseerde IP's. Daar bovenop het verzendadres veranderen is een deliverability-test die je op cutover-dag niet nodig hebt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als mijn oude host DMARC-alignment al had verbroken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De migratie maakt het beter, niet slechter. Zet bij de nieuwe provider DKIM en een eigen return-path-subdomein op, monitor zeven dagen op p=none en ga daarna naar enforce."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/transactional-email-migration-playbook/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 068</span>
+      </div>
+      <p class="eyebrow"><span class="n">068 —</span>Migration</p>
+      <h1 class="display-l post-title">Transactionele e-mail migreren zonder verzendadres te wijzigen</h1>
+      <p class="lede post-lede">Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T17:13:13.794Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+      <img src="/blog/transactional-email-migration-playbook/hero.jpg" alt="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 068</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De briefing van een Nederlands bureau waar we mee werken kwam op zondagavond om 23:41 binnen: hun host had laten weten dat gedeelde SMTP aan het einde van de maand uit zou gaan, en drie van hun oudste klanten leunden nog op PHP's <code>mail()</code>-functie via de lokale sendmail. Orderbevestigingen, wachtwoord-resets, herinneringen voor lidmaatschapsverlengingen, allemaal verstuurd vanaf <code>noreply@theirclient.com</code> via welke route de host op dat uur ook maar koos. Ze hadden achttien dagen om over te stappen op een transactionele provider zonder dat het verzendadres verschoof, zonder in de spam te belanden en zonder dat iemand op kantoor bij de klant er iets van zou merken.</p>
+
+<p>Dit is het draaiboek dat we hebben gevolgd. Elke migratie van transactionele e-mail op een <a href="/">legacy site</a> heeft dezelfde vorm, ongeacht welke provider je uiteindelijk kiest (Postmark, SES, Mailgun, Postal, alles wat SMTP of REST spreekt). Het risico zit zelden in het aansluiten van de nieuwe provider. Het risico zit in de stukjes van de oude site die mail versturen vanaf plekken die niemand ooit heeft gedocumenteerd.</p>
+
+<h2>Inventariseer wat er daadwerkelijk mail verstuurt</h2>
+
+<p>Voordat je iets aanraakt: zoek elke plek waar de site een Message-ID op de lijn zet. Op een WordPress-site die al jaren draait is dat nooit alleen <code>wp_mail()</code>. Er is altijd:</p>
+
+<ul>
+  <li>Een thema-<code>functions.php</code> die rechtstreeks <code>mail()</code> aanroept om plugins te omzeilen.</li>
+  <li>Een WooCommerce-extensie waarvan de auteur de <code>From:</code>-header hard heeft ingebakken.</li>
+  <li>Een cron-PHP-script in <code>/home/site/scripts/</code> dat geen enkele plugin-scanner ooit zal zien.</li>
+  <li>Een Drupal-module die <code>drupal_mail()</code> gebruikt met een eigen mail system class.</li>
+  <li>Een oude phpList-installatie in een vergeten submap.</li>
+</ul>
+
+<p>Vind ze met grep, niet uit het hoofd:</p>
+
+<pre><code class="lang-bash">grep -rEn "mail\(|wp_mail|PHPMailer|drupal_mail|Swift_Mailer|Symfony\\\\Mailer" \
+  --include="*.php" /var/www/ 2&gt;/dev/null</code></pre>
+
+<p>Controleer daarna de database op opgeslagen afzenders. WordPress verstopt ze in <code>wp_options</code>, WooCommerce heeft zijn eigen keys, contactformulier-plugins als Contact Form 7 en Gravity Forms houden er één per formulier op na:</p>
+
+<pre><code class="lang-sql">SELECT option_name, option_value FROM wp_options
+WHERE option_name IN ('admin_email','woocommerce_email_from_address',
+                      'woocommerce_email_from_name','blogname')
+   OR option_name LIKE '%_email%'
+   OR option_value LIKE '%@%.%';</code></pre>
+
+<p>Schrijf het resultaat in een audit van twee kolommen waar je later op terugkomt. Pad, functie, huidige From-header, verwachte envelope sender. Zonder die tabel mis je iets, en dan komt er volgende dinsdag een wachtwoord-reset binnen vanaf <code>www-data@srv042.hostingprovider.net</code>.</p>
+
+<h2>SPF en DKIM op orde voor de nieuwe verzender</h2>
+
+<p>Het verzendadres dat je wilt behouden hoort bij een domein dat jij beheert, maar het IP en de signing keys gaan veranderen. Dit is het stuk dat bureaus het vaakst verkeerd doen. Ze wisselen de SMTP-credentials, en kijken dan een week lang toe hoe de deliverability instort omdat SPF nog steeds alleen de oude host autoriseert. De volgorde doet ertoe. Eerst DNS klaarzetten, verifiëren, en dán pas de applicatie aanpassen. Nooit andersom.</p>
+
+<h3>SPF</h3>
+
+<p>Voeg het mechanisme van de nieuwe provider toe naast het oude voor de duur van de overgang, en haal het oude er pas uit als je zeker weet dat er niets anders meer via die route verstuurt:</p>
+
+<pre><code class="lang-dns">theirclient.com.  300  IN  TXT  "v=spf1 include:spf.oldhost.net include:spf.postmarkapp.com -all"</code></pre>
+
+<p>SPF kent een harde grens van tien DNS-lookups (<a href="https://datatracker.ietf.org/doc/html/rfc7208#section-4.6.4">RFC 7208 §4.6.4</a>). Op een site die Google Workspace, Microsoft 365 en een CRM al heeft staan, raak je die grens snel. Loop je er tegenaan, vlak SPF dan af met een betrouwbare SPF-tool en controleer opnieuw met <code>dig</code> vanuit minstens twee netwerken.</p>
+
+<h3>DKIM</h3>
+
+<p>Genereer de key in het dashboard van de nieuwe provider, plak het selector-record in DNS en controleer of de signature in een testverzending opduikt. De naam van de selector doet ertoe, want oude keys resolven vaak nog steeds:</p>
+
+<pre><code class="lang-bash">dig +short TXT 20260609._domainkey.theirclient.com</code></pre>
+
+<p>Twee geldige DKIM-keys tegelijk live is geen probleem. Ontvangers accepteren elke signature die valideert. Wat wél een probleem is: live gaan met een key die NXDOMAIN teruggeeft, of een selector die de provider heeft geroteerd sinds jij die screenshot kopieerde.</p>
+
+<h2>DMARC opbouwen vóór je de applicatie omzet</h2>
+
+<p>Heeft het domein nog geen DMARC-record, begin dan niet bij <code>p=reject</code>. Begin met <code>p=none</code> en een rua-adres dat naar een mailbox wijst die je ook daadwerkelijk leest:</p>
+
+<pre><code class="lang-dns">_dmarc.theirclient.com.  300  IN  TXT  "v=DMARC1; p=none; rua=mailto:dmarc@theirclient.com; fo=1;"</code></pre>
+
+<p>Laat dat minstens zeven dagen draaien en lees de aggregate reports. Je vindt een Mailchimp-account dat de marketingstagiair in 2022 heeft opgezet, een Zendesk die via jouw domein doorforwarded, en waarschijnlijk de monitoring van de host zelf die bounces vanaf jouw domein verstuurt. Los ze één voor één op, ga dan naar <code>p=quarantine</code>, daarna naar <code>p=reject</code>. De <a href="https://datatracker.ietf.org/doc/html/rfc7489">DMARC-RFC</a> beschrijft de semantiek; de operationele fout is direct naar enforce springen.</p>
+
+<h2>Wissel de applicatie zonder de From-header te wijzigen</h2>
+
+<p>De schoonste aanpak op een WordPress-site is om <code>wp_mail()</code> als oppervlak te houden en alleen het transport te vervangen. Doe geen zoek-en-vervang van From-adressen door de codebase heen. Herschrijf geen plugins. Hang in op de filters en laat de nieuwe SMTP-credentials het werk doen:</p>
+
+<pre><code class="lang-php">add_action('phpmailer_init', function ($phpmailer) {
+    $phpmailer-&gt;isSMTP();
+    $phpmailer-&gt;Host       = 'smtp.postmarkapp.com';
+    $phpmailer-&gt;Port       = 587;
+    $phpmailer-&gt;SMTPAuth   = true;
+    $phpmailer-&gt;SMTPSecure = 'tls';
+    $phpmailer-&gt;Username   = getenv('POSTMARK_TOKEN');
+    $phpmailer-&gt;Password   = getenv('POSTMARK_TOKEN');
+});
+
+add_filter('wp_mail_from', function ($from) {
+    return 'noreply@theirclient.com';
+});
+
+add_filter('wp_mail_from_name', function ($name) {
+    return 'Their Client';
+});</code></pre>
+
+<p>De twee filters doen het zware werk. <code>wp_mail_from</code> overschrijft elke plugin die zijn eigen afzender probeert te zetten, en de SMTP-credentials autoriseren precies dat adres bij de provider. Zolang de nieuwe provider het domein heeft geverifieerd en je dezelfde <code>noreply@</code>-mailbox gebruikt, blijft het zichtbare verzendadres staan.</p>
+
+<p>Op Drupal 9 of 10 is het equivalent de Symfony Mailer transport DSN in <code>services.yml</code>. Op een custom PHP-site vervang je <code>mail()</code>-aanroepen door PHPMailer dat naar de nieuwe SMTP-host wijst. In alle drie de gevallen geldt dezelfde regel: het zichtbare adres blijft staan, het transport eronder wordt vervangen.</p>
+
+<aside class="callout"><p><strong>Let op de envelope sender.</strong> De <code>From:</code>-header is wat mensen zien, maar DMARC-alignment controleert ook het <code>MAIL FROM</code>-adres (de envelope). Als je provider de envelope herschrijft naar <code>bounce@provider.com</code> en je hebt strikte SPF-alignment, faalt DMARC ook als de From klopt. Gebruik óf relaxed alignment (<code>aspf=r</code>), óf configureer via de provider een eigen return-path-subdomein zoals <code>bounces.theirclient.com</code>.</p></aside>
+
+<h2>Het cutover-venster zelf</h2>
+
+<p>Plan de cutover op het rustigste slot dat je hebt en doorloop hem in vier observeerbare stappen. Wij kiezen meestal dinsdagochtend om 06:00 lokale tijd. Volgorde is belangrijker dan snelheid.</p>
+
+<ol>
+  <li>DNS staat al live, geverifieerd met <code>dig</code> vanuit drie meetpunten (je eigen machine, een server in een andere regio en een van de publieke lookup-tools). TTL's zijn de dag ervoor verlaagd naar 300.</li>
+  <li>Deploy de applicatieverandering achter één config switch (<code>USE_TRANSACTIONAL_SMTP=1</code> in <code>.env</code>). Sloop het oude codepad niet op dag één weg. Misschien heb je het binnen een uur weer nodig.</li>
+  <li>Stuur een kleine batch echte testberichten vanuit de eigenlijke productiepaden: een wachtwoord-reset, een WooCommerce-orderbevestiging, een contactformulier-inzending. Controleer de headers in Gmail (Origineel weergeven), Outlook (Bron weergeven) en een ProtonMail-inbox. SPF=pass, DKIM=pass, DMARC=pass op alle drie. Faalt er één, dan stop je en draai je terug.</li>
+  <li>Houd het dashboard van de provider het eerste uur in de gaten. Bounces, spamklachten, suppressies. Een piek in soft bounces wijst meestal op een verkeerd geconfigureerde envelope. Een piek in hard bounces betekent dat een oude lijst ergens is gekopieerd waar dat niet de bedoeling was.</li>
+</ol>
+
+<p>Houd een rollback klaar. Het hele punt van de feature flag is dat één environment variable je terugbrengt naar het oude transport. Wees niet stoer op vrijdagmiddag.</p>
+
+<h2>De stille verzenders nalopen</h2>
+
+<p>De audit aan het begin heeft de voor de hand liggende paden gevonden. De cutover laat de rest bovendrijven. Lees de komende twee weken elke ochtend de logs van de provider en elke maandag de DMARC aggregate reports. Doorgaans vind je drie soorten achterblijvers:</p>
+
+<ul>
+  <li><strong>Cron-scripts</strong> die nooit via de WordPress-UI zijn ingepland. Die leven in <code>/etc/cron.d/</code> of in cPanel en doen nog steeds shell-uitvoer naar <code>mail</code>. Wijs ze door naar <code>msmtp</code> met de credentials van de provider, of herschrijf ze zodat ze naar de REST API van de provider POSTen.</li>
+  <li><strong>Server-side notificaties</strong> vanuit de host zelf. Back-up-tools, fail2ban, package-upgrades. Die horen vanaf <code>root@server.theirclient.com</code> te komen, niet vanaf het klantgerichte domein. Zet ze op een subdomein zodat ze de DMARC-rapportage niet meer vervuilen.</li>
+  <li><strong>Externe integraties</strong> die nog steeds via de oude SMTP forwarden. Een Zapier-zap, een CRM, een helpdesk. Elke integratie moet óf authenticeren bij de nieuwe provider, óf overgaan op send-on-behalf met een ander zichtbaar adres.</li>
+</ul>
+
+<p>Dit is het stuk van het draaiboek dat overgeslagen wordt en zes maanden later een Slack-bericht oplevert: "de lidmaatschapsverlengingen zijn opgehouden." Een echte audit betekent logs lezen ná de cutover, niet alleen ervoor.</p>
+
+<h2>Hoe de definitieve opzet eruit hoort te zien</h2>
+
+<p>Twee weken na de cutover hoort het domein één SPF-record te hebben met alleen de providers die ook echt versturen, één of twee DKIM-selectors die allebei resolven, een DMARC-policy op <code>p=quarantine</code> met <code>pct=100</code> op weg naar <code>p=reject</code>, en één canoniek <code>From:</code>-adres per verkeersklasse (transactioneel, marketing, systeem) met een gedocumenteerd lijstje welke applicatie welk adres bezit.</p>
+
+<p>Het zichtbare verzendadres is geen byte verschoven. Dat was de opdracht.</p>
+
+<p>Toen we Pier bouwden, struikelden we bij elke migratie over dezelfde auditstap aan het begin: welke bestanden roepen <code>mail()</code> daadwerkelijk aan, wat staat er nog in <code>wp_options</code>, waar zit dat cron-script dat niemand zich herinnert. We hebben het uiteindelijk zo opgelost dat grep en de <a href="/#database">MySQL editor</a> op één toetsaanslag van de chat zitten, met <a href="/#features">version history</a> op elke wijziging, zodat een teruggezette hook één klik is in plaats van een paniekerige SSH-sessie.</p>
+
+<p>Heb je deze maand een transactionele migratie voor de boeg, dan is het kleinste nuttige dat je vandaag kunt doen: de grep hierboven over je codebase laten lopen, de SQL-query op je options-tabel afvuren, en die audit in twee kolommen opschrijven. De rest van het draaiboek wordt mechanisch zodra je weet wat er feitelijk verstuurt.</p>
+    </div>
+
+    <aside class="pullquote">Het zichtbare verzendadres blijft alleen staan als SPF, DKIM en een eigen return-path al in DNS zijn geland voordat je de SMTP-credentials van de applicatie aanraakt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Moet ik de oude SPF-include na de cutover laten staan?</p>
+      <p class="faq-a">Laat hem de eerste week staan en check daarna de logs van de provider en je DMARC-rapporten. Heeft de oude host zeven dagen lang niets verstuurd, haal hem dan weg. Anders riskeer je een overflow van SPF-lookups.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik tegelijk met de provider ook het verzendadres wijzigen?</p>
+      <p class="faq-a">Doe het niet. De transport-swap verandert al de signing keys en de geautoriseerde IP&#39;s. Daar bovenop het verzendadres veranderen is een deliverability-test die je op cutover-dag niet nodig hebt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als mijn oude host DMARC-alignment al had verbroken?</p>
+      <p class="faq-a">De migratie maakt het beter, niet slechter. Zet bij de nieuwe provider DKIM en een eigen return-path-subdomein op, monitor zeven dagen op p=none en ga daarna naar enforce.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-debug-constants/hero.jpg" alt="Bovenaanzicht van verouderd wp-config.php spiekbriefje met PHP debug-constanten, koperen presse-papier, liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 juni 2026</span></span>
+      <h3>wp-config.php debug constants: een werkbare cheatsheet</h3>
+      <span class="pc-lede">WordPress kent veertig gedocumenteerde wp-config.php constants. De meeste sites gebruiken er drie. Hier zijn de rest, als cheatsheet om in te plakken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/nl/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Web root: zeven bestanden die je nooit publiek serveert</h3>
+      <span class="pc-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/transactional-email-migration-playbook/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
