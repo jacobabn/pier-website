@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>wp_postmeta pruning: clearing 4.2M rows without ACF damage · Pier — Blog</title>
+<meta name="description" content="A Dutch agency&#39;s wp_postmeta crossed 4.2 million rows and the WordPress admin started timing out. Here is the prune we ran without snapping ACF field references.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wp-postmeta-pruning-acf/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wp-postmeta-pruning-acf/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wp-postmeta-pruning-acf/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wp-postmeta-pruning-acf/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="wp_postmeta pruning: clearing 4.2M rows without ACF damage">
+<meta property="og:description" content="A Dutch agency&#39;s wp_postmeta crossed 4.2 million rows and the WordPress admin started timing out. Here is the prune we ran without snapping ACF field references.">
+<meta property="og:url" content="https://pier.abn.company/blog/wp-postmeta-pruning-acf/">
+<meta property="og:image" content="https://pier.abn.company/blog/wp-postmeta-pruning-acf/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wp-postmeta-pruning-acf/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: paper worksheet &quot;wp_postmeta&quot;, ER sketch, manila ACF folder, brass paperweight, red wax seal &quot;KEEP&quot;.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T18:03:26.328Z">
+<meta property="article:modified_time" content="2026-06-09T18:03:26.328Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="wp_postmeta pruning: clearing 4.2M rows without ACF damage">
+<meta name="twitter:description" content="A Dutch agency&#39;s wp_postmeta crossed 4.2 million rows and the WordPress admin started timing out. Here is the prune we ran without snapping ACF field references.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wp-postmeta-pruning-acf/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: paper worksheet &quot;wp_postmeta&quot;, ER sketch, manila ACF folder, brass paperweight, red wax seal &quot;KEEP&quot;.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wp-postmeta-pruning-acf/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wp-postmeta-pruning-acf/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wp-postmeta-pruning-acf/"},
+  "url":"https://pier.abn.company/blog/wp-postmeta-pruning-acf/",
+  "headline":"wp_postmeta pruning: clearing 4.2M rows without ACF damage",
+  "description":"A Dutch agency's wp_postmeta crossed 4.2 million rows and the WordPress admin started timing out. Here is the prune we ran without snapping ACF field references.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wp-postmeta-pruning-acf/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: paper worksheet \"wp_postmeta\", ER sketch, manila ACF folder, brass paperweight, red wax seal \"KEEP\"."
+  },
+  "datePublished":"2026-06-09T18:03:26.328Z",
+  "dateModified":"2026-06-09T18:03:26.328Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, mysql, databases, php, operations",
+  "wordCount":1830,
+  "articleSection":"Databases",
+  "articleBody":"The Loom showed a WordPress admin sitting on a spinner for fourteen seconds before the posts list rendered. The agency lead recorded it at 23:41 on a Tuesday, after a client had complained that editorial was getting bumped off the CMS during deadline week. The site was a content-heavy publisher running WordPress 6.4 on a tuned MariaDB box. CPU on the database server idled at four percent. The bottleneck was wp_postmeta. SHOW TABLE STATUS LIKE 'wp_postmeta' came back with a row count north of 4.2 million on a site with roughly 8,400 published posts. That ratio, about five hundred meta rows per post, was the smell. This post walks through what we found, the ACF gotcha that almost made the cleanup worse than the bloat itself, and the SQL we ended up running on a Dutch agency's legacy site last month. The audit before the prune Pruning wp_postmeta is one of those jobs where running the cleanup is the easy part. The risky part is knowing exactly what you are about to delete. Before touching anything, we ran three counting queries against a read replica. Orphaned meta on posts that no longer exist: SELECT COUNT(*) AS orphan_rows FROM wp_postmeta pm LEFT JOIN wp_posts p ON p.ID = pm.post_id WHERE p.ID IS NULL; This came back with 612,034 rows. Two plugins (one was an old object-cache plugin removed in 2022, the other was a since-replaced SEO plugin) had been writing meta on post-delete hooks they did not also clean up on uninstall. Both had been gone from the site for over a year. Their meta had not. Meta belonging to revisions: SELECT COUNT(*) AS revision_meta FROM wp_postmeta pm INNER JOIN wp_posts p ON p.ID = pm.post_id WHERE p.post_type = 'revision'; Another 1.84 million rows. WordPress stores ACF values on every revision by design, and this publisher had editors who saved drafts compulsively. Multiply 8,400 posts by an average of fourteen revisions each, multiply that by sixteen ACF fields per post template, and you get the picture. The third query was a meta_key distribution scan, which is the one that usually tells you which plugin is the culprit: SELECT meta_key, COUNT(*) AS n FROM wp_postmeta GROUP BY meta_key ORDER BY n DESC LIMIT 30; The top of the list looked roughly like this on their site: meta_key | n ----------------------------|-------- _edit_lock | 412,103 _edit_last | 408,776 _wp_old_slug | 287,442 rocket_clean_post | 211,008 _yoast_wpseo_focuskw_text | 198,540 _acf_changed | 91,221 hero_image | 84,610 _hero_image | 84,610 The rocket_clean_post rows belonged to a plugin uninstalled in 2023. The _wp_old_slug rows had piled up from years of slug edits and were technically still useful, so we left them. The remaining ~1.7 million rows were real, current post meta. Roughly sixty percent of the table was reclaimable. Before any DELETE statement ran, we made a hot copy: mysqldump --single-transaction --quick \\ --triggers --routines \\ agency_db wp_postmeta wp_posts \\ | gzip > postmeta_backup_2026-05-13.sql.gz For a site this size the dump took eleven minutes and produced a 380 MB compressed file. Cheap insurance. The ACF trap most cleanup scripts step in Advanced Custom Fields stores every field as two rows in wp_postmeta . One holds the value. One holds the reference to the field definition. The reference row's meta_key starts with an underscore, and its meta_value is the field's group key, like field_5f8a1b2c3d4e5 . ACF needs the pair to render the field on the front end. Concretely, for a single text field called hero_title you get: meta_key | meta_value --------------|------------------------- hero_title | \"Spring collection\" _hero_title | \"field_5f8a1b2c3d4e5\" Repeater and flexible content fields multiply this. A repeater with six rows and four sub-fields becomes 48 rows in wp_postmeta , plus an index counter row, plus all the underscore-prefixed references. Drop one half of any pair and ACF stops resolving the field on render. The ACF docs are explicit about this : the underscore key is what makes the value addressable to the field group. The naive cleanup script you find on most blogs is this: DELETE pm FROM wp_postmeta pm LEFT JOIN wp_posts p ON p.ID = pm.post_id WHERE p.ID IS NULL; That query is safe for the strict orphan case. If the parent post is gone from wp_posts , both halves of the ACF pair go with it, and ACF never knew the post existed in the first place. It is not safe if you try to extend it to \"delete meta where the field is not in the active ACF group\". Plenty of valid pairs live on posts you still want, just with field keys that have been renamed or re-grouped in ACF over the years. We have seen one-line cleanup snippets break front-end blocks on production sites three days after the prune, when an editor finally re-saved a page that had been quietly serving cached HTML. Warning. If a post still exists in wp_posts , never delete only the underscore-prefixed half of an ACF pair to \"tidy up\". The value row will remain, ACF will not see it, and the next time an editor opens the post",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wp-postmeta-pruning-acf/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"wp_postmeta pruning: clearing 4.2M rows without ACF damage","item":"https://pier.abn.company/blog/wp-postmeta-pruning-acf/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will deleting revisions break ACF on the live post?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Revisions are separate rows in wp_posts with post_type='revision'. The live post and its current postmeta are untouched, and ACF only reads from the current post when it renders the front end."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How large should wp_postmeta normally be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Roughly ten to forty meta rows per published post is typical. Anything over a hundred per post on a site without heavy ACF repeaters is a sign of orphaned data or a plugin writing where it should not."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to run OPTIMIZE TABLE on a live site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On InnoDB it writes a new copy of the table and swaps it in, which needs roughly double the disk and briefly locks reads. Schedule it in a maintenance window for any table over a gigabyte."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does WP_POST_REVISIONS clean up existing revisions?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The constant only caps new revisions going forward. Existing revisions persist until you delete them with WP-CLI or SQL, so a one-shot prune is still needed for the historical backlog."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about transients stored in wp_postmeta?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Standard WordPress transients live in wp_options, not wp_postmeta. Some plugins misuse postmeta as a cache. The meta_key distribution query in the audit section will surface them quickly."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wp-postmeta-pruning-acf/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 069</span>
+      </div>
+      <p class="eyebrow"><span class="n">069 —</span>Databases</p>
+      <h1 class="display-l post-title">wp_postmeta pruning: clearing 4.2M rows without ACF damage</h1>
+      <p class="lede post-lede">A Dutch agency&#39;s wp_postmeta crossed 4.2 million rows and the WordPress admin started timing out. Here is the prune we ran without snapping ACF field references.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T18:03:26.328Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wp-postmeta-pruning-acf/hero.webp" type="image/webp">
+      <img src="/blog/wp-postmeta-pruning-acf/hero.jpg" alt="Overhead photo on bone linen: paper worksheet &quot;wp_postmeta&quot;, ER sketch, manila ACF folder, brass paperweight, red wax seal &quot;KEEP&quot;." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 069</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom showed a WordPress admin sitting on a spinner for fourteen seconds before the posts list rendered. The agency lead recorded it at 23:41 on a Tuesday, after a client had complained that editorial was getting bumped off the CMS during deadline week. The site was a content-heavy publisher running WordPress 6.4 on a tuned MariaDB box. CPU on the database server idled at four percent. The bottleneck was wp_postmeta.</p>
+
+<p><code>SHOW TABLE STATUS LIKE 'wp_postmeta'</code> came back with a row count north of 4.2 million on a site with roughly 8,400 published posts. That ratio, about five hundred meta rows per post, was the smell. This post walks through what we found, the ACF gotcha that almost made the cleanup worse than the bloat itself, and the SQL we ended up running on a Dutch agency's <a href="/">legacy site</a> last month.</p>
+
+<h2>The audit before the prune</h2>
+
+<p>Pruning <code>wp_postmeta</code> is one of those jobs where running the cleanup is the easy part. The risky part is knowing exactly what you are about to delete. Before touching anything, we ran three counting queries against a read replica.</p>
+
+<p>Orphaned meta on posts that no longer exist:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS orphan_rows
+FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL;</code></pre>
+
+<p>This came back with 612,034 rows. Two plugins (one was an old object-cache plugin removed in 2022, the other was a since-replaced SEO plugin) had been writing meta on post-delete hooks they did not also clean up on uninstall. Both had been gone from the site for over a year. Their meta had not.</p>
+
+<p>Meta belonging to revisions:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS revision_meta
+FROM wp_postmeta pm
+INNER JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.post_type = 'revision';</code></pre>
+
+<p>Another 1.84 million rows. WordPress stores ACF values on every revision by design, and this publisher had editors who saved drafts compulsively. Multiply 8,400 posts by an average of fourteen revisions each, multiply that by sixteen ACF fields per post template, and you get the picture.</p>
+
+<p>The third query was a meta_key distribution scan, which is the one that usually tells you which plugin is the culprit:</p>
+
+<pre><code class="lang-sql">SELECT meta_key, COUNT(*) AS n
+FROM wp_postmeta
+GROUP BY meta_key
+ORDER BY n DESC
+LIMIT 30;</code></pre>
+
+<p>The top of the list looked roughly like this on their site:</p>
+
+<pre><code class="lang-sql">meta_key                    | n
+----------------------------|--------
+_edit_lock                  | 412,103
+_edit_last                  | 408,776
+_wp_old_slug                | 287,442
+rocket_clean_post           | 211,008
+_yoast_wpseo_focuskw_text   | 198,540
+_acf_changed                |  91,221
+hero_image                  |  84,610
+_hero_image                 |  84,610</code></pre>
+
+<p>The <code>rocket_clean_post</code> rows belonged to a plugin uninstalled in 2023. The <code>_wp_old_slug</code> rows had piled up from years of slug edits and were technically still useful, so we left them. The remaining ~1.7 million rows were real, current post meta. Roughly sixty percent of the table was reclaimable. Before any DELETE statement ran, we made a hot copy:</p>
+
+<pre><code class="lang-bash">mysqldump --single-transaction --quick \
+  --triggers --routines \
+  agency_db wp_postmeta wp_posts \
+  | gzip > postmeta_backup_2026-05-13.sql.gz</code></pre>
+
+<p>For a site this size the dump took eleven minutes and produced a 380 MB compressed file. Cheap insurance.</p>
+
+<h2>The ACF trap most cleanup scripts step in</h2>
+
+<p>Advanced Custom Fields stores every field as two rows in <code>wp_postmeta</code>. One holds the value. One holds the reference to the field definition. The reference row's <code>meta_key</code> starts with an underscore, and its <code>meta_value</code> is the field's group key, like <code>field_5f8a1b2c3d4e5</code>. ACF needs the pair to render the field on the front end.</p>
+
+<p>Concretely, for a single text field called <code>hero_title</code> you get:</p>
+
+<pre><code class="lang-sql">meta_key      | meta_value
+--------------|-------------------------
+hero_title    | "Spring collection"
+_hero_title   | "field_5f8a1b2c3d4e5"</code></pre>
+
+<p>Repeater and flexible content fields multiply this. A repeater with six rows and four sub-fields becomes 48 rows in <code>wp_postmeta</code>, plus an index counter row, plus all the underscore-prefixed references. Drop one half of any pair and ACF stops resolving the field on render. The <a href="https://www.advancedcustomfields.com/resources/understanding-the-field-key-and-field-name/" rel="noopener">ACF docs are explicit about this</a>: the underscore key is what makes the value addressable to the field group.</p>
+
+<p>The naive cleanup script you find on most blogs is this:</p>
+
+<pre><code class="lang-sql">DELETE pm FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL;</code></pre>
+
+<p>That query is safe for the strict orphan case. If the parent post is gone from <code>wp_posts</code>, both halves of the ACF pair go with it, and ACF never knew the post existed in the first place. It is not safe if you try to extend it to "delete meta where the field is not in the active ACF group". Plenty of valid pairs live on posts you still want, just with field keys that have been renamed or re-grouped in ACF over the years. We have seen one-line cleanup snippets break front-end blocks on production sites three days after the prune, when an editor finally re-saved a page that had been quietly serving cached HTML.</p>
+
+<aside class="callout"><p><strong>Warning.</strong> If a post still exists in <code>wp_posts</code>, never delete only the underscore-prefixed half of an ACF pair to "tidy up". The value row will remain, ACF will not see it, and the next time an editor opens the post the field will appear empty. They will then re-fill it, save, and you now have stale values shadowed by fresh ones in the same key namespace, which is a vastly worse failure mode than the bloat you started with.</p></aside>
+
+<h2>The prune we ran</h2>
+
+<p>With the backup in place, the actual cleanup was three batched DELETEs. We ran them in a transaction window with the agency's editorial team paused for forty minutes on a Saturday morning.</p>
+
+<p>Batch one, orphaned meta where the parent post is gone:</p>
+
+<pre><code class="lang-sql">DELETE pm FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL
+LIMIT 5000;</code></pre>
+
+<p>We wrapped this in a shell loop that re-ran the statement until <code>ROW_COUNT()</code> returned zero. Batching is non-optional on a table this size. A single unbounded DELETE on 600k rows will hold the table lock long enough for any concurrent INSERT (which on WordPress means literally any page save, comment, or background cron) to time out.</p>
+
+<pre><code class="lang-bash">while :; do
+  rows=$(mysql -BN agency_db -e \
+    "DELETE pm FROM wp_postmeta pm \
+     LEFT JOIN wp_posts p ON p.ID = pm.post_id \
+     WHERE p.ID IS NULL LIMIT 5000; \
+     SELECT ROW_COUNT();")
+  echo "deleted $rows"
+  [ "$rows" -eq 0 ] && break
+  sleep 1
+done</code></pre>
+
+<p>Batch two, meta on revisions. Revisions themselves are useful, since they are how editors recover work, and we did not want to drop them. We did want to drop the ACF meta that WordPress had cloned onto each revision, because that meta is never queried on the front end:</p>
+
+<pre><code class="lang-sql">DELETE pm FROM wp_postmeta pm
+INNER JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.post_type = 'revision'
+LIMIT 5000;</code></pre>
+
+<p>Same shell loop wrapping. This one was the bulk of the work, 1.84 million rows in about twenty-two minutes on a 4-vCPU MariaDB instance. We watched <code>SHOW PROCESSLIST</code> in another tab the whole time. No lock-wait timeouts on the application side.</p>
+
+<p>Batch three, the named-key prune for plugins long uninstalled. Plugin meta keys are predictable, which makes this the safest of the three:</p>
+
+<pre><code class="lang-sql">DELETE FROM wp_postmeta
+WHERE meta_key IN (
+  'rocket_clean_post',
+  'rocket_lazyload_excluded',
+  'old_seo_plugin_score'
+)
+LIMIT 5000;</code></pre>
+
+<p>After the last batch, an <code>OPTIMIZE TABLE wp_postmeta;</code> reclaimed roughly 1.6 GB of disk and rebuilt the indexes. On InnoDB this is equivalent to <code>ALTER TABLE ... ENGINE=InnoDB</code>, which writes a new copy of the table and swaps it in. Plan for double the table size in free disk during the operation, and run it in the maintenance window with the site in read-only mode if you can manage it. The <a href="https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html" rel="noopener">MySQL docs cover the exact lock behaviour</a> and are worth reading before you press enter on a production primary.</p>
+
+<p>Final row count: 1,742,803. The admin posts list rendered in 0.6 seconds. Editorial was unpaused at 11:47.</p>
+
+<h2>The maintenance that now runs nightly</h2>
+
+<p>The prune is the one-time fix. The next question is how the table got there in the first place, so it does not refill in eighteen months. We put four things in place.</p>
+
+<h3>Revision cap</h3>
+
+<p>WordPress keeps unlimited revisions by default. For a site with ACF-heavy templates, that is a postmeta amplifier. We capped revisions per post at ten in <code>wp-config.php</code>:</p>
+
+<pre><code class="lang-php">define( 'WP_POST_REVISIONS', 10 );</code></pre>
+
+<p>Ten was the agency's editorial team's preference. Five is fine for most sites. Setting the constant to <code>false</code> turns revisions off entirely, which we would not recommend on a publisher. The cap only applies to revisions created after the constant is set, so the historical backlog still needs a one-shot prune.</p>
+
+<h3>Orphan sweep, nightly</h3>
+
+<p>A small WP-CLI script runs at 03:00 server time and re-runs the orphan check. If it finds more than a thousand orphans, it prunes them in 5,000-row batches and pages on Slack if the count is over fifty thousand. Fifty thousand is the rough threshold for "a plugin is misbehaving", and you want to know about that on the day it starts, not at the next quarterly audit.</p>
+
+<pre><code class="lang-bash">wp db query "DELETE pm FROM wp_postmeta pm \
+  LEFT JOIN wp_posts p ON p.ID = pm.post_id \
+  WHERE p.ID IS NULL LIMIT 5000;"</code></pre>
+
+<h3>Autoload audit, weekly</h3>
+
+<p>While we were in the database we noticed <code>wp_options</code> had 38 MB of autoloaded data, mostly from an analytics plugin caching API responses with <code>autoload = 'yes'</code>. Postmeta bloat and options bloat tend to show up together, so the weekly job also runs:</p>
+
+<pre><code class="lang-sql">SELECT option_name, LENGTH(option_value) AS bytes
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY bytes DESC
+LIMIT 20;</code></pre>
+
+<p>Anything over 100 KB gets flagged for review. The <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/" rel="noopener">autoloaded options are read on every request</a>, so this matters more than postmeta bloat for time-to-first-byte. Two of the flagged rows on this site were JSON blobs left behind by a font-loader plugin. They came out in the same maintenance window.</p>
+
+<h3>Meta-key drift alert</h3>
+
+<p>The fourth job is a weekly diff of the meta_key distribution against a baseline snapshot. If a new <code>meta_key</code> shows up with more than fifty thousand rows, the script writes the key, the count, and the top three post IDs to a Slack channel. That is how you catch a freshly installed plugin writing where it should not, before it becomes next year's audit.</p>
+
+<h2>How we audit this on the Pier side</h2>
+
+<p>When we built Pier we ran into this exact pattern across customer sites often enough that we wrote a postmeta-shape view into the <a href="/#database">MySQL editor</a>: row counts grouped by meta_key, orphan totals, revision share, top autoloaded options, all in one panel. Every destructive query we run from Pier writes a backup of the affected rows into the <a href="/#features">version history</a> before the DELETE fires, so the rollback is one keystroke if the prune was wrong.</p>
+
+<p>If you have not yet looked at your <code>wp_postmeta</code> on the largest WordPress site you maintain, run the three counting queries from the audit section tonight. That single read-only check tells you whether you have a postmeta problem or not, and it costs less than a minute on the database.</p>
+    </div>
+
+    <aside class="pullquote">wp_postmeta bloat is almost always orphans plus revisions plus ACF amplification. Audit before you prune, and never split an ACF key pair.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Will deleting revisions break ACF on the live post?</p>
+      <p class="faq-a">No. Revisions are separate rows in wp_posts with post_type=&#39;revision&#39;. The live post and its current postmeta are untouched, and ACF only reads from the current post when it renders the front end.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How large should wp_postmeta normally be?</p>
+      <p class="faq-a">Roughly ten to forty meta rows per published post is typical. Anything over a hundred per post on a site without heavy ACF repeaters is a sign of orphaned data or a plugin writing where it should not.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to run OPTIMIZE TABLE on a live site?</p>
+      <p class="faq-a">On InnoDB it writes a new copy of the table and swaps it in, which needs roughly double the disk and briefly locks reads. Schedule it in a maintenance window for any table over a gigabyte.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does WP_POST_REVISIONS clean up existing revisions?</p>
+      <p class="faq-a">No. The constant only caps new revisions going forward. Existing revisions persist until you delete them with WP-CLI or SQL, so a one-shot prune is still needed for the historical backlog.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about transients stored in wp_postmeta?</p>
+      <p class="faq-a">Standard WordPress transients live in wp_options, not wp_postmeta. Some plugins misuse postmeta as a cache. The meta_key distribution query in the audit section will surface them quickly.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/slow-query-log-shared-host-patterns/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/slow-query-log-shared-host-patterns/hero.webp" type="image/webp">
+        <img src="/blog/slow-query-log-shared-host-patterns/hero.jpg" alt="Overhead photo of MySQL slow query log printout, red pencil notes, manila tabs, EXPLAIN sheet, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>9 June 2026</span></span>
+      <h3>Reading slow_query_log on shared hosting: four patterns</h3>
+      <span class="pc-lede">Four MySQL slow_query_log patterns that explain most of the pain on shared hosting. The EXPLAIN you will see, the index that fixes it, and the ones you can leave alone.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wp-options-autoload-40gb-cleanup/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-options-autoload-40gb-cleanup/hero.webp" type="image/webp">
+        <img src="/blog/wp-options-autoload-40gb-cleanup/hero.jpg" alt="Overhead photo on bone linen: MySQL run-sheet, phpMyAdmin printout, TTFB chart, manila tab, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>26 May 2026</span></span>
+      <h3>40GB wp_options autoload: the night we hit 800ms TTFB</h3>
+      <span class="pc-lede">A Loom link at 23:41, a homepage TTFB over eight seconds, and a wp_options table that had quietly grown to 40GB. The fix was three SQL statements and a long night.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wp-postmeta-pruning-acf/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
