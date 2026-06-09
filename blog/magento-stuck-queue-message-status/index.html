@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento order emails: the stuck queue_message_status row · Pier — Blog</title>
+<meta name="description" content="A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, php, operations, databases, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento order emails: the stuck queue_message_status row">
+<meta property="og:description" content="A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T23:55:00.713Z">
+<meta property="article:modified_time" content="2026-06-09T23:55:00.713Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento order emails: the stuck queue_message_status row">
+<meta name="twitter:description" content="A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-stuck-queue-message-status/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-stuck-queue-message-status/"},
+  "url":"https://pier.abn.company/blog/magento-stuck-queue-message-status/",
+  "headline":"Magento order emails: the stuck queue_message_status row",
+  "description":"A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-stuck-queue-message-status/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal."
+  },
+  "datePublished":"2026-06-09T23:55:00.713Z",
+  "dateModified":"2026-06-09T23:55:00.713Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, mysql, php, operations, databases, tooling",
+  "wordCount":1687,
+  "articleSection":"Magento",
+  "articleBody":"The Loom shows up at 23:41 on a Tuesday. A Dutch agency we work with is on speaker with their client, a small Magento 2 store doing maybe 80 orders a day. The client noticed it because a customer called: where is my confirmation? Then she checked her own test order from that morning. Nothing in her inbox either. Then she pulled three days of orders from the admin and started cross-referencing the mail logs. Three days of orders. Zero emails sent. The store had not changed. No deploy, no module update, no infrastructure work. Orders were going through Stripe fine, inventory was decrementing, sales_order rows were being written, and the customer-facing pages looked completely normal. The only symptom was the absence of an email. Marketing was sending campaigns out of the same SMTP relay without trouble, so the network path was demonstrably healthy. The transactional channel was the silent one. This post is the walkthrough of how we traced the Magento order email outage to a single row in queue_message_status, and why fixing it took ninety seconds once we knew where to look. If you run Magento 2 in production, this is a failure mode you will see eventually, and there is no admin screen that warns you about it. The first signal in the database Order confirmations in Magento 2 do not get sent inline. They get queued. Since 2.3 the default is asynchronous email, which means when an order is placed, a message goes onto the queue and a consumer process picks it up later. That decoupling is good for checkout latency and bad for visibility. A stuck consumer fails silently. The order is fine. The queue is the broken piece. The admin still ticks through to \"Complete\" and the merchant has no reason to suspect anything. First thing we did was open the database and ask the most obvious question. SELECT topic_name, COUNT(*) AS pending FROM queue_message qm JOIN queue_message_status qms ON qms.message_id = qm.id WHERE qms.status IN (2, 4, 7) GROUP BY topic_name ORDER BY pending DESC; Status 7 is NEW, 2 is IN_PROGRESS, 4 is RETRY_REQUIRED. The top row came back with 2,341 pending messages for topic_name = sales.email.order. Three days of order confirmations sitting in a table, waiting for a consumer that never came. The runner-up topics (invoice, shipment, creditmemo) were stacked behind it for the same reason. Walking the cron chain In Magento 2 the consumer for that topic gets started by the cron job consumers_runner inside the consumers group. The chain looks like this: System cron fires every minute and calls bin/magento cron:run . That dispatches the consumers group. consumers_runner starts the configured consumers, one of which is sales.email.order. The consumer reads from queue_message_status, marks rows as IN_PROGRESS, sends the email, marks them COMPLETE. We checked the system crontab. Fine. We checked cron_schedule. SELECT job_code, status, scheduled_at, executed_at, finished_at FROM cron_schedule WHERE job_code = 'consumers_runner' ORDER BY scheduled_at DESC LIMIT 10; Every row showed status = success. The cron was running. The consumer was being started. Yet nothing was being processed. That is the classic shape of this incident: every health check higher up the stack says green, because every health check higher up the stack is asking the wrong question. Then we looked at the process list. ps -ef | grep queue:consumers | grep -v grep Three sales.email.order processes were running. According to ps they had been running for between four and seventy hours. None of them were doing anything. They were not crashed. They were not consuming CPU. They were sitting there, blocked on something invisible. Inside queue_message_status This is where it got interesting. We asked the table to show its oldest in-progress rows. SELECT id, message_id, status, updated_at, number_of_trials FROM queue_message_status WHERE status = 2 ORDER BY updated_at ASC LIMIT 5; The oldest row was three days, four hours old. Status 2 (IN_PROGRESS), number_of_trials = 0. It had been picked up by a consumer that had then disappeared without ever marking it COMPLETE or ERROR. The next consumer instance found it already in IN_PROGRESS, respected that, and walked past it. So did the one after. And the one after that. The queue runs FIFO inside a topic, so every later confirmation piled up behind one ghost row. Magento's database queue driver uses SELECT ... FOR UPDATE to claim a message and write IN_PROGRESS. If the worker dies between claim and complete, the row sits there until something resets it. There is no built-in reaper. The framework assumes consumers either finish their work or crash cleanly, neither of which is guaranteed when the underlying problem is, say, an OOM kill from the host or a SIGTERM from a deploy script. In this client's case the host had OOM-killed PHP-FPM children three nights earlier during a backup window that briefly pushed the box past its memory ceiling. The cron-spawned consumer happened to be among the casualties. Its c",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-stuck-queue-message-status/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento order emails: the stuck queue_message_status row","item":"https://pier.abn.company/blog/magento-stuck-queue-message-status/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I know if my Magento 2 order emails are queued but not sending?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run SELECT COUNT(*) FROM queue_message_status WHERE status = 2 AND updated_at < NOW() - INTERVAL 30 MINUTE. Non-zero means a consumer claimed a row and never finished."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to UPDATE queue_message_status on a live store?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, but kill the consumer processes first with pkill, run the UPDATE with an updated_at floor of at least 30 minutes, then restart the consumer. Skipping the pkill risks duplicate emails."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What usually causes a Magento consumer to die mid-claim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OOM kills during backup windows, SIGTERM from deploy scripts, and uncaught PHP fatal errors during email rendering. Setting max_messages on cron_consumers_runner limits the blast radius of each occurrence."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will the admin or Sentry tell me order emails are stuck?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The order is marked complete in admin, no PHP exception fires, and HTTP monitors stay green. The only signal lives in queue_message_status. You have to query it on a schedule."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 075</span>
+      </div>
+      <p class="eyebrow"><span class="n">075 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento order emails: the stuck queue_message_status row</h1>
+      <p class="lede post-lede">A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T23:55:00.713Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+      <img src="/blog/magento-stuck-queue-message-status/hero.jpg" alt="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 075</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom shows up at 23:41 on a Tuesday. A Dutch agency we work with is on speaker with their client, a small Magento 2 store doing maybe 80 orders a day. The client noticed it because a customer called: where is my confirmation? Then she checked her own test order from that morning. Nothing in her inbox either. Then she pulled three days of orders from the admin and started cross-referencing the mail logs. Three days of orders. Zero emails sent.</p>
+
+<p>The store had not changed. No deploy, no module update, no infrastructure work. Orders were going through Stripe fine, inventory was decrementing, sales_order rows were being written, and the customer-facing pages looked completely normal. The only symptom was the absence of an email. Marketing was sending campaigns out of the same SMTP relay without trouble, so the network path was demonstrably healthy. The transactional channel was the silent one.</p>
+
+<p>This post is the walkthrough of how we traced the Magento order email outage to a single row in queue_message_status, and why fixing it took ninety seconds once we knew where to look. If you run Magento 2 in production, this is a failure mode you will see eventually, and there is no admin screen that warns you about it.</p>
+
+<h2>The first signal in the database</h2>
+
+<p>Order confirmations in Magento 2 do not get sent inline. They get queued. Since 2.3 the default is asynchronous email, which means when an order is placed, a message goes onto the queue and a consumer process picks it up later. That decoupling is good for checkout latency and bad for visibility. A stuck consumer fails silently. The order is fine. The queue is the broken piece. The admin still ticks through to "Complete" and the merchant has no reason to suspect anything.</p>
+
+<p>First thing we did was open the database and ask the most obvious question.</p>
+
+<pre><code class="lang-sql">SELECT topic_name, COUNT(*) AS pending
+FROM queue_message qm
+JOIN queue_message_status qms ON qms.message_id = qm.id
+WHERE qms.status IN (2, 4, 7)
+GROUP BY topic_name
+ORDER BY pending DESC;</code></pre>
+
+<p>Status 7 is NEW, 2 is IN_PROGRESS, 4 is RETRY_REQUIRED. The top row came back with 2,341 pending messages for topic_name = sales.email.order. Three days of order confirmations sitting in a table, waiting for a consumer that never came. The runner-up topics (invoice, shipment, creditmemo) were stacked behind it for the same reason.</p>
+
+<h2>Walking the cron chain</h2>
+
+<p>In Magento 2 the consumer for that topic gets started by the cron job consumers_runner inside the consumers group. The chain looks like this:</p>
+
+<ul>
+<li>System cron fires every minute and calls <code>bin/magento cron:run</code>.</li>
+<li>That dispatches the consumers group.</li>
+<li>consumers_runner starts the configured consumers, one of which is sales.email.order.</li>
+<li>The consumer reads from queue_message_status, marks rows as IN_PROGRESS, sends the email, marks them COMPLETE.</li>
+</ul>
+
+<p>We checked the system crontab. Fine. We checked cron_schedule.</p>
+
+<pre><code class="lang-sql">SELECT job_code, status, scheduled_at, executed_at, finished_at
+FROM cron_schedule
+WHERE job_code = 'consumers_runner'
+ORDER BY scheduled_at DESC
+LIMIT 10;</code></pre>
+
+<p>Every row showed status = success. The cron was running. The consumer was being started. Yet nothing was being processed. That is the classic shape of this incident: every health check higher up the stack says green, because every health check higher up the stack is asking the wrong question.</p>
+
+<p>Then we looked at the process list.</p>
+
+<pre><code class="lang-bash">ps -ef | grep queue:consumers | grep -v grep</code></pre>
+
+<p>Three sales.email.order processes were running. According to ps they had been running for between four and seventy hours. None of them were doing anything. They were not crashed. They were not consuming CPU. They were sitting there, blocked on something invisible.</p>
+
+<h2>Inside queue_message_status</h2>
+
+<p>This is where it got interesting. We asked the table to show its oldest in-progress rows.</p>
+
+<pre><code class="lang-sql">SELECT id, message_id, status, updated_at, number_of_trials
+FROM queue_message_status
+WHERE status = 2
+ORDER BY updated_at ASC
+LIMIT 5;</code></pre>
+
+<p>The oldest row was three days, four hours old. Status 2 (IN_PROGRESS), number_of_trials = 0. It had been picked up by a consumer that had then disappeared without ever marking it COMPLETE or ERROR. The next consumer instance found it already in IN_PROGRESS, respected that, and walked past it. So did the one after. And the one after that. The queue runs FIFO inside a topic, so every later confirmation piled up behind one ghost row.</p>
+
+<p>Magento's database queue driver uses SELECT ... FOR UPDATE to claim a message and write IN_PROGRESS. If the worker dies between claim and complete, the row sits there until something resets it. There is no built-in reaper. The framework assumes consumers either finish their work or crash cleanly, neither of which is guaranteed when the underlying problem is, say, an OOM kill from the host or a SIGTERM from a deploy script.</p>
+
+<p>In this client's case the host had OOM-killed PHP-FPM children three nights earlier during a backup window that briefly pushed the box past its memory ceiling. The cron-spawned consumer happened to be among the casualties. Its claimed row in queue_message_status was never released. From that moment on, every confirmation email queued up behind it. The Adobe Commerce docs on <a href="https://developer.adobe.com/commerce/php/development/components/message-queues/manage-message-queues/">managing message queues</a> describe the consumer lifecycle, but they do not really cover this failure mode. You learn it by running into it.</p>
+
+<aside class="callout">Resetting stuck rows by hand on a live store is safe only after you confirm no consumer process is still holding them. Run <code>ps -ef | grep queue:consumers</code> first. If a healthy consumer is mid-way through a row and you reset it, the next consumer will re-claim and re-send. You get duplicate order emails to real customers. Kill the consumer processes first, then reset, then restart.</aside>
+
+<h2>Unsticking the row without sending three days of duplicates</h2>
+
+<p>The fix is two SQL statements and a process kill, in order.</p>
+
+<pre><code class="lang-bash">pkill -f 'queue:consumers:start sales.email.order'</code></pre>
+
+<pre><code class="lang-sql">UPDATE queue_message_status
+SET status = 7
+WHERE status = 2
+  AND updated_at &lt; NOW() - INTERVAL 30 MINUTE;</code></pre>
+
+<p>Status 7 puts the row back in the NEW pool for any consumer to claim. The 30-minute floor protects you from clobbering a row that a healthy consumer is mid-way through, which matters if the cron has restarted a consumer in the gap between your pkill and your UPDATE.</p>
+
+<p>The duplicate-email worry was real on the other side too. Three days of unsent confirmations means 2,341 emails about to land at once, some on inboxes that have since rage-quit and moved on. The agency's call here was correct: send them. A confirmation arriving late is annoying. A confirmation that never arrives looks like fraud. We did flag two customers who had since opened a chargeback, deleted those specific queue_message rows, then let the rest go.</p>
+
+<pre><code class="lang-sql">DELETE qms FROM queue_message_status qms
+JOIN queue_message qm ON qm.id = qms.message_id
+WHERE qm.topic_name = 'sales.email.order'
+  AND qm.body LIKE '%"order_id":12847%';</code></pre>
+
+<p>Then we restarted the consumer cleanly with a max-messages ceiling, so the catchup wave could not itself wedge another row.</p>
+
+<pre><code class="lang-bash">bin/magento queue:consumers:start sales.email.order --max-messages=500</code></pre>
+
+<p>Six minutes later, the table was empty and the mail logs were busy. The agency sent a short note to the customer explaining the delay. The store owner sent six refunds for shipping. Cheaper than the alternative.</p>
+
+<h2>The blast radius of one stuck row</h2>
+
+<p>The interesting part is not that this happened. The interesting part is that nothing alerted on it. Magento's own admin shows the order as complete. The store's monitoring was watching HTTP 200s and database CPU. Sentry was watching PHP exceptions. None of those layers can see "an email that should exist does not exist." Order confirmations are an absence, and absences do not throw.</p>
+
+<p>The defence is one cron job, running every fifteen minutes, that asks the question we asked at 23:41 and shouts when the answer is wrong:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS stuck
+FROM queue_message_status
+WHERE status = 2
+  AND updated_at &lt; NOW() - INTERVAL 30 MINUTE;</code></pre>
+
+<p>If that count is non-zero for two consecutive checks, something is wedged. Pipe it to Slack, Pushover, whatever you read. A second query worth running is the backlog of NEW messages older than five minutes per topic, since that catches the inverse case: a consumer that never starts at all, usually because cron_consumers_runner is missing from app/etc/env.php after a config rebuild.</p>
+
+<h2>Hardening the consumer for next time</h2>
+
+<p>Three things worth doing before you close the ticket.</p>
+
+<p>First, set <code>max_messages</code> and the consumer list explicitly in app/etc/env.php. A consumer that exits cleanly every N messages is a consumer that releases its lock on the next bad row instead of holding it forever. The <a href="https://developer.adobe.com/commerce/php/development/components/message-queues/consumers/">consumers reference</a> covers the keys; the config that worked here was:</p>
+
+<pre><code class="lang-php">'queue' =&gt; [
+    'consumers_wait_for_messages' =&gt; 0,
+    'only_spawn_when_message_available' =&gt; 1,
+],
+'cron_consumers_runner' =&gt; [
+    'cron_run' =&gt; true,
+    'max_messages' =&gt; 200,
+    'consumers' =&gt; [
+        'sales.email.order',
+        'sales.email.order.invoice',
+        'sales.email.order.creditmemo',
+        'sales.email.order.shipment',
+    ],
+],</code></pre>
+
+<p>Second, add the stuck-row query above to whatever cron monitor you already use. If you have none, a five-line PHP script in /var/scripts that posts to a webhook is enough. The query is cheap, the table is small, the alert is unambiguous.</p>
+
+<p>Third, and this is the one most teams skip, write down what the recovery looks like. The agency we worked with had no runbook for "stuck queue". When it happened, they spent forty minutes guessing at MTA logs before opening the database. A four-line README in the repo is the difference between a six-minute fix and a four-hour incident.</p>
+
+<p>When we built <a href="/">Pier</a> we kept running into exactly this shape of problem on every <a href="/">legacy site</a> we touched. The failure is in a database row, the diagnosis needs to happen at 23:41, and the engineer who actually knows the codebase is asleep. The chat-first <a href="/#database">MySQL editor</a> we ship is so "show me stuck rows in queue_message_status older than thirty minutes" is a sentence you can type instead of a query you have to write, and the <a href="/#features">version history</a> means the UPDATE that unsticks them is one click to undo if you misjudge the floor.</p>
+
+<p>The smallest thing you can do today: open a database console on every Magento 2 store you operate, run that one COUNT query against queue_message_status, and write the result down somewhere. If it is anything other than zero, you have found your next incident before it found you.</p>
+    </div>
+
+    <aside class="pullquote">Magento&#39;s async order emails fail silently when a consumer dies mid-claim. Watch queue_message_status for status=2 rows older than 30 minutes.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How do I know if my Magento 2 order emails are queued but not sending?</p>
+      <p class="faq-a">Run SELECT COUNT(*) FROM queue_message_status WHERE status = 2 AND updated_at &lt; NOW() - INTERVAL 30 MINUTE. Non-zero means a consumer claimed a row and never finished.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to UPDATE queue_message_status on a live store?</p>
+      <p class="faq-a">Yes, but kill the consumer processes first with pkill, run the UPDATE with an updated_at floor of at least 30 minutes, then restart the consumer. Skipping the pkill risks duplicate emails.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What usually causes a Magento consumer to die mid-claim?</p>
+      <p class="faq-a">OOM kills during backup windows, SIGTERM from deploy scripts, and uncaught PHP fatal errors during email rendering. Setting max_messages on cron_consumers_runner limits the blast radius of each occurrence.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will the admin or Sentry tell me order emails are stuck?</p>
+      <p class="faq-a">No. The order is marked complete in admin, no PHP exception fires, and HTTP monitors stay green. The only signal lives in queue_message_status. You have to query it on a schedule.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Magento 2 indexer stuck: recovery without losing orders</h3>
+      <span class="pc-lede">A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Overhead shot of printed CSV sheet, manila folder, brass key, ruler, red pencil, index cards, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Magento CSV import without downtime: a 9,000-row swap</h3>
+      <span class="pc-lede">A 23:41 Loom, a 9,043-row supplier CSV, and a storefront that could not go down. The post-mortem on how a Dutch agency staged the import without losing a minute of uptime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

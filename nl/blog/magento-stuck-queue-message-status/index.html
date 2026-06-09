@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento bestelmails stoppen: één rij in queue_message_status · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, php, operations, databases, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento bestelmails stoppen: één rij in queue_message_status">
+<meta property="og:description" content="Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T23:55:00.713Z">
+<meta property="article:modified_time" content="2026-06-09T23:55:00.713Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento bestelmails stoppen: één rij in queue_message_status">
+<meta name="twitter:description" content="Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/"},
+  "url":"https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/",
+  "headline":"Magento bestelmails stoppen: één rij in queue_message_status",
+  "description":"Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel."
+  },
+  "datePublished":"2026-06-09T23:55:00.713Z",
+  "dateModified":"2026-06-09T23:55:00.713Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, mysql, php, operations, databases, tooling",
+  "wordCount":1673,
+  "articleSection":"Magento",
+  "articleBody":"De Loom komt binnen op dinsdag om 23:41. Een Nederlands bureau waar we mee werken heeft hun klant op de speaker, een kleine Magento 2-shop die misschien 80 bestellingen per dag doet. De klant merkte het omdat een koper belde: waar blijft mijn bevestiging? Daarna checkte ze haar eigen testbestelling van die ochtend. Ook niets in haar inbox. Vervolgens trok ze drie dagen aan bestellingen uit de admin en legde ze tegen de maillogs. Drie dagen aan bestellingen. Nul verstuurde mails. Er was niets veranderd aan de shop. Geen deploy, geen module-update, geen werk aan de infrastructuur. Bestellingen liepen prima door Stripe, voorraad werd afgeboekt, sales_order-rijen werden geschreven, en de klantkant zag er volledig normaal uit. Het enige symptoom was de afwezigheid van een mail. Marketing verstuurde campagnes zonder gedoe via dezelfde SMTP-relay, dus het netwerk was aantoonbaar gezond. Het transactionele kanaal was het stille kanaal. Deze post is de walkthrough van hoe we de Magento-mailstoring herleidden tot één rij in queue_message_status, en waarom de fix negentig seconden kostte zodra we wisten waar we moesten kijken. Als je Magento 2 in productie draait, ga je dit faalmechanisme vroeg of laat tegenkomen, en er is geen admin-scherm dat je waarschuwt. Het eerste signaal in de database Bestelbevestigingen in Magento 2 worden niet inline verstuurd. Ze gaan op een queue. Sinds 2.3 is asynchrone mail de default, wat betekent dat er bij een bestelling een message op de queue komt en een consumer-proces die later oppikt. Die ontkoppeling is goed voor checkout-latency en slecht voor zichtbaarheid. Een vastgelopen consumer faalt stil. De bestelling klopt. De queue is het kapotte deel. De admin loopt netjes door naar 'Complete' en de shopeigenaar heeft geen reden om iets te vermoeden. Het eerste wat we deden was de database openen en de meest voor de hand liggende vraag stellen. SELECT topic_name, COUNT(*) AS pending FROM queue_message qm JOIN queue_message_status qms ON qms.message_id = qm.id WHERE qms.status IN (2, 4, 7) GROUP BY topic_name ORDER BY pending DESC; Status 7 is NEW, 2 is IN_PROGRESS, 4 is RETRY_REQUIRED. De bovenste rij gaf 2.341 pending messages voor topic_name = sales.email.order. Drie dagen aan bestelbevestigingen die in een tabel zaten te wachten op een consumer die nooit kwam. De topics daarachter (invoice, shipment, creditmemo) stapelden zich om dezelfde reden op. De cron-keten nalopen In Magento 2 wordt de consumer voor dat topic gestart door de cronjob consumers_runner binnen de consumers-groep. De keten ziet er zo uit: De system cron draait elke minuut en roept bin/magento cron:run aan. Die dispatcht de consumers-groep. consumers_runner start de geconfigureerde consumers, waaronder sales.email.order. De consumer leest uit queue_message_status, markeert rijen als IN_PROGRESS, verstuurt de mail, en markeert ze COMPLETE. We checkten de system crontab. Prima. We checkten cron_schedule. SELECT job_code, status, scheduled_at, executed_at, finished_at FROM cron_schedule WHERE job_code = 'consumers_runner' ORDER BY scheduled_at DESC LIMIT 10; Elke rij had status = success. De cron draaide. De consumer werd gestart. Toch werd er niets verwerkt. Dat is de klassieke vorm van dit incident: elke health check hogerop in de stack zegt groen, omdat elke health check hogerop in de stack de verkeerde vraag stelt. Toen keken we naar de proceslijst. ps -ef | grep queue:consumers | grep -v grep Er draaiden drie sales.email.order-processen. Volgens ps liepen ze al tussen de vier en zeventig uur. Geen van allen deed iets. Ze waren niet gecrasht. Ze gebruikten geen CPU. Ze zaten daar, geblokkeerd op iets onzichtbaars. In queue_message_status Hier werd het interessant. We vroegen de tabel om zijn oudste in-progress-rijen te laten zien. SELECT id, message_id, status, updated_at, number_of_trials FROM queue_message_status WHERE status = 2 ORDER BY updated_at ASC LIMIT 5; De oudste rij was drie dagen en vier uur oud. Status 2 (IN_PROGRESS), number_of_trials = 0. Hij was opgepikt door een consumer die vervolgens was verdwenen zonder hem ooit op COMPLETE of ERROR te zetten. De volgende consumer-instance vond hem al op IN_PROGRESS staan, respecteerde dat, en liep eraan voorbij. De daarna ook. En de daarna ook. De queue draait FIFO binnen een topic, dus elke latere bevestiging stapelde zich op achter één spookrij. De database queue driver van Magento gebruikt SELECT ... FOR UPDATE om een message te claimen en IN_PROGRESS weg te schrijven. Als de worker doodgaat tussen claim en complete, blijft die rij liggen tot iets hem reset. Er is geen ingebouwde reaper. Het framework gaat ervan uit dat consumers hun werk afmaken of netjes crashen, en geen van beide is gegarandeerd als het onderliggende probleem bijvoorbeeld een OOM-kill van de host is of een SIGTERM van een deploy-script. In dit geval had de host drie nachten eerder PHP-FPM-children OOM-killed tijdens een backup-window dat de machine kort over zijn geheugenplafond duwde. ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento bestelmails stoppen: één rij in queue_message_status","item":"https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe weet ik of mijn Magento 2-bestelmails in de queue staan maar niet worden verstuurd?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai SELECT COUNT(*) FROM queue_message_status WHERE status = 2 AND updated_at < NOW() - INTERVAL 30 MINUTE. Niet-nul betekent dat een consumer een rij heeft geclaimd en nooit heeft afgemaakt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om UPDATE op queue_message_status te draaien op een live shop?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, maar kill eerst de consumer-processen met pkill, draai de UPDATE met een updated_at-ondergrens van minstens 30 minuten, en herstart daarna de consumer. De pkill overslaan riskeert dubbele mails."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat zorgt er meestal voor dat een Magento-consumer halverwege een claim doodgaat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OOM-kills tijdens backup-windows, SIGTERM van deploy-scripts, en niet-gevangen PHP fatal errors tijdens email-rendering. max_messages op cron_consumers_runner zetten beperkt de impact per voorval."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-stuck-queue-message-status/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 075</span>
+      </div>
+      <p class="eyebrow"><span class="n">075 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento bestelmails stoppen: één rij in queue_message_status</h1>
+      <p class="lede post-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T23:55:00.713Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+      <img src="/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 075</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom komt binnen op dinsdag om 23:41. Een Nederlands bureau waar we mee werken heeft hun klant op de speaker, een kleine Magento 2-shop die misschien 80 bestellingen per dag doet. De klant merkte het omdat een koper belde: waar blijft mijn bevestiging? Daarna checkte ze haar eigen testbestelling van die ochtend. Ook niets in haar inbox. Vervolgens trok ze drie dagen aan bestellingen uit de admin en legde ze tegen de maillogs. Drie dagen aan bestellingen. Nul verstuurde mails.</p>
+
+<p>Er was niets veranderd aan de shop. Geen deploy, geen module-update, geen werk aan de infrastructuur. Bestellingen liepen prima door Stripe, voorraad werd afgeboekt, sales_order-rijen werden geschreven, en de klantkant zag er volledig normaal uit. Het enige symptoom was de afwezigheid van een mail. Marketing verstuurde campagnes zonder gedoe via dezelfde SMTP-relay, dus het netwerk was aantoonbaar gezond. Het transactionele kanaal was het stille kanaal.</p>
+
+<p>Deze post is de walkthrough van hoe we de Magento-mailstoring herleidden tot één rij in queue_message_status, en waarom de fix negentig seconden kostte zodra we wisten waar we moesten kijken. Als je Magento 2 in productie draait, ga je dit faalmechanisme vroeg of laat tegenkomen, en er is geen admin-scherm dat je waarschuwt.</p>
+
+<h2>Het eerste signaal in de database</h2>
+
+<p>Bestelbevestigingen in Magento 2 worden niet inline verstuurd. Ze gaan op een queue. Sinds 2.3 is asynchrone mail de default, wat betekent dat er bij een bestelling een message op de queue komt en een consumer-proces die later oppikt. Die ontkoppeling is goed voor checkout-latency en slecht voor zichtbaarheid. Een vastgelopen consumer faalt stil. De bestelling klopt. De queue is het kapotte deel. De admin loopt netjes door naar 'Complete' en de shopeigenaar heeft geen reden om iets te vermoeden.</p>
+
+<p>Het eerste wat we deden was de database openen en de meest voor de hand liggende vraag stellen.</p>
+
+<pre><code class="lang-sql">SELECT topic_name, COUNT(*) AS pending
+FROM queue_message qm
+JOIN queue_message_status qms ON qms.message_id = qm.id
+WHERE qms.status IN (2, 4, 7)
+GROUP BY topic_name
+ORDER BY pending DESC;</code></pre>
+
+<p>Status 7 is NEW, 2 is IN_PROGRESS, 4 is RETRY_REQUIRED. De bovenste rij gaf 2.341 pending messages voor topic_name = sales.email.order. Drie dagen aan bestelbevestigingen die in een tabel zaten te wachten op een consumer die nooit kwam. De topics daarachter (invoice, shipment, creditmemo) stapelden zich om dezelfde reden op.</p>
+
+<h2>De cron-keten nalopen</h2>
+
+<p>In Magento 2 wordt de consumer voor dat topic gestart door de cronjob consumers_runner binnen de consumers-groep. De keten ziet er zo uit:</p>
+
+<ul>
+<li>De system cron draait elke minuut en roept <code>bin/magento cron:run</code> aan.</li>
+<li>Die dispatcht de consumers-groep.</li>
+<li>consumers_runner start de geconfigureerde consumers, waaronder sales.email.order.</li>
+<li>De consumer leest uit queue_message_status, markeert rijen als IN_PROGRESS, verstuurt de mail, en markeert ze COMPLETE.</li>
+</ul>
+
+<p>We checkten de system crontab. Prima. We checkten cron_schedule.</p>
+
+<pre><code class="lang-sql">SELECT job_code, status, scheduled_at, executed_at, finished_at
+FROM cron_schedule
+WHERE job_code = 'consumers_runner'
+ORDER BY scheduled_at DESC
+LIMIT 10;</code></pre>
+
+<p>Elke rij had status = success. De cron draaide. De consumer werd gestart. Toch werd er niets verwerkt. Dat is de klassieke vorm van dit incident: elke health check hogerop in de stack zegt groen, omdat elke health check hogerop in de stack de verkeerde vraag stelt.</p>
+
+<p>Toen keken we naar de proceslijst.</p>
+
+<pre><code class="lang-bash">ps -ef | grep queue:consumers | grep -v grep</code></pre>
+
+<p>Er draaiden drie sales.email.order-processen. Volgens ps liepen ze al tussen de vier en zeventig uur. Geen van allen deed iets. Ze waren niet gecrasht. Ze gebruikten geen CPU. Ze zaten daar, geblokkeerd op iets onzichtbaars.</p>
+
+<h2>In queue_message_status</h2>
+
+<p>Hier werd het interessant. We vroegen de tabel om zijn oudste in-progress-rijen te laten zien.</p>
+
+<pre><code class="lang-sql">SELECT id, message_id, status, updated_at, number_of_trials
+FROM queue_message_status
+WHERE status = 2
+ORDER BY updated_at ASC
+LIMIT 5;</code></pre>
+
+<p>De oudste rij was drie dagen en vier uur oud. Status 2 (IN_PROGRESS), number_of_trials = 0. Hij was opgepikt door een consumer die vervolgens was verdwenen zonder hem ooit op COMPLETE of ERROR te zetten. De volgende consumer-instance vond hem al op IN_PROGRESS staan, respecteerde dat, en liep eraan voorbij. De daarna ook. En de daarna ook. De queue draait FIFO binnen een topic, dus elke latere bevestiging stapelde zich op achter één spookrij.</p>
+
+<p>De database queue driver van Magento gebruikt SELECT ... FOR UPDATE om een message te claimen en IN_PROGRESS weg te schrijven. Als de worker doodgaat tussen claim en complete, blijft die rij liggen tot iets hem reset. Er is geen ingebouwde reaper. Het framework gaat ervan uit dat consumers hun werk afmaken of netjes crashen, en geen van beide is gegarandeerd als het onderliggende probleem bijvoorbeeld een OOM-kill van de host is of een SIGTERM van een deploy-script.</p>
+
+<p>In dit geval had de host drie nachten eerder PHP-FPM-children OOM-killed tijdens een backup-window dat de machine kort over zijn geheugenplafond duwde. De cron-gespawnde consumer hoorde toevallig bij de slachtoffers. Zijn geclaimde rij in queue_message_status werd nooit vrijgegeven. Vanaf dat moment hoopte elke bevestigingsmail zich daarachter op. De Adobe Commerce-docs over <a href="https://developer.adobe.com/commerce/php/development/components/message-queues/manage-message-queues/">managing message queues</a> beschrijven de consumer-lifecycle, maar ze behandelen dit faalmechanisme niet echt. Dat leer je door erin te lopen.</p>
+
+<aside class="callout">Vastzittende rijen handmatig resetten op een live shop is alleen veilig nadat je hebt gecontroleerd dat er geen consumer-proces meer is dat ze vasthoudt. Draai eerst <code>ps -ef | grep queue:consumers</code>. Als een gezonde consumer halverwege een rij zit en je reset hem, claimt en verstuurt de volgende consumer hem opnieuw. Dan krijg je dubbele bestelmails bij echte klanten. Kill eerst de consumer-processen, reset dan, en herstart daarna.</aside>
+
+<h2>De rij losmaken zonder drie dagen aan dubbels te versturen</h2>
+
+<p>De fix is twee SQL-statements en een process-kill, in die volgorde.</p>
+
+<pre><code class="lang-bash">pkill -f 'queue:consumers:start sales.email.order'</code></pre>
+
+<pre><code class="lang-sql">UPDATE queue_message_status
+SET status = 7
+WHERE status = 2
+  AND updated_at &lt; NOW() - INTERVAL 30 MINUTE;</code></pre>
+
+<p>Status 7 zet de rij terug in de NEW-pool zodat elke consumer hem kan claimen. De ondergrens van 30 minuten beschermt je tegen het overrijden van een rij die een gezonde consumer halverwege heeft, wat ertoe doet als de cron in het gat tussen je pkill en je UPDATE een consumer heeft herstart.</p>
+
+<p>De dubbele-mail-zorg gold ook aan de andere kant. Drie dagen aan onverstuurde bevestigingen betekent 2.341 mails die straks ineens binnen rollen, sommige in inboxen die inmiddels boos zijn afgehaakt. De keuze van het bureau was hier juist: versturen. Een bevestiging die laat aankomt is vervelend. Een bevestiging die nooit aankomt ziet eruit als fraude. We hebben wel twee klanten gemarkeerd die intussen een chargeback hadden geopend, hun specifieke queue_message-rijen verwijderd, en de rest doorgelaten.</p>
+
+<pre><code class="lang-sql">DELETE qms FROM queue_message_status qms
+JOIN queue_message qm ON qm.id = qms.message_id
+WHERE qm.topic_name = 'sales.email.order'
+  AND qm.body LIKE '%"order_id":12847%';</code></pre>
+
+<p>Daarna herstartten we de consumer netjes met een max-messages-plafond, zodat de inhaalslag zelf niet weer een rij kon laten vastlopen.</p>
+
+<pre><code class="lang-bash">bin/magento queue:consumers:start sales.email.order --max-messages=500</code></pre>
+
+<p>Zes minuten later was de tabel leeg en stonden de maillogs vol. Het bureau stuurde een kort bericht naar de klant met uitleg over de vertraging. De shopeigenaar deed zes verzendkosten-restituties. Goedkoper dan het alternatief.</p>
+
+<h2>De impact van één vastzittende rij</h2>
+
+<p>Het interessante is niet dat dit gebeurde. Het interessante is dat er niets op alertte. De admin van Magento zelf laat de bestelling als compleet zien. De monitoring van de shop keek naar HTTP 200s en database-CPU. Sentry keek naar PHP-exceptions. Geen van die lagen kan 'een mail die zou moeten bestaan, bestaat niet' zien. Bestelbevestigingen zijn een afwezigheid, en afwezigheden gooien geen errors.</p>
+
+<p>De verdediging is één cronjob die elke vijftien minuten draait, dezelfde vraag stelt die wij om 23:41 stelden, en gilt als het antwoord verkeerd is:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS stuck
+FROM queue_message_status
+WHERE status = 2
+  AND updated_at &lt; NOW() - INTERVAL 30 MINUTE;</code></pre>
+
+<p>Als die count twee opeenvolgende checks niet-nul is, zit er iets vast. Pipe hem naar Slack, Pushover, wat je ook leest. Een tweede query die het waard is om te draaien, is de backlog NEW-messages ouder dan vijf minuten per topic, want die vangt het omgekeerde geval: een consumer die helemaal niet start, meestal omdat cron_consumers_runner ontbreekt in app/etc/env.php na een config-rebuild.</p>
+
+<h2>De consumer hardenen voor de volgende keer</h2>
+
+<p>Drie dingen die het waard zijn om te doen voordat je het ticket sluit.</p>
+
+<p>Eén: zet <code>max_messages</code> en de consumer-lijst expliciet in app/etc/env.php. Een consumer die om de N messages netjes afsluit, is een consumer die zijn lock vrijgeeft bij de volgende slechte rij in plaats van hem voor altijd vast te houden. De <a href="https://developer.adobe.com/commerce/php/development/components/message-queues/consumers/">consumers-referentie</a> behandelt de keys; de config die hier werkte was:</p>
+
+<pre><code class="lang-php">'queue' =&gt; [
+    'consumers_wait_for_messages' =&gt; 0,
+    'only_spawn_when_message_available' =&gt; 1,
+],
+'cron_consumers_runner' =&gt; [
+    'cron_run' =&gt; true,
+    'max_messages' =&gt; 200,
+    'consumers' =&gt; [
+        'sales.email.order',
+        'sales.email.order.invoice',
+        'sales.email.order.creditmemo',
+        'sales.email.order.shipment',
+    ],
+],</code></pre>
+
+<p>Twee: voeg de stuck-row-query hierboven toe aan welke cron-monitor je ook gebruikt. Heb je er geen, dan is een PHP-script van vijf regels in /var/scripts dat naar een webhook post genoeg. De query is goedkoop, de tabel is klein, het alert is ondubbelzinnig.</p>
+
+<p>Drie, en dit slaan de meeste teams over: schrijf op hoe het herstel eruitziet. Het bureau waar we mee werkten had geen runbook voor 'queue vastgelopen'. Toen het gebeurde, gokten ze veertig minuten op MTA-logs voordat ze de database openden. Een README van vier regels in de repo is het verschil tussen een fix van zes minuten en een incident van vier uur.</p>
+
+<p>Toen we <a href="/">Pier</a> bouwden, liepen we precies tegen deze vorm van probleem aan op elke <a href="/">verouderde site</a> die we aanraakten. De storing zit in een rij in de database, de diagnose moet om 23:41 gebeuren, en de engineer die de codebase écht kent ligt te slapen. De chat-first <a href="/#database">MySQL editor</a> die we shippen zorgt dat 'laat me vastzittende rijen in queue_message_status zien ouder dan dertig minuten' een zin is die je kunt typen in plaats van een query die je moet schrijven, en de <a href="/#features">versiegeschiedenis</a> betekent dat de UPDATE die ze losmaakt één klik terugdraaien is als je je ondergrens verkeerd inschat.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: open een database-console op elke Magento 2-shop die je beheert, draai die ene COUNT-query tegen queue_message_status, en schrijf de uitkomst ergens op. Als hij iets anders dan nul is, heb je je volgende incident gevonden voordat het jou vond.</p>
+    </div>
+
+    <aside class="pullquote">De asynchrone bestelmails van Magento falen stil als een consumer halverwege een claim doodgaat. Houd queue_message_status in de gaten op status=2-rijen ouder dan 30 minuten.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe weet ik of mijn Magento 2-bestelmails in de queue staan maar niet worden verstuurd?</p>
+      <p class="faq-a">Draai SELECT COUNT(*) FROM queue_message_status WHERE status = 2 AND updated_at &lt; NOW() - INTERVAL 30 MINUTE. Niet-nul betekent dat een consumer een rij heeft geclaimd en nooit heeft afgemaakt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om UPDATE op queue_message_status te draaien op een live shop?</p>
+      <p class="faq-a">Ja, maar kill eerst de consumer-processen met pkill, draai de UPDATE met een updated_at-ondergrens van minstens 30 minuten, en herstart daarna de consumer. De pkill overslaan riskeert dubbele mails.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat zorgt er meestal voor dat een Magento-consumer halverwege een claim doodgaat?</p>
+      <p class="faq-a">OOM-kills tijdens backup-windows, SIGTERM van deploy-scripts, en niet-gevangen PHP fatal errors tijdens email-rendering. max_messages op cron_consumers_runner zetten beperkt de impact per voorval.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Magento 2 indexer vastgelopen: herstel zonder orderverlies</h3>
+      <span class="pc-lede">Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-csv-import-without-downtime/hero.jpg" alt="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Magento CSV-import zonder downtime: 9.000 rijen wisselen</h3>
+      <span class="pc-lede">Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
