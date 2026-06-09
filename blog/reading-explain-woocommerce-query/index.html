@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading EXPLAIN on a WooCommerce query: a field guide · Pier — Blog</title>
+<meta name="description" content="A WooCommerce product query crawls. The EXPLAIN plan has three columns that name the actual problem: type, rows, and Extra. Read them in order.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/reading-explain-woocommerce-query/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-explain-woocommerce-query/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-explain-woocommerce-query/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-explain-woocommerce-query/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading EXPLAIN on a WooCommerce query: a field guide">
+<meta property="og:description" content="A WooCommerce product query crawls. The EXPLAIN plan has three columns that name the actual problem: type, rows, and Extra. Read them in order.">
+<meta property="og:url" content="https://pier.abn.company/blog/reading-explain-woocommerce-query/">
+<meta property="og:image" content="https://pier.abn.company/blog/reading-explain-woocommerce-query/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/reading-explain-woocommerce-query/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper EXPLAIN printout, hand-drawn ER diagram, manila folder, brass plate, wax stamp on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T22:20:26.991Z">
+<meta property="article:modified_time" content="2026-06-09T22:20:26.991Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading EXPLAIN on a WooCommerce query: a field guide">
+<meta name="twitter:description" content="A WooCommerce product query crawls. The EXPLAIN plan has three columns that name the actual problem: type, rows, and Extra. Read them in order.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/reading-explain-woocommerce-query/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper EXPLAIN printout, hand-drawn ER diagram, manila folder, brass plate, wax stamp on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-explain-woocommerce-query/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/reading-explain-woocommerce-query/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/reading-explain-woocommerce-query/"},
+  "url":"https://pier.abn.company/blog/reading-explain-woocommerce-query/",
+  "headline":"Reading EXPLAIN on a WooCommerce query: a field guide",
+  "description":"A WooCommerce product query crawls. The EXPLAIN plan has three columns that name the actual problem: type, rows, and Extra. Read them in order.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/reading-explain-woocommerce-query/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper EXPLAIN printout, hand-drawn ER diagram, manila folder, brass plate, wax stamp on linen."
+  },
+  "datePublished":"2026-06-09T22:20:26.991Z",
+  "dateModified":"2026-06-09T22:20:26.991Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, mysql, databases, php, workflow",
+  "wordCount":1356,
+  "articleSection":"Databases",
+  "articleBody":"The query that ate a Tuesday morning An agency we work with had a WooCommerce shop where the /shop page took fourteen seconds to render. They had already added Redis object cache, a page cache, and a CDN. None of it helped, because the page was hitting the database fresh on every variation filter. The slow log showed one query, repeated, against wp_posts joined to wp_postmeta four times. They sent us the EXPLAIN. Four rows back, a dozen columns wide, and the team kept zeroing in on the join order. The join order was fine. The answer was three columns over: type , rows , and Extra . This post is the field guide we wish we had taped to the inside of the laptop lid that morning, written for anyone who maintains a WordPress, WooCommerce, or Magento database in production. type, in plain language The type column tells you how MySQL plans to find rows in that table. It is the single most diagnostic column on the line. Read the documented hierarchy from cheapest to most expensive and the rest of the plan starts to make sense. system / const : one row, found by primary key. Effectively free. eq_ref : one row per row from the previous table, via a unique index. The normal cost of a healthy join. ref : multiple rows for each lookup, via a non-unique index. Fine for selective columns, ugly when the column has twelve distinct values across four million rows. range : an index range scan. Reasonable for date windows or ID ranges. Suspicious when the range is open-ended on a high-cardinality column. index : a full scan of an index. Cheaper than ALL because the index is narrower than the row, but you are still touching every row. ALL : a full table scan. On a two-hundred-row table, fine. On wp_postmeta with four million rows, this is where afternoons disappear. A rule of thumb: any line whose type is ALL or index on a table over a hundred thousand rows is a hypothesis you need to disprove. Sometimes the planner is right and a scan is genuinely cheaper than the index lookup. More often it is wrong because the index is missing, the column is wrapped in a function, or the statistics are stale. rows, and why the optimizer is guessing The rows column is the optimizer's estimate of how many rows it expects to read from that table for this step. The word estimate matters. MySQL samples index pages to come up with the number, and on a stale or skewed table it can be off by an order of magnitude in either direction. Three habits help: Multiply the rows across all lines of the plan. That product is the upper bound on row reads this query implies. If it lands in the millions and you have not added a LIMIT, the query will scale with the catalog, not with what the page actually shows. If rows looks suspiciously round, often the table size itself, the planner gave up and fell back to \"I will read everything.\" That is almost always a missing or unusable index. Run ANALYZE TABLE wp_postmeta; before you trust a plan. Statistics drift, especially after a big import or a Black Friday weekend. EXPLAIN does not run the query, but EXPLAIN ANALYZE (MySQL 8.0.18 and later, MariaDB 10.1 and later) does. On a production database, use plain EXPLAIN unless you have a read replica. Running ANALYZE on a fourteen-second query against a live shop will block the same way the original query does. Extra, where the truth lives The Extra column is free text and holds the things the planner could not say with structured columns. It is also where most of the actual performance problems are named out loud. The phrases you will see most on a WordPress or WooCommerce query: Using where : a filter is applied after rows are read. Normal, but pay attention when paired with ALL . It means MySQL read every row and then threw most of them away. Using index : the query was satisfied entirely from the index, no row read needed. This is what you want. Using index condition : index condition pushdown is in play. The storage engine is filtering before passing rows up. A good sign on a covering-ish index. Using filesort : ORDER BY cannot be served from the index. MySQL is sorting in memory or on disk. On a product listing sorted by menu_order then post_title, this is the common cost of WooCommerce's default sort. Using temporary : an intermediate table is being built, usually for GROUP BY or DISTINCT. With UNION queries on multi-language WPML setups, this appears constantly. Using join buffer (Block Nested Loop) : no usable index for the join. The planner is buffering rows and doing an in-memory cross. Smells like a missing index on a postmeta key. Two of those together, Using temporary; Using filesort on the same line, is the canonical \"this query needs a rewrite, not an index\" signal. You can paper over it with a bigger sort buffer, but the math will catch up with you. A walkthrough on a real WooCommerce query Here is a stripped-down version of the agency's slow query. Sort by price ascending on a /shop page filtered to one product category: EXPLAIN SELECT p.ID FROM wp_post",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/reading-explain-woocommerce-query/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading EXPLAIN on a WooCommerce query: a field guide","item":"https://pier.abn.company/blog/reading-explain-woocommerce-query/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does Using filesort actually mean in MySQL EXPLAIN?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MySQL cannot serve the ORDER BY from an index, so it sorts the result set in memory or on disk. Common when the sort column is wrapped in a function or has no matching index."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When should I trust the rows estimate in EXPLAIN?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Treat rows as a guess based on sampled index statistics. Run ANALYZE TABLE on large tables first. If the value still looks suspiciously round, the planner has fallen back to a full scan."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe to run EXPLAIN on production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plain EXPLAIN does not execute the query and is safe. EXPLAIN ANALYZE does run it and will block exactly like the original slow query, so reserve it for a replica or staging clone."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why is type ALL bad on wp_postmeta?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ALL means a full table scan. wp_postmeta is usually the largest table in a WordPress database, so a scan there reads millions of rows per query and dominates page render time."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/reading-explain-woocommerce-query/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 074</span>
+      </div>
+      <p class="eyebrow"><span class="n">074 —</span>Databases</p>
+      <h1 class="display-l post-title">Reading EXPLAIN on a WooCommerce query: a field guide</h1>
+      <p class="lede post-lede">A WooCommerce product query crawls. The EXPLAIN plan has three columns that name the actual problem: type, rows, and Extra. Read them in order.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T22:20:26.991Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-explain-woocommerce-query/hero.webp" type="image/webp">
+      <img src="/blog/reading-explain-woocommerce-query/hero.jpg" alt="Overhead photo of paper EXPLAIN printout, hand-drawn ER diagram, manila folder, brass plate, wax stamp on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 074</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The query that ate a Tuesday morning</h2>
+<p>An agency we work with had a WooCommerce shop where the /shop page took fourteen seconds to render. They had already added Redis object cache, a page cache, and a CDN. None of it helped, because the page was hitting the database fresh on every variation filter. The slow log showed one query, repeated, against wp_posts joined to wp_postmeta four times.</p>
+<p>They sent us the EXPLAIN. Four rows back, a dozen columns wide, and the team kept zeroing in on the join order. The join order was fine. The answer was three columns over: <code>type</code>, <code>rows</code>, and <code>Extra</code>. This post is the field guide we wish we had taped to the inside of the laptop lid that morning, written for anyone who maintains a WordPress, WooCommerce, or Magento database in production.</p>
+<h2>type, in plain language</h2>
+<p>The <code>type</code> column tells you how MySQL plans to find rows in that table. It is the single most diagnostic column on the line. Read the documented hierarchy from cheapest to most expensive and the rest of the plan starts to make sense.</p>
+<ul>
+<li><strong>system / const</strong>: one row, found by primary key. Effectively free.</li>
+<li><strong>eq_ref</strong>: one row per row from the previous table, via a unique index. The normal cost of a healthy join.</li>
+<li><strong>ref</strong>: multiple rows for each lookup, via a non-unique index. Fine for selective columns, ugly when the column has twelve distinct values across four million rows.</li>
+<li><strong>range</strong>: an index range scan. Reasonable for date windows or ID ranges. Suspicious when the range is open-ended on a high-cardinality column.</li>
+<li><strong>index</strong>: a full scan of an index. Cheaper than ALL because the index is narrower than the row, but you are still touching every row.</li>
+<li><strong>ALL</strong>: a full table scan. On a two-hundred-row table, fine. On wp_postmeta with four million rows, this is where afternoons disappear.</li>
+</ul>
+<p>A rule of thumb: any line whose type is <code>ALL</code> or <code>index</code> on a table over a hundred thousand rows is a hypothesis you need to disprove. Sometimes the planner is right and a scan is genuinely cheaper than the index lookup. More often it is wrong because the index is missing, the column is wrapped in a function, or the statistics are stale.</p>
+<h2>rows, and why the optimizer is guessing</h2>
+<p>The <code>rows</code> column is the optimizer's estimate of how many rows it expects to read from that table for this step. The word <em>estimate</em> matters. MySQL samples index pages to come up with the number, and on a stale or skewed table it can be off by an order of magnitude in either direction.</p>
+<p>Three habits help:</p>
+<ul>
+<li>Multiply the rows across all lines of the plan. That product is the upper bound on row reads this query implies. If it lands in the millions and you have not added a LIMIT, the query will scale with the catalog, not with what the page actually shows.</li>
+<li>If <code>rows</code> looks suspiciously round, often the table size itself, the planner gave up and fell back to "I will read everything." That is almost always a missing or unusable index.</li>
+<li>Run <code>ANALYZE TABLE wp_postmeta;</code> before you trust a plan. Statistics drift, especially after a big import or a Black Friday weekend.</li>
+</ul>
+<aside class="callout">EXPLAIN does not run the query, but EXPLAIN ANALYZE (MySQL 8.0.18 and later, MariaDB 10.1 and later) does. On a production database, use plain EXPLAIN unless you have a read replica. Running ANALYZE on a fourteen-second query against a live shop will block the same way the original query does.</aside>
+<h2>Extra, where the truth lives</h2>
+<p>The <code>Extra</code> column is free text and holds the things the planner could not say with structured columns. It is also where most of the actual performance problems are named out loud. The phrases you will see most on a WordPress or WooCommerce query:</p>
+<ul>
+<li><strong>Using where</strong>: a filter is applied after rows are read. Normal, but pay attention when paired with <code>ALL</code>. It means MySQL read every row and then threw most of them away.</li>
+<li><strong>Using index</strong>: the query was satisfied entirely from the index, no row read needed. This is what you want.</li>
+<li><strong>Using index condition</strong>: index condition pushdown is in play. The storage engine is filtering before passing rows up. A good sign on a covering-ish index.</li>
+<li><strong>Using filesort</strong>: ORDER BY cannot be served from the index. MySQL is sorting in memory or on disk. On a product listing sorted by menu_order then post_title, this is the common cost of WooCommerce's default sort.</li>
+<li><strong>Using temporary</strong>: an intermediate table is being built, usually for GROUP BY or DISTINCT. With UNION queries on multi-language WPML setups, this appears constantly.</li>
+<li><strong>Using join buffer (Block Nested Loop)</strong>: no usable index for the join. The planner is buffering rows and doing an in-memory cross. Smells like a missing index on a postmeta key.</li>
+</ul>
+<p>Two of those together, <code>Using temporary; Using filesort</code> on the same line, is the canonical "this query needs a rewrite, not an index" signal. You can paper over it with a bigger sort buffer, but the math will catch up with you.</p>
+<h2>A walkthrough on a real WooCommerce query</h2>
+<p>Here is a stripped-down version of the agency's slow query. Sort by price ascending on a /shop page filtered to one product category:</p>
+<pre><code class="lang-sql">EXPLAIN
+SELECT p.ID
+FROM wp_posts p
+INNER JOIN wp_term_relationships tr ON tr.object_id = p.ID
+INNER JOIN wp_term_taxonomy tt ON tt.term_taxonomy_id = tr.term_taxonomy_id
+INNER JOIN wp_postmeta pm ON pm.post_id = p.ID AND pm.meta_key = '_price'
+WHERE p.post_type = 'product'
+  AND p.post_status = 'publish'
+  AND tt.taxonomy = 'product_cat'
+  AND tt.term_id = 42
+ORDER BY CAST(pm.meta_value AS DECIMAL(10,2)) ASC
+LIMIT 12 OFFSET 0;
+</code></pre>
+<p>The plan came back with four rows. The one that mattered read like this:</p>
+<pre><code class="lang-text">table: pm
+type: ref
+key: post_id
+rows: 1
+Extra: Using where; Using filesort
+</code></pre>
+<p>type <code>ref</code> and rows <code>1</code> look fine. The <code>Extra</code> column does not. <code>Using filesort</code> on a CAST expression means MySQL has to materialize the converted decimal for every candidate row before it can sort. There is no index on the cast, and there cannot be one in the schema as it stands.</p>
+<p>The fix was a generated column on wp_postmeta with a numeric index, populated from <code>_price</code>. After that, the same EXPLAIN line read <code>Using index</code> and the /shop page rendered in under four hundred milliseconds. The query did not change. The plan did, because the planner finally had something it could sort against.</p>
+<h2>From plan to fix</h2>
+<p>A loose checklist for the next slow WooCommerce or WordPress query you stare at:</p>
+<ol>
+<li>Find the line with the highest <code>rows</code> value. Start there.</li>
+<li>Look at <code>type</code> on that line. If it is <code>ALL</code> or <code>index</code>, ask why.</li>
+<li>Read the <code>Extra</code> column out loud. If it contains <code>filesort</code> or <code>temporary</code>, the cost is in the sort or group, not the read.</li>
+<li>Check whether <code>key</code> matches what you expected. <code>possible_keys</code> tells you what the planner could have used; <code>key</code> tells you what it picked. They are often different.</li>
+<li>Run <code>ANALYZE TABLE</code> on the largest table in the plan. Re-EXPLAIN. If the plan changes, statistics were the problem, not the schema.</li>
+</ol>
+<p>The <a href="https://dev.mysql.com/doc/refman/8.0/en/explain-output.html">MySQL EXPLAIN reference</a> is the canonical map of every value these columns can hold, and <a href="https://mariadb.com/kb/en/explain/">the MariaDB version</a> documents the small but real differences for shops running on MariaDB 10.x, which most managed hosts still default to.</p>
+<h2>The smallest thing to do today</h2>
+<p>Pick the slowest URL on a WordPress or WooCommerce site you maintain. Open the slow log, copy the query that fires for that URL, prefix it with <code>EXPLAIN</code>, and read the three columns above before you change a single line of PHP. Nine times out of ten, the fix names itself.</p>
+<p>When we built Pier's <a href="/#database">MySQL editor</a> we kept running into this exact loop, alt-tabbing between a desktop SQL client and a Slack thread to argue about what the plan meant. The plan view annotates each row inline and shows the EXPLAIN diff before and after an index is added, with full <a href="/#features">version history</a> on every schema change against the <a href="/">legacy site</a>.</p>
+    </div>
+
+    <aside class="pullquote">On a slow WordPress query, read three columns of EXPLAIN in order: type, rows, Extra. By the time you reach Extra, the fix usually names itself.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What does Using filesort actually mean in MySQL EXPLAIN?</p>
+      <p class="faq-a">MySQL cannot serve the ORDER BY from an index, so it sorts the result set in memory or on disk. Common when the sort column is wrapped in a function or has no matching index.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">When should I trust the rows estimate in EXPLAIN?</p>
+      <p class="faq-a">Treat rows as a guess based on sampled index statistics. Run ANALYZE TABLE on large tables first. If the value still looks suspiciously round, the planner has fallen back to a full scan.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is it safe to run EXPLAIN on production?</p>
+      <p class="faq-a">Plain EXPLAIN does not execute the query and is safe. EXPLAIN ANALYZE does run it and will block exactly like the original slow query, so reserve it for a replica or staging clone.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why is type ALL bad on wp_postmeta?</p>
+      <p class="faq-a">ALL means a full table scan. wp_postmeta is usually the largest table in a WordPress database, so a scan there reads millions of rows per query and dominates page render time.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-posts-cleanup-cpt-rows/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-posts-cleanup-cpt-rows/hero.webp" type="image/webp">
+        <img src="/blog/wp-posts-cleanup-cpt-rows/hero.jpg" alt="Overhead photo of paper SQL run-sheet, ER blueprint, manila folder, brass key and plate, wax seal on bone linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>9 June 2026</span></span>
+      <h3>wp_posts cleanup: removing 600 dead CPT rows safely</h3>
+      <span class="pc-lede">A staging copy, a 600-row CPT graveyard, and the four foreign-key trapdoors that turn a quick DELETE into a week of broken admin screens.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/two-monitor-habit-legacy-sites/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/two-monitor-habit-legacy-sites/hero.webp" type="image/webp">
+        <img src="/blog/two-monitor-habit-legacy-sites/hero.jpg" alt="Overhead photo of two paper sheets on bone linen: inked FTP tree and ER diagram joined by red thread, brass SEAM plate." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>27 May 2026</span></span>
+      <h3>The two-monitor habit: keeping FTP and MySQL in one glance</h3>
+      <span class="pc-lede">On a legacy PHP site, the bug almost always sits in the seam between the filesystem and the database. Here is why we never let one out of sight of the other.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/reading-explain-woocommerce-query/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
