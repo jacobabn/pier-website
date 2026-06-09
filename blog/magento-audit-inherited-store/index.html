@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento audit: 40-minute checklist for an inherited store · Pier — Blog</title>
+<meta name="description" content="A 22-person agency just took over a Magento 2.3 store. The previous dev is unreachable. Here is the 40-minute audit we run before changing a single line.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, security, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-audit-inherited-store/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-audit-inherited-store/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-audit-inherited-store/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-audit-inherited-store/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento audit: 40-minute checklist for an inherited store">
+<meta property="og:description" content="A 22-person agency just took over a Magento 2.3 store. The previous dev is unreachable. Here is the 40-minute audit we run before changing a single line.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-audit-inherited-store/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-audit-inherited-store/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-audit-inherited-store/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen of an audit checklist, CLI run-sheet, ER blueprint, brass plate, stopwatch, ruler, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T14:38:01.796Z">
+<meta property="article:modified_time" content="2026-06-09T14:38:01.796Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento audit: 40-minute checklist for an inherited store">
+<meta name="twitter:description" content="A 22-person agency just took over a Magento 2.3 store. The previous dev is unreachable. Here is the 40-minute audit we run before changing a single line.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-audit-inherited-store/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen of an audit checklist, CLI run-sheet, ER blueprint, brass plate, stopwatch, ruler, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-audit-inherited-store/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-audit-inherited-store/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-audit-inherited-store/"},
+  "url":"https://pier.abn.company/blog/magento-audit-inherited-store/",
+  "headline":"Magento audit: 40-minute checklist for an inherited store",
+  "description":"A 22-person agency just took over a Magento 2.3 store. The previous dev is unreachable. Here is the 40-minute audit we run before changing a single line.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-audit-inherited-store/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen of an audit checklist, CLI run-sheet, ER blueprint, brass plate, stopwatch, ruler, wax seal."
+  },
+  "datePublished":"2026-06-09T14:38:01.796Z",
+  "dateModified":"2026-06-09T14:38:01.796Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, php, mysql, security, operations",
+  "wordCount":1482,
+  "articleSection":"Magento",
+  "articleBody":"A Dutch agency we work with took over a Magento 2.3.5 store last month. The previous developer left no documentation, stopped answering email in April, and the client passed across an FTP password on a sticky note. Their first instinct was to log in, click around the admin, and see what was there. That cost them two hours and a corrupted catalog cache before they had answered a single useful question. The 40-minute audit below is what we run before touching anything on an inherited Magento store. It will not fix the store. It will tell you whether the store is worth fixing, where the landmines are, and what to quote. Every inherited legacy site we have walked into has failed in one of the six places this audit checks. Minute 0 to 5: establish what you are actually looking at Before SSH, before the admin, before opening the database, get three facts: Magento version and edition PHP version Whether Composer is in play or whether the codebase is a tarball SSH in and run: php bin/magento --version php -v ls -la composer.json composer.lock 2>/dev/null You want output like Magento CLI 2.3.5-p2 and PHP 7.2.34 . If you see Magento 1.x or PHP below 7.4, you are not auditing a store, you are auditing a security incident waiting to happen . Magento 1 reached end of life in June 2020. Magento 2.3 reached end of life in September 2022. If composer.json is missing, the previous dev was hand-editing vendor/ and app/code/ . Document it. Every later step gets harder. Also grab the deploy mode: php bin/magento deploy:mode:show The developer mode in production is a slow leak. The default mode hides errors and makes debugging painful. You want production , and if it is not, that is the first sentence in your handover report. Minute 5 to 15: map the customisation surface Magento's real risk is not the core. It is the eighteen third-party modules whose authors went silent in 2019. php bin/magento module:status | head -100 composer show --direct 2>/dev/null Sort the output mentally into three buckets. Core modules under Magento_* can be ignored unless one is disabled. Known vendors (Amasty, Mageplaza, Mirasvit, Aheadworks) get checked against their site for the latest version. Anything under app/code/Vendor/Module is the bucket where you lose weekends. Read every line. find app/code -maxdepth 2 -type d For every custom module, open etc/module.xml and composer.json if present, then grep for the dangerous patterns: grep -r \"eval(\" app/code/ | grep -v \"// \" grep -r \"shell_exec\\|passthru\\|system(\" app/code/ grep -r \"base64_decode\" app/code/ | head -20 grep -r \"file_get_contents.*http\" app/code/ Any hit on the first two is a red flag. Hits on the last two are usually fine but worth reading in context. A previous developer once shipped a currency converter module on a store we inherited that pulled rates from a hard-coded IP address every cron tick. The IP was a residential connection in Belarus. While you are there, check the events and plugins: find app/code -name \"events.xml\" -exec grep -H \"observer\" {} \\; find app/code -name \"di.xml\" -exec grep -H \"plugin\\|preference\" {} \\; A <preference> overriding a core class is how a small content tweak silently rewrites checkout. Note every one. The same goes for any custom controller routes under etc/frontend/routes.xml , which can quietly expose endpoints that bypass OWASP's standard CSRF and ACL expectations . Minute 15 to 25: cron, indexers, queues The two questions that get skipped: is cron actually running, and are the indexers healthy? crontab -l ls -la var/log/cron.log var/log/magento.cron.log 2>/dev/null tail -50 var/log/cron.log If crontab -l is empty for the web user, the store has been running without cron. Reindex, cache flush, catalog price rules, transactional emails, none of it has fired. Check the timestamps in var/log/cron.log . If the last entry is from November 2024, write that down in 18-point. Then indexers: php bin/magento indexer:status You want every row to read Ready with Update by Schedule or Update on Save . Anything stuck in processing for hours is a dead indexer. Anything Invalid means the schedule has fallen behind. On a store with 40,000 SKUs and a broken catalog_product_price indexer, prices on the storefront can be six months stale. If the store uses the message queue (most do for async emails and customer imports), peek at the backlog: SELECT topic_name, COUNT(*) AS queued FROM queue_message GROUP BY topic_name ORDER BY queued DESC LIMIT 20; A million unprocessed async.operations.all rows is not a queue, it is a graveyard. Decide whether to drain or truncate before the next deploy, and never both at the same time. Minute 25 to 35: database health and PII exposure Connect to the database read-only if you can. The first three queries are blunt: SELECT table_schema AS db, ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS mb FROM information_schema.tables WHERE table_schema = DATABASE() GROUP BY table_schema; SELECT table_name, ROUND((data_length + index",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-audit-inherited-store/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento audit: 40-minute checklist for an inherited store","item":"https://pier.abn.company/blog/magento-audit-inherited-store/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I run this audit on a Magento 1 store?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most of it, yes. Skip the indexer:status and message-queue commands (Magento 1 has neither). The module, cron, database, and .htaccess steps all apply, and the security findings tend to be worse."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the previous developer left no SSH access?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Get FTP and database credentials, then run the file-system greps locally after pulling app/code and app/etc. The CLI commands have web-based equivalents in n98-magerun's browser fallback, but SSH is faster."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I run setup:upgrade once the audit is finished?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not without a database snapshot and a staging clone. setup:upgrade on a store with broken custom modules can blow away admin access. Audit first, snapshot second, upgrade in staging third."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should the customer_visitor table be cleaned?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Magento's built-in log cleanup, configured under Stores > Configuration > Advanced > System > Log, defaults to 180 days. On an unmaintained store this is almost always disabled or set to the maximum."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-audit-inherited-store/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 065</span>
+      </div>
+      <p class="eyebrow"><span class="n">065 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento audit: 40-minute checklist for an inherited store</h1>
+      <p class="lede post-lede">A 22-person agency just took over a Magento 2.3 store. The previous dev is unreachable. Here is the 40-minute audit we run before changing a single line.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T14:38:01.796Z">9 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-audit-inherited-store/hero.webp" type="image/webp">
+      <img src="/blog/magento-audit-inherited-store/hero.jpg" alt="Overhead photo on bone linen of an audit checklist, CLI run-sheet, ER blueprint, brass plate, stopwatch, ruler, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 065</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with took over a Magento 2.3.5 store last month. The previous developer left no documentation, stopped answering email in April, and the client passed across an FTP password on a sticky note. Their first instinct was to log in, click around the admin, and see what was there. That cost them two hours and a corrupted catalog cache before they had answered a single useful question.</p><p>The 40-minute audit below is what we run before touching anything on an inherited Magento store. It will not fix the store. It will tell you whether the store is worth fixing, where the landmines are, and what to quote. Every inherited <a href="/">legacy site</a> we have walked into has failed in one of the six places this audit checks.</p><h2>Minute 0 to 5: establish what you are actually looking at</h2><p>Before SSH, before the admin, before opening the database, get three facts:</p><ol><li>Magento version and edition</li><li>PHP version</li><li>Whether Composer is in play or whether the codebase is a tarball</li></ol><p>SSH in and run:</p><pre><code class="lang-bash">php bin/magento --version
+php -v
+ls -la composer.json composer.lock 2&gt;/dev/null</code></pre><p>You want output like <code>Magento CLI 2.3.5-p2</code> and <code>PHP 7.2.34</code>. If you see Magento 1.x or PHP below 7.4, you are not auditing a store, you are auditing a <a href="https://www.php.net/supported-versions.php">security incident waiting to happen</a>. Magento 1 reached end of life in June 2020. Magento 2.3 reached end of life in September 2022.</p><p>If <code>composer.json</code> is missing, the previous dev was hand-editing <code>vendor/</code> and <code>app/code/</code>. Document it. Every later step gets harder.</p><p>Also grab the deploy mode:</p><pre><code class="lang-bash">php bin/magento deploy:mode:show</code></pre><p>The <code>developer</code> mode in production is a slow leak. The <code>default</code> mode hides errors and makes debugging painful. You want <code>production</code>, and if it is not, that is the first sentence in your handover report.</p><h2>Minute 5 to 15: map the customisation surface</h2><p>Magento's real risk is not the core. It is the eighteen third-party modules whose authors went silent in 2019.</p><pre><code class="lang-bash">php bin/magento module:status | head -100
+composer show --direct 2&gt;/dev/null</code></pre><p>Sort the output mentally into three buckets. Core modules under <code>Magento_*</code> can be ignored unless one is disabled. Known vendors (Amasty, Mageplaza, Mirasvit, Aheadworks) get checked against their site for the latest version. Anything under <code>app/code/Vendor/Module</code> is the bucket where you lose weekends. Read every line.</p><pre><code class="lang-bash">find app/code -maxdepth 2 -type d
+</code></pre><p>For every custom module, open <code>etc/module.xml</code> and <code>composer.json</code> if present, then grep for the dangerous patterns:</p><pre><code class="lang-bash">grep -r "eval(" app/code/ | grep -v "// "
+grep -r "shell_exec\|passthru\|system(" app/code/
+grep -r "base64_decode" app/code/ | head -20
+grep -r "file_get_contents.*http" app/code/</code></pre><p>Any hit on the first two is a red flag. Hits on the last two are usually fine but worth reading in context. A previous developer once shipped a currency converter module on a store we inherited that pulled rates from a hard-coded IP address every cron tick. The IP was a residential connection in Belarus.</p><p>While you are there, check the events and plugins:</p><pre><code class="lang-bash">find app/code -name "events.xml" -exec grep -H "observer" {} \;
+find app/code -name "di.xml" -exec grep -H "plugin\|preference" {} \;</code></pre><p>A <code>&lt;preference&gt;</code> overriding a core class is how a small content tweak silently rewrites checkout. Note every one. The same goes for any custom controller routes under <code>etc/frontend/routes.xml</code>, which can quietly expose endpoints that bypass <a href="https://owasp.org/www-project-top-ten/">OWASP's standard CSRF and ACL expectations</a>.</p><h2>Minute 15 to 25: cron, indexers, queues</h2><p>The two questions that get skipped: is cron actually running, and are the indexers healthy?</p><pre><code class="lang-bash">crontab -l
+ls -la var/log/cron.log var/log/magento.cron.log 2&gt;/dev/null
+tail -50 var/log/cron.log</code></pre><p>If <code>crontab -l</code> is empty for the web user, the store has been running without cron. Reindex, cache flush, catalog price rules, transactional emails, none of it has fired. Check the timestamps in <code>var/log/cron.log</code>. If the last entry is from November 2024, write that down in 18-point.</p><p>Then indexers:</p><pre><code class="lang-bash">php bin/magento indexer:status</code></pre><p>You want every row to read <code>Ready</code> with <code>Update by Schedule</code> or <code>Update on Save</code>. Anything stuck in <code>processing</code> for hours is a dead indexer. Anything <code>Invalid</code> means the schedule has fallen behind. On a store with 40,000 SKUs and a broken <code>catalog_product_price</code> indexer, prices on the storefront can be six months stale.</p><p>If the store uses the message queue (most do for async emails and customer imports), peek at the backlog:</p><pre><code class="lang-sql">SELECT topic_name, COUNT(*) AS queued
+FROM queue_message
+GROUP BY topic_name
+ORDER BY queued DESC
+LIMIT 20;</code></pre><p>A million unprocessed <code>async.operations.all</code> rows is not a queue, it is a graveyard. Decide whether to drain or truncate before the next deploy, and never both at the same time.</p><h2>Minute 25 to 35: database health and PII exposure</h2><p>Connect to the database read-only if you can. The first three queries are blunt:</p><pre><code class="lang-sql">SELECT
+  table_schema AS db,
+  ROUND(SUM(data_length + index_length) / 1024 / 1024, 1) AS mb
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+GROUP BY table_schema;
+
+SELECT
+  table_name,
+  ROUND((data_length + index_length) / 1024 / 1024, 1) AS mb,
+  table_rows
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+ORDER BY (data_length + index_length) DESC
+LIMIT 20;</code></pre><p>The usual suspects at the top: <code>sales_order_grid</code>, <code>quote</code>, <code>quote_item</code>, <code>report_viewed_product_index</code>, <code>search_query</code>. If <code>quote</code> has 14 million rows on a store doing 200 orders a month, the quote cleanup job has not run since the Obama administration.</p><p>Then the log tables. Magento ships with several that grow forever if you do not vacuum them:</p><pre><code class="lang-sql">SELECT COUNT(*) FROM customer_log;
+SELECT COUNT(*) FROM customer_visitor;
+SELECT MIN(last_visit_at), MAX(last_visit_at) FROM customer_visitor;</code></pre><p>A <code>customer_visitor</code> table with 50 million rows and entries going back to 2018 is a normal finding on an unmaintained store. It is also a GDPR exposure if the previous dev never set a retention policy. Note dates, not just row counts.</p><p>While you are in the database, scan for the obvious credential leaks:</p><pre><code class="lang-sql">SELECT path, value FROM core_config_data
+WHERE path LIKE '%password%'
+   OR path LIKE '%api_key%'
+   OR path LIKE '%secret%';</code></pre><p>Some of these are encrypted, some are not. Document which.</p><h2>Minute 35 to 40: the kill-switch list</h2><p>The last five minutes are the most important. You are not fixing anything yet. You are writing down what would take the store offline tonight if you touched it wrong.</p><p>Open <code>app/etc/env.php</code> and note:</p><ul><li>Database host: same server, or a managed cluster?</li><li>Cache backend: Redis, Varnish, or in-memory?</li><li>Session backend: where do live carts live?</li><li>The <code>crypt.key</code> value. Lose this and you cannot decrypt saved customer payment data or third-party credentials.</li></ul><p>Then <code>.htaccess</code>. Magento ships a long one. Search for non-default rules. A snippet that gets bolted on without anyone noticing usually looks like this:</p><pre><code class="lang-apache">&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    RewriteCond %{REMOTE_ADDR} !^203\.0\.113\.
+    RewriteRule ^admin/.*$ - [F,L]
+&lt;/IfModule&gt;</code></pre><p>Anything bespoke (custom redirects, IP allowlists, a 410 block on <code>/admin</code>) gets copied into your notes verbatim. Apache's own <a href="https://httpd.apache.org/docs/current/mod/mod_rewrite.html">mod_rewrite documentation</a> is worth keeping open while you read these, especially if there are flag combinations you do not recognise.</p><p>Finally, look at the admin URL. Magento 2 randomises it by default:</p><pre><code class="lang-bash">php bin/magento info:adminuri</code></pre><p>If the output is <code>/admin</code> and the store is internet-facing, the previous dev disabled the security feature, and the brute-force attempts in <code>var/log/exception.log</code> will tell you how that has been going.</p><aside class="callout">Do not run <code>setup:upgrade</code>, <code>cache:flush</code>, or <code>indexer:reindex</code> during the audit, even if something looks broken. A flush on a Varnish-fronted production store at 14:00 on a Wednesday is how you become responsible for the outage you were hired to prevent. The audit is read-only.</aside><h2>What the 40-minute audit gives you</h2><p>At the end of this, you have a one-page document that reads something like:</p><ul><li>Magento 2.3.5-p2 on PHP 7.2, both end-of-life</li><li>14 custom modules, 3 with <code>eval</code> calls, 1 calling out to an unknown IP</li><li>Cron has not run since November</li><li><code>customer_visitor</code> has 47M rows back to 2018</li><li><code>crypt.key</code> exists in <code>env.php</code>, not backed up anywhere we can find</li><li>Admin URL is <code>/admin</code>, exception log shows 3,000 brute-force attempts in 30 days</li></ul><p>That is a quote. It is also a conversation with the client that is no longer "let me poke around for a few hours and see what I find." It is: here is the state of the store, here is the order I would fix things in, here is what each step costs and why. Clients pay invoices that look like that. They argue with invoices that do not.</p><h2>What to do today</h2><p>If you have an inherited Magento store sitting in your task list, do not start with a fix. Do the audit above on a Tuesday morning, write the one-page report, send it to the client before you open the admin panel. The fix list writes itself once that report exists.</p><p>When we built Pier we ran into this exact pattern so often that the audit queries above now live as one-click playbooks against the docked site's <a href="/#database">MySQL editor</a> and SFTP at once. The <a href="/#features">version history</a> makes the read-only rule enforceable instead of aspirational.</p>
+    </div>
+
+    <aside class="pullquote">Audit an inherited Magento store read-only for 40 minutes before you change anything; the report you write in that window is the quote, the plan, and the legal cover.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I run this audit on a Magento 1 store?</p>
+      <p class="faq-a">Most of it, yes. Skip the indexer:status and message-queue commands (Magento 1 has neither). The module, cron, database, and .htaccess steps all apply, and the security findings tend to be worse.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if the previous developer left no SSH access?</p>
+      <p class="faq-a">Get FTP and database credentials, then run the file-system greps locally after pulling app/code and app/etc. The CLI commands have web-based equivalents in n98-magerun&#39;s browser fallback, but SSH is faster.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I run setup:upgrade once the audit is finished?</p>
+      <p class="faq-a">Not without a database snapshot and a staging clone. setup:upgrade on a store with broken custom modules can blow away admin access. Audit first, snapshot second, upgrade in staging third.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How often should the customer_visitor table be cleaned?</p>
+      <p class="faq-a">Magento&#39;s built-in log cleanup, configured under Stores &gt; Configuration &gt; Advanced &gt; System &gt; Log, defaults to 180 days. On an unmaintained store this is almost always disabled or set to the maximum.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/phpmyadmin-three-safe-settings/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/phpmyadmin-three-safe-settings/hero.webp" type="image/webp">
+        <img src="/blog/phpmyadmin-three-safe-settings/hero.jpg" alt="Overhead shot of phpMyAdmin config sheet on bone linen with red-circled lines, brass plate, manila folder, ruler, pencil, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Tooling</span><span>·</span><span>9 June 2026</span></span>
+      <h3>phpMyAdmin in 2026: the three settings that keep it safe</h3>
+      <span class="pc-lede">Half the senior engineers we work with want phpMyAdmin gone in 2026. The other half use it weekly. The three settings that resolve the argument.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Overhead shot of printed CSV sheet, manila folder, brass key, ruler, red pencil, index cards, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Magento CSV import without downtime: a 9,000-row swap</h3>
+      <span class="pc-lede">A 23:41 Loom, a 9,043-row supplier CSV, and a storefront that could not go down. The post-mortem on how a Dutch agency staged the import without losing a minute of uptime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-audit-inherited-store/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
