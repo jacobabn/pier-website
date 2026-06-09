@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>chmod -R 777 recovery: restoring a legacy site&#39;s permissions · Pier — Blog</title>
+<meta name="description" content="A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, php, security, wordpress, drupal, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="chmod -R 777 recovery: restoring a legacy site&#39;s permissions">
+<meta property="og:description" content="A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.">
+<meta property="og:url" content="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+<meta property="og:image" content="https://pier.abn.company/blog/chmod-777-permissions-recovery/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/chmod-777-permissions-recovery/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-09T19:47:48.492Z">
+<meta property="article:modified_time" content="2026-06-09T19:47:48.492Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="chmod -R 777 recovery: restoring a legacy site&#39;s permissions">
+<meta name="twitter:description" content="A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/chmod-777-permissions-recovery/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="12 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/chmod-777-permissions-recovery/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/chmod-777-permissions-recovery/"},
+  "url":"https://pier.abn.company/blog/chmod-777-permissions-recovery/",
+  "headline":"chmod -R 777 recovery: restoring a legacy site's permissions",
+  "description":"A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/chmod-777-permissions-recovery/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal."
+  },
+  "datePublished":"2026-06-09T19:47:48.492Z",
+  "dateModified":"2026-06-09T19:47:48.492Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"operations, php, security, wordpress, drupal, tooling",
+  "wordCount":2085,
+  "articleSection":"Operations",
+  "articleBody":"A developer at a Dutch agency we work with ran chmod -R 777 /var/www/clients/wonen-23 at 23:41 because a customer was waiting on a media upload that kept failing in the WordPress admin. The upload went through. So did the next four. Then, twelve minutes later, every page on the site started returning a blank 500, and the error log filled with Premature end of script headers . By 00:15 the agency lead was on a Loom recording, explaining what they had done and asking how to walk it back. This post is the recovery walkthrough we sent back the next morning, generalised for any legacy site running on a shared or VPS host with a UID-aware PHP handler. The commands are the real ones we used. The error messages are the ones you will actually see in production. Recursive 777 and the handler rejection The textbook reason a recursive 777 is bad is security: world-writable files mean anyone with shell access can edit your scripts. The operational reason, the one that bites the same night, is that modern PHP handlers refuse to execute world-writable code on purpose. Apache suEXEC rejects scripts whose containing directory is writable by group or other. PHP-FPM pools running under suEXEC, mod_ruid2, or CageFS do the same. cPanel's suPHP returns the famous SoftException in Application.cpp:597: Directory \"...\" is writable by group . On nginx with PHP-FPM you usually see FastCGI sent in stderr: Primary script unknown instead, because the worker refuses to fork before logging the real reason. WordPress notices too. When wp-config.php is world-writable, several hardening plugins quarantine the file and the dashboard stops loading. mod_security rulesets on managed hosts pattern-match 777 directories and start dropping requests at the WAF. And if your backups run with rsync's -a flag, the next snapshot will faithfully preserve the mistake, so the obvious \"just restore last night's tarball\" stops being a clean rollback. The damage is also cached. OPcache holds compiled bytecode keyed by file path and mtime, so the next request after the chmod can still execute the previous compiled copy for a few seconds, which makes the outage look intermittent at first. By the time OPcache evicts and the worker tries to reload, the file is rejected and the 500s start in earnest. Restarting PHP-FPM after the recovery clears that cache; until you do, you may keep seeing rejections on files you have already fixed. None of this is theoretical. Every line above corresponds to an error message we have seen in a production log this year. Identifying the right ownership before you touch anything The first move is not to run another chmod . It is to find out what the permissions and ownership were supposed to be before the panic. Three places to look, in order of reliability: A sibling vhost on the same machine. ls -la /var/www/clients/ usually shows the same pattern across customers on the same box. A backup taken before the incident. stat -c '%U:%G %a %n' filename reports user, group, and mode in one line and is easy to grep over a restored tarball. The PHP-FPM pool file, which tells you which UID the script will be read by. That last one is the source of truth, because the pool config is whatever process is going to read the code on the next request. On Debian and Ubuntu it lives under /etc/php/8.2/fpm/pool.d/ . The relevant lines are user , group , listen.owner , and listen.group . Whatever user is set to is who must own (or share a group with) every executable PHP file on disk. grep -E '^(user|group)' /etc/php/8.2/fpm/pool.d/wonen-23.conf # user = web23 # group = client5 If you are on cPanel, the pool user is typically the account user, something like wonen23 . On DirectAdmin it is the same. On Plesk under PHP-FPM the group is usually psacln . On a plain LAMP box without a panel it is almost always www-data on Debian-family systems and apache on RHEL-family systems. Confirm by reading the running process list rather than guessing from documentation: ps -eo user,group,cmd | grep php-fpm | grep -v grep Compare the user reported by ps with the user written in the pool file. If they disagree, something else is going on (a stale init script, a manual chown on the binary, an old pool that never restarted), and you need to resolve that before you start fixing the docroot. Applying modes against the wrong target user does not get you any closer to a serving site; it just rewrites the failure across more files. Restoring directory and file modes The standard, boring, correct pattern for almost every PHP site is 755 for directories and 644 for files . The cleanest way to apply that to a tree without writing a script is two find calls. cd /var/www/clients/wonen-23/htdocs # Directories: rwx for owner, rx for group and other find . -type d -exec chmod 755 {} + # Files: rw for owner, r for group and other find . -type f -exec chmod 644 {} + Use the trailing + rather than \\; . The plus form batches arguments into a single chmod invocation, which on a 40,000-file",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/chmod-777-permissions-recovery/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"chmod -R 777 recovery: restoring a legacy site's permissions","item":"https://pier.abn.company/blog/chmod-777-permissions-recovery/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does chmod -R 777 break PHP execution on most modern hosts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Handlers like suEXEC, suPHP, mod_ruid2, and CageFS refuse to execute scripts in world-writable directories by design. The worker rejects the file before PHP ever runs it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the correct mode for wp-config.php?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "640 owned by the PHP user is the safest default that still lets WordPress read the file. 600 also works on single-user setups. Never leave it at 777 even briefly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will 755 on a directory let attackers read sensitive files?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "755 lets any local user list and read the directory contents. Keep sensitive files inside at 640 or stricter, owned by the PHP user. Mode alone is not a security boundary on a shared box."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I find every world-writable file on a server?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run find / -xdev -perm /o+w 2>/dev/null. The -xdev flag stops it crossing filesystem boundaries. Pipe to a file and read it offline rather than scrolling the terminal."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 071</span>
+      </div>
+      <p class="eyebrow"><span class="n">071 —</span>Operations</p>
+      <h1 class="display-l post-title">chmod -R 777 recovery: restoring a legacy site&#39;s permissions</h1>
+      <p class="lede post-lede">A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T19:47:48.492Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>12 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+      <img src="/blog/chmod-777-permissions-recovery/hero.jpg" alt="Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 071</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A developer at a Dutch agency we work with ran <code>chmod -R 777 /var/www/clients/wonen-23</code> at 23:41 because a customer was waiting on a media upload that kept failing in the WordPress admin. The upload went through. So did the next four. Then, twelve minutes later, every page on the site started returning a blank 500, and the error log filled with <code>Premature end of script headers</code>. By 00:15 the agency lead was on a Loom recording, explaining what they had done and asking how to walk it back.</p>
+
+<p>This post is the recovery walkthrough we sent back the next morning, generalised for any <a href="/">legacy site</a> running on a shared or VPS host with a UID-aware PHP handler. The commands are the real ones we used. The error messages are the ones you will actually see in production.</p>
+
+<h2>Recursive 777 and the handler rejection</h2>
+
+<p>The textbook reason a recursive 777 is bad is security: world-writable files mean anyone with shell access can edit your scripts. The operational reason, the one that bites the same night, is that modern PHP handlers refuse to execute world-writable code on purpose. <a href="https://httpd.apache.org/docs/2.4/suexec.html">Apache suEXEC</a> rejects scripts whose containing directory is writable by group or other. PHP-FPM pools running under suEXEC, mod_ruid2, or CageFS do the same. cPanel's suPHP returns the famous <code>SoftException in Application.cpp:597: Directory "..." is writable by group</code>. On nginx with PHP-FPM you usually see <code>FastCGI sent in stderr: Primary script unknown</code> instead, because the worker refuses to fork before logging the real reason.</p>
+
+<p>WordPress notices too. When <code>wp-config.php</code> is world-writable, several hardening plugins quarantine the file and the dashboard stops loading. mod_security rulesets on managed hosts pattern-match 777 directories and start dropping requests at the WAF. And if your backups run with rsync's <code>-a</code> flag, the next snapshot will faithfully preserve the mistake, so the obvious "just restore last night's tarball" stops being a clean rollback.</p>
+
+<p>The damage is also cached. OPcache holds compiled bytecode keyed by file path and mtime, so the next request after the chmod can still execute the previous compiled copy for a few seconds, which makes the outage look intermittent at first. By the time OPcache evicts and the worker tries to reload, the file is rejected and the 500s start in earnest. Restarting PHP-FPM after the recovery clears that cache; until you do, you may keep seeing rejections on files you have already fixed.</p>
+
+<p>None of this is theoretical. Every line above corresponds to an error message we have seen in a production log this year.</p>
+
+<h2>Identifying the right ownership before you touch anything</h2>
+
+<p>The first move is not to run another <code>chmod</code>. It is to find out what the permissions and ownership were supposed to be before the panic.</p>
+
+<p>Three places to look, in order of reliability:</p>
+
+<ol>
+  <li>A sibling vhost on the same machine. <code>ls -la /var/www/clients/</code> usually shows the same pattern across customers on the same box.</li>
+  <li>A backup taken before the incident. <code>stat -c '%U:%G %a %n' filename</code> reports user, group, and mode in one line and is easy to grep over a restored tarball.</li>
+  <li>The PHP-FPM pool file, which tells you which UID the script will be read by.</li>
+</ol>
+
+<p>That last one is the source of truth, because the pool config is whatever process is going to read the code on the next request. On Debian and Ubuntu it lives under <code>/etc/php/8.2/fpm/pool.d/</code>. The relevant lines are <code>user</code>, <code>group</code>, <code>listen.owner</code>, and <code>listen.group</code>. Whatever <code>user</code> is set to is who must own (or share a group with) every executable PHP file on disk.</p>
+
+<pre><code class="lang-bash">grep -E '^(user|group)' /etc/php/8.2/fpm/pool.d/wonen-23.conf
+# user = web23
+# group = client5</code></pre>
+
+<p>If you are on cPanel, the pool user is typically the account user, something like <code>wonen23</code>. On DirectAdmin it is the same. On Plesk under PHP-FPM the group is usually <code>psacln</code>. On a plain LAMP box without a panel it is almost always <code>www-data</code> on Debian-family systems and <code>apache</code> on RHEL-family systems. Confirm by reading the running process list rather than guessing from documentation:</p>
+
+<pre><code class="lang-bash">ps -eo user,group,cmd | grep php-fpm | grep -v grep</code></pre>
+
+<p>Compare the user reported by <code>ps</code> with the user written in the pool file. If they disagree, something else is going on (a stale init script, a manual chown on the binary, an old pool that never restarted), and you need to resolve that before you start fixing the docroot. Applying modes against the wrong target user does not get you any closer to a serving site; it just rewrites the failure across more files.</p>
+
+<h2>Restoring directory and file modes</h2>
+
+<p>The standard, boring, correct pattern for almost every PHP site is <strong>755 for directories and 644 for files</strong>. The cleanest way to apply that to a tree without writing a script is two <code>find</code> calls.</p>
+
+<pre><code class="lang-bash">cd /var/www/clients/wonen-23/htdocs
+
+# Directories: rwx for owner, rx for group and other
+find . -type d -exec chmod 755 {} +
+
+# Files: rw for owner, r for group and other
+find . -type f -exec chmod 644 {} +</code></pre>
+
+<p>Use the trailing <code>+</code> rather than <code>\;</code>. The plus form batches arguments into a single <code>chmod</code> invocation, which on a 40,000-file Drupal install is the difference between three seconds and three minutes.</p>
+
+<p>That gets you to a sane default. Then come the CMS-specific tightenings.</p>
+
+<h3>WordPress</h3>
+
+<p>The <a href="https://wordpress.org/documentation/article/hardening-wordpress/">WordPress hardening guide</a> recommends <code>640</code> or <code>600</code> on <code>wp-config.php</code>. The uploads directory must be writable by the PHP user, but 755 with correct ownership is enough. Never put it back to 777, ever, even temporarily.</p>
+
+<pre><code class="lang-bash">chmod 640 wp-config.php
+chown www-data:www-data wp-config.php
+
+# Uploads must be writable by the PHP user, not the world
+find wp-content/uploads -type d -exec chmod 755 {} +
+find wp-content/uploads -type f -exec chmod 644 {} +</code></pre>
+
+<h3>Drupal</h3>
+
+<p>The <a href="https://www.drupal.org/docs/security-in-drupal/securing-file-permissions-and-ownership">Drupal permissions guide</a> is more conservative. <code>sites/default/settings.php</code> should be <code>444</code> and ideally owned by root, with the webserver user only in the read group. The <code>sites/default/files</code> tree must be writable by the webserver user and nobody else. Drupal also writes Twig compile output into <code>sites/default/files/php</code>; on a fresh recovery that directory is often empty and silently regenerates on the first authenticated request, so don't panic when it shows up after the fact.</p>
+
+<h3>Joomla</h3>
+
+<p>Joomla expects the same 755 / 644 baseline. <code>configuration.php</code> should be <code>644</code> owned by the PHP user, or <code>444</code> if you only edit it through deploys. The administrator and the front-end both write to <code>cache</code>, <code>tmp</code>, <code>logs</code>, and <code>administrator/cache</code>, so those four directories need to be writable by the PHP user with the right ownership.</p>
+
+<pre><code class="lang-bash">chmod 644 configuration.php
+find cache tmp logs administrator/cache -type d -exec chmod 755 {} +
+find cache tmp logs administrator/cache -type f -exec chmod 644 {} +</code></pre>
+
+<h3>Magento 2</h3>
+
+<p>Magento 2 needs <code>770</code> on <code>var</code>, <code>generated</code>, and <code>pub/media</code>, with the setgid bit on directories so new files inherit the right group. The official <code>bin/magento</code> sequence handles this, but when you are recovering by hand:</p>
+
+<pre><code class="lang-bash">find var generated pub/media pub/static -type d -exec chmod 2770 {} +
+find var generated pub/media pub/static -type f -exec chmod 660 {} +
+chmod 440 app/etc/env.php</code></pre>
+
+<p>The setgid bit (the leading <code>2</code> in <code>2770</code>) is the load-bearing part. Magento's CLI writes new files into <code>var/cache</code> and <code>generated/code</code> on every deploy, and without setgid those files inherit the CLI user's primary group rather than the webserver group, which means the next request can't read them. The <a href="https://experienceleague.adobe.com/en/docs/commerce-operations/installation-guide/prerequisites/file-system/configuring">Adobe Commerce file system reference</a> documents the full ownership matrix, and it is worth reading once even if you only manage one Magento store.</p>
+
+<h2>Restoring ownership</h2>
+
+<p>Mode is half the story. The other half is the user and group that own the files. A single <code>chown</code> over the whole tree puts that right.</p>
+
+<pre><code class="lang-bash"># Plain LAMP on Debian or Ubuntu
+chown -R www-data:www-data /var/www/clients/wonen-23/htdocs
+
+# cPanel under PHP-FPM
+chown -R wonen23:wonen23 /home/wonen23/public_html
+
+# Plesk under PHP-FPM
+chown -R wonen23:psacln /var/www/vhosts/wonen.example/httpdocs
+# Setgid so new files inherit the shared group
+find /var/www/vhosts/wonen.example/httpdocs -type d -exec chmod g+s {} +</code></pre>
+
+<p>The setgid trick on Plesk and other shared-group setups is worth remembering. Without it, files created later by the PHP process get the process's primary group rather than the vhost group, and you end up with a slow drift back into permission errors over months as new uploads land in the wrong group.</p>
+
+<h2>Verifying the recovery</h2>
+
+<p>You want two checks before you sign off. The first one lists anything still world-writable, which is what you were trying to undo in the first place.</p>
+
+<pre><code class="lang-bash">find /var/www/clients/wonen-23/htdocs -perm /o+w</code></pre>
+
+<p>On a clean tree this returns nothing. If it lists anything that is not a deliberately writable cache directory, that file is still in the broken state and the chmod did not reach it (often because it was a symlink or lived on a different filesystem).</p>
+
+<p>The second check is to tail the real PHP error log while loading the homepage and the admin login. If suEXEC or PHP-FPM is still unhappy, you will see the rejection within a few seconds.</p>
+
+<pre><code class="lang-bash">tail -f /var/log/apache2/suexec.log /var/log/php8.2-fpm.log</code></pre>
+
+<p>Open the log paths that match your stack, not the ones above. On a cPanel box that means <code>/usr/local/apache/logs/suexec_log</code> and the per-user error log under <code>/home/USER/logs/</code>. On a Plesk box it is <code>/var/log/plesk-php-fpm/USER/error_log</code>. On a plain nginx host it is <code>/var/log/nginx/error.log</code> alongside <code>/var/log/php8.2-fpm.log</code>. The handler rejection always logs the offending path, so grep for the directory you just fixed and confirm the entries stop appearing.</p>
+
+<p>Finally, hit a real request. On WordPress that is the admin login; on Drupal it is <code>/user/login</code>; on Magento it is the storefront homepage. Tail the access log and confirm a 200 comes back. A 500 at this stage usually means an OPcache that still holds the pre-recovery file metadata; <code>systemctl reload php8.2-fpm</code> clears it without dropping connections.</p>
+
+<aside class="callout">Before you walk away, check that backups still work. Several managed hosts run rsync with <code>--chown</code> on the backup side, and a mistimed run during the incident can encode the broken ownership into the snapshot you would otherwise restore from. Take a fresh backup after the fix and verify with <code>stat</code> on a few files inside the archive.</aside>
+
+<h2>Keeping a perms baseline you can return to</h2>
+
+<p>The reason the recovery above is doable in twenty minutes, not twenty hours, is that the agency had a sibling vhost we could read the correct values off. If yours is a one-of-one box, write the baseline down before you need it.</p>
+
+<p>A small script checked into the site repo is enough:</p>
+
+<pre><code class="lang-bash">#!/usr/bin/env bash
+# scripts/restore-perms.sh
+set -euo pipefail
+ROOT="${1:-/var/www/clients/wonen-23/htdocs}"
+OWNER="${2:-www-data:www-data}"
+
+chown -R "$OWNER" "$ROOT"
+find "$ROOT" -type d -exec chmod 755 {} +
+find "$ROOT" -type f -exec chmod 644 {} +
+chmod 640 "$ROOT/wp-config.php" 2>/dev/null || true</code></pre>
+
+<p>Committed in <code>scripts/</code>, this is the file you run at 23:41 instead of <code>chmod -R 777</code>. It is also the file you hand a new junior on the team when they ask what the permissions are supposed to be. The answer stops being tribal knowledge and becomes a one-line command.</p>
+
+<p>Two refinements pay for themselves the second time you use the script. First, log every run to a known location so you have an audit trail: <code>echo "$(date -Iseconds) restore-perms $ROOT $OWNER" &gt;&gt; /var/log/perms-restore.log</code>. Second, refuse to run unless the PHP-FPM pool actually agrees with the OWNER argument. A one-line grep against the pool file catches the case where a colleague changed the pool user without telling you, and stops the script from confidently applying the wrong owner across 40,000 files.</p>
+
+<h2>Treating permission changes as discrete events</h2>
+
+<p>When we built Pier we ran into this exact pattern on customer sites: someone had nuked permissions months earlier, and the only way to figure out the original modes was to read another customer's vhost or dig through a backup tarball. The way we ended up handling it was to record every permission and ownership change as a discrete event, so the <a href="/#features">version history</a> for a tree can be rewound the same way you rewind a file edit. The same approach covers the <a href="/#database">MySQL editor</a>: every UPDATE is its own undoable step rather than a one-way trip.</p>
+
+<p>The smallest thing you can do today, with or without any of that: run <code>find /var/www -perm /o+w</code> on the boxes you maintain, and write the results into a text file next to your runbook. Most legacy hosts have at least one 777 directory that nobody remembers creating. Knowing where they already are is half the cleanup.</p>
+    </div>
+
+    <aside class="pullquote">chmod -R 777 does not fix permission errors, it tells modern PHP handlers to refuse the script. Recovery is two find calls, one chown, and a baseline you commit.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why does chmod -R 777 break PHP execution on most modern hosts?</p>
+      <p class="faq-a">Handlers like suEXEC, suPHP, mod_ruid2, and CageFS refuse to execute scripts in world-writable directories by design. The worker rejects the file before PHP ever runs it.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the correct mode for wp-config.php?</p>
+      <p class="faq-a">640 owned by the PHP user is the safest default that still lets WordPress read the file. 600 also works on single-user setups. Never leave it at 777 even briefly.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will 755 on a directory let attackers read sensitive files?</p>
+      <p class="faq-a">755 lets any local user list and read the directory contents. Keep sensitive files inside at 640 or stricter, owned by the PHP user. Mode alone is not a security boundary on a shared box.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I find every world-writable file on a server?</p>
+      <p class="faq-a">Run find / -xdev -perm /o+w 2&gt;/dev/null. The -xdev flag stops it crossing filesystem boundaries. Pipe to a file and read it offline rather than scrolling the terminal.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/phpmyadmin-three-safe-settings/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/phpmyadmin-three-safe-settings/hero.webp" type="image/webp">
+        <img src="/blog/phpmyadmin-three-safe-settings/hero.jpg" alt="Overhead shot of phpMyAdmin config sheet on bone linen with red-circled lines, brass plate, manila folder, ruler, pencil, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Tooling</span><span>·</span><span>9 June 2026</span></span>
+      <h3>phpMyAdmin in 2026: the three settings that keep it safe</h3>
+      <span class="pc-lede">Half the senior engineers we work with want phpMyAdmin gone in 2026. The other half use it weekly. The three settings that resolve the argument.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/blog/wp-config-debug-constants/hero.jpg" alt="Overhead photo of aged wp-config.php cheatsheet with PHP debug constants, brass paperweight, ruler, pencil, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 June 2026</span></span>
+      <h3>wp-config.php debug constants: a working cheatsheet</h3>
+      <span class="pc-lede">Forty documented wp-config.php constants ship with WordPress. Most sites use three of them. Here are the rest, written as a working cheatsheet you can paste in tonight.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
