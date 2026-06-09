@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Checkout-JavaScript auditen: 15 minuten via de network-tab · Pier — Blog</title>
+<meta name="description" content="Een pass van vijftien minuten in de network-tab voor third-party scripts die je verouderde checkout nog laadt maar niemand in het team kan plaatsen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="frontend, security, workflow, tooling, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/checkout-javascript-network-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/checkout-javascript-network-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Checkout-JavaScript auditen: 15 minuten via de network-tab">
+<meta property="og:description" content="Een pass van vijftien minuten in de network-tab voor third-party scripts die je verouderde checkout nog laadt maar niemand in het team kan plaatsen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van geprint netwerk-overzicht, stopwatch op 15:00, manilla tab, messing plaatje, liniaal, potlood, rode lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-09T12:00:50.182Z">
+<meta property="article:modified_time" content="2026-06-09T12:00:50.182Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Frontend">
+<meta property="article:tag" content="frontend">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Checkout-JavaScript auditen: 15 minuten via de network-tab">
+<meta name="twitter:description" content="Een pass van vijftien minuten in de network-tab voor third-party scripts die je verouderde checkout nog laadt maar niemand in het team kan plaatsen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/checkout-javascript-network-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van geprint netwerk-overzicht, stopwatch op 15:00, manilla tab, messing plaatje, liniaal, potlood, rode lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Frontend">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/checkout-javascript-network-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/checkout-javascript-network-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/checkout-javascript-network-audit/"},
+  "url":"https://pier.abn.company/nl/blog/checkout-javascript-network-audit/",
+  "headline":"Checkout-JavaScript auditen: 15 minuten via de network-tab",
+  "description":"Een pass van vijftien minuten in de network-tab voor third-party scripts die je verouderde checkout nog laadt maar niemand in het team kan plaatsen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/checkout-javascript-network-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van geprint netwerk-overzicht, stopwatch op 15:00, manilla tab, messing plaatje, liniaal, potlood, rode lakzegel op linnen."
+  },
+  "datePublished":"2026-06-09T12:00:50.182Z",
+  "dateModified":"2026-06-09T12:00:50.182Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"frontend, security, workflow, tooling, operations",
+  "wordCount":1113,
+  "articleSection":"Frontend",
+  "articleBody":"Het is vrijdagmiddag 15:40 en een Magento 1 checkout doet er 6,2 seconden over tot first paint. De shopeigenaar mailde op woensdag. Je opent DevTools, schakelt over naar de Network-tab, filtert op JS , en telt 38 third-party scripts die afvuren voordat de betaalknop rendert. Ongeveer de helft kun je niet op het zicht plaatsen. Dit is de audit-pass voor dat moment. Vijftien minuten van koude start naar een geschreven lijst van third-party JavaScript die vandaag van de pagina af kan, zonder dat je een build-pipeline, heatmap-leverancier of Lighthouse-rapport binnenhaalt. Eén reload, één HAR-bestand Open de checkout in een incognito-venster met cache uitgeschakeld (DevTools open, Network-tab, \"Disable cache\" aangevinkt). Filter het requests-paneel op JS via de type-selector. Hard reload. Het punt van incognito is dat je ingelogde admin-state en browser-extensies eruit haalt die anders de trace vervuilen. Rechtsklik ergens in het requests-paneel en kies Save all as HAR with content . Dit is je audit-corpus. Je komt er de komende tien minuten drie of vier keer op terug, en je wilt geen live checkout blijven verversen terwijl het marketingteam meekijkt op het realtime-dashboard. jq '.log.entries[] | select(.response.content.mimeType | test(\"javascript\")) | .request.url' checkout.har | sort -u Dat geeft je een gededupliceerde lijst van elke JS-URL op de pagina. Op een representatieve checkout zijn dat ergens tussen 25 en 80 regels. Sorteer op initiator, niet op URL De URL-kolom is misleidend. Een request van analytics.tiktok.com vertelt je dat het de TikTok-pixel is, maar niet wie hem daar heeft neergezet . De Initiator-kolom doet dat wel. Klik op de kolomkop om die toe te voegen als hij niet zichtbaar is. Waar je naar zoekt zijn ketens: een script dat geladen wordt door een ander script dat geladen wordt door weer een ander script. In negen van de tien gevallen op een verouderde checkout zit de wortel van die keten op één van drie plekken: De functions.php van het theme of het equivalent daarvan (WooCommerce hooks, Magento layout-XML). Google Tag Manager of een vergelijkbare container-snippet die vijf jaar geleden in <head> is geplakt. De instellingenpagina van een plugin, waar een vorige ontwikkelaar een tracking-snippet in een \"custom HTML\"-veld heeft geplakt. Initiator-ketens in DevTools laten je de call stack zien. Een script dat met gtm.js bovenaan zijn initiator verschijnt, wordt vrijwel zeker door een tag in je container geïnjecteerd, ook al kun je je niet herinneren dat je hem hebt toegevoegd. Open de container in een aparte tab en grep de gepubliceerde versie op het domein van het script. Je vindt tags waarvan de triggers verwijzen naar campagnes die in 2022 zijn afgelopen. Drie patronen die elke redesign overleven De wees-tag in Tag Manager Iemand maakte ooit een tag genaamd \"Marketing Pixel: Black Friday 2023\" met een All Pages trigger. De campagne is zestien maanden geleden afgelopen. De tag vuurt nog steeds af op elke checkout en laadt 41 KB aan script vanaf een domein dat 200 teruggeeft, omdat de leverancier het al lang slapende account nog steeds factureert. De plugin die je verving maar nooit volledig deïnstalleerde WooCommerce levert een kerkhof aan deze gevallen. Een vorige ontwikkelaar activeerde een coupon-plugin, vond hem niet passen en deactiveerde hem. De tracking-call van de plugin staat nog steeds in wp_options , omdat de uninstall-hook nooit gedraaid heeft. De volgende theme-update schreef een transient die de oude call bevat. Nu is hij onderdeel van elke checkout-render. Een snelle check met de MySQL-editor : SELECT option_name, LEFT(option_value, 200) FROM wp_options WHERE option_value LIKE '%hotjar%' OR option_value LIKE '%fbq(%' OR option_value LIKE '%gtag(%'; Op een vijftien jaar oude WordPress-installatie geeft deze query vier tot tien rijen terug. De meeste zijn slapend. Het \"we halen het weg na de test\"-script Een consultant voegde in 2024 een session-replay script toe voor twee weken UX-onderzoek. Het snippet in het theme heeft hij weggehaald. De regel in de WPRocket excludes-lijst niet, en die zegt nog steeds tegen de pagina dat hij de CDN van de leverancier moet preloaden. Die handshake kost je 80ms op elke checkout in drie landen. Voordat je iets verwijdert: het finance-team is misschien stilletjes afhankelijk van één van deze scripts voor attributie. Een onverwachte daling in gerapporteerde conversies op maandagochtend weegt zwaarder dan wat je ook bespaart aan render-tijd. Leg de lijst met verwijderingen schriftelijk vast en zet marketing in de CC voordat je pusht. Houden, deferren, verwijderen Schrijf bij elk script op de lijst één van drie letters: K, D, X. K (keep): het script is echt nodig voor de checkout (SDK van de betaalprovider, fraudecheck, consent banner). Laat het staan, maar check of het van <head> naar net voor </body> kan verhuizen. D (defer): marketing wil het, maar de pagina werkt ook zonder. Voeg defer of async toe, of zet het achter de consent-gate waar h",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/checkout-javascript-network-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Checkout-JavaScript auditen: 15 minuten via de network-tab","item":"https://pier.abn.company/nl/blog/checkout-javascript-network-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik deze audit draaien zonder dat DevTools de hele tijd open hoeft te staan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Exporteer een HAR-bestand vanuit elke browser die het formaat ondersteunt en draai vervolgens jq-filters offline. De HAR is je audit-corpus en overleeft reboots, dus de live checkout krijgt de last maar één keer te verwerken."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als de audit een tracker vindt die marketing nog wil houden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Zet hem op defer, async of achter de consent-banner. Het doel van de pass is gewicht weghalen uit het kritieke render-pad, niet elk script verwijderen waar de business iets aan heeft."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe vaak moet deze audit op een productie-checkout draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Na elke theme-update, plugin-installatie of campagnelancering vanuit marketing. Prik daarnaast één keer per maand een terugkerend agendablok als vangnet voor degene die zonder deploy doorglippen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/checkout-javascript-network-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 062</span>
+      </div>
+      <p class="eyebrow"><span class="n">062 —</span>Frontend</p>
+      <h1 class="display-l post-title">Checkout-JavaScript auditen: 15 minuten via de network-tab</h1>
+      <p class="lede post-lede">Een pass van vijftien minuten in de network-tab voor third-party scripts die je verouderde checkout nog laadt maar niemand in het team kan plaatsen.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-09T12:00:50.182Z">9 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/checkout-javascript-network-audit/hero.webp" type="image/webp">
+      <img src="/blog/checkout-javascript-network-audit/hero.jpg" alt="Bovenaanzicht van geprint netwerk-overzicht, stopwatch op 15:00, manilla tab, messing plaatje, liniaal, potlood, rode lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 062</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is vrijdagmiddag 15:40 en een Magento 1 checkout doet er 6,2 seconden over tot first paint. De shopeigenaar mailde op woensdag. Je opent DevTools, schakelt over naar de Network-tab, filtert op <code>JS</code>, en telt 38 third-party scripts die afvuren voordat de betaalknop rendert. Ongeveer de helft kun je niet op het zicht plaatsen.</p><p>Dit is de audit-pass voor dat moment. Vijftien minuten van koude start naar een geschreven lijst van third-party JavaScript die vandaag van de pagina af kan, zonder dat je een build-pipeline, heatmap-leverancier of Lighthouse-rapport binnenhaalt.</p><h2>Eén reload, één HAR-bestand</h2><p>Open de checkout in een incognito-venster met cache uitgeschakeld (DevTools open, Network-tab, "Disable cache" aangevinkt). Filter het requests-paneel op <code>JS</code> via de type-selector. Hard reload. Het punt van incognito is dat je ingelogde admin-state en browser-extensies eruit haalt die anders de trace vervuilen.</p><p>Rechtsklik ergens in het requests-paneel en kies <strong>Save all as HAR with content</strong>. Dit is je audit-corpus. Je komt er de komende tien minuten drie of vier keer op terug, en je wilt geen live checkout blijven verversen terwijl het marketingteam meekijkt op het realtime-dashboard.</p><pre><code class="lang-bash">jq '.log.entries[]
+  | select(.response.content.mimeType | test("javascript"))
+  | .request.url' checkout.har | sort -u</code></pre><p>Dat geeft je een gededupliceerde lijst van elke JS-URL op de pagina. Op een representatieve checkout zijn dat ergens tussen 25 en 80 regels.</p><h2>Sorteer op initiator, niet op URL</h2><p>De URL-kolom is misleidend. Een request van <code>analytics.tiktok.com</code> vertelt je dat het de TikTok-pixel is, maar niet <em>wie hem daar heeft neergezet</em>. De Initiator-kolom doet dat wel. Klik op de kolomkop om die toe te voegen als hij niet zichtbaar is.</p><p>Waar je naar zoekt zijn ketens: een script dat geladen wordt door een ander script dat geladen wordt door weer een ander script. In negen van de tien gevallen op een verouderde checkout zit de wortel van die keten op één van drie plekken:</p><ul><li>De <code>functions.php</code> van het theme of het equivalent daarvan (WooCommerce hooks, Magento layout-XML).</li><li>Google Tag Manager of een vergelijkbare container-snippet die vijf jaar geleden in <code>&lt;head&gt;</code> is geplakt.</li><li>De instellingenpagina van een plugin, waar een vorige ontwikkelaar een tracking-snippet in een "custom HTML"-veld heeft geplakt.</li></ul><p>Initiator-ketens in DevTools laten je de call stack zien. Een script dat met <code>gtm.js</code> bovenaan zijn initiator verschijnt, wordt vrijwel zeker door een tag in je container geïnjecteerd, ook al kun je je niet herinneren dat je hem hebt toegevoegd. Open de container in een aparte tab en grep de gepubliceerde versie op het domein van het script. Je vindt tags waarvan de triggers verwijzen naar campagnes die in 2022 zijn afgelopen.</p><h2>Drie patronen die elke redesign overleven</h2><h3>De wees-tag in Tag Manager</h3><p>Iemand maakte ooit een tag genaamd "Marketing Pixel: Black Friday 2023" met een All Pages trigger. De campagne is zestien maanden geleden afgelopen. De tag vuurt nog steeds af op elke checkout en laadt 41 KB aan script vanaf een domein dat 200 teruggeeft, omdat de leverancier het al lang slapende account nog steeds factureert.</p><h3>De plugin die je verving maar nooit volledig deïnstalleerde</h3><p>WooCommerce levert een kerkhof aan deze gevallen. Een vorige ontwikkelaar activeerde een coupon-plugin, vond hem niet passen en deactiveerde hem. De tracking-call van de plugin staat nog steeds in <code>wp_options</code>, omdat de uninstall-hook nooit gedraaid heeft. De volgende theme-update schreef een transient die de oude call bevat. Nu is hij onderdeel van elke checkout-render.</p><p>Een snelle check met de <a href="/#database">MySQL-editor</a>:</p><pre><code class="lang-sql">SELECT option_name, LEFT(option_value, 200)
+FROM wp_options
+WHERE option_value LIKE '%hotjar%'
+   OR option_value LIKE '%fbq(%'
+   OR option_value LIKE '%gtag(%';</code></pre><p>Op een vijftien jaar oude WordPress-installatie geeft deze query vier tot tien rijen terug. De meeste zijn slapend.</p><h3>Het "we halen het weg na de test"-script</h3><p>Een consultant voegde in 2024 een session-replay script toe voor twee weken UX-onderzoek. Het snippet in het theme heeft hij weggehaald. De regel in de WPRocket excludes-lijst niet, en die zegt nog steeds tegen de pagina dat hij de CDN van de leverancier moet preloaden. Die handshake kost je 80ms op elke checkout in drie landen.</p><aside class="callout"><p><strong>Voordat je iets verwijdert:</strong> het finance-team is misschien stilletjes afhankelijk van één van deze scripts voor attributie. Een onverwachte daling in gerapporteerde conversies op maandagochtend weegt zwaarder dan wat je ook bespaart aan render-tijd. Leg de lijst met verwijderingen schriftelijk vast en zet marketing in de CC voordat je pusht.</p></aside><h2>Houden, deferren, verwijderen</h2><p>Schrijf bij elk script op de lijst één van drie letters: K, D, X.</p><ul><li><strong>K (keep):</strong> het script is echt nodig voor de checkout (SDK van de betaalprovider, fraudecheck, consent banner). Laat het staan, maar check of het van <code>&lt;head&gt;</code> naar net voor <code>&lt;/body&gt;</code> kan verhuizen.</li><li><strong>D (defer):</strong> marketing wil het, maar de pagina werkt ook zonder. Voeg <code>defer</code> of <code>async</code> toe, of zet het achter de consent-gate waar het sinds de AVG al hoorde te staan. De <a href="https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script#defer">MDN-referentie over script loading</a> is de one-pager met de trade-offs.</li><li><strong>X (verwijder):</strong> niemand is eigenaar, niemand leest de data. Haal het uit de bron en voeg vervolgens een defensieve <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy">Content-Security-Policy</a>-regel toe zodat het niet via een plugin-update terugkomt.</li></ul><p>Voor de X-bucket houdt een aanvullende <code>.htaccess</code>-regel elke plugin zichtbaar die hetzelfde domein stilletjes opnieuw probeert in te voeren:</p><pre><code class="lang-apache">&lt;IfModule mod_headers.c&gt;
+  Header always set Content-Security-Policy "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com; report-uri /csp-report.php"
+&lt;/IfModule&gt;</code></pre><p>Dit is het deel dat de meeste audits overslaan. Het script vandaag verwijderen weerhoudt het marketingteam er niet van om het volgende week opnieuw via de GTM-webinterface toe te voegen. De CSP maakt die toevoeging zichtbaar: het script wordt door de browser geblokkeerd, het report-endpoint logt de poging, en op maandag heb je een gesprek.</p><h2>Een tweede pass om de winst te bevestigen</h2><p>Hard reload, exporteer de HAR opnieuw, draai het <code>jq</code>-commando nog eens. Het aantal regels moet dalen. Op de checkout van een representatieve <a href="/">verouderde site</a> die we vorige maand auditten, ging het aantal van 53 JS-requests naar 31, en de first paint van 6,2s naar 3,4s. Het kopcijfer is mooi. Wat ervoor zorgt dat de wijziging de volgende theme-update overleeft, is de schriftelijk afgetekende lijst met verwijderingen.</p><h2>Dezelfde pass, op hetzelfde type site, elke week</h2><p>Toen we Pier bouwden, zagen we precies deze audit telkens terugkomen bij klanten. De MySQL-grep op slapende tracker-strings, de archeologie in de GTM-container, de <a href="/#features">versiegeschiedenis</a>-entry vastgepind op "Hotjar verwijderd 2024-09-23, marketing bevestigt geen actief account." De manier waarop we het uiteindelijk hebben opgelost: de bonnetjes blijven in dezelfde chatomgeving waar ook de edits gebeuren, zodat de audit en de diff op één plek leven.</p><p>Heb je vandaag maar tien minuten, exporteer dan de HAR van één checkoutpagina en grep hem op drie stringfragmenten: <code>hotjar</code>, <code>tiktok</code> en <code>fbq(</code>. Alles wat raak is, is een kandidaat. De rest van de audit kan wachten tot maandag.</p>
+    </div>
+
+    <aside class="pullquote">Een netwerk-tab pass van vijftien minuten op een verouderde checkout brengt meestal twee tot vijf third-party scripts boven water die niemand in het huidige team kan plaatsen.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik deze audit draaien zonder dat DevTools de hele tijd open hoeft te staan?</p>
+      <p class="faq-a">Ja. Exporteer een HAR-bestand vanuit elke browser die het formaat ondersteunt en draai vervolgens jq-filters offline. De HAR is je audit-corpus en overleeft reboots, dus de live checkout krijgt de last maar één keer te verwerken.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als de audit een tracker vindt die marketing nog wil houden?</p>
+      <p class="faq-a">Zet hem op defer, async of achter de consent-banner. Het doel van de pass is gewicht weghalen uit het kritieke render-pad, niet elk script verwijderen waar de business iets aan heeft.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe vaak moet deze audit op een productie-checkout draaien?</p>
+      <p class="faq-a">Na elke theme-update, plugin-installatie of campagnelancering vanuit marketing. Prik daarnaast één keer per maand een terugkerend agendablok als vangnet voor degene die zonder deploy doorglippen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=frontend">#frontend</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-debug-constants/hero.jpg" alt="Bovenaanzicht van verouderd wp-config.php spiekbriefje met PHP debug-constanten, koperen presse-papier, liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 juni 2026</span></span>
+      <h3>wp-config.php debug constants: een werkbare cheatsheet</h3>
+      <span class="pc-lede">WordPress kent veertig gedocumenteerde wp-config.php constants. De meeste sites gebruiken er drie. Hier zijn de rest, als cheatsheet om in te plakken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/rogue-cron-tmp-session-leak/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/rogue-cron-tmp-session-leak/hero.webp" type="image/webp">
+        <img src="/nl/blog/rogue-cron-tmp-session-leak/hero.jpg" alt="Bovenaanzicht op linnen: cron-schema, logprint, papieren labels, messing CRON-plaat, stalen liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Rogue cron vult /tmp: een lek van 12 GB aan PHP-sessions</h3>
+      <span class="pc-lede">Op een dinsdagnacht om 3:14 kwam de alert binnen. /tmp op een kleine VPS was over 12 GB aan losse PHP-sessions gegaan. Zo vonden we de cron erachter.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/checkout-javascript-network-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
