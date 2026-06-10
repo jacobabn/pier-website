@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WooCommerce double charges: tracing a duplicated payment_complete hook · Pier — Blog</title>
+<meta name="description" content="A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/woocommerce-double-charge-payment-complete-hook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WooCommerce double charges: tracing a duplicated payment_complete hook">
+<meta property="og:description" content="A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.">
+<meta property="og:url" content="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+<meta property="og:image" content="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T03:24:36.701Z">
+<meta property="article:modified_time" content="2026-06-10T03:24:36.701Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WooCommerce double charges: tracing a duplicated payment_complete hook">
+<meta name="twitter:description" content="A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/woocommerce-double-charge-payment-complete-hook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/"},
+  "url":"https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/",
+  "headline":"WooCommerce double charges: tracing a duplicated payment_complete hook",
+  "description":"A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal."
+  },
+  "datePublished":"2026-06-10T03:24:36.701Z",
+  "dateModified":"2026-06-10T03:24:36.701Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, php, mysql, operations, tooling",
+  "wordCount":2106,
+  "articleSection":"WordPress",
+  "articleBody":"At 14:12 on a Tuesday a Dutch agency we work with pinged us with a short Loom. Their client, a mid-size shop running WooCommerce 8.4 on PHP 8.1, had taken seven orders since lunch. Every single one of those orders had two Stripe charges against it, ninety seconds apart, same amount, same card, both captured. The customer service inbox was already six emails deep. The agency lead had twenty minutes before a call and asked the only useful question: is it Stripe or is it us . It was them. It almost always is. A payment processor that runs nine million businesses does not start double-charging cards on a random Tuesday afternoon; a legacy site that has had four freelancers and three plugin updates in eighteen months does. This is the walkthrough of the next two hours: how we narrowed a WooCommerce double charge down to a duplicated payment_complete hook, what the database told us before the logs did, and the small .htaccess and PHP changes that stopped the bleed before the afternoon ended. The first ninety seconds: confirming the shape of the bug Before touching code, we wanted to know whether this was a Stripe-side retry or a WooCommerce-side double execution. The difference matters. A Stripe retry would show two PaymentIntents with different IDs only in pathological cases; most retries reuse the same pi_ ID by design, because the whole point of an idempotency key is to survive transient network failures without charging twice. A WooCommerce double execution would show two PaymentIntents tied to the same order, each captured separately. Same symptom; entirely different root cause, and entirely different blast radius. We opened the wpdb -backed wp_woocommerce_order_items and wp_postmeta tables and ran a quick check against the last hour of orders. We did not bother with SSH or with WooCommerce's analytics; the MySQL editor goes straight at the data: SELECT post_id AS order_id, meta_value AS stripe_charge_id, COUNT(*) AS hits FROM wp_postmeta WHERE meta_key = '_stripe_charge_id' AND post_id IN ( SELECT ID FROM wp_posts WHERE post_type = 'shop_order' AND post_date > NOW() - INTERVAL 2 HOUR ) GROUP BY post_id, meta_value HAVING hits > 1; Zero rows. Which was already informative. The charge IDs were distinct per attempt; no single charge ID was being recorded twice. So we widened the lens and asked the table to show us every charge-related row on the most recent affected order, in insertion order: SELECT post_id, meta_key, meta_value FROM wp_postmeta WHERE meta_key IN ('_stripe_charge_id', '_transaction_id', '_paid_date') AND post_id = 48217 ORDER BY meta_id; Order 48217 had two _stripe_charge_id rows and two _paid_date rows, ninety-two seconds apart. Two separate PaymentIntents, both captured, both attached to the same WooCommerce order. That ruled out a Stripe network retry; their idempotency model would have collapsed two identical attempts into one. Something inside the site was processing the same checkout twice and asking Stripe to charge for it both times. Reading the order notes like a flight recorder WooCommerce writes an order note on almost every state transition. The notes table is the closest thing the platform has to a flight recorder, and it is criminally underused during incidents. Most agencies reach for the access log or the PHP error log first; both tell you the page was requested, neither tells you what the order object did inside that request. The order notes do. We pulled them for 48217: SELECT comment_date, comment_content FROM wp_comments WHERE comment_post_ID = 48217 AND comment_type = 'order_note' ORDER BY comment_date; The output told the whole story in eight rows. Paraphrased: 14:03:11 — Order status changed from pending to processing. 14:03:11 — Stripe charge complete (Charge ID: ch_3PA...XQ). 14:03:12 — Reducing stock for product #882. 14:03:12 — Order status changed from processing to processing (no change). 14:04:43 — Stripe charge complete (Charge ID: ch_3PA...ZK). 14:04:43 — Reducing stock for product #882. Two \"Stripe charge complete\" notes ninety-two seconds apart. Two stock reductions. And in between, a status transition from processing to processing that should not have done anything. That is the signature of payment_complete() being called twice on an order that was already paid. WooCommerce's WC_Order::payment_complete() is supposed to be idempotent against the same order state, but only if the gateway respects the order's current status. If a second call comes in with a different transaction ID, it happily fires the woocommerce_payment_complete action again and runs every hook attached to it, gateway captures included. The double stock reduction in the notes is the smoking gun. A single legitimate transition from pending to processing reduces stock once. A second pass through the same hook reduces it again, which on a low-stock SKU is how a healthy product ends up oversold by lunchtime. Three days from now the agency would have been on a different call about inventory drift;",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"WooCommerce double charges: tracing a duplicated payment_complete hook","item":"https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why did WooCommerce capture two separate PaymentIntents instead of refusing the second?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the second payment_complete call arrived with a different transaction ID, the Stripe gateway treated it as a fresh capture rather than a duplicate of the already-paid order."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is WC_Order::payment_complete() supposed to be idempotent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is idempotent against the same order state, but only if the calling code respects the order's current status. A second call with a new transaction ID will still fire the woocommerce_payment_complete action."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Could a Stripe webhook retry cause the same symptom?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. A retry reuses the same PaymentIntent ID. The fingerprint of a duplicated payment_complete hook is two distinct charge IDs against one WooCommerce order."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the fastest way to spot this on a site you just inherited?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Grep the theme and mu-plugins folder for payment_complete. Any call outside the gateway plugin needs an is_paid() guard or it should be removed."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/woocommerce-double-charge-payment-complete-hook/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 079</span>
+      </div>
+      <p class="eyebrow"><span class="n">079 —</span>WordPress</p>
+      <h1 class="display-l post-title">WooCommerce double charges: tracing a duplicated payment_complete hook</h1>
+      <p class="lede post-lede">A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T03:24:36.701Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/woocommerce-double-charge-payment-complete-hook/hero.webp" type="image/webp">
+      <img src="/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg" alt="Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 079</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>At 14:12 on a Tuesday a Dutch agency we work with pinged us with a short Loom. Their client, a mid-size shop running WooCommerce 8.4 on PHP 8.1, had taken seven orders since lunch. Every single one of those orders had two Stripe charges against it, ninety seconds apart, same amount, same card, both captured. The customer service inbox was already six emails deep. The agency lead had twenty minutes before a call and asked the only useful question: <em>is it Stripe or is it us</em>.</p>
+
+<p>It was them. It almost always is. A payment processor that runs nine million businesses does not start double-charging cards on a random Tuesday afternoon; a <a href="/">legacy site</a> that has had four freelancers and three plugin updates in eighteen months does. This is the walkthrough of the next two hours: how we narrowed a WooCommerce double charge down to a duplicated <code>payment_complete</code> hook, what the database told us before the logs did, and the small <code>.htaccess</code> and PHP changes that stopped the bleed before the afternoon ended.</p>
+
+<h2>The first ninety seconds: confirming the shape of the bug</h2>
+
+<p>Before touching code, we wanted to know whether this was a Stripe-side retry or a WooCommerce-side double execution. The difference matters. A Stripe retry would show two PaymentIntents with different IDs only in pathological cases; most retries reuse the same <code>pi_</code> ID by design, because the whole point of an idempotency key is to survive transient network failures without charging twice. A WooCommerce double execution would show two PaymentIntents tied to the same order, each captured separately. Same symptom; entirely different root cause, and entirely different blast radius.</p>
+
+<p>We opened the <a href="https://developer.wordpress.org/reference/classes/wpdb/">wpdb</a>-backed <code>wp_woocommerce_order_items</code> and <code>wp_postmeta</code> tables and ran a quick check against the last hour of orders. We did not bother with SSH or with WooCommerce's analytics; the <a href="/#database">MySQL editor</a> goes straight at the data:</p>
+
+<pre><code class="lang-sql">SELECT post_id AS order_id,
+       meta_value AS stripe_charge_id,
+       COUNT(*)   AS hits
+FROM   wp_postmeta
+WHERE  meta_key = '_stripe_charge_id'
+  AND  post_id IN (
+    SELECT ID FROM wp_posts
+    WHERE  post_type = 'shop_order'
+      AND  post_date &gt; NOW() - INTERVAL 2 HOUR
+  )
+GROUP BY post_id, meta_value
+HAVING hits &gt; 1;</code></pre>
+
+<p>Zero rows. Which was already informative. The charge IDs were distinct per attempt; no single charge ID was being recorded twice. So we widened the lens and asked the table to show us every charge-related row on the most recent affected order, in insertion order:</p>
+
+<pre><code class="lang-sql">SELECT post_id, meta_key, meta_value
+FROM   wp_postmeta
+WHERE  meta_key IN ('_stripe_charge_id', '_transaction_id', '_paid_date')
+  AND  post_id = 48217
+ORDER BY meta_id;</code></pre>
+
+<p>Order 48217 had two <code>_stripe_charge_id</code> rows and two <code>_paid_date</code> rows, ninety-two seconds apart. Two separate PaymentIntents, both captured, both attached to the same WooCommerce order. That ruled out a Stripe network retry; their <a href="https://docs.stripe.com/api/idempotent_requests">idempotency model</a> would have collapsed two identical attempts into one. Something inside the site was processing the same checkout twice and asking Stripe to charge for it both times.</p>
+
+<h2>Reading the order notes like a flight recorder</h2>
+
+<p>WooCommerce writes an order note on almost every state transition. The notes table is the closest thing the platform has to a flight recorder, and it is criminally underused during incidents. Most agencies reach for the access log or the PHP error log first; both tell you the page was requested, neither tells you what the order object did inside that request. The order notes do. We pulled them for 48217:</p>
+
+<pre><code class="lang-sql">SELECT comment_date, comment_content
+FROM   wp_comments
+WHERE  comment_post_ID = 48217
+  AND  comment_type   = 'order_note'
+ORDER BY comment_date;</code></pre>
+
+<p>The output told the whole story in eight rows. Paraphrased:</p>
+
+<ul>
+  <li>14:03:11 — Order status changed from pending to processing.</li>
+  <li>14:03:11 — Stripe charge complete (Charge ID: ch_3PA...XQ).</li>
+  <li>14:03:12 — Reducing stock for product #882.</li>
+  <li>14:03:12 — Order status changed from processing to processing (no change).</li>
+  <li>14:04:43 — Stripe charge complete (Charge ID: ch_3PA...ZK).</li>
+  <li>14:04:43 — Reducing stock for product #882.</li>
+</ul>
+
+<p>Two "Stripe charge complete" notes ninety-two seconds apart. Two stock reductions. And in between, a status transition from processing to processing that should not have done anything. That is the signature of <code>payment_complete()</code> being called twice on an order that was already paid. WooCommerce's <a href="https://woocommerce.github.io/code-reference/classes/WC-Order.html#method_payment_complete">WC_Order::payment_complete()</a> is supposed to be idempotent against the same order state, but only if the gateway respects the order's current status. If a second call comes in with a different transaction ID, it happily fires the <code>woocommerce_payment_complete</code> action again and runs every hook attached to it, gateway captures included.</p>
+
+<p>The double stock reduction in the notes is the smoking gun. A single legitimate transition from pending to processing reduces stock once. A second pass through the same hook reduces it again, which on a low-stock SKU is how a healthy product ends up oversold by lunchtime. Three days from now the agency would have been on a different call about inventory drift; we caught it on the way in.</p>
+
+<p>And the notes are easy to forget because they live in the <code>wp_comments</code> table, not in any obvious order-related namespace. WordPress reuses <code>wp_comments</code> for product reviews, order notes and ordinary blog comments; tools that index only <code>wp_posts</code> and <code>wp_postmeta</code> miss them. WP-CLI's <code>wc shop_order get</code> skips them too. The fastest way to read them on a live site is the SQL above or the order edit screen, and the SQL wins every time you need to compare two orders side by side.</p>
+
+<h2>Finding the second caller</h2>
+
+<p>Two callers, both running <code>payment_complete</code>. The first is the Stripe webhook handler, which is the canonical and supported path. So what is the second? We grepped the active theme, the mu-plugins folder, and any drop-ins for the obvious suspects, excluding the gateway plugin itself so we could focus on the client code:</p>
+
+<pre><code class="lang-bash">grep -rn "payment_complete" wp-content/ \
+  --include="*.php" \
+  --exclude-dir=woocommerce \
+  --exclude-dir=woocommerce-gateway-stripe</code></pre>
+
+<p>Three matches. Two were ours to worry about:</p>
+
+<pre><code class="lang-php">// wp-content/plugins/woocommerce-gateway-stripe/includes/class-wc-stripe-webhook-handler.php
+$order-&gt;payment_complete( $intent-&gt;id );
+
+// wp-content/mu-plugins/abandoned-cart-recovery.php
+$order-&gt;payment_complete( $charge_id );
+
+// wp-content/themes/clientchild/inc/checkout-confirm.php
+WC()-&gt;cart-&gt;empty_cart();
+$order-&gt;payment_complete( $txn );</code></pre>
+
+<p>Two callers in client code. Both written by a previous freelancer. The mu-plugin was harmless on its own; it was guarded by an order status check (<code>if ( $order-&gt;has_status( 'pending' ) )</code>) which short-circuited the second call once the webhook had already marked the order paid. The theme file was not. <code>checkout-confirm.php</code> was being included by a thank-you page template that ran on every visit to <code>/checkout/order-received/</code>. If a customer refreshed the page, or if Stripe's redirect arrived a heartbeat before the webhook, the second <code>payment_complete()</code> fired with a new transaction ID and the gateway dutifully captured a fresh PaymentIntent.</p>
+
+<p>A <code>git blame</code> on the offending line gave us the responsible commit, the PR description and the date the call was added: eleven months prior, by a freelancer who had since left the agency. The PR title was the giveaway: "fix order received page sometimes blank". Whoever wrote that line had a thank-you page that did not render and reached for <code>payment_complete()</code> because they had seen it work elsewhere in the codebase. It would have been better to debug why the page was blank, but the freelancer was out by Friday and the line stayed.</p>
+
+<p>The fingerprint was the time gap. Ninety seconds is about how long it takes a distracted shopper to refresh the confirmation page after wondering if their order went through. Long enough that the webhook has landed and marked the order paid; short enough that the customer is still on the tab when their second charge clears. Mobile users were worse; on a phone the gap was tighter, because Safari's back-button restore re-fires the request without a refresh prompt.</p>
+
+<h2>The stopgap and the real fix</h2>
+
+<p>The bleed had to stop before we discussed architecture. The smallest safe change was to short-circuit the duplicate path. We did not want to disable the theme file outright in case some downstream code in the same include did legitimate work after the <code>payment_complete</code> line, and a hard removal would have meant a full theme deploy at a moment when every change carried risk. We saved a backup of the theme file, added a guard at the top, and pushed it:</p>
+
+<pre><code class="lang-php">// wp-content/themes/clientchild/inc/checkout-confirm.php
+if ( $order-&gt;is_paid() || $order-&gt;get_date_paid() ) {
+    return;
+}
+
+// Original line, now unreachable for paid orders.
+$order-&gt;payment_complete( $txn );</code></pre>
+
+<p>The <code>is_paid()</code> check covers the documented WooCommerce paid statuses (<code>processing</code>, <code>completed</code> and any custom statuses registered via the <code>woocommerce_order_is_paid_statuses</code> filter). The <code>get_date_paid()</code> check is the belt to the suspenders, because some Stripe-driven flows mark the order paid before the status transition fully commits and there is a brief window where <code>is_paid()</code> reports false while <code>_paid_date</code> is already populated. The two checks together close the race.</p>
+
+<p>We considered patching the Stripe gateway plugin instead, to make it refuse a second <code>payment_complete</code> on an already-paid order regardless of the transaction ID. That is the architecturally correct fix and it would have closed every caller in one move. We did not do it. Patching a maintained plugin file means living with a merge conflict every release, and the agency was three Stripe-gateway versions behind already. The local guard was reversible, contained and fixable by the next person who looked at the file.</p>
+
+<p>Next, we added an <code>.htaccess</code> rule so the confirmation page could not be POSTed to by a stale form resubmit, which was the third theoretical path to a double fire:</p>
+
+<pre><code class="lang-apache">&lt;LocationMatch "^/checkout/order-received/"&gt;
+    &lt;LimitExcept GET HEAD&gt;
+        Require all denied
+    &lt;/LimitExcept&gt;
+&lt;/LocationMatch&gt;</code></pre>
+
+<p>The Apache documentation on <a href="https://httpd.apache.org/docs/2.4/mod/core.html#limitexcept"><code>LimitExcept</code></a> is worth a re-read every couple of years; it is one of the few directives that does exactly what its name says. Anything not in the allowed verb list is denied with a 403, which the order-received page does not need to handle, because nothing legitimate should POST to it after the initial gateway round-trip.</p>
+
+<p>With the stopgap live, we ran a test checkout. Single charge. Refreshed the confirmation page eight times. Single charge. Pressed the back button to the form and resubmitted; Apache returned 403 and the order stayed clean. We tailed the order notes for ten minutes across nine real customer checkouts. Single charge per order. The incident was over at 16:09.</p>
+
+<aside class="callout">If you inherit a WooCommerce site and you see <code>payment_complete()</code> called anywhere outside the gateway plugin, treat it as a latent double-charge. It will not bite until the day a customer hits refresh on the thank-you page at the same moment Stripe's webhook lands. Then it bites seven times in two hours.</aside>
+
+<h2>What we refunded, and how we found everyone</h2>
+
+<p>The afternoon's damage was bounded by the SQL we ran first. We pulled every order from the last forty-eight hours that had more than one <code>_stripe_charge_id</code>, cross-referenced against Stripe's dashboard via the order IDs in the <code>description</code> field, and refunded the second capture on each. Twenty-three orders. We picked the later of the two charges to refund (rather than the earlier) so the customer's bank statement showed an immediate refund of the most recent line rather than a delayed refund of something they had already mentally accepted.</p>
+
+<p>The owner emailed each customer personally before they had to ask. Two replied with thanks. The other twenty-one had not noticed yet, because the second charge had not posted to their statement; pending authorisations on most issuers settle within forty-eight hours, and we beat the clock by the width of a coffee break. That is the only way to come out of a double-charge incident with goodwill intact: refund before the chargeback, email before the complaint.</p>
+
+<p>For the longer-term cleanup we turned the diagnostic SQL into a five-minute cron that pings the agency's #incidents channel on any order with more than one <code>_stripe_charge_id</code>. It has fired zero times in the eight weeks since. The theme file was eventually rewritten to remove <code>payment_complete()</code> entirely; the confirmation page now reads order state, it does not write to it. But the guard stays in, because the next freelancer might re-add the line and we would rather they hit a no-op than a charge.</p>
+
+<h2>The shape that keeps coming back</h2>
+
+<p>When we built Pier we ran into this exact shape of bug on three different client sites in the same quarter, which is why the database and file editor sit side by side in one window, with every save tagged in the <a href="/#features">version history</a> for one-click rollback. The two questions you ask during a charge incident, what does the order table say and who is calling this function, should not require two SSH sessions and a coffee.</p>
+
+<p>If you run any WooCommerce site you did not write from scratch, grep your theme and mu-plugins folder for <code>payment_complete</code> today. Anything outside the gateway plugin needs a paid-status guard or it needs to go. That is the ten-minute job that will save you the bad afternoon.</p>
+    </div>
+
+    <aside class="pullquote">Two distinct Stripe charge IDs on one WooCommerce order is the fingerprint of a duplicated payment_complete hook, not a Stripe retry.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why did WooCommerce capture two separate PaymentIntents instead of refusing the second?</p>
+      <p class="faq-a">Because the second payment_complete call arrived with a different transaction ID, the Stripe gateway treated it as a fresh capture rather than a duplicate of the already-paid order.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is WC_Order::payment_complete() supposed to be idempotent?</p>
+      <p class="faq-a">It is idempotent against the same order state, but only if the calling code respects the order&#39;s current status. A second call with a new transaction ID will still fire the woocommerce_payment_complete action.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Could a Stripe webhook retry cause the same symptom?</p>
+      <p class="faq-a">No. A retry reuses the same PaymentIntent ID. The fingerprint of a duplicated payment_complete hook is two distinct charge IDs against one WooCommerce order.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the fastest way to spot this on a site you just inherited?</p>
+      <p class="faq-a">Grep the theme and mu-plugins folder for payment_complete. Any call outside the gateway plugin needs an is_paid() guard or it should be removed.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/phpmyadmin-three-safe-settings/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/phpmyadmin-three-safe-settings/hero.webp" type="image/webp">
+        <img src="/blog/phpmyadmin-three-safe-settings/hero.jpg" alt="Overhead shot of phpMyAdmin config sheet on bone linen with red-circled lines, brass plate, manila folder, ruler, pencil, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Tooling</span><span>·</span><span>9 June 2026</span></span>
+      <h3>phpMyAdmin in 2026: the three settings that keep it safe</h3>
+      <span class="pc-lede">Half the senior engineers we work with want phpMyAdmin gone in 2026. The other half use it weekly. The three settings that resolve the argument.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/slow-admin-ajax-heartbeat-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/slow-admin-ajax-heartbeat-plugin/hero.webp" type="image/webp">
+        <img src="/blog/slow-admin-ajax-heartbeat-plugin/hero.jpg" alt="Overhead bone linen with printed admin-ajax request trace, stapled log printout, manila folder tab, brass plate, ruler, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>9 June 2026</span></span>
+      <h3>Slow admin-ajax.php: tracing 30 seconds back to one plugin</h3>
+      <span class="pc-lede">A WooCommerce backend hung for 30 seconds on every page load. The slow request was always admin-ajax.php. Here is how we traced it to one Heartbeat plugin.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/woocommerce-double-charge-payment-complete-hook/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
