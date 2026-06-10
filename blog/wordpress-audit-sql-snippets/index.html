@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>SQL audit snippets for legacy WordPress: a cheatsheet · Pier — Blog</title>
+<meta name="description" content="The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="SQL audit snippets for legacy WordPress: a cheatsheet">
+<meta property="og:description" content="The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.">
+<meta property="og:url" content="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<meta property="og:image" content="https://pier.abn.company/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T07:36:59.573Z">
+<meta property="article:modified_time" content="2026-06-10T07:36:59.573Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="SQL audit snippets for legacy WordPress: a cheatsheet">
+<meta name="twitter:description" content="The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wordpress-audit-sql-snippets/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wordpress-audit-sql-snippets/"},
+  "url":"https://pier.abn.company/blog/wordpress-audit-sql-snippets/",
+  "headline":"SQL audit snippets for legacy WordPress: a cheatsheet",
+  "description":"The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wordpress-audit-sql-snippets/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal."
+  },
+  "datePublished":"2026-06-10T07:36:59.573Z",
+  "dateModified":"2026-06-10T07:36:59.573Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, mysql, databases, php, operations, tooling",
+  "wordCount":1007,
+  "articleSection":"Databases",
+  "articleBody":"Inherited project. A WordPress install that has been running since 2011, last touched by a freelancer in 2019, now sitting on a shared host where wp-admin takes nine seconds to render the dashboard. The handover doc says \"it's fine, just keep it patched.\" Nothing about the database. Nothing about the 480MB wp_options table. We keep a file called wp-audit.sql on every laptop. Eight fragments, all read-only, all safe to run on production with a warm coffee in hand. They answer the three questions a legacy WordPress audit actually starts with: where is the weight, what is orphaned, and what did six different developers leave behind in the schema. The autoload pile Every page load on a WordPress site pulls every row from wp_options where autoload = 'yes' . A clean install lands somewhere under 1MB. Sites we audit routinely hit 40MB, 80MB, occasionally 200MB. The cause is almost always a plugin that wrote a giant serialized array and never cleaned it up. Fragment 1 is the headline number: SELECT ROUND(SUM(LENGTH(option_value))/1024/1024, 2) AS autoload_mb FROM wp_options WHERE autoload = 'yes'; If that returns anything over 3, fragment 2 finds the offenders: SELECT option_name, ROUND(LENGTH(option_value)/1024, 1) AS kb FROM wp_options WHERE autoload = 'yes' ORDER BY LENGTH(option_value) DESC LIMIT 25; What turns up: an SEO plugin caching a sitemap blob, a backup plugin storing logs as a single option, a long-uninstalled page builder that left 18MB behind. The wp_load_alloptions documentation is worth re-reading once you see the list, because it explains why a 200KB option costs you on every request, not just the one that wrote it. Transients that never died Transients are WordPress's poor-man's cache. They are supposed to expire. They often do not, because the cron job that cleans them stops firing the moment DISABLE_WP_CRON gets set and nobody wires up a real one. Fragment 3 finds the expired timeouts: SELECT COUNT(*) AS dead_transients FROM wp_options WHERE option_name LIKE '\\_transient\\_timeout\\_%' ESCAPE '\\\\' AND option_value < UNIX_TIMESTAMP(); On one site (a Magento storefront with WordPress bolted on for the blog) this returned 412,000. Each row was tiny on its own. Together they were dragging every admin query through a fat table scan. The Transients API page covers the lifecycle if you need to remind yourself why the cleanup never ran. Revisions, the silent gainer WordPress keeps post revisions forever unless you set WP_POST_REVISIONS . On a site with 12,000 published posts we routinely see 180,000 revision rows. Fragment 4 ranks them: SELECT post_parent, COUNT(*) AS revisions FROM wp_posts WHERE post_type = 'revision' GROUP BY post_parent ORDER BY revisions DESC LIMIT 20; One post will usually have 600+. It is always a homepage that an editor kept tweaking for two years. Worth knowing before you propose a cleanup, because the editor may want those back. Orphans nobody noticed Plugins get uninstalled. The rows they wrote into wp_postmeta and wp_usermeta do not. After a decade of churn, the orphan count can outweigh the live rows. Fragment 5, orphaned postmeta: SELECT COUNT(*) AS orphan_postmeta FROM wp_postmeta pm LEFT JOIN wp_posts p ON p.ID = pm.post_id WHERE p.ID IS NULL; Fragment 6, orphaned usermeta: SELECT COUNT(*) AS orphan_usermeta FROM wp_usermeta um LEFT JOIN wp_users u ON u.ID = um.user_id WHERE u.ID IS NULL; If either returns a six-figure number, you have found a chunk of your slow queries. A Dutch agency we work with handed us a site with 2.1M orphan postmeta rows from a CRM plugin removed in 2017. Deleting them dropped the post-edit screen from 7 seconds to 1.4. Before deleting orphans, confirm the parent table is intact. If wp_posts itself was truncated by accident, the join will mark everything as orphaned and a DELETE will finish the job. Always take a dump first, always run the COUNT alone, then run DELETE with a WHERE clause that mirrors the SELECT exactly. Schema drift Two things go wrong over years of migrations: tables end up on different storage engines, and they end up on different charsets. Either one will surprise you later. Fragment 7 lists non-InnoDB tables: SELECT table_name, engine FROM information_schema.tables WHERE table_schema = DATABASE() AND engine <> 'InnoDB'; MyISAM tables in a WordPress install in 2026 are a tell. Usually it is a custom analytics table from 2014 that nobody migrated. They do not support foreign keys, they do not recover cleanly from a crash, and they lock the whole table on writes. MySQL's own docs have made the case for years. Fragment 8 catches collation drift: SELECT table_collation, COUNT(*) AS tables FROM information_schema.tables WHERE table_schema = DATABASE() GROUP BY table_collation; If that returns more than one row, you have tables in utf8mb4_unicode_ci and tables still in utf8_general_ci . JOINs across them trigger implicit conversions and quietly bypass your indexes. Worth fixing before you ship the next feature, not after. Running the",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wordpress-audit-sql-snippets/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"SQL audit snippets for legacy WordPress: a cheatsheet","item":"https://pier.abn.company/blog/wordpress-audit-sql-snippets/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Are these queries safe to run on a live production database?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. All eight are SELECT-only, no locks, no writes. The two that hit information_schema can be slow on shared hosting with crowded metadata, so prefer a quiet hour."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about wp_postmeta indexes affecting the orphan join?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "post_id is indexed in the default WordPress schema, so the LEFT JOIN is cheap. If an old plugin dropped that index the query will full-scan; check SHOW INDEX FROM wp_postmeta first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I just install WP-Optimize and let it clean up?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is fine for one-click cleanups, but it hides what it deletes. Run the SELECT side of these fragments first so you know the size and shape of what is about to disappear."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not just truncate wp_options entries with autoload=yes?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plenty of them are real settings the site needs to boot. The audit is about identifying specific oversized rows, not blanket-deleting autoloaded options. Always inspect option_name first."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 084</span>
+      </div>
+      <p class="eyebrow"><span class="n">084 —</span>Databases</p>
+      <h1 class="display-l post-title">SQL audit snippets for legacy WordPress: a cheatsheet</h1>
+      <p class="lede post-lede">The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T07:36:59.573Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 084</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Inherited project. A WordPress install that has been running since 2011, last touched by a freelancer in 2019, now sitting on a shared host where wp-admin takes nine seconds to render the dashboard. The handover doc says "it's fine, just keep it patched." Nothing about the database. Nothing about the 480MB <code>wp_options</code> table.</p>
+
+<p>We keep a file called <code>wp-audit.sql</code> on every laptop. Eight fragments, all read-only, all safe to run on production with a warm coffee in hand. They answer the three questions a legacy WordPress audit actually starts with: where is the weight, what is orphaned, and what did six different developers leave behind in the schema.</p>
+
+<h2>The autoload pile</h2>
+
+<p>Every page load on a WordPress site pulls every row from <code>wp_options</code> where <code>autoload = 'yes'</code>. A clean install lands somewhere under 1MB. Sites we audit routinely hit 40MB, 80MB, occasionally 200MB. The cause is almost always a plugin that wrote a giant serialized array and never cleaned it up.</p>
+
+<p>Fragment 1 is the headline number:</p>
+
+<pre><code class="lang-sql">SELECT ROUND(SUM(LENGTH(option_value))/1024/1024, 2) AS autoload_mb
+FROM wp_options
+WHERE autoload = 'yes';
+</code></pre>
+
+<p>If that returns anything over 3, fragment 2 finds the offenders:</p>
+
+<pre><code class="lang-sql">SELECT option_name, ROUND(LENGTH(option_value)/1024, 1) AS kb
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY LENGTH(option_value) DESC
+LIMIT 25;
+</code></pre>
+
+<p>What turns up: an SEO plugin caching a sitemap blob, a backup plugin storing logs as a single option, a long-uninstalled page builder that left 18MB behind. The <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">wp_load_alloptions documentation</a> is worth re-reading once you see the list, because it explains why a 200KB option costs you on every request, not just the one that wrote it.</p>
+
+<h2>Transients that never died</h2>
+
+<p>Transients are WordPress's poor-man's cache. They are supposed to expire. They often do not, because the cron job that cleans them stops firing the moment <code>DISABLE_WP_CRON</code> gets set and nobody wires up a real one.</p>
+
+<p>Fragment 3 finds the expired timeouts:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS dead_transients
+FROM wp_options
+WHERE option_name LIKE '\_transient\_timeout\_%' ESCAPE '\\'
+  AND option_value &lt; UNIX_TIMESTAMP();
+</code></pre>
+
+<p>On one site (a Magento storefront with WordPress bolted on for the blog) this returned 412,000. Each row was tiny on its own. Together they were dragging every admin query through a fat table scan. The <a href="https://developer.wordpress.org/apis/transients/">Transients API page</a> covers the lifecycle if you need to remind yourself why the cleanup never ran.</p>
+
+<h2>Revisions, the silent gainer</h2>
+
+<p>WordPress keeps post revisions forever unless you set <code>WP_POST_REVISIONS</code>. On a site with 12,000 published posts we routinely see 180,000 revision rows.</p>
+
+<p>Fragment 4 ranks them:</p>
+
+<pre><code class="lang-sql">SELECT post_parent, COUNT(*) AS revisions
+FROM wp_posts
+WHERE post_type = 'revision'
+GROUP BY post_parent
+ORDER BY revisions DESC
+LIMIT 20;
+</code></pre>
+
+<p>One post will usually have 600+. It is always a homepage that an editor kept tweaking for two years. Worth knowing before you propose a cleanup, because the editor may want those back.</p>
+
+<h2>Orphans nobody noticed</h2>
+
+<p>Plugins get uninstalled. The rows they wrote into <code>wp_postmeta</code> and <code>wp_usermeta</code> do not. After a decade of churn, the orphan count can outweigh the live rows.</p>
+
+<p>Fragment 5, orphaned postmeta:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS orphan_postmeta
+FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL;
+</code></pre>
+
+<p>Fragment 6, orphaned usermeta:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS orphan_usermeta
+FROM wp_usermeta um
+LEFT JOIN wp_users u ON u.ID = um.user_id
+WHERE u.ID IS NULL;
+</code></pre>
+
+<p>If either returns a six-figure number, you have found a chunk of your slow queries. A Dutch agency we work with handed us a site with 2.1M orphan postmeta rows from a CRM plugin removed in 2017. Deleting them dropped the post-edit screen from 7 seconds to 1.4.</p>
+
+<aside class="callout">Before deleting orphans, confirm the parent table is intact. If <code>wp_posts</code> itself was truncated by accident, the join will mark everything as orphaned and a DELETE will finish the job. Always take a dump first, always run the COUNT alone, then run DELETE with a WHERE clause that mirrors the SELECT exactly.</aside>
+
+<h2>Schema drift</h2>
+
+<p>Two things go wrong over years of migrations: tables end up on different storage engines, and they end up on different charsets. Either one will surprise you later.</p>
+
+<p>Fragment 7 lists non-InnoDB tables:</p>
+
+<pre><code class="lang-sql">SELECT table_name, engine
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND engine &lt;&gt; 'InnoDB';
+</code></pre>
+
+<p>MyISAM tables in a WordPress install in 2026 are a tell. Usually it is a custom analytics table from 2014 that nobody migrated. They do not support foreign keys, they do not recover cleanly from a crash, and they lock the whole table on writes. <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-introduction.html">MySQL's own docs</a> have made the case for years.</p>
+
+<p>Fragment 8 catches collation drift:</p>
+
+<pre><code class="lang-sql">SELECT table_collation, COUNT(*) AS tables
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+GROUP BY table_collation;
+</code></pre>
+
+<p>If that returns more than one row, you have tables in <code>utf8mb4_unicode_ci</code> and tables still in <code>utf8_general_ci</code>. JOINs across them trigger implicit conversions and quietly bypass your indexes. Worth fixing before you ship the next feature, not after.</p>
+
+<h2>Running these without scaring production</h2>
+
+<p>All eight fragments are read-only. None of them write, lock, or block. They are still real queries against a real database, so:</p>
+
+<ul>
+<li>Run them on a read replica if you have one. If you do not, run them during a quiet hour.</li>
+<li>The <code>information_schema</code> queries can be slow on shared hosting where the metadata is enormous. Do not be surprised if fragment 7 takes 30 seconds.</li>
+<li>Keep the file in version control. The fragments evolve as you find new failure modes on new sites.</li>
+</ul>
+
+<p>When we built Pier we ran into the same loop on almost every <a href="/">legacy site</a> we touched: open the database, run these queries, copy the rows into a doc, decide what to delete. Pier's <a href="/#database">MySQL editor</a> ships a chat layer over these snippets so you can ask "what is eating my autoload" in plain English, get the fragment back with the rows, and keep a <a href="/#features">version history</a> entry on anything you act on.</p>
+
+<p>The smallest thing to do today: copy the autoload byte-count query into a file called <code>wp-audit.sql</code> and run it against the next legacy WordPress site that lands on your desk. Whatever number it returns will tell you how much of the rest of the file you need.</p>
+    </div>
+
+    <aside class="pullquote">Eight read-only SQL fragments answer the three questions every legacy WordPress audit starts with: where is the weight, what is orphaned, and what drifted in the schema.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Are these queries safe to run on a live production database?</p>
+      <p class="faq-a">Yes. All eight are SELECT-only, no locks, no writes. The two that hit information_schema can be slow on shared hosting with crowded metadata, so prefer a quiet hour.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about wp_postmeta indexes affecting the orphan join?</p>
+      <p class="faq-a">post_id is indexed in the default WordPress schema, so the LEFT JOIN is cheap. If an old plugin dropped that index the query will full-scan; check SHOW INDEX FROM wp_postmeta first.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I just install WP-Optimize and let it clean up?</p>
+      <p class="faq-a">It is fine for one-click cleanups, but it hides what it deletes. Run the SELECT side of these fragments first so you know the size and shape of what is about to disappear.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why not just truncate wp_options entries with autoload=yes?</p>
+      <p class="faq-a">Plenty of them are real settings the site needs to boot. The audit is about identifying specific oversized rows, not blanket-deleting autoloaded options. Always inspect option_name first.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/splitting-wp-options-autoload/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/splitting-wp-options-autoload/hero.webp" type="image/webp">
+        <img src="/blog/splitting-wp-options-autoload/hero.jpg" alt="Overhead photo on bone linen: inked SQL worksheet, wp_options blueprint, manila cards, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Splitting a 7GB wp_options table: an autoload field guide</h3>
+      <span class="pc-lede">A wp_options table that grew to 7GB doesn&#39;t crash WordPress, it just makes every request feel underwater. Here&#39;s how to find the autoloaded rows behind it.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/woocommerce-double-charge-payment-complete-hook/hero.webp" type="image/webp">
+        <img src="/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg" alt="Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>10 June 2026</span></span>
+      <h3>WooCommerce double charges: tracing a duplicated payment_complete hook</h3>
+      <span class="pc-lede">A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

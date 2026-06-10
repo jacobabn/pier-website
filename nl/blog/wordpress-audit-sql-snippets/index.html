@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress-audit in SQL: acht snippets uit ons spiekbriefje · Pier — Blog</title>
+<meta name="description" content="De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, mysql, databases, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress-audit in SQL: acht snippets uit ons spiekbriefje">
+<meta property="og:description" content="De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T07:36:59.573Z">
+<meta property="article:modified_time" content="2026-06-10T07:36:59.573Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress-audit in SQL: acht snippets uit ons spiekbriefje">
+<meta name="twitter:description" content="De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/"},
+  "url":"https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/",
+  "headline":"WordPress-audit in SQL: acht snippets uit ons spiekbriefje",
+  "description":"De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel."
+  },
+  "datePublished":"2026-06-10T07:36:59.573Z",
+  "dateModified":"2026-06-10T07:36:59.573Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, mysql, databases, php, operations, tooling",
+  "wordCount":1067,
+  "articleSection":"Databases",
+  "articleBody":"Overgenomen project. Een WordPress-installatie die sinds 2011 draait, in 2019 voor het laatst aangeraakt door een freelancer, en nu staat op een shared host waar wp-admin er negen seconden over doet om het dashboard te renderen. In het overdrachtsdocument staat \"komt goed, gewoon patchen.\" Niets over de database. Niets over de wp_options-tabel van 480MB. Op elke laptop staat een bestand met de naam wp-audit.sql . Acht fragmenten, allemaal read-only, allemaal veilig om op productie te draaien met een warme koffie binnen handbereik. Ze beantwoorden de drie vragen waar een audit van een legacy WordPress-site in de praktijk mee begint: waar zit het gewicht, wat is een weeskind, en wat hebben zes verschillende ontwikkelaars in het schema achtergelaten. De autoload-stapel Bij elke page load van een WordPress-site worden alle rijen uit wp_options opgehaald waar autoload = 'yes' . Een schone install zit ergens onder de 1MB. Sites die wij doorlichten zitten standaard op 40MB, 80MB, soms 200MB. De oorzaak is bijna altijd een plugin die ooit een gigantische geserialiseerde array heeft weggeschreven en die nooit heeft opgeruimd. Fragment 1 is het kopgetal: SELECT ROUND(SUM(LENGTH(option_value))/1024/1024, 2) AS autoload_mb FROM wp_options WHERE autoload = 'yes'; Komt daar iets boven de 3 uit, dan vist fragment 2 de boosdoeners op: SELECT option_name, ROUND(LENGTH(option_value)/1024, 1) AS kb FROM wp_options WHERE autoload = 'yes' ORDER BY LENGTH(option_value) DESC LIMIT 25; Wat naar boven komt: een SEO-plugin die een sitemap-blob cachet, een backup-plugin die logs in één option wegschrijft, een page builder die al lang verwijderd is en 18MB heeft achtergelaten. De documentatie van wp_load_alloptions is het herlezen waard zodra je de lijst ziet, want die legt uit waarom een option van 200KB je bij elke request iets kost, niet alleen bij de request die hem schreef. Transients die nooit afsterven Transients zijn de armemansvariant van een cache in WordPress. Ze horen te verlopen. Dat doen ze vaak niet, want de cron job die ze opruimt stopt met draaien zodra DISABLE_WP_CRON aanstaat en niemand de moeite neemt om een echte cron op te zetten. Fragment 3 vindt de verlopen timeouts: SELECT COUNT(*) AS dead_transients FROM wp_options WHERE option_name LIKE '\\_transient\\_timeout\\_%' ESCAPE '\\\\' AND option_value < UNIX_TIMESTAMP(); Op één site (een Magento-storefront met WordPress eraan vastgeplakt voor de blog) gaf dit 412.000 terug. Elke rij op zichzelf was minuscuul. Samen trokken ze elke admin-query door een dikke table scan heen. De pagina over de Transients API beschrijft de lifecycle als je jezelf wilt herinneren waarom de cleanup nooit liep. Revisions, de stille groeier WordPress bewaart post revisions voor altijd, tenzij je WP_POST_REVISIONS instelt. Op een site met 12.000 gepubliceerde posts zien we standaard 180.000 revisie-rijen. Fragment 4 zet ze op volgorde: SELECT post_parent, COUNT(*) AS revisions FROM wp_posts WHERE post_type = 'revision' GROUP BY post_parent ORDER BY revisions DESC LIMIT 20; Eén post zit doorgaans boven de 600. Het is altijd een homepage waar een redacteur twee jaar lang aan heeft zitten schaven. Goed om te weten voordat je een opruimactie voorstelt, want die redacteur wil ze misschien terug. Wezen die niemand opmerkte Plugins worden verwijderd. De rijen die ze in wp_postmeta en wp_usermeta hebben weggeschreven blijven staan. Na tien jaar verloop kan het aantal wezen groter zijn dan het aantal levende rijen. Fragment 5, verweesde postmeta: SELECT COUNT(*) AS orphan_postmeta FROM wp_postmeta pm LEFT JOIN wp_posts p ON p.ID = pm.post_id WHERE p.ID IS NULL; Fragment 6, verweesde usermeta: SELECT COUNT(*) AS orphan_usermeta FROM wp_usermeta um LEFT JOIN wp_users u ON u.ID = um.user_id WHERE u.ID IS NULL; Komt er bij één van beide een getal met zes cijfers uit, dan heb je een flink stuk van je trage queries te pakken. Een Nederlands bureau waar we mee werken gaf ons een site met 2,1M verweesde postmeta-rijen van een CRM-plugin die in 2017 was verwijderd. Het verwijderen ervan bracht het post-edit scherm terug van 7 seconden naar 1,4. Controleer eerst of de oudertabel intact is voordat je wezen weggooit. Als wp_posts zelf per ongeluk getrunceerd is, markeert de join alles als wees en maakt een DELETE het karwei af. Maak altijd eerst een dump, draai eerst de COUNT op zichzelf, en draai dan pas DELETE met een WHERE die exact dezelfde rijen raakt als de SELECT. Schemadrift Twee dingen gaan mis na jaren van migraties: tabellen belanden op verschillende storage engines, en ze belanden op verschillende charsets. Allebei zorgen later voor verrassingen. Fragment 7 toont de niet-InnoDB-tabellen: SELECT table_name, engine FROM information_schema.tables WHERE table_schema = DATABASE() AND engine <> 'InnoDB'; MyISAM-tabellen in een WordPress-installatie in 2026 zijn een verklikker. Meestal is het een eigen analytics-tabel uit 2014 die niemand heeft gemigreerd. Ze ondersteunen geen foreign keys, ze herstellen niet",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress-audit in SQL: acht snippets uit ons spiekbriefje","item":"https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Zijn deze queries veilig om op een live productiedatabase te draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Alle acht zijn SELECT-only, geen locks, geen writes. De twee die information_schema raken kunnen traag zijn op shared hosting met overvolle metadata, dus kies een rustig uur."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe zit het met de wp_postmeta-indexes die de wezen-join beïnvloeden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "post_id is in het standaard WordPress-schema geïndexeerd, dus de LEFT JOIN is goedkoop. Heeft een oude plugin die index gedropt, dan doet de query een full scan. Controleer eerst SHOW INDEX FROM wp_postmeta."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik niet gewoon WP-Optimize installeren en het laten opruimen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Prima voor een opruimactie in één klik, maar het verbergt wat het verwijdert. Draai eerst de SELECT-kant van deze fragmenten, dan weet je hoe groot en hoe vormgegeven is wat er zo verdwijnt."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 084</span>
+      </div>
+      <p class="eyebrow"><span class="n">084 —</span>Databases</p>
+      <h1 class="display-l post-title">WordPress-audit in SQL: acht snippets uit ons spiekbriefje</h1>
+      <p class="lede post-lede">De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T07:36:59.573Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 084</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Overgenomen project. Een WordPress-installatie die sinds 2011 draait, in 2019 voor het laatst aangeraakt door een freelancer, en nu staat op een shared host waar wp-admin er negen seconden over doet om het dashboard te renderen. In het overdrachtsdocument staat "komt goed, gewoon patchen." Niets over de database. Niets over de wp_options-tabel van 480MB.</p>
+
+<p>Op elke laptop staat een bestand met de naam <code>wp-audit.sql</code>. Acht fragmenten, allemaal read-only, allemaal veilig om op productie te draaien met een warme koffie binnen handbereik. Ze beantwoorden de drie vragen waar een audit van een legacy WordPress-site in de praktijk mee begint: waar zit het gewicht, wat is een weeskind, en wat hebben zes verschillende ontwikkelaars in het schema achtergelaten.</p>
+
+<h2>De autoload-stapel</h2>
+
+<p>Bij elke page load van een WordPress-site worden alle rijen uit <code>wp_options</code> opgehaald waar <code>autoload = 'yes'</code>. Een schone install zit ergens onder de 1MB. Sites die wij doorlichten zitten standaard op 40MB, 80MB, soms 200MB. De oorzaak is bijna altijd een plugin die ooit een gigantische geserialiseerde array heeft weggeschreven en die nooit heeft opgeruimd.</p>
+
+<p>Fragment 1 is het kopgetal:</p>
+
+<pre><code class="lang-sql">SELECT ROUND(SUM(LENGTH(option_value))/1024/1024, 2) AS autoload_mb
+FROM wp_options
+WHERE autoload = 'yes';
+</code></pre>
+
+<p>Komt daar iets boven de 3 uit, dan vist fragment 2 de boosdoeners op:</p>
+
+<pre><code class="lang-sql">SELECT option_name, ROUND(LENGTH(option_value)/1024, 1) AS kb
+FROM wp_options
+WHERE autoload = 'yes'
+ORDER BY LENGTH(option_value) DESC
+LIMIT 25;
+</code></pre>
+
+<p>Wat naar boven komt: een SEO-plugin die een sitemap-blob cachet, een backup-plugin die logs in één option wegschrijft, een page builder die al lang verwijderd is en 18MB heeft achtergelaten. De <a href="https://developer.wordpress.org/reference/functions/wp_load_alloptions/">documentatie van wp_load_alloptions</a> is het herlezen waard zodra je de lijst ziet, want die legt uit waarom een option van 200KB je bij elke request iets kost, niet alleen bij de request die hem schreef.</p>
+
+<h2>Transients die nooit afsterven</h2>
+
+<p>Transients zijn de armemansvariant van een cache in WordPress. Ze horen te verlopen. Dat doen ze vaak niet, want de cron job die ze opruimt stopt met draaien zodra <code>DISABLE_WP_CRON</code> aanstaat en niemand de moeite neemt om een echte cron op te zetten.</p>
+
+<p>Fragment 3 vindt de verlopen timeouts:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS dead_transients
+FROM wp_options
+WHERE option_name LIKE '\_transient\_timeout\_%' ESCAPE '\\'
+  AND option_value &lt; UNIX_TIMESTAMP();
+</code></pre>
+
+<p>Op één site (een Magento-storefront met WordPress eraan vastgeplakt voor de blog) gaf dit 412.000 terug. Elke rij op zichzelf was minuscuul. Samen trokken ze elke admin-query door een dikke table scan heen. De pagina over de <a href="https://developer.wordpress.org/apis/transients/">Transients API</a> beschrijft de lifecycle als je jezelf wilt herinneren waarom de cleanup nooit liep.</p>
+
+<h2>Revisions, de stille groeier</h2>
+
+<p>WordPress bewaart post revisions voor altijd, tenzij je <code>WP_POST_REVISIONS</code> instelt. Op een site met 12.000 gepubliceerde posts zien we standaard 180.000 revisie-rijen.</p>
+
+<p>Fragment 4 zet ze op volgorde:</p>
+
+<pre><code class="lang-sql">SELECT post_parent, COUNT(*) AS revisions
+FROM wp_posts
+WHERE post_type = 'revision'
+GROUP BY post_parent
+ORDER BY revisions DESC
+LIMIT 20;
+</code></pre>
+
+<p>Eén post zit doorgaans boven de 600. Het is altijd een homepage waar een redacteur twee jaar lang aan heeft zitten schaven. Goed om te weten voordat je een opruimactie voorstelt, want die redacteur wil ze misschien terug.</p>
+
+<h2>Wezen die niemand opmerkte</h2>
+
+<p>Plugins worden verwijderd. De rijen die ze in <code>wp_postmeta</code> en <code>wp_usermeta</code> hebben weggeschreven blijven staan. Na tien jaar verloop kan het aantal wezen groter zijn dan het aantal levende rijen.</p>
+
+<p>Fragment 5, verweesde postmeta:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS orphan_postmeta
+FROM wp_postmeta pm
+LEFT JOIN wp_posts p ON p.ID = pm.post_id
+WHERE p.ID IS NULL;
+</code></pre>
+
+<p>Fragment 6, verweesde usermeta:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) AS orphan_usermeta
+FROM wp_usermeta um
+LEFT JOIN wp_users u ON u.ID = um.user_id
+WHERE u.ID IS NULL;
+</code></pre>
+
+<p>Komt er bij één van beide een getal met zes cijfers uit, dan heb je een flink stuk van je trage queries te pakken. Een Nederlands bureau waar we mee werken gaf ons een site met 2,1M verweesde postmeta-rijen van een CRM-plugin die in 2017 was verwijderd. Het verwijderen ervan bracht het post-edit scherm terug van 7 seconden naar 1,4.</p>
+
+<aside class="callout">Controleer eerst of de oudertabel intact is voordat je wezen weggooit. Als <code>wp_posts</code> zelf per ongeluk getrunceerd is, markeert de join alles als wees en maakt een DELETE het karwei af. Maak altijd eerst een dump, draai eerst de COUNT op zichzelf, en draai dan pas DELETE met een WHERE die exact dezelfde rijen raakt als de SELECT.</aside>
+
+<h2>Schemadrift</h2>
+
+<p>Twee dingen gaan mis na jaren van migraties: tabellen belanden op verschillende storage engines, en ze belanden op verschillende charsets. Allebei zorgen later voor verrassingen.</p>
+
+<p>Fragment 7 toont de niet-InnoDB-tabellen:</p>
+
+<pre><code class="lang-sql">SELECT table_name, engine
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND engine &lt;&gt; 'InnoDB';
+</code></pre>
+
+<p>MyISAM-tabellen in een WordPress-installatie in 2026 zijn een verklikker. Meestal is het een eigen analytics-tabel uit 2014 die niemand heeft gemigreerd. Ze ondersteunen geen foreign keys, ze herstellen niet netjes na een crash, en ze locken bij writes de hele tabel. De <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-introduction.html">eigen MySQL-documentatie</a> maakt dat punt al jaren.</p>
+
+<p>Fragment 8 vangt collation-drift op:</p>
+
+<pre><code class="lang-sql">SELECT table_collation, COUNT(*) AS tables
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+GROUP BY table_collation;
+</code></pre>
+
+<p>Komen er meer dan één rij uit, dan heb je tabellen in <code>utf8mb4_unicode_ci</code> staan en tabellen die nog op <code>utf8_general_ci</code> staan. JOINs over die grens heen forceren impliciete conversies en passeren je indexes geruisloos. Beter rechttrekken voordat je de volgende feature uitrolt, niet erna.</p>
+
+<h2>Dit draaien zonder productie aan het schrikken te maken</h2>
+
+<p>Alle acht fragmenten zijn read-only. Geen ervan schrijft, lockt of blokkeert. Het blijven echte queries tegen een echte database, dus:</p>
+
+<ul>
+<li>Draai ze tegen een read replica als je die hebt. Heb je die niet, draai ze dan in een rustig uur.</li>
+<li>De queries tegen <code>information_schema</code> kunnen traag zijn op shared hosting waar de metadata enorm is. Schrik niet als fragment 7 er 30 seconden over doet.</li>
+<li>Houd het bestand in versiebeheer. De fragmenten groeien mee zodra je op nieuwe sites nieuwe failure modes vindt.</li>
+</ul>
+
+<p>Toen we Pier bouwden liepen we op vrijwel elke <a href="/">legacy site</a> die we aanraakten tegen dezelfde lus aan: database open, queries draaien, rijen naar een document, beslissen wat eruit moet. De <a href="/#database">MySQL editor</a> in Pier zet een chatlaag over deze snippets heen, zodat je gewoon kunt vragen "wat vreet mijn autoload op", het fragment met de rijen terugkrijgt, en een <a href="/#features">version history</a>-regel overhoudt voor alles waar je op acteert.</p>
+
+<p>Het kleinste dat je vandaag kunt doen: kopieer de autoload-byte-query naar een bestand met de naam <code>wp-audit.sql</code> en draai die op de volgende legacy WordPress-site die op je bureau belandt. Welk getal er ook uitkomt, het vertelt je hoeveel van de rest van het bestand je nodig gaat hebben.</p>
+    </div>
+
+    <aside class="pullquote">Acht read-only SQL-fragmenten beantwoorden de drie vragen waar elke audit van een legacy WordPress-site mee begint: waar zit het gewicht, wat is verweesd, en wat is er in het schema gedrift.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Zijn deze queries veilig om op een live productiedatabase te draaien?</p>
+      <p class="faq-a">Ja. Alle acht zijn SELECT-only, geen locks, geen writes. De twee die information_schema raken kunnen traag zijn op shared hosting met overvolle metadata, dus kies een rustig uur.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe zit het met de wp_postmeta-indexes die de wezen-join beïnvloeden?</p>
+      <p class="faq-a">post_id is in het standaard WordPress-schema geïndexeerd, dus de LEFT JOIN is goedkoop. Heeft een oude plugin die index gedropt, dan doet de query een full scan. Controleer eerst SHOW INDEX FROM wp_postmeta.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik niet gewoon WP-Optimize installeren en het laten opruimen?</p>
+      <p class="faq-a">Prima voor een opruimactie in één klik, maar het verbergt wat het verwijdert. Draai eerst de SELECT-kant van deze fragmenten, dan weet je hoe groot en hoe vormgegeven is wat er zo verdwijnt.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/splitting-wp-options-autoload/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/splitting-wp-options-autoload/hero.webp" type="image/webp">
+        <img src="/nl/blog/splitting-wp-options-autoload/hero.jpg" alt="Bovenaanzicht op linnen: SQL-werkblad, wp_options-blauwdruk, manila kaarten, messing plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>wp_options van 7GB splitsen: een autoload-veldgids</h3>
+      <span class="pc-lede">Je wp_options-tabel is 7GB en wordt bij elke request geladen. Hier de SQL om de autoload-rijen te vinden die stilletjes 800ms kosten.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/woocommerce-double-charge-payment-complete-hook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/woocommerce-double-charge-payment-complete-hook/hero.webp" type="image/webp">
+        <img src="/nl/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg" alt="Bovenaanzicht van orderboek, Stripe-bon, hook-schema, manilla map, koperen plaatje en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>WooCommerce dubbele afschrijvingen: payment_complete hook</h3>
+      <span class="pc-lede">Een WooCommerce-shop schreef elke kaart twee keer af tussen 14:00 en 16:00. De boosdoener was niet Stripe, maar een payment_complete hook die vanuit twee plekken tegelijk afging.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
