@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP-FPM pool tuning: six settings behind the 40-user wall · Pier — Blog</title>
+<meta name="description" content="Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, operations, architecture, wordpress, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-fpm-pool-tuning-cheatsheet/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP-FPM pool tuning: six settings behind the 40-user wall">
+<meta property="og:description" content="Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.">
+<meta property="og:url" content="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/">
+<meta property="og:image" content="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper PHP-FPM tuning worksheet, Apache 502 log sheet, brass FPM POOL plate, wax seal on bone linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T00:48:05.950Z">
+<meta property="article:modified_time" content="2026-06-10T00:48:05.950Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP-FPM pool tuning: six settings behind the 40-user wall">
+<meta name="twitter:description" content="Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper PHP-FPM tuning worksheet, Apache 502 log sheet, brass FPM POOL plate, wax seal on bone linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-fpm-pool-tuning-cheatsheet/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/"},
+  "url":"https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/",
+  "headline":"PHP-FPM pool tuning: six settings behind the 40-user wall",
+  "description":"Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper PHP-FPM tuning worksheet, Apache 502 log sheet, brass FPM POOL plate, wax seal on bone linen."
+  },
+  "datePublished":"2026-06-10T00:48:05.950Z",
+  "dateModified":"2026-06-10T00:48:05.950Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, operations, architecture, wordpress, tooling",
+  "wordCount":1108,
+  "articleSection":"PHP",
+  "articleBody":"It is 21:14 on a Tuesday. A Dutch agency we work with has just sent a newsletter to forty thousand customers. The WordPress site behind it, a 2018 build on PHP 8.1 running through Apache and php-fpm, was fine all afternoon. Forty seconds after the send, the homepage returns a blank page. htop shows five php-fpm child processes, all RUNNING, none idle. The Apache log is filling with (70007)The timeout specified has expired: AH01075 . The site did not crash. It hit the ceiling of its php-fpm pool , which was sized for one developer testing locally. Six settings in www.conf explain why, and the same six settings get you out of it. Here is the cheatsheet. pm: static, dynamic, or ondemand The first line that matters in /etc/php/8.1/fpm/pool.d/www.conf is pm . Three values: static keeps a fixed number of workers alive. Predictable, no spin-up cost, wastes RAM when idle. dynamic keeps a band of workers warm and scales between min and max. The default on almost every distro. Reasonable for mixed traffic. ondemand starts workers only when a request arrives. Saves RAM, but the first request after a quiet minute pays a fork cost. For a legacy site on a 4 GB VPS, dynamic is right ninety percent of the time. Switch to static only when you have measured your average worker RSS and have RAM to burn. ondemand belongs on shared hosting and staging boxes, not in front of paying customers. pm.max_children: the actual bottleneck This is the setting that explains the 40-user wall. pm.max_children is the hard cap on concurrent PHP requests. The default on Debian and Ubuntu is 5 . Five. If the average request takes 250 ms, that is twenty requests per second across the whole site, which collapses the moment anyone hits an uncached admin page. Size it by available RAM divided by average worker RSS: ps --no-headers -o \"rss,cmd\" -C php-fpm8.1 | awk '{sum+=$1; n++} END {print sum/n/1024\" MB avg\"}' If the average is 80 MB and you have 2 GB free for PHP after MySQL and the OS, you can run roughly 2048 / 80 = 25 children. Round down to leave headroom: pm = dynamic pm.max_children = 24 pm.start_servers = 6 pm.min_spare_servers = 4 pm.max_spare_servers = 10 Those last three are not separate fights. They are the warmth band around max_children : how many workers you keep idle so a traffic spike does not pay a fork cost. start_servers must sit between min_spare and max_spare , or php-fpm logs a warning and silently overrides you with the midpoint. pm.max_requests: the leak recycler Legacy WordPress plugins leak memory. So does old Drupal, so does any custom code that holds a static cache forever. pm.max_requests tells a worker to exit after N requests, freeing whatever it accumulated. The OS reaps it, php-fpm forks a fresh one. pm.max_requests = 500 Five hundred is a safe default for a WordPress front-end. Drop to 200 if you have a known leaker and cannot find it. Leave it at the upstream default of 0 (never recycle) only if you have profiled the workers and confirmed RSS is flat after thousands of requests. That zero is the reason your old box needs a daily systemctl restart cron. request_terminate_timeout: the slow-request killer This is the worker-level equivalent of a query timeout. If a PHP request runs longer than request_terminate_timeout , php-fpm sends SIGTERM , then SIGKILL . Without it, a single hung request to admin-ajax.php can occupy a worker for hours, and you watch the pool drain one slot at a time. request_terminate_timeout = 60s Set it slightly above your slowest legitimate request. For a WordPress front-end, thirty seconds is plenty. For a Magento import that runs through the web, push it to 300s and then move the script to a CLI cron, where it belongs. Gotcha. request_terminate_timeout overrides PHP's max_execution_time . If php.ini says 300 and the pool says 60, the pool wins. Long-running admin tasks that worked yesterday will start dying at the one-minute mark, and the only signal is a WARNING: child %d exited on signal 15 (SIGTERM) in the fpm log. Search there before you search anywhere else. request_slowlog_timeout and slowlog You cannot fix what you cannot see. request_slowlog_timeout writes a PHP stack trace to a log file every time a request crosses the threshold. It is the single most useful debugging tool php-fpm ships with, and most boxes have it switched off. request_slowlog_timeout = 5s slowlog = /var/log/php-fpm/www-slow.log Then tail -f the log during a busy hour. You will see, in plain PHP backtraces, exactly which plugin's wp_remote_get() is blocking for eight seconds on an external API that went away in 2022. Fixing the slow request is usually faster than enlarging the pool. listen.backlog: the queue you forgot you had When every worker is busy, new requests sit in a kernel-level socket queue waiting for a free slot. listen.backlog sets the size of that queue. The php-fpm default is 511 , but on most distros the kernel's net.core.somaxconn is 128 , which silently caps it. sysctl net.core.somaxconn # net.",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP-FPM pool tuning: six settings behind the 40-user wall","item":"https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I pick a safe pm.max_children without crashing the box?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Measure average worker RSS with ps, divide free RAM after MySQL and the OS by it, then round down twenty percent for headroom. Watch the slowlog after the change."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does php-fpm ignore my pm.start_servers value?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "start_servers must sit between min_spare_servers and max_spare_servers. If it does not, php-fpm logs a warning and silently recomputes it as the midpoint of the spare range."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does request_terminate_timeout override max_execution_time?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. The pool wins. If php.ini says 300s and the pool says 60s, requests die at sixty seconds with SIGTERM in the fpm log. Set the pool value above your slowest legitimate request."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ondemand mode safe for production?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For low-traffic sites on tight RAM, yes. For anything with real traffic the fork cost on the first request after idle adds visible latency. Stick with dynamic unless you have measured the trade-off."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/php-fpm-pool-tuning-cheatsheet/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 076</span>
+      </div>
+      <p class="eyebrow"><span class="n">076 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP-FPM pool tuning: six settings behind the 40-user wall</h1>
+      <p class="lede post-lede">Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T00:48:05.950Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-fpm-pool-tuning-cheatsheet/hero.webp" type="image/webp">
+      <img src="/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg" alt="Overhead photo of paper PHP-FPM tuning worksheet, Apache 502 log sheet, brass FPM POOL plate, wax seal on bone linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 076</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is 21:14 on a Tuesday. A Dutch agency we work with has just sent a newsletter to forty thousand customers. The WordPress site behind it, a 2018 build on PHP 8.1 running through Apache and php-fpm, was fine all afternoon. Forty seconds after the send, the homepage returns a blank page. <code>htop</code> shows five php-fpm child processes, all RUNNING, none idle. The Apache log is filling with <code>(70007)The timeout specified has expired: AH01075</code>.</p>
+
+<p>The site did not crash. It hit the ceiling of its <a href="https://www.php.net/manual/en/install.fpm.configuration.php">php-fpm pool</a>, which was sized for one developer testing locally. Six settings in <code>www.conf</code> explain why, and the same six settings get you out of it. Here is the cheatsheet.</p>
+
+<h2>pm: static, dynamic, or ondemand</h2>
+
+<p>The first line that matters in <code>/etc/php/8.1/fpm/pool.d/www.conf</code> is <code>pm</code>. Three values:</p>
+
+<ul>
+<li><code>static</code> keeps a fixed number of workers alive. Predictable, no spin-up cost, wastes RAM when idle.</li>
+<li><code>dynamic</code> keeps a band of workers warm and scales between min and max. The default on almost every distro. Reasonable for mixed traffic.</li>
+<li><code>ondemand</code> starts workers only when a request arrives. Saves RAM, but the first request after a quiet minute pays a fork cost.</li>
+</ul>
+
+<p>For a legacy site on a 4 GB VPS, <code>dynamic</code> is right ninety percent of the time. Switch to <code>static</code> only when you have measured your average worker RSS and have RAM to burn. <code>ondemand</code> belongs on shared hosting and staging boxes, not in front of paying customers.</p>
+
+<h2>pm.max_children: the actual bottleneck</h2>
+
+<p>This is the setting that explains the 40-user wall. <code>pm.max_children</code> is the hard cap on concurrent PHP requests. The default on Debian and Ubuntu is <code>5</code>. Five. If the average request takes 250 ms, that is twenty requests per second across the whole site, which collapses the moment anyone hits an uncached admin page.</p>
+
+<p>Size it by available RAM divided by average worker RSS:</p>
+
+<pre><code class="lang-bash">ps --no-headers -o "rss,cmd" -C php-fpm8.1 | awk '{sum+=$1; n++} END {print sum/n/1024" MB avg"}'</code></pre>
+
+<p>If the average is 80 MB and you have 2 GB free for PHP after MySQL and the OS, you can run roughly <code>2048 / 80 = 25</code> children. Round down to leave headroom:</p>
+
+<pre><code class="lang-ini">pm = dynamic
+pm.max_children = 24
+pm.start_servers = 6
+pm.min_spare_servers = 4
+pm.max_spare_servers = 10</code></pre>
+
+<p>Those last three are not separate fights. They are the warmth band around <code>max_children</code>: how many workers you keep idle so a traffic spike does not pay a fork cost. <code>start_servers</code> must sit between <code>min_spare</code> and <code>max_spare</code>, or php-fpm logs a warning and silently overrides you with the midpoint.</p>
+
+<h2>pm.max_requests: the leak recycler</h2>
+
+<p>Legacy WordPress plugins leak memory. So does old Drupal, so does any custom code that holds a static cache forever. <code>pm.max_requests</code> tells a worker to exit after N requests, freeing whatever it accumulated. The OS reaps it, php-fpm forks a fresh one.</p>
+
+<pre><code class="lang-ini">pm.max_requests = 500</code></pre>
+
+<p>Five hundred is a safe default for a WordPress front-end. Drop to 200 if you have a known leaker and cannot find it. Leave it at the upstream default of <code>0</code> (never recycle) only if you have profiled the workers and confirmed RSS is flat after thousands of requests. That zero is the reason your old box needs a daily <code>systemctl restart</code> cron.</p>
+
+<h2>request_terminate_timeout: the slow-request killer</h2>
+
+<p>This is the worker-level equivalent of a query timeout. If a PHP request runs longer than <code>request_terminate_timeout</code>, php-fpm sends <code>SIGTERM</code>, then <code>SIGKILL</code>. Without it, a single hung request to <code>admin-ajax.php</code> can occupy a worker for hours, and you watch the pool drain one slot at a time.</p>
+
+<pre><code class="lang-ini">request_terminate_timeout = 60s</code></pre>
+
+<p>Set it slightly above your slowest legitimate request. For a WordPress front-end, thirty seconds is plenty. For a Magento import that runs through the web, push it to 300s and then move the script to a CLI cron, where it belongs.</p>
+
+<aside class="callout">
+<p><strong>Gotcha.</strong> <code>request_terminate_timeout</code> overrides PHP's <code>max_execution_time</code>. If <code>php.ini</code> says 300 and the pool says 60, the pool wins. Long-running admin tasks that worked yesterday will start dying at the one-minute mark, and the only signal is a <code>WARNING: child %d exited on signal 15 (SIGTERM)</code> in the fpm log. Search there before you search anywhere else.</p>
+</aside>
+
+<h2>request_slowlog_timeout and slowlog</h2>
+
+<p>You cannot fix what you cannot see. <code>request_slowlog_timeout</code> writes a PHP stack trace to a log file every time a request crosses the threshold. It is the single most useful debugging tool php-fpm ships with, and most boxes have it switched off.</p>
+
+<pre><code class="lang-ini">request_slowlog_timeout = 5s
+slowlog = /var/log/php-fpm/www-slow.log</code></pre>
+
+<p>Then <code>tail -f</code> the log during a busy hour. You will see, in plain PHP backtraces, exactly which plugin's <code>wp_remote_get()</code> is blocking for eight seconds on an external API that went away in 2022. Fixing the slow request is usually faster than enlarging the pool.</p>
+
+<h2>listen.backlog: the queue you forgot you had</h2>
+
+<p>When every worker is busy, new requests sit in a kernel-level socket queue waiting for a free slot. <code>listen.backlog</code> sets the size of that queue. The php-fpm default is <code>511</code>, but on most distros the kernel's <code>net.core.somaxconn</code> is <code>128</code>, which silently caps it.</p>
+
+<pre><code class="lang-bash">sysctl net.core.somaxconn
+# net.core.somaxconn = 128</code></pre>
+
+<p>When the queue fills, Linux drops the connection and the upstream (Apache, nginx) returns a 502. Raise both:</p>
+
+<pre><code class="lang-ini">listen.backlog = 1024</code></pre>
+
+<pre><code class="lang-bash">echo "net.core.somaxconn = 1024" | sudo tee -a /etc/sysctl.d/99-fpm.conf
+sudo sysctl -p /etc/sysctl.d/99-fpm.conf</code></pre>
+
+<p>A bigger backlog does not make the site faster. It buys you a few seconds during a spike so the workers can catch up instead of the load balancer marking the box unhealthy. It is the difference between a brownout and an outage.</p>
+
+<h2>Sizing the pool, end to end</h2>
+
+<p>Pull the six settings together for a 4 GB VPS running WordPress and MariaDB:</p>
+
+<pre><code class="lang-ini">; /etc/php/8.1/fpm/pool.d/www.conf
+pm = dynamic
+pm.max_children = 24
+pm.start_servers = 6
+pm.min_spare_servers = 4
+pm.max_spare_servers = 10
+pm.max_requests = 500
+request_terminate_timeout = 60s
+request_slowlog_timeout = 5s
+slowlog = /var/log/php-fpm/www-slow.log
+listen.backlog = 1024</code></pre>
+
+<p>Reload, do not restart, so in-flight requests finish:</p>
+
+<pre><code class="lang-bash">sudo systemctl reload php8.1-fpm</code></pre>
+
+<p>Then watch the pool under real traffic. The php-fpm <code>pm.status_path</code> endpoint, when you enable it, gives you live numbers on active processes, max children reached, and listen queue depth. Apache's <a href="https://httpd.apache.org/docs/2.4/mod/mod_status.html">mod_status</a> tells the other side of the same story.</p>
+
+<h2>What to do today</h2>
+
+<p>Open <code>www.conf</code> on the production box, count the workers, and divide the available RAM by the average RSS. The number you get is almost certainly higher than five. We see this on most <a href="/">legacy site</a> audits we run. When we built Pier we wired the pool config and its current values into the first-pass audit, so the math above happens against the actual box instead of a hunch. The rest is unchanged: edit, reload, watch the slowlog.</p>
+    </div>
+
+    <aside class="pullquote">The php-fpm default of five workers is sized for one developer on localhost. Every legacy site you inherit needs the math redone against actual RAM.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How do I pick a safe pm.max_children without crashing the box?</p>
+      <p class="faq-a">Measure average worker RSS with ps, divide free RAM after MySQL and the OS by it, then round down twenty percent for headroom. Watch the slowlog after the change.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does php-fpm ignore my pm.start_servers value?</p>
+      <p class="faq-a">start_servers must sit between min_spare_servers and max_spare_servers. If it does not, php-fpm logs a warning and silently recomputes it as the midpoint of the spare range.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does request_terminate_timeout override max_execution_time?</p>
+      <p class="faq-a">Yes. The pool wins. If php.ini says 300s and the pool says 60s, requests die at sixty seconds with SIGTERM in the fpm log. Set the pool value above your slowest legitimate request.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is ondemand mode safe for production?</p>
+      <p class="faq-a">For low-traffic sites on tight RAM, yes. For anything with real traffic the fork cost on the first request after idle adds visible latency. Stick with dynamic unless you have measured the trade-off.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+        <img src="/blog/chmod-777-permissions-recovery/hero.jpg" alt="Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 June 2026</span></span>
+      <h3>chmod -R 777 recovery: restoring a legacy site&#39;s permissions</h3>
+      <span class="pc-lede">A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/scoping-ai-feature-old-wordpress/hero.webp" type="image/webp">
+        <img src="/blog/scoping-ai-feature-old-wordpress/hero.jpg" alt="Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Scoping AI features on a 2014 WordPress site: a sober method</h3>
+      <span class="pc-lede">A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/php-fpm-pool-tuning-cheatsheet/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
