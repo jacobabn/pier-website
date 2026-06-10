@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 cache warmer: een bash-playbook dat reboots overleeft · Pier — Blog</title>
+<meta name="description" content="Het is vrijdag 21:14, je hebt net cache:flush gedraaid, en de volgende bezoeker wacht vier seconden. Dit is de bash-warmer die een NL-bureau nu op elke webshop draait.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 cache warmer: een bash-playbook dat reboots overleeft">
+<meta property="og:description" content="Het is vrijdag 21:14, je hebt net cache:flush gedraaid, en de volgende bezoeker wacht vier seconden. Dit is de bash-warmer die een NL-bureau nu op elke webshop draait.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van Magento cache-warmer playbook op ruitjespapier met manilamap, crontab-strook, messing plaatje, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T14:19:28.279Z">
+<meta property="article:modified_time" content="2026-06-10T14:19:28.279Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 cache warmer: een bash-playbook dat reboots overleeft">
+<meta name="twitter:description" content="Het is vrijdag 21:14, je hebt net cache:flush gedraaid, en de volgende bezoeker wacht vier seconden. Dit is de bash-warmer die een NL-bureau nu op elke webshop draait.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van Magento cache-warmer playbook op ruitjespapier met manilamap, crontab-strook, messing plaatje, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-2-cache-warmer-bash/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/"},
+  "url":"https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/",
+  "headline":"Magento 2 cache warmer: een bash-playbook dat reboots overleeft",
+  "description":"Het is vrijdag 21:14, je hebt net cache:flush gedraaid, en de volgende bezoeker wacht vier seconden. Dit is de bash-warmer die een NL-bureau nu op elke webshop draait.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van Magento cache-warmer playbook op ruitjespapier met manilamap, crontab-strook, messing plaatje, lakzegel."
+  },
+  "datePublished":"2026-06-10T14:19:28.279Z",
+  "dateModified":"2026-06-10T14:19:28.279Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, php, mysql, operations, tooling",
+  "wordCount":1610,
+  "articleSection":"Magento",
+  "articleBody":"Het is vrijdag 21:14. Het deployscript heeft net bin/magento cache:flush gedraaid, en er draait geen cache warmer achteraan. De eerstvolgende bezoeker op een productpagina krijgt een koude full page cache en wacht 4,2 seconden op TTFB. De tweede bezoeker wacht 3,9. Tegen de tijd dat de cache warm genoeg is om bruikbaar te zijn, hebben drie mensen in het Slack-kanaal al gevraagd of de site eruit ligt. Een Nederlands bureau waar we mee samenwerken had bijna een jaar lang exact deze loop iedere vrijdagmiddag. De oplossing die uiteindelijk bleef hangen, was geen Magento 2 cache warmer-extensie. Het was een bash-script van twee uur, een gecureerd tekstbestand met URL's en een sleep die de origin met rust laat. Het hele ding past op één terminalscherm en komt netjes terug na een reboot. Deze post is het hele script. Kopieer het, stel de throttle af en zet het achter een systemd unit zodat het niet doodgaat zodra iemand in het datacenter de kernel patcht. De URL-lijst die niemand cureert Een cache warmer is zo goed als de URL's die je hem voert. De meeste Magento 2 shops leveren een sitemap.xml die juist de URL's overslaat die ertoe doen: gefilterde categoriepagina's, gesorteerde listings, populaire productvarianten met voorraad-attributen in de URL, de winkelmand- en checkoutweergaven die je eigenlijk pre-rendered wilt hebben. Alleen de sitemap warmen levert koude caches op precies de pagina's waar de homepage naar linkt. Bouw de URL-lijst in twee passes op. Pak eerst de sitemap als basis: curl -s https://example.com/sitemap.xml \\ | grep -oE '<loc>[^<]+</loc>' \\ | sed -E 's|</?loc>||g' > /var/lib/magento-warmer/urls.txt Voeg vervolgens de top 200 product-URL's toe op basis van recente verkopen. Draai dit rechtstreeks tegen de Magento-database. Dat is sneller dan crawlen en levert je de URL's op die omzet draaien: SELECT CONCAT('https://example.com/', ur.request_path) AS url FROM url_rewrite ur JOIN sales_order_item soi ON soi.product_id = ur.entity_id WHERE ur.entity_type = 'product' AND ur.store_id = 1 AND ur.redirect_type = 0 AND soi.created_at > NOW() - INTERVAL 30 DAY GROUP BY ur.request_path ORDER BY SUM(soi.qty_ordered) DESC LIMIT 200; Hang het resultaat achter dezelfde urls.txt en dedupliceer met sort -u . Voor een catalogus van 5000 SKU's komt het bestand uit op zo'n 1,2 MB en parset het in minder dan een seconde. Draai de SQL een keer per week vanuit cron, dan blijft de warmer volgen wat je klanten daadwerkelijk kopen, in plaats van hoe je categorieboom er in 2024 toevallig uitzag. Gefilterde categoriepagina's Als je faceted navigation hebt (prijsslider, merkcheckbox, kleurswatch), verandert de cache key per filtercombinatie. Je kunt ze niet allemaal warmen, en je moet het ook niet proberen. Kies de drie filters per categorie waarvan je analytics laten zien dat er ook echt op geklikt wordt, bouw die URL's met de hand op en zet ze in de lijst. Twaalf filter-URL's per categorie is ruim voldoende. Meer en je verbrandt warmer-tijd aan pagina's waar geen klant naar kijkt. Een bash-loop die de origin met rust laat Dit is de warmer. Een dertigtal regels POSIX-vriendelijke bash, gebruikt xargs voor concurrency en schrijft een tab-gescheiden log die je kunt greppen: #!/usr/bin/env bash set -euo pipefail URL_FILE=\"${URL_FILE:-/var/lib/magento-warmer/urls.txt}\" LOG_FILE=\"${LOG_FILE:-/var/log/magento-warmer.log}\" CONCURRENCY=\"${CONCURRENCY:-4}\" SLEEP_MS=\"${SLEEP_MS:-250}\" UA=\"MagentoWarmer/1.0 (+ops@example.com)\" warm_one() { local url=\"$1\" local http http=$(curl -s -o /dev/null \\ -w '%{http_code} %{time_starttransfer} %{size_download}' \\ -A \"$UA\" -H 'X-Cache-Warm: 1' \\ --max-time 30 \"$url\" || echo '000 0 0') printf '%s\\t%s\\t%s\\n' \"$(date -Iseconds)\" \"$url\" \"$http\" \\ >> \"$LOG_FILE\" } export -f warm_one export LOG_FILE UA SLEEP_SEC=$(awk \"BEGIN{print ${SLEEP_MS}/1000}\") xargs -a \"$URL_FILE\" -n 1 -P \"$CONCURRENCY\" -I{} \\ bash -c \"warm_one '{}'; sleep $SLEEP_SEC\" Twee waarden zijn belangrijk: CONCURRENCY en SLEEP_MS . De defaults (vier parallelle requests, 250 ms tussenpoos) werken prima voor een single-node Magento op een bescheiden VPS. Zit je achter Varnish op een viercore-origin, dan kun je meestal omhoog naar acht en 100 ms. Hou de origin tijdens de eerste run in de gaten met htop : als de PHP-FPM workers structureel boven de 70% blijven, schaal terug. De warmer hoort onzichtbaar te zijn voor echt verkeer, niet een zelfveroorzaakte denial of service. De xargs manpage beschrijft de exacte semantiek van -P en -I als je wilt wisselen naar GNU parallel of de substitutiestijl wilt aanpassen. Draai de warmer niet vanaf hetzelfde IP als je monitoring. Als je vergeet de user agent van de warmer te whitelisten, ziet je WAF één IP dat in twintig minuten 5000 HTTPS-requests afvuurt en rate-limit dat. Geef de warmer een eigen IP, of zet MagentoWarmer/ in de allowlist van je WAF. Zowel Sucuri als Cloudflare blokkeren dit anders binnen tien minuten na de eerste run, en het symptoom is stil: de warmer logt 403 op elke URL terwij",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 cache warmer: een bash-playbook dat reboots overleeft","item":"https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom geen betaalde Magento 2 cache warmer-extensie gebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De meeste zijn ondoorzichtig, draaien binnen Magento (en delen dus PHP-FPM workers met echt verkeer) en kosten meer dan dertig regels bash. Een script dat je zelf in handen hebt, debug je om 3 uur 's nachts een stuk makkelijker."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe agressief mag de warmer zijn zonder de site pijn te doen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vier parallelle requests met 250 ms tussenpoos is veilig op een single-node VPS. Hou de PHP-FPM workers tijdens de eerste run in de gaten met htop. Blijven ze structureel boven de 70%, schaal de concurrency terug of zet de sleep omhoog."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Werkt de warmer met Hyva of Magento PWA Studio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja voor Hyva: dat wordt nog steeds server-side gerendered en gebruikt dezelfde full page cache. PWA Studio is anders: de HTML warmen heeft weinig zin omdat het renderen client-side gebeurt. Pre-renderen tijdens de build is daar de aanpak."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 092</span>
+      </div>
+      <p class="eyebrow"><span class="n">092 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 cache warmer: een bash-playbook dat reboots overleeft</h1>
+      <p class="lede post-lede">Het is vrijdag 21:14, je hebt net cache:flush gedraaid, en de volgende bezoeker wacht vier seconden. Dit is de bash-warmer die een NL-bureau nu op elke webshop draait.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T14:19:28.279Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-2-cache-warmer-bash/hero.webp" type="image/webp">
+      <img src="/blog/magento-2-cache-warmer-bash/hero.jpg" alt="Bovenaanzicht van Magento cache-warmer playbook op ruitjespapier met manilamap, crontab-strook, messing plaatje, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 092</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is vrijdag 21:14. Het deployscript heeft net <code>bin/magento cache:flush</code> gedraaid, en er draait geen cache warmer achteraan. De eerstvolgende bezoeker op een productpagina krijgt een koude full page cache en wacht 4,2 seconden op TTFB. De tweede bezoeker wacht 3,9. Tegen de tijd dat de cache warm genoeg is om bruikbaar te zijn, hebben drie mensen in het Slack-kanaal al gevraagd of de site eruit ligt.</p>
+
+<p>Een Nederlands bureau waar we mee samenwerken had bijna een jaar lang exact deze loop iedere vrijdagmiddag. De oplossing die uiteindelijk bleef hangen, was geen Magento 2 cache warmer-extensie. Het was een bash-script van twee uur, een gecureerd tekstbestand met URL's en een <code>sleep</code> die de origin met rust laat. Het hele ding past op één terminalscherm en komt netjes terug na een reboot.</p>
+
+<p>Deze post is het hele script. Kopieer het, stel de throttle af en zet het achter een systemd unit zodat het niet doodgaat zodra iemand in het datacenter de kernel patcht.</p>
+
+<h2>De URL-lijst die niemand cureert</h2>
+
+<p>Een cache warmer is zo goed als de URL's die je hem voert. De meeste Magento 2 shops leveren een <code>sitemap.xml</code> die juist de URL's overslaat die ertoe doen: gefilterde categoriepagina's, gesorteerde listings, populaire productvarianten met voorraad-attributen in de URL, de winkelmand- en checkoutweergaven die je eigenlijk pre-rendered wilt hebben. Alleen de sitemap warmen levert koude caches op precies de pagina's waar de homepage naar linkt.</p>
+
+<p>Bouw de URL-lijst in twee passes op. Pak eerst de sitemap als basis:</p>
+
+<pre><code class="lang-bash">curl -s https://example.com/sitemap.xml \
+  | grep -oE '&lt;loc&gt;[^&lt;]+&lt;/loc&gt;' \
+  | sed -E 's|&lt;/?loc&gt;||g' &gt; /var/lib/magento-warmer/urls.txt</code></pre>
+
+<p>Voeg vervolgens de top 200 product-URL's toe op basis van recente verkopen. Draai dit rechtstreeks tegen de Magento-database. Dat is sneller dan crawlen en levert je de URL's op die omzet draaien:</p>
+
+<pre><code class="lang-sql">SELECT CONCAT('https://example.com/', ur.request_path) AS url
+FROM url_rewrite ur
+JOIN sales_order_item soi ON soi.product_id = ur.entity_id
+WHERE ur.entity_type = 'product'
+  AND ur.store_id = 1
+  AND ur.redirect_type = 0
+  AND soi.created_at &gt; NOW() - INTERVAL 30 DAY
+GROUP BY ur.request_path
+ORDER BY SUM(soi.qty_ordered) DESC
+LIMIT 200;</code></pre>
+
+<p>Hang het resultaat achter dezelfde <code>urls.txt</code> en dedupliceer met <code>sort -u</code>. Voor een catalogus van 5000 SKU's komt het bestand uit op zo'n 1,2 MB en parset het in minder dan een seconde. Draai de SQL een keer per week vanuit cron, dan blijft de warmer volgen wat je klanten daadwerkelijk kopen, in plaats van hoe je categorieboom er in 2024 toevallig uitzag.</p>
+
+<h3>Gefilterde categoriepagina's</h3>
+
+<p>Als je faceted navigation hebt (prijsslider, merkcheckbox, kleurswatch), verandert de cache key per filtercombinatie. Je kunt ze niet allemaal warmen, en je moet het ook niet proberen. Kies de drie filters per categorie waarvan je analytics laten zien dat er ook echt op geklikt wordt, bouw die URL's met de hand op en zet ze in de lijst. Twaalf filter-URL's per categorie is ruim voldoende. Meer en je verbrandt warmer-tijd aan pagina's waar geen klant naar kijkt.</p>
+
+<h2>Een bash-loop die de origin met rust laat</h2>
+
+<p>Dit is de warmer. Een dertigtal regels POSIX-vriendelijke bash, gebruikt <code>xargs</code> voor concurrency en schrijft een tab-gescheiden log die je kunt greppen:</p>
+
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+URL_FILE="${URL_FILE:-/var/lib/magento-warmer/urls.txt}"
+LOG_FILE="${LOG_FILE:-/var/log/magento-warmer.log}"
+CONCURRENCY="${CONCURRENCY:-4}"
+SLEEP_MS="${SLEEP_MS:-250}"
+UA="MagentoWarmer/1.0 (+ops@example.com)"
+
+warm_one() {
+  local url="$1"
+  local http
+  http=$(curl -s -o /dev/null \
+    -w '%{http_code} %{time_starttransfer} %{size_download}' \
+    -A "$UA" -H 'X-Cache-Warm: 1' \
+    --max-time 30 "$url" || echo '000 0 0')
+  printf '%s\t%s\t%s\n' "$(date -Iseconds)" "$url" "$http" \
+    &gt;&gt; "$LOG_FILE"
+}
+
+export -f warm_one
+export LOG_FILE UA
+
+SLEEP_SEC=$(awk "BEGIN{print ${SLEEP_MS}/1000}")
+xargs -a "$URL_FILE" -n 1 -P "$CONCURRENCY" -I{} \
+  bash -c "warm_one '{}'; sleep $SLEEP_SEC"</code></pre>
+
+<p>Twee waarden zijn belangrijk: <code>CONCURRENCY</code> en <code>SLEEP_MS</code>. De defaults (vier parallelle requests, 250 ms tussenpoos) werken prima voor een single-node Magento op een bescheiden VPS. Zit je achter Varnish op een viercore-origin, dan kun je meestal omhoog naar acht en 100 ms. Hou de origin tijdens de eerste run in de gaten met <code>htop</code>: als de PHP-FPM workers structureel boven de 70% blijven, schaal terug. De warmer hoort onzichtbaar te zijn voor echt verkeer, niet een zelfveroorzaakte denial of service. De <a href="https://man7.org/linux/man-pages/man1/xargs.1.html">xargs manpage</a> beschrijft de exacte semantiek van <code>-P</code> en <code>-I</code> als je wilt wisselen naar GNU parallel of de substitutiestijl wilt aanpassen.</p>
+
+<aside class="callout"><p><strong>Draai de warmer niet vanaf hetzelfde IP als je monitoring.</strong> Als je vergeet de user agent van de warmer te whitelisten, ziet je WAF één IP dat in twintig minuten 5000 HTTPS-requests afvuurt en rate-limit dat. Geef de warmer een eigen IP, of zet <code>MagentoWarmer/</code> in de allowlist van je WAF. Zowel Sucuri als Cloudflare blokkeren dit anders binnen tien minuten na de eerste run, en het symptoom is stil: de warmer logt 403 op elke URL terwijl de site zelf gewoon up blijft, dus niemand wordt gepiept.</p></aside>
+
+<p>De header <code>X-Cache-Warm: 1</code> is voor je eigen logs en voor Varnish als je warme en koude hits apart wilt bijhouden. Hij mag de cache hash niet veranderen. In je VCL: voeg hem niet toe aan <code>vcl_hash</code> en strip hem niet voor <code>vcl_backend_fetch</code>, anders vervuilt de warmer de cache met een aparte variant per URL. Gebruik hem voor telemetrie, niet voor routing.</p>
+
+<h2>Een reboot overleven</h2>
+
+<p>Een bash-script in <code>cron</code> sterft in stilte zodra de mail spool volloopt. Een bash-script in een <code>tmux</code>-sessie gaat dood bij een reboot. Het hele punt van deze playbook is dat de warmer na de volgende reboot (kernel patch, security advisory, onderhoudsvenster van je cloudprovider) terugkomt zonder dat jij hoeft in te loggen.</p>
+
+<p>Zet het script op <code>/usr/local/bin/magento-warmer.sh</code>, maak het executable en schrijf een one-shot unit:</p>
+
+<pre><code class="lang-ini"># /etc/systemd/system/magento-warmer.service
+[Unit]
+Description=Magento 2 full page cache warmer
+After=network-online.target varnish.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=URL_FILE=/var/lib/magento-warmer/urls.txt
+Environment=CONCURRENCY=4
+Environment=SLEEP_MS=250
+ExecStart=/usr/local/bin/magento-warmer.sh
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=2h
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+<p>De interessante vlaggen zijn <code>Nice=10</code> en <code>IOSchedulingClass=idle</code>. Die vertellen de kernel dat warmer-verkeer voorrang moet geven aan alles wat een echte klant aan het doen is. <code>TimeoutStartSec=2h</code> sluit aan op het plafond van twee uur uit de titel: draait de warmer na twee uur nog steeds, dan is er iets mis en mag systemd hem killen in plaats van hem te laten overlappen met de volgende run.</p>
+
+<p>Koppel hem aan een timer:</p>
+
+<pre><code class="lang-ini"># /etc/systemd/system/magento-warmer.timer
+[Unit]
+Description=Run Magento warmer at boot and every six hours
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=6h
+Persistent=true
+
+[Install]
+WantedBy=timers.target</code></pre>
+
+<p>Beide aanzetten:</p>
+
+<pre><code class="lang-bash">systemctl daemon-reload
+systemctl enable --now magento-warmer.timer
+systemctl list-timers magento-warmer.timer</code></pre>
+
+<p><code>Persistent=true</code> is de regel die telt. Stond de host uit op het moment dat een geplande run had moeten draaien, dan vuurt systemd de warmer eenmalig af bij de volgende boot om bij te trekken. <code>OnBootSec=90s</code> geeft Varnish en PHP-FPM de tijd om te settelen voor de warmer ze raakt. De volledige <a href="https://www.freedesktop.org/software/systemd/man/systemd.timer.html">systemd.timer-documentatie</a> dekt de edge cases rond drift, accuracy windows en kalenderevents als je liever een cron-achtig schema wilt.</p>
+
+<h2>Verifiëren dat de cache ook echt warm is</h2>
+
+<p>Een warmer die zonder fouten draait is niet hetzelfde als een warmer die ook warmt. Magento 2 zet een debug-header op de full page cache die je met curl kunt uitlezen. Zet dit in je post-warm check:</p>
+
+<pre><code class="lang-bash">curl -sI -H 'X-Cache-Warm: 1' \
+  https://example.com/some-product.html \
+  | grep -iE 'x-magento-cache-debug|age|x-cache'</code></pre>
+
+<p>Je wilt <code>X-Magento-Cache-Debug: HIT</code> op de tweede request, en op Varnish wil je dat <code>Age</code> groter is dan nul. Is de eerste request HIT en de tweede MISS, dan wordt je cache halverwege het warmen ongeldig gemaakt. Waarschijnlijke verdachten: een voorraad-update-cron die getagde entries flusht, of een admin die tijdens de run live producten aan het editen is. Zet de warmer in een venster waarin de admin slaapt en de indexers niet draaien, dan klimt de HIT rate vanzelf.</p>
+
+<p>Voorbeeld van een logregel uit een gezonde run:</p>
+
+<pre><code class="lang-text">2026-06-09T03:14:22+02:00	https://example.com/red-leather-chair.html	200 0.184 41327</code></pre>
+
+<p>Dat is HTTP 200, 184 ms tot first byte, 41 KB overgedragen. Alles boven de 1,5 seconde op een warme pagina betekent dat de warmer de cache niet raakt, en dan moet je dat eerst uitzoeken voordat je meer URL's aan de lijst toevoegt. Een simpele awk-oneliner over de log geeft je de p95 in ongeveer een seconde:</p>
+
+<pre><code class="lang-bash">awk -F'\t' '{split($3,a," "); print a[2]}' /var/log/magento-warmer.log \
+  | sort -n | awk 'BEGIN{c=0}{v[c++]=$1}END{print v[int(c*0.95)]}'</code></pre>
+
+<h2>Als de warmer niet de bottleneck is</h2>
+
+<p>Warm je 5000 URL's en serveren de warme pagina's nog steeds op 1,8 seconde TTFB, dan is de warmer niet je probleem. De cache vult zich prima. De bottleneck zit in de renderlaag: een query zonder index in een layout block, een Elasticsearch-suggester die synchroon draait, of een third-party module die in <code>collection_load_after</code> hangt en per product een externe API aanroept. Hoe veel je ook vooraf opwarmt, dat lost het niet op, want elke klant die op een verse URL landt, betaalt nog steeds de koude prijs.</p>
+
+<p>Dat is het punt waarop het script van twee uur niet meer genoeg is. Dan moet je de codebase in, het DI-graaf lezen en de dader vinden. Dat is het werk dat wij doen als een bureau ons een trage <a href="/">legacy site</a> aanreikt en vraagt of we de rendering willen fixen in plaats van er nog meer cache tegenaan te gooien. Toen we Pier bouwden, liepen we hier precies tegenaan op een Magento-shop: de trage query stond duidelijk in de log, maar de layout XML die hem veroorzaakte zat drie modules diep. We hebben het uiteindelijk opgelost door de <a href="/#database">MySQL editor</a> naast de bestandsboom te zetten, zodat je <code>core_config_data</code>, de layout XML en de slow query log in één venster kunt lezen, met één regel <a href="/#features">version history</a> op het moment dat je opslaat.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: <code>ls -la /var/log/magento-warmer.log</code>. Bestaat het bestand niet, dan heb je geen warmer. Tik de dertig regels hierboven uit, zet het script in <code>/usr/local/bin</code> en draai het één keer met de hand tegen de sitemap voordat je de systemd unit aansluit. De rest is administratie.</p>
+    </div>
+
+    <aside class="pullquote">Een Magento 2 cache warmer is een gecureerde URL-lijst, een nette bash-loop en een systemd unit. Het meeste werk zit in de URL-lijst, niet in de loop.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom geen betaalde Magento 2 cache warmer-extensie gebruiken?</p>
+      <p class="faq-a">De meeste zijn ondoorzichtig, draaien binnen Magento (en delen dus PHP-FPM workers met echt verkeer) en kosten meer dan dertig regels bash. Een script dat je zelf in handen hebt, debug je om 3 uur &#39;s nachts een stuk makkelijker.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe agressief mag de warmer zijn zonder de site pijn te doen?</p>
+      <p class="faq-a">Vier parallelle requests met 250 ms tussenpoos is veilig op een single-node VPS. Hou de PHP-FPM workers tijdens de eerste run in de gaten met htop. Blijven ze structureel boven de 70%, schaal de concurrency terug of zet de sleep omhoog.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Werkt de warmer met Hyva of Magento PWA Studio?</p>
+      <p class="faq-a">Ja voor Hyva: dat wordt nog steeds server-side gerendered en gebruikt dezelfde full page cache. PWA Studio is anders: de HTML warmen heeft weinig zin omdat het renderen client-side gebeurt. Pre-renderen tijdens de build is daar de aanpak.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Magento bestelmails stoppen: één rij in queue_message_status</h3>
+      <span class="pc-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Magento 2 indexer vastgelopen: herstel zonder orderverlies</h3>
+      <span class="pc-lede">Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

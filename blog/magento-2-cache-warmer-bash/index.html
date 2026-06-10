@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 cache warmer: a bash playbook that survives reboots · Pier — Blog</title>
+<meta name="description" content="It is 21:14 on a Friday, you ran cache:flush, and the next visitor waits four seconds. Here is the two-hour bash warmer a Dutch agency now ships on every store.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 cache warmer: a bash playbook that survives reboots">
+<meta property="og:description" content="It is 21:14 on a Friday, you ran cache:flush, and the next visitor waits four seconds. Here is the two-hour bash warmer a Dutch agency now ships on every store.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-2-cache-warmer-bash/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of a Magento cache warmer playbook on graph paper with manila folder, crontab strip, brass plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T14:19:28.279Z">
+<meta property="article:modified_time" content="2026-06-10T14:19:28.279Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 cache warmer: a bash playbook that survives reboots">
+<meta name="twitter:description" content="It is 21:14 on a Friday, you ran cache:flush, and the next visitor waits four seconds. Here is the two-hour bash warmer a Dutch agency now ships on every store.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-2-cache-warmer-bash/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of a Magento cache warmer playbook on graph paper with manila folder, crontab strip, brass plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-2-cache-warmer-bash/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-2-cache-warmer-bash/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-2-cache-warmer-bash/"},
+  "url":"https://pier.abn.company/blog/magento-2-cache-warmer-bash/",
+  "headline":"Magento 2 cache warmer: a bash playbook that survives reboots",
+  "description":"It is 21:14 on a Friday, you ran cache:flush, and the next visitor waits four seconds. Here is the two-hour bash warmer a Dutch agency now ships on every store.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-2-cache-warmer-bash/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of a Magento cache warmer playbook on graph paper with manila folder, crontab strip, brass plate, wax seal."
+  },
+  "datePublished":"2026-06-10T14:19:28.279Z",
+  "dateModified":"2026-06-10T14:19:28.279Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, php, mysql, operations, tooling",
+  "wordCount":1574,
+  "articleSection":"Magento",
+  "articleBody":"It is 21:14 on a Friday. The deploy script just ran bin/magento cache:flush , and there is no cache warmer running behind it. The next visitor to land on a product page hits a cold full page cache and waits 4.2 seconds for TTFB. The second visitor waits 3.9. By the time the cache is warm enough to be useful, three people in the Slack channel have asked whether the site is down. A Dutch agency we work with had this exact loop running every Friday afternoon for almost a year. The fix that finally stuck was not a Magento 2 cache warmer extension. It was a two-hour bash script, a curated text file of URLs, and a sleep that respects the origin. The whole thing fits on one terminal screen and recovers cleanly from a reboot. This post is the whole script. Copy it, tune the throttle, and put it behind a systemd unit so it does not die the next time someone in the data centre patches the kernel. The URL list nobody curates A cache warmer is only as good as the URLs you feed it. Most Magento 2 stores ship a sitemap.xml that excludes the URLs that actually matter: filtered category pages, sorted listings, popular product variants with stock attributes in the URL, the cart and checkout views you actually want pre-rendered. Warming the sitemap alone leaves you with cold caches on the exact pages the homepage links to. Build the URL list in two passes. First, pull the sitemap as a baseline: curl -s https://example.com/sitemap.xml \\ | grep -oE '<loc>[^<]+</loc>' \\ | sed -E 's|</?loc>||g' > /var/lib/magento-warmer/urls.txt Second, add the top 200 product URLs by recent sales. Run this against the Magento database directly. It is faster than crawling and it gives you the URLs that move revenue: SELECT CONCAT('https://example.com/', ur.request_path) AS url FROM url_rewrite ur JOIN sales_order_item soi ON soi.product_id = ur.entity_id WHERE ur.entity_type = 'product' AND ur.store_id = 1 AND ur.redirect_type = 0 AND soi.created_at > NOW() - INTERVAL 30 DAY GROUP BY ur.request_path ORDER BY SUM(soi.qty_ordered) DESC LIMIT 200; Append the result to the same urls.txt , then dedupe with sort -u . For a 5000-SKU catalogue the file lands around 1.2 MB and parses in under a second. Re-run the SQL once a week from cron so the warmer keeps tracking what your customers actually buy, not what your category tree happened to look like in 2024. Filtered category pages If you run faceted navigation (price slider, brand checkbox, colour swatch), the cache key changes per filter combination. You cannot warm all of them, and you should not try. Pick the three filters per category that your analytics show actually get clicked, build the URLs by hand, and add them to the list. Twelve filter URLs per category is plenty. More than that and you are burning warmer time on pages no customer reads. A bash loop that respects the origin Here is the warmer. It is around thirty lines of POSIX-friendly bash, uses xargs for concurrency, and writes a tab-separated log you can grep: #!/usr/bin/env bash set -euo pipefail URL_FILE=\"${URL_FILE:-/var/lib/magento-warmer/urls.txt}\" LOG_FILE=\"${LOG_FILE:-/var/log/magento-warmer.log}\" CONCURRENCY=\"${CONCURRENCY:-4}\" SLEEP_MS=\"${SLEEP_MS:-250}\" UA=\"MagentoWarmer/1.0 (+ops@example.com)\" warm_one() { local url=\"$1\" local http http=$(curl -s -o /dev/null \\ -w '%{http_code} %{time_starttransfer} %{size_download}' \\ -A \"$UA\" -H 'X-Cache-Warm: 1' \\ --max-time 30 \"$url\" || echo '000 0 0') printf '%s\\t%s\\t%s\\n' \"$(date -Iseconds)\" \"$url\" \"$http\" \\ >> \"$LOG_FILE\" } export -f warm_one export LOG_FILE UA SLEEP_SEC=$(awk \"BEGIN{print ${SLEEP_MS}/1000}\") xargs -a \"$URL_FILE\" -n 1 -P \"$CONCURRENCY\" -I{} \\ bash -c \"warm_one '{}'; sleep $SLEEP_SEC\" Two values matter: CONCURRENCY and SLEEP_MS . The defaults (four parallel requests, 250 ms gap) work for a single-node Magento on a modest VPS. If you sit behind Varnish on a four-core origin, you can usually push to eight and 100 ms. Watch the origin during the first run with htop : if PHP-FPM workers stay above 70% sustained, dial it back. The warmer should be invisible to real traffic, not a self-inflicted denial of service. The xargs manpage covers the exact semantics of -P and -I if you want to swap to GNU parallel or change the substitution style. Do not run the warmer behind the same IP as your monitoring. If you forget to whitelist the warmer’s user agent, your WAF sees a single IP making 5000 HTTPS requests in twenty minutes and rate-limits it. Either give the warmer its own IP, or add MagentoWarmer/ to your WAF allowlist. Sucuri and Cloudflare both block this within ten minutes of the first run otherwise, and the symptom is silent: the warmer logs 403 on every URL while the site itself stays up, so nothing pages you. The X-Cache-Warm: 1 header is for your own logs and for Varnish if you want to track warm versus cold hits separately. It must not change the cache hash. In your VCL, do not add it to vcl_hash and do not strip it before vcl_backend_fetch or the warmer will pollute the",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-2-cache-warmer-bash/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 cache warmer: a bash playbook that survives reboots","item":"https://pier.abn.company/blog/magento-2-cache-warmer-bash/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why not use a paid Magento 2 cache warmer extension?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most of them are opaque, run inside Magento (so they share PHP-FPM workers with real traffic), and cost more than thirty lines of bash. A script you control is easier to debug at 3 AM."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How aggressive can the warmer be without hurting the site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Four parallel requests with a 250 ms gap is safe on a single-node VPS. Watch PHP-FPM workers in htop during the first run. If they sit above 70% sustained, dial down concurrency or raise the sleep."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the warmer work with Hyva or Magento PWA Studio?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for Hyva, which is still server-rendered and uses the same full page cache. PWA Studio is different: warming the HTML does little because the rendering happens client-side. Pre-render at build time instead."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will Varnish still cache requests that include the X-Cache-Warm header?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, provided your VCL does not add the header to vcl_hash and does not strip it before vcl_backend_fetch. Use the header for telemetry only, never for cache key variance."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 092</span>
+      </div>
+      <p class="eyebrow"><span class="n">092 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 cache warmer: a bash playbook that survives reboots</h1>
+      <p class="lede post-lede">It is 21:14 on a Friday, you ran cache:flush, and the next visitor waits four seconds. Here is the two-hour bash warmer a Dutch agency now ships on every store.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T14:19:28.279Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-2-cache-warmer-bash/hero.webp" type="image/webp">
+      <img src="/blog/magento-2-cache-warmer-bash/hero.jpg" alt="Overhead photo of a Magento cache warmer playbook on graph paper with manila folder, crontab strip, brass plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 092</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is 21:14 on a Friday. The deploy script just ran <code>bin/magento cache:flush</code>, and there is no cache warmer running behind it. The next visitor to land on a product page hits a cold full page cache and waits 4.2 seconds for TTFB. The second visitor waits 3.9. By the time the cache is warm enough to be useful, three people in the Slack channel have asked whether the site is down.</p>
+
+<p>A Dutch agency we work with had this exact loop running every Friday afternoon for almost a year. The fix that finally stuck was not a Magento 2 cache warmer extension. It was a two-hour bash script, a curated text file of URLs, and a <code>sleep</code> that respects the origin. The whole thing fits on one terminal screen and recovers cleanly from a reboot.</p>
+
+<p>This post is the whole script. Copy it, tune the throttle, and put it behind a systemd unit so it does not die the next time someone in the data centre patches the kernel.</p>
+
+<h2>The URL list nobody curates</h2>
+
+<p>A cache warmer is only as good as the URLs you feed it. Most Magento 2 stores ship a <code>sitemap.xml</code> that excludes the URLs that actually matter: filtered category pages, sorted listings, popular product variants with stock attributes in the URL, the cart and checkout views you actually want pre-rendered. Warming the sitemap alone leaves you with cold caches on the exact pages the homepage links to.</p>
+
+<p>Build the URL list in two passes. First, pull the sitemap as a baseline:</p>
+
+<pre><code class="lang-bash">curl -s https://example.com/sitemap.xml \
+  | grep -oE '&lt;loc&gt;[^&lt;]+&lt;/loc&gt;' \
+  | sed -E 's|&lt;/?loc&gt;||g' &gt; /var/lib/magento-warmer/urls.txt</code></pre>
+
+<p>Second, add the top 200 product URLs by recent sales. Run this against the Magento database directly. It is faster than crawling and it gives you the URLs that move revenue:</p>
+
+<pre><code class="lang-sql">SELECT CONCAT('https://example.com/', ur.request_path) AS url
+FROM url_rewrite ur
+JOIN sales_order_item soi ON soi.product_id = ur.entity_id
+WHERE ur.entity_type = 'product'
+  AND ur.store_id = 1
+  AND ur.redirect_type = 0
+  AND soi.created_at &gt; NOW() - INTERVAL 30 DAY
+GROUP BY ur.request_path
+ORDER BY SUM(soi.qty_ordered) DESC
+LIMIT 200;</code></pre>
+
+<p>Append the result to the same <code>urls.txt</code>, then dedupe with <code>sort -u</code>. For a 5000-SKU catalogue the file lands around 1.2 MB and parses in under a second. Re-run the SQL once a week from cron so the warmer keeps tracking what your customers actually buy, not what your category tree happened to look like in 2024.</p>
+
+<h3>Filtered category pages</h3>
+
+<p>If you run faceted navigation (price slider, brand checkbox, colour swatch), the cache key changes per filter combination. You cannot warm all of them, and you should not try. Pick the three filters per category that your analytics show actually get clicked, build the URLs by hand, and add them to the list. Twelve filter URLs per category is plenty. More than that and you are burning warmer time on pages no customer reads.</p>
+
+<h2>A bash loop that respects the origin</h2>
+
+<p>Here is the warmer. It is around thirty lines of POSIX-friendly bash, uses <code>xargs</code> for concurrency, and writes a tab-separated log you can grep:</p>
+
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+
+URL_FILE="${URL_FILE:-/var/lib/magento-warmer/urls.txt}"
+LOG_FILE="${LOG_FILE:-/var/log/magento-warmer.log}"
+CONCURRENCY="${CONCURRENCY:-4}"
+SLEEP_MS="${SLEEP_MS:-250}"
+UA="MagentoWarmer/1.0 (+ops@example.com)"
+
+warm_one() {
+  local url="$1"
+  local http
+  http=$(curl -s -o /dev/null \
+    -w '%{http_code} %{time_starttransfer} %{size_download}' \
+    -A "$UA" -H 'X-Cache-Warm: 1' \
+    --max-time 30 "$url" || echo '000 0 0')
+  printf '%s\t%s\t%s\n' "$(date -Iseconds)" "$url" "$http" \
+    &gt;&gt; "$LOG_FILE"
+}
+
+export -f warm_one
+export LOG_FILE UA
+
+SLEEP_SEC=$(awk "BEGIN{print ${SLEEP_MS}/1000}")
+xargs -a "$URL_FILE" -n 1 -P "$CONCURRENCY" -I{} \
+  bash -c "warm_one '{}'; sleep $SLEEP_SEC"</code></pre>
+
+<p>Two values matter: <code>CONCURRENCY</code> and <code>SLEEP_MS</code>. The defaults (four parallel requests, 250 ms gap) work for a single-node Magento on a modest VPS. If you sit behind Varnish on a four-core origin, you can usually push to eight and 100 ms. Watch the origin during the first run with <code>htop</code>: if PHP-FPM workers stay above 70% sustained, dial it back. The warmer should be invisible to real traffic, not a self-inflicted denial of service. The <a href="https://man7.org/linux/man-pages/man1/xargs.1.html">xargs manpage</a> covers the exact semantics of <code>-P</code> and <code>-I</code> if you want to swap to GNU parallel or change the substitution style.</p>
+
+<aside class="callout"><p><strong>Do not run the warmer behind the same IP as your monitoring.</strong> If you forget to whitelist the warmer’s user agent, your WAF sees a single IP making 5000 HTTPS requests in twenty minutes and rate-limits it. Either give the warmer its own IP, or add <code>MagentoWarmer/</code> to your WAF allowlist. Sucuri and Cloudflare both block this within ten minutes of the first run otherwise, and the symptom is silent: the warmer logs 403 on every URL while the site itself stays up, so nothing pages you.</p></aside>
+
+<p>The <code>X-Cache-Warm: 1</code> header is for your own logs and for Varnish if you want to track warm versus cold hits separately. It must not change the cache hash. In your VCL, do not add it to <code>vcl_hash</code> and do not strip it before <code>vcl_backend_fetch</code> or the warmer will pollute the cache with a separate variant per URL. Use it for telemetry, not for routing.</p>
+
+<h2>Surviving a reboot</h2>
+
+<p>A bash script in <code>cron</code> dies silently when the mail spool fills. A bash script in a <code>tmux</code> session dies on reboot. The point of this playbook is that the next time someone reboots the host (kernel patch, security advisory, cloud provider maintenance window), the warmer comes back without you logging in.</p>
+
+<p>Drop the script at <code>/usr/local/bin/magento-warmer.sh</code>, mark it executable, and write a one-shot unit:</p>
+
+<pre><code class="lang-ini"># /etc/systemd/system/magento-warmer.service
+[Unit]
+Description=Magento 2 full page cache warmer
+After=network-online.target varnish.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=www-data
+Group=www-data
+Environment=URL_FILE=/var/lib/magento-warmer/urls.txt
+Environment=CONCURRENCY=4
+Environment=SLEEP_MS=250
+ExecStart=/usr/local/bin/magento-warmer.sh
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=2h
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+<p>The interesting flags are <code>Nice=10</code> and <code>IOSchedulingClass=idle</code>. They tell the kernel that warmer traffic should yield to anything a real customer is doing. <code>TimeoutStartSec=2h</code> matches the two-hour ceiling in the headline: if the warmer is still running after two hours, something is wrong and systemd should kill it rather than let it overlap with the next run.</p>
+
+<p>Then pair it with a timer:</p>
+
+<pre><code class="lang-ini"># /etc/systemd/system/magento-warmer.timer
+[Unit]
+Description=Run Magento warmer at boot and every six hours
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=6h
+Persistent=true
+
+[Install]
+WantedBy=timers.target</code></pre>
+
+<p>Enable both with:</p>
+
+<pre><code class="lang-bash">systemctl daemon-reload
+systemctl enable --now magento-warmer.timer
+systemctl list-timers magento-warmer.timer</code></pre>
+
+<p><code>Persistent=true</code> is the line that matters. If the host was off when a scheduled run was due, systemd fires the warmer once on the next boot to catch up. <code>OnBootSec=90s</code> gives Varnish and PHP-FPM time to settle before the warmer hits them. The full <a href="https://www.freedesktop.org/software/systemd/man/systemd.timer.html">systemd.timer documentation</a> covers the edge cases around drift, accuracy windows and calendar events if you want a cron-style schedule instead.</p>
+
+<h2>Verifying the cache actually warmed</h2>
+
+<p>A warmer that runs without errors is not the same as a warmer that warms. Magento 2 exposes a debug header on the full page cache you can read with curl. Add this to your post-warm check:</p>
+
+<pre><code class="lang-bash">curl -sI -H 'X-Cache-Warm: 1' \
+  https://example.com/some-product.html \
+  | grep -iE 'x-magento-cache-debug|age|x-cache'</code></pre>
+
+<p>You want <code>X-Magento-Cache-Debug: HIT</code> on the second request, and on Varnish you want <code>Age</code> to be greater than zero. If the first request is HIT and the second is MISS, your cache is being invalidated mid-warm. Likely culprits: a stock update cron flushing tagged entries, or an admin user editing products live during the run. Schedule the warmer for a window when the admin is asleep and the indexers are not running, and the HIT rate climbs.</p>
+
+<p>Sample log line from a healthy run:</p>
+
+<pre><code class="lang-text">2026-06-09T03:14:22+02:00	https://example.com/red-leather-chair.html	200 0.184 41327</code></pre>
+
+<p>That is HTTP 200, 184 ms to first byte, 41 KB transferred. Anything over 1.5 seconds on a warmed page means the warmer is not reaching the cache, and you should investigate before adding more URLs to the list. A simple awk one-liner over the log tells you the p95 in about a second:</p>
+
+<pre><code class="lang-bash">awk -F'\t' '{split($3,a," "); print a[2]}' /var/log/magento-warmer.log \
+  | sort -n | awk 'BEGIN{c=0}{v[c++]=$1}END{print v[int(c*0.95)]}'</code></pre>
+
+<h2>When the warmer is not the bottleneck</h2>
+
+<p>If you are warming 5000 URLs and the warm pages still serve at 1.8 seconds TTFB, the warmer is not your problem. The cache is filling correctly. The bottleneck is in the rendering layer: an unindexed query in a layout block, an Elasticsearch suggester running synchronously, or a third-party module hooking <code>collection_load_after</code> and calling an external API per product. No amount of pre-warming will fix that, because every customer who lands on a fresh URL still pays the cold cost.</p>
+
+<p>This is the part where the two-hour script stops being enough. You need to go into the codebase, read the DI graph, and find the offender. That is the work we do when an agency hands us a slow <a href="/">legacy site</a> and asks us to fix the rendering rather than throw more cache at it. When we built Pier we ran into this exact thing on a Magento store: the slow query was obvious in the log but the layout XML responsible for it was three modules deep. The way we ended up handling it was wiring the <a href="/#database">MySQL editor</a> next to the file tree so you can read <code>core_config_data</code>, the layout XML and the slow-query log in one window, with one <a href="/#features">version history</a> the moment you save.</p>
+
+<p>The smallest thing to do today: <code>ls -la /var/log/magento-warmer.log</code>. If the file does not exist, you do not have a warmer. Write the thirty lines above, drop the script in <code>/usr/local/bin</code>, and run it once by hand against the sitemap before you wire up the systemd unit. The rest is paperwork.</p>
+    </div>
+
+    <aside class="pullquote">A Magento 2 cache warmer is a curated URL list, a polite bash loop and a systemd unit. Most of the work is in the URL list, not the loop.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why not use a paid Magento 2 cache warmer extension?</p>
+      <p class="faq-a">Most of them are opaque, run inside Magento (so they share PHP-FPM workers with real traffic), and cost more than thirty lines of bash. A script you control is easier to debug at 3 AM.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How aggressive can the warmer be without hurting the site?</p>
+      <p class="faq-a">Four parallel requests with a 250 ms gap is safe on a single-node VPS. Watch PHP-FPM workers in htop during the first run. If they sit above 70% sustained, dial down concurrency or raise the sleep.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does the warmer work with Hyva or Magento PWA Studio?</p>
+      <p class="faq-a">Yes for Hyva, which is still server-rendered and uses the same full page cache. PWA Studio is different: warming the HTML does little because the rendering happens client-side. Pre-render at build time instead.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will Varnish still cache requests that include the X-Cache-Warm header?</p>
+      <p class="faq-a">Yes, provided your VCL does not add the header to vcl_hash and does not strip it before vcl_backend_fetch. Use the header for telemetry only, never for cache key variance.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/blog/magento-stuck-queue-message-status/hero.jpg" alt="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Magento order emails: the stuck queue_message_status row</h3>
+      <span class="pc-lede">A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Overhead photo of a paper Magento indexer run-sheet, order dockets, brass M2 plate and red wax seal on bone linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 May 2026</span></span>
+      <h3>Magento 2 indexer stuck: recovery without losing orders</h3>
+      <span class="pc-lede">A stuck Magento 2 indexer turns checkout into a minefield: wrong prices, missing products, ghost stock. Here is the recovery sequence that protects the orders already in flight.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-2-cache-warmer-bash/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
