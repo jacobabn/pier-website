@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla 3 to 4: the triage table for broken extensions · Pier — Blog</title>
+<meta name="description" content="Forty-seven extensions, six fatals on the admin login, and a Friday deadline. The triage table we use to sort that mess into Update, Replace, Fork, or Rip before touching code.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, php, mysql, migration, workflow, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-3-to-4-extension-triage/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla 3 to 4: the triage table for broken extensions">
+<meta property="og:description" content="Forty-seven extensions, six fatals on the admin login, and a Friday deadline. The triage table we use to sort that mess into Update, Replace, Fork, or Rip before touching code.">
+<meta property="og:url" content="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/">
+<meta property="og:image" content="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of ledger grid with UPDATE REPLACE FORK RIP columns, index cards, manila tab, brass plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T18:29:09.110Z">
+<meta property="article:modified_time" content="2026-06-10T18:29:09.110Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Joomla">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla 3 to 4: the triage table for broken extensions">
+<meta name="twitter:description" content="Forty-seven extensions, six fatals on the admin login, and a Friday deadline. The triage table we use to sort that mess into Update, Replace, Fork, or Rip before touching code.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/joomla-3-to-4-extension-triage/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of ledger grid with UPDATE REPLACE FORK RIP columns, index cards, manila tab, brass plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Joomla">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-3-to-4-extension-triage/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/joomla-3-to-4-extension-triage/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/joomla-3-to-4-extension-triage/"},
+  "url":"https://pier.abn.company/blog/joomla-3-to-4-extension-triage/",
+  "headline":"Joomla 3 to 4: the triage table for broken extensions",
+  "description":"Forty-seven extensions, six fatals on the admin login, and a Friday deadline. The triage table we use to sort that mess into Update, Replace, Fork, or Rip before touching code.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/joomla-3-to-4-extension-triage/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of ledger grid with UPDATE REPLACE FORK RIP columns, index cards, manila tab, brass plate, wax seal."
+  },
+  "datePublished":"2026-06-10T18:29:09.110Z",
+  "dateModified":"2026-06-10T18:29:09.110Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"joomla, php, mysql, migration, workflow, tooling",
+  "wordCount":1191,
+  "articleSection":"Joomla",
+  "articleBody":"A Dutch agency we work with handed off a Joomla site to a new client. The client wanted Joomla 4. The site had 47 third-party extensions. After the test migration, the admin loaded a white screen with \"Class 'JFactory' not found\" in the error log. Six extensions wouldn't even let you reach the dashboard. By Friday afternoon there was a list of 23 things that needed a decision and no one knew which to do first. This is the table we keep on hand for that moment. It isn't a checklist. It's a way to sort 47 extensions into four buckets in about two hours, before any code gets touched. The shape of the J3 to J4 break The Joomla 3 to Joomla 4 jump is not a point release. The framework changed enough that any extension written for Joomla 3 and not updated since 2020 is likely to throw fatals. The most common offenders: JFactory::getDbo() calls (now Joomla\\CMS\\Factory in the namespaced form) JText::_() (now Joomla\\CMS\\Language\\Text ) jimport() calls (removed) MooTools assumptions in admin JS (MooTools is gone, jQuery only, and increasingly vanilla) Bootstrap 2 markup that breaks under a Bootstrap 5 template If your site has more than ten extensions, you are not going to fix all of these by reading source. You sort first, then work. The triage table Five columns. Print it, paste it into a spreadsheet, whatever you like. The columns: Name and version installed J4 version released? (yes / no / maintainer silent) Used? (front-end, admin-only, scheduled task, dead) Owns DB tables? (yes / no) Bucket (Update, Replace, Fork, Rip) The first four columns are facts. You fill them in a single pass through the Extensions Manager and a quick check on each vendor's site. The fifth column is the decision. Filling column 2 fast You do not need to log into each vendor portal. The Joomla Extensions Directory (JED) lists J4 compatibility per extension. Open the directory, search by name, look at the compatibility badge. If the extension is not on JED, check the developer's site. If that site is offline or the last blog post is from 2021, that is column 2's answer: \"maintainer silent.\" Filling column 3 honestly The temptation is to mark every extension \"used.\" Don't. Open the front-end with the network panel and a clean session. Look at what loads. Then ask the client which admin tools they actually touch in a normal month. Anything not on either list goes in \"dead.\" Half of a 47-extension Joomla 3 site is usually dead. ACL Manager installed once for a permissions emergency. Two backup extensions because someone tried Akeeba and someone else tried something else. An SEO extension that was replaced by another SEO extension. You will retire ten before you write a single line of code. Working the buckets top to bottom Once the table is full, you work the buckets in this order: Rip, then Update, then Replace, then Fork. Order matters because each bucket shrinks the work in the next. Rip first Every \"dead\" row goes. Uninstall through the Extensions Manager. If the uninstaller throws (it often does on a half-broken Joomla 4), drop the rows manually from #__extensions , #__menu , and the extension's own tables. DELETE FROM j_extensions WHERE element = 'com_deadext'; DELETE FROM j_menu WHERE component_id = 1234; DROP TABLE IF EXISTS j_deadext_items; Back up first. Always. The number of extensions that ship a clean uninstaller is smaller than you'd think, and orphan rows in #__assets will haunt the next migration too. Update second Rows where column 2 says \"yes, J4 version exists\" and the maintainer is alive: install the new version on staging, run it once, watch the log. Most of these are five-minute operations. Akeeba Backup, JCE Editor, Admin Tools: these vendors did the work. Trust them and move on. The trap here is that some extensions need a specific intermediate version before the J4 jump. JCE, for example, wanted you on the last J3-compatible release first. Read the release notes. Don't skip. Replace third Rows where column 2 says \"no J4 version, but the function is generic.\" A form builder that hasn't been updated since 2020 has a dozen maintained replacements. A simple gallery extension can be swapped in an afternoon. You will lose some configuration. That is fine. The cost of keeping a dead form builder alive across a major Joomla version is higher than rebuilding three forms. Fork last Reserved for extensions where (a) there is no J4 version, (b) no replacement does what it does, and (c) the extension is not enormous. A custom component for a client's bespoke quote-request flow. A directory plugin with a hand-rolled rating system. Five files, two database tables, and a specific bit of business logic the client cares about. Forking means: take the source, run a search-and-replace pass on the Joomla 3 idioms, register the namespaces, and ship it as a private extension. The Joomla 4 migration docs are the canonical reference and they are better than they used to be. The Joomla API reference tells you which new namespaced class correspo",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/joomla-3-to-4-extension-triage/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla 3 to 4: the triage table for broken extensions","item":"https://pier.abn.company/blog/joomla-3-to-4-extension-triage/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How long does the triage pass itself take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sorting roughly 50 extensions into Update, Replace, Fork, and Rip takes about two hours for someone who knows the site. The fix work that follows depends on how many rows fall into Fork."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I migrate Joomla 3 to 4, or jump straight to Joomla 5?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Hit Joomla 4 first. The 4 to 5 step is much smaller than 3 to 4 because the namespacing work is already done. Stabilise on 4, then move to 5 within a release cycle."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if a critical extension has no J4 version and no replacement?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Fork it if it is small and the logic is specific to the client. If it is a large component like a legacy storefront, consider whether the site is due for a rebuild rather than a migration."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why rip dead extensions before updating live ones?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dead rows in #__extensions and #__assets break the installer paths used by live extensions. Cleaning them first means fewer phantom errors during the Update pass."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/joomla-3-to-4-extension-triage/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 097</span>
+      </div>
+      <p class="eyebrow"><span class="n">097 —</span>Joomla</p>
+      <h1 class="display-l post-title">Joomla 3 to 4: the triage table for broken extensions</h1>
+      <p class="lede post-lede">Forty-seven extensions, six fatals on the admin login, and a Friday deadline. The triage table we use to sort that mess into Update, Replace, Fork, or Rip before touching code.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T18:29:09.110Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-3-to-4-extension-triage/hero.webp" type="image/webp">
+      <img src="/blog/joomla-3-to-4-extension-triage/hero.jpg" alt="Overhead photo of ledger grid with UPDATE REPLACE FORK RIP columns, index cards, manila tab, brass plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 097</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Dutch agency we work with handed off a Joomla site to a new client. The client wanted Joomla 4. The site had 47 third-party extensions. After the test migration, the admin loaded a white screen with "Class 'JFactory' not found" in the error log. Six extensions wouldn't even let you reach the dashboard. By Friday afternoon there was a list of 23 things that needed a decision and no one knew which to do first.</p>
+
+<p>This is the table we keep on hand for that moment. It isn't a checklist. It's a way to sort 47 extensions into four buckets in about two hours, before any code gets touched.</p>
+
+<h2>The shape of the J3 to J4 break</h2>
+
+<p>The Joomla 3 to Joomla 4 jump is not a point release. The framework changed enough that any extension written for Joomla 3 and not updated since 2020 is likely to throw fatals. The most common offenders:</p>
+
+<ul>
+<li><code>JFactory::getDbo()</code> calls (now <code>Joomla\CMS\Factory</code> in the namespaced form)</li>
+<li><code>JText::_()</code> (now <code>Joomla\CMS\Language\Text</code>)</li>
+<li><code>jimport()</code> calls (removed)</li>
+<li>MooTools assumptions in admin JS (MooTools is gone, jQuery only, and increasingly vanilla)</li>
+<li>Bootstrap 2 markup that breaks under a Bootstrap 5 template</li>
+</ul>
+
+<p>If your site has more than ten extensions, you are not going to fix all of these by reading source. You sort first, then work.</p>
+
+<h2>The triage table</h2>
+
+<p>Five columns. Print it, paste it into a spreadsheet, whatever you like. The columns:</p>
+
+<ol>
+<li><strong>Name and version installed</strong></li>
+<li><strong>J4 version released?</strong> (yes / no / maintainer silent)</li>
+<li><strong>Used?</strong> (front-end, admin-only, scheduled task, dead)</li>
+<li><strong>Owns DB tables?</strong> (yes / no)</li>
+<li><strong>Bucket</strong> (Update, Replace, Fork, Rip)</li>
+</ol>
+
+<p>The first four columns are facts. You fill them in a single pass through the Extensions Manager and a quick check on each vendor's site. The fifth column is the decision.</p>
+
+<h3>Filling column 2 fast</h3>
+
+<p>You do not need to log into each vendor portal. The Joomla Extensions Directory (JED) lists J4 compatibility per extension. Open the directory, search by name, look at the compatibility badge. If the extension is not on JED, check the developer's site. If that site is offline or the last blog post is from 2021, that is column 2's answer: "maintainer silent."</p>
+
+<h3>Filling column 3 honestly</h3>
+
+<p>The temptation is to mark every extension "used." Don't. Open the front-end with the network panel and a clean session. Look at what loads. Then ask the client which admin tools they actually touch in a normal month. Anything not on either list goes in "dead."</p>
+
+<p>Half of a 47-extension Joomla 3 site is usually dead. ACL Manager installed once for a permissions emergency. Two backup extensions because someone tried Akeeba and someone else tried something else. An SEO extension that was replaced by another SEO extension. You will retire ten before you write a single line of code.</p>
+
+<h2>Working the buckets top to bottom</h2>
+
+<p>Once the table is full, you work the buckets in this order: Rip, then Update, then Replace, then Fork. Order matters because each bucket shrinks the work in the next.</p>
+
+<h3>Rip first</h3>
+
+<p>Every "dead" row goes. Uninstall through the Extensions Manager. If the uninstaller throws (it often does on a half-broken Joomla 4), drop the rows manually from <code>#__extensions</code>, <code>#__menu</code>, and the extension's own tables.</p>
+
+<pre><code class="lang-sql">DELETE FROM j_extensions WHERE element = 'com_deadext';
+DELETE FROM j_menu       WHERE component_id = 1234;
+DROP TABLE IF EXISTS j_deadext_items;</code></pre>
+
+<p>Back up first. Always. The number of extensions that ship a clean uninstaller is smaller than you'd think, and orphan rows in <code>#__assets</code> will haunt the next migration too.</p>
+
+<h3>Update second</h3>
+
+<p>Rows where column 2 says "yes, J4 version exists" and the maintainer is alive: install the new version on staging, run it once, watch the log. Most of these are five-minute operations. Akeeba Backup, JCE Editor, Admin Tools: these vendors did the work. Trust them and move on.</p>
+
+<p>The trap here is that some extensions need a specific intermediate version before the J4 jump. JCE, for example, wanted you on the last J3-compatible release first. Read the release notes. Don't skip.</p>
+
+<h3>Replace third</h3>
+
+<p>Rows where column 2 says "no J4 version, but the function is generic." A form builder that hasn't been updated since 2020 has a dozen maintained replacements. A simple gallery extension can be swapped in an afternoon. You will lose some configuration. That is fine. The cost of keeping a dead form builder alive across a major Joomla version is higher than rebuilding three forms.</p>
+
+<h3>Fork last</h3>
+
+<p>Reserved for extensions where (a) there is no J4 version, (b) no replacement does what it does, and (c) the extension is not enormous. A custom component for a client's bespoke quote-request flow. A directory plugin with a hand-rolled rating system. Five files, two database tables, and a specific bit of business logic the client cares about.</p>
+
+<p>Forking means: take the source, run a search-and-replace pass on the Joomla 3 idioms, register the namespaces, and ship it as a private extension. The <a href="https://docs.joomla.org/J4.x:Migrating_a_Joomla_3_Extension_to_Joomla_4">Joomla 4 migration docs</a> are the canonical reference and they are better than they used to be. The <a href="https://api.joomla.org/">Joomla API reference</a> tells you which new namespaced class corresponds to any deprecated J3 call you find.</p>
+
+<aside class="callout">If the forked extension touches the database, write the schema update as a proper <code>script.php</code> install routine, not a one-off SQL file. The next person who touches the site will thank you. So will you, two years later, when the same client wants Joomla 5.</aside>
+
+<h2>What the table doesn't catch</h2>
+
+<p>Three things the triage table will not surface. Worth knowing before you run it.</p>
+
+<p><strong>Template breakage.</strong> A J3 template that depends on Bootstrap 2 will look wrong even if every extension works. Test the front-end on a real device after the extension pass. If the template is custom and old, you may need a separate triage for the override files in <code>templates/yourtemplate/html/</code>.</p>
+
+<p><strong>Editor content.</strong> Articles written in TinyMCE 4 sometimes render oddly in TinyMCE 5, especially around tables and inline styles. Spot-check the top 20 articles by traffic before signing off.</p>
+
+<p><strong>PHP version.</strong> Joomla 4 wants PHP 7.2.5 minimum and runs best on 8.1 or 8.2. The <a href="https://www.php.net/manual/en/migration80.php">PHP 8.0 migration guide</a> covers the breaks. Extensions that pass the Joomla version check can still fatal on PHP 8 because of stricter type checks or removed functions like <code>create_function()</code>. Run the post-migration site on the same PHP version it will run on in production.</p>
+
+<h2>The tool behind the table</h2>
+
+<p>Triage like this used to mean a folder of SQL files, a hand-written changelog, and a prayer. When we built Pier we ran into this exact thing on our own <a href="/">legacy site</a> work. The way we ended up handling it was tying every database write and file edit to a <a href="/#features">version history</a> entry, so a botched extension uninstall is one keystroke from being undone, and the <a href="/#database">MySQL editor</a> can run the orphan-row cleanup without an SSH tunnel.</p>
+
+<h2>The smallest move today</h2>
+
+<p>Open one of your Joomla 3 sites. Count the installed extensions. Mark which ones are actually used. That number is your triage budget for the eventual migration, and knowing it before the client asks is worth more than any of the code work that comes after.</p>
+    </div>
+
+    <aside class="pullquote">Sort 47 extensions before you touch one. Rip, Update, Replace, Fork is the only order that finishes the migration without doubling the bill.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How long does the triage pass itself take?</p>
+      <p class="faq-a">Sorting roughly 50 extensions into Update, Replace, Fork, and Rip takes about two hours for someone who knows the site. The fix work that follows depends on how many rows fall into Fork.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I migrate Joomla 3 to 4, or jump straight to Joomla 5?</p>
+      <p class="faq-a">Hit Joomla 4 first. The 4 to 5 step is much smaller than 3 to 4 because the namespacing work is already done. Stabilise on 4, then move to 5 within a release cycle.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if a critical extension has no J4 version and no replacement?</p>
+      <p class="faq-a">Fork it if it is small and the logic is specific to the client. If it is a large component like a legacy storefront, consider whether the site is due for a rebuild rather than a migration.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why rip dead extensions before updating live ones?</p>
+      <p class="faq-a">Dead rows in #__extensions and #__assets break the installer paths used by live extensions. Cleaning them first means fewer phantom errors during the Update pass.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/php-74-to-82-compatibility-pass/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/php-74-to-82-compatibility-pass/hero.webp" type="image/webp">
+        <img src="/blog/php-74-to-82-compatibility-pass/hero.jpg" alt="Overhead photo on bone linen: PHP 7.4 to 8.2 worksheet, deprecations checklist, manila folder, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 June 2026</span></span>
+      <h3>PHP 7.4 to 8.2 upgrade: a six-step compatibility pass</h3>
+      <span class="pc-lede">A real PHP 7.4 to 8.2 migration: 60,000 lines, four authors, no test suite. The six-step pass that catches deprecations, type errors, and silent breakage.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Overhead still life on bone linen: inked Joomla template blueprint, tracing overlay, manila tab, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Decoupling a Joomla template: a staged extraction playbook</h3>
+      <span class="pc-lede">A 12-year-old custom Joomla template had grown into a second CMS welded onto the first. Here is the staged extraction that pulled it back apart.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/joomla-3-to-4-extension-triage/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
