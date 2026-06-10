@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel · Pier — Blog</title>
+<meta name="description" content="Een brute-force-run sloot om 23:41 de enige admin van een Drupal 8-site buiten. Dit is het herstel van 90 minuten en de fail2ban-regel die het stopte.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, sftp, security, php, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-sftp-lockout-recovery/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-sftp-lockout-recovery/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel">
+<meta property="og:description" content="Een brute-force-run sloot om 23:41 de enige admin van een Drupal 8-site buiten. Dit is het herstel van 90 minuten en de fail2ban-regel die het stopte.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bureau van boven: incidentlog 23:41, fail2ban-vel, manila Drupal-map, messing plaatje, hangslot, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T19:18:44.125Z">
+<meta property="article:modified_time" content="2026-06-10T19:18:44.125Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel">
+<meta name="twitter:description" content="Een brute-force-run sloot om 23:41 de enige admin van een Drupal 8-site buiten. Dit is het herstel van 90 minuten en de fail2ban-regel die het stopte.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/hero.jpg">
+<meta name="twitter:image:alt" content="Bureau van boven: incidentlog 23:41, fail2ban-vel, manila Drupal-map, messing plaatje, hangslot, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-sftp-lockout-recovery/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/"},
+  "url":"https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/",
+  "headline":"Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel",
+  "description":"Een brute-force-run sloot om 23:41 de enige admin van een Drupal 8-site buiten. Dit is het herstel van 90 minuten en de fail2ban-regel die het stopte.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bureau van boven: incidentlog 23:41, fail2ban-vel, manila Drupal-map, messing plaatje, hangslot, rode lakzegel."
+  },
+  "datePublished":"2026-06-10T19:18:44.125Z",
+  "dateModified":"2026-06-10T19:18:44.125Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"drupal, sftp, security, php, operations",
+  "wordCount":1505,
+  "articleSection":"Drupal",
+  "articleBody":"De telefoon ging op een dinsdag om 23:41. Een Nederlands bureau waarmee we samenwerken had een Drupal 8-site voor een regionale logistieke klant, één adminaccount, één SFTP-user, en een hostingpaneel dat drie jaar geleden stilletjes het verlopen van wachtwoorden aan de FTP-kant had uitgezet. Tegen de tijd dat de on-call lead de Loom opende, was de SFTP-user gelocked, werkte het Drupal-adminwachtwoord niet meer, en gaf de site na het eerste request een schone witte WSOD op elke pagina. Het paneel van de host laadde nog. SSH stond aan. De database stond aan. Al het andere zag er, in de woorden van het bureau, behoorlijk fout uit. Wat volgt zijn de daadwerkelijke 90 minuten. Het Drupal SFTP-lockout-patroon hier komt op oudere sites zo vaak voor dat het herstel de moeite waard is om volledig op te schrijven, inclusief de fail2ban -regel die we achterlieten. 23:41, wat de logs lieten zien Eerste actie was het auth log op de bak. De host had SSH en SFTP op dezelfde sshd staan, wat normaal is, maar betekent dat één brute-force burst beide laat oplichten. We hebben niet ge- tail 'd; we vroegen het laatste uur op, filterden op fouten, en telden per source IP. sudo journalctl -u ssh --since \"1 hour ago\" \\ | grep -E \"Failed password|Invalid user\" \\ | awk '{print $(NF-3)}' \\ | sort | uniq -c | sort -rn | head Eén IP in Litouwen, 4.812 fouten in 47 minuten, allemaal tegen de username deploy , het SFTP-account dat het bureau sinds 2019 gebruikte. Het account was door PAM gelocked na de drempel (de host had pam_tally2 geconfigureerd, wat ongebruikelijk is, maar achteraf nuttig). De brute-force kwam nooit binnen. Wat hij wel deed, was de enige SFTP-user buitensluiten, en dat was relevant voor wat daarna gebeurde. De Drupal-adminlockout stond hier los van, en het kostte ons vijf minuten te veel om dat te zien. Een junior bij het bureau, die het auth log voorbij zag scrollen, had die dag al geprobeerd het adminwachtwoord met drush upwd te resetten vanuit een wankele SSH-sessie op zijn laptop die halverwege de write was afgebroken. De sessie liet een half geschreven settings.local.php achter op disk met een ontbrekende sluitaccolade. Drupal bootstrapte, liep tegen de parse error in de lokale include aan, en renderde niets. De wachtwoordwijziging was ook niet gecommit, omdat het drush-commando was afgebroken voordat de row update plaatsvond. Twee losstaande failures, dezelfde nacht, dezelfde site. Zo verlopen de meeste incidenten in de praktijk. 00:02, weer binnenkomen zonder de SFTP-user We konden geen SFTP gebruiken omdat het account gelocked was en het bureau geen root had op de bak, alleen de deploy -user en het hostingpaneel. Het paneel had een file manager, maar die hikte aan over bestanden van meer dan 200KB, en de kapotte settings.local.php was qua grootte natuurlijk prima, alleen lag hij in een map waarin het paneel weigerde af te dalen vanwege een symlink ergens hogerop. De oplossing was om deploy te ontgrendelen via de \"reset SSH lockouts\"-knop van het paneel (elk fatsoenlijk paneel heeft er één; het roept onder de motorkap gewoon pam_tally2 --user=deploy --reset aan) en daarna in te SFTP'en met een verse key die het bureau ter plekke genereerde. We gebruikten de oude key niet opnieuw: als er een key op de laptop had gestaan die eerder was afgebroken, hadden we geen manier om de staat ervan te kennen. Nieuwe ed25519-key, via het paneel in ~/.ssh/authorized_keys geplakt, oude key verwijderd. ssh-keygen -t ed25519 -C \"deploy-recovery-2026-06-10\" -f ~/.ssh/deploy_recovery # paste the .pub line into authorized_keys via the panel ssh -i ~/.ssh/deploy_recovery deploy@host \"id\" Van daaruit was de kapotte settings.local.php een delete van één regel. We probeerden niet hem te repareren. De site bootstrapte alleen op de hoofd- settings.php , wat prima was voor de volgende twintig minuten waarin we het adminwachtwoord aanpakten. 00:18, het Drupal-adminwachtwoord resetten zonder drush Drush had op dit punt gewerkt, maar de drush van het bureau hing vast op een oude versie die niet meer matchte met de Drupal-core van de site na een half afgemaakte update uit januari. In plaats van dat om middernacht uit te zoeken, gingen we direct naar de database. Drupal 8 slaat adminwachtwoorden op in de users_field_data -tabel, gejoined op users , en de wachtwoordhash wordt gegenereerd door core/scripts/password-hash.sh dat in core meekomt. cd /var/www/site php core/scripts/password-hash.sh 'a-long-throwaway-passphrase-we-rotate-in-five-minutes' # prints: $S$E9... (a Drupal-format hash) Vervolgens, in MySQL, tegen de users_field_data -row voor uid 1: UPDATE users_field_data SET pass = '$S$E9...' WHERE uid = 1; -- also clear any flood entries that might block the next login DELETE FROM flood WHERE event IN ('user.failed_login_ip', 'user.failed_login_user'); De flood -delete is belangrijk. De flood control van Drupal sluit je vrolijk een uur uit je eigen adminlogin als de brute-force burst ook de loginform raakte, wat op deze site niet was gebe",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel","item":"https://pier.abn.company/nl/blog/drupal-sftp-lockout-recovery/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Sluit fail2ban me buiten als ik mijn SSH-keypassphrase verkeerd typ?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. fail2ban kijkt naar authenticatiefouten in sshd, niet naar lokale prompts van je key-agent. Een verkeerde passphrase aan jouw kant bereikt de server nooit, dus die kan ook niet meetellen voor de bandrempel."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is de Drupal-users-tabel direct bewerken veilig?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor de wachtwoordhash op uid 1 wel, zolang je de hash genereert met core/scripts/password-hash.sh, zodat het formaat klopt. Schrijf hashes niet met de hand uit en kopieer ze niet van een andere site."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom de flood-tabel leegmaken tijdens herstel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De flood control van Drupal kan de adminlogin een uur lang dichtgooien na een serie mislukte pogingen. Door de relevante rows op te ruimen voorkom je dat een vers, correct wachtwoord als rate-limited wordt afgewezen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/drupal-sftp-lockout-recovery/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 098</span>
+      </div>
+      <p class="eyebrow"><span class="n">098 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal SFTP-lockout: herstel in 90 minuten en fail2ban-regel</h1>
+      <p class="lede post-lede">Een brute-force-run sloot om 23:41 de enige admin van een Drupal 8-site buiten. Dit is het herstel van 90 minuten en de fail2ban-regel die het stopte.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T19:18:44.125Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-sftp-lockout-recovery/hero.webp" type="image/webp">
+      <img src="/blog/drupal-sftp-lockout-recovery/hero.jpg" alt="Bureau van boven: incidentlog 23:41, fail2ban-vel, manila Drupal-map, messing plaatje, hangslot, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 098</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De telefoon ging op een dinsdag om 23:41. Een Nederlands bureau waarmee we samenwerken had een Drupal 8-site voor een regionale logistieke klant, één adminaccount, één SFTP-user, en een hostingpaneel dat drie jaar geleden stilletjes het verlopen van wachtwoorden aan de FTP-kant had uitgezet. Tegen de tijd dat de on-call lead de Loom opende, was de SFTP-user gelocked, werkte het Drupal-adminwachtwoord niet meer, en gaf de site na het eerste request een schone witte WSOD op elke pagina. Het paneel van de host laadde nog. SSH stond aan. De database stond aan. Al het andere zag er, in de woorden van het bureau, behoorlijk fout uit.</p><p>Wat volgt zijn de daadwerkelijke 90 minuten. Het Drupal SFTP-lockout-patroon hier komt op oudere sites zo vaak voor dat het herstel de moeite waard is om volledig op te schrijven, inclusief de <a href="https://www.fail2ban.org/wiki/index.php/Main_Page">fail2ban</a>-regel die we achterlieten.</p><h2>23:41, wat de logs lieten zien</h2><p>Eerste actie was het auth log op de bak. De host had SSH en SFTP op dezelfde sshd staan, wat normaal is, maar betekent dat één brute-force burst beide laat oplichten. We hebben niet ge-<code>tail</code>'d; we vroegen het laatste uur op, filterden op fouten, en telden per source IP.</p><pre><code class="lang-bash">sudo journalctl -u ssh --since "1 hour ago" \
+  | grep -E "Failed password|Invalid user" \
+  | awk '{print $(NF-3)}' \
+  | sort | uniq -c | sort -rn | head</code></pre><p>Eén IP in Litouwen, 4.812 fouten in 47 minuten, allemaal tegen de username <code>deploy</code>, het SFTP-account dat het bureau sinds 2019 gebruikte. Het account was door PAM gelocked na de drempel (de host had <code>pam_tally2</code> geconfigureerd, wat ongebruikelijk is, maar achteraf nuttig). De brute-force kwam nooit binnen. Wat hij wel deed, was de enige SFTP-user buitensluiten, en dat was relevant voor wat daarna gebeurde.</p><p>De Drupal-adminlockout stond hier los van, en het kostte ons vijf minuten te veel om dat te zien. Een junior bij het bureau, die het auth log voorbij zag scrollen, had die dag al geprobeerd het adminwachtwoord met <code>drush upwd</code> te resetten vanuit een wankele SSH-sessie op zijn laptop die halverwege de write was afgebroken. De sessie liet een half geschreven <code>settings.local.php</code> achter op disk met een ontbrekende sluitaccolade. Drupal bootstrapte, liep tegen de parse error in de lokale include aan, en renderde niets. De wachtwoordwijziging was ook niet gecommit, omdat het drush-commando was afgebroken voordat de row update plaatsvond.</p><p>Twee losstaande failures, dezelfde nacht, dezelfde site. Zo verlopen de meeste incidenten in de praktijk.</p><h2>00:02, weer binnenkomen zonder de SFTP-user</h2><p>We konden geen SFTP gebruiken omdat het account gelocked was en het bureau geen root had op de bak, alleen de <code>deploy</code>-user en het hostingpaneel. Het paneel had een file manager, maar die hikte aan over bestanden van meer dan 200KB, en de kapotte <code>settings.local.php</code> was qua grootte natuurlijk prima, alleen lag hij in een map waarin het paneel weigerde af te dalen vanwege een symlink ergens hogerop.</p><p>De oplossing was om <code>deploy</code> te ontgrendelen via de "reset SSH lockouts"-knop van het paneel (elk fatsoenlijk paneel heeft er één; het roept onder de motorkap gewoon <code>pam_tally2 --user=deploy --reset</code> aan) en daarna in te SFTP'en met een verse key die het bureau ter plekke genereerde. We gebruikten de oude key niet opnieuw: als er een key op de laptop had gestaan die eerder was afgebroken, hadden we geen manier om de staat ervan te kennen. Nieuwe ed25519-key, via het paneel in <code>~/.ssh/authorized_keys</code> geplakt, oude key verwijderd.</p><pre><code class="lang-bash">ssh-keygen -t ed25519 -C "deploy-recovery-2026-06-10" -f ~/.ssh/deploy_recovery
+# paste the .pub line into authorized_keys via the panel
+ssh -i ~/.ssh/deploy_recovery deploy@host "id"</code></pre><p>Van daaruit was de kapotte <code>settings.local.php</code> een delete van één regel. We probeerden niet hem te repareren. De site bootstrapte alleen op de hoofd-<code>settings.php</code>, wat prima was voor de volgende twintig minuten waarin we het adminwachtwoord aanpakten.</p><h2>00:18, het Drupal-adminwachtwoord resetten zonder drush</h2><p>Drush had op dit punt gewerkt, maar de drush van het bureau hing vast op een oude versie die niet meer matchte met de Drupal-core van de site na een half afgemaakte update uit januari. In plaats van dat om middernacht uit te zoeken, gingen we direct naar de database. Drupal 8 slaat adminwachtwoorden op in de <code>users_field_data</code>-tabel, gejoined op <code>users</code>, en de wachtwoordhash wordt gegenereerd door <code>core/scripts/password-hash.sh</code> dat in core meekomt.</p><pre><code class="lang-bash">cd /var/www/site
+php core/scripts/password-hash.sh 'a-long-throwaway-passphrase-we-rotate-in-five-minutes'
+# prints: $S$E9... (a Drupal-format hash)</code></pre><p>Vervolgens, in MySQL, tegen de <code>users_field_data</code>-row voor uid 1:</p><pre><code class="lang-sql">UPDATE users_field_data
+SET pass = '$S$E9...'
+WHERE uid = 1;
+
+-- also clear any flood entries that might block the next login
+DELETE FROM flood WHERE event IN ('user.failed_login_ip', 'user.failed_login_user');</code></pre><p>De <code>flood</code>-delete is belangrijk. De flood control van Drupal sluit je vrolijk een uur uit je eigen adminlogin als de brute-force burst ook de loginform raakte, wat op deze site niet was gebeurd, maar in ruwweg de helft van de incidenten die we zien wel. Ruim hem preventief op.</p><p>Admin binnen, wachtwoord via de UI geroteerd naar een passphrase die de lead van het bureau ook daadwerkelijk in 1Password had staan, en om 00:34 was de site weer bruikbaar. Drieënvijftig minuten na de Loom.</p><h2>00:34, de fail2ban-regel die we achterlieten</h2><p>Het resterende halfuur was het deel dat ertoe deed. De brute-force zou de volgende nacht terugkomen tegen een andere username, en de PAM-tally van de host zou ook die user buitensluiten. We wilden de IP's op de firewall blokkeren voordat ze de authstack van sshd ooit zouden bereiken.</p><p>De host had fail2ban geïnstalleerd, maar de SSH-jail stond uit, een default die we nog steeds zien op een verrassend aantal managed VPS-opstellingen. We zetten hem aan met een iets striktere filter dan de meegeleverde standaard, omdat de standaard <code>sshd</code>-filter in oudere fail2ban-builds een aantal logregels mist die nieuwere <a href="https://www.openssh.com/releasenotes.html">OpenSSH</a>-versies uitspugen.</p><pre><code class="lang-ini"># /etc/fail2ban/jail.d/sshd-strict.local
+[sshd]
+enabled  = true
+port     = ssh
+filter   = sshd
+backend  = systemd
+maxretry = 4
+findtime = 10m
+bantime  = 24h
+ignoreip = 127.0.0.1/8 ::1 <office-egress-ip>/32</code></pre><p>Vier failures in tien minuten, een dag lang gebanned. De <code>ignoreip</code>-regel is de regel die mensen vergeten; zonder die regel sluit een vermoeide admin die op kantoor drie keer naast zijn key tikt het hele kantoor buiten. Wij voegen altijd het egress-IP van het kantoor en eventuele monitoring-probes toe voordat we de jail aanzetten.</p><p>We testten de ban door een wegwerp-VPS met drie verkeerde wachtwoorden op de server af te vuren en keken vervolgens naar de iptables chain:</p><pre><code class="lang-bash">sudo fail2ban-client status sshd
+sudo iptables -L f2b-sshd -n --line-numbers</code></pre><p>Het IP van de wegwerp-VPS verscheen bij de vierde poging in de chain. We deden een reload, het bureau bevestigde dat ze nog steeds vanuit kantoor konden SSH'en, en om 01:11 sloten we het incident.</p><aside class="callout">Als de site een CDN of reverse proxy gebruikt, bant fail2ban het IP van de proxy, niet dat van de aanvaller. Op SSH is dat zelden het geval, maar als je sshd achter iets zet (sommige panelen doen dat, voor audit logging), wijs fail2ban dan op het forwarded log van de proxy en niet op dat van sshd, anders ban je jezelf binnen een week buiten je eigen server.</aside><h2>Wat we de volgende ochtend hebben aangepast</h2><p>De post-mortem liep om 09:00 de volgende dag, en er kwamen drie dingen uit. Het eerste was structureel: deze <a href="/">legacy site</a> had één SFTP-user en één adminuser, wat één failure verwijderd is van een totale lockout per nacht. Het bureau voegde een tweede SFTP-user toe, key-only, voor break-glass, en bewaarde de key in 1Password achter een sealed-envelope-policy. Het tweede was de fail2ban-jail, die we die middag uitrolden op de andere elf gehoste sites van het bureau. Het derde was een wekelijkse drush <code>user:password</code>-dry-run via cron die bevestigt dat de adminrow intact is, <code>drush sql:query "SELECT uid, name, status FROM users_field_data WHERE uid = 1"</code> draait, en de lead van het bureau mailt als de row verdwijnt of de status omklapt naar 0.</p><p>Niets hiervan is nieuw. De reden dat het 90 minuten kostte in plaats van 20, is dat de twee failures met elkaar verstrengeld waren: de kapotte <code>settings.local.php</code> liet het werk in het auth log op de verkeerde manier urgent voelen, en de symlink-quirk van het paneel maakte van een delete van één regel een speurtocht van een kwartier. Het meeste van de tijd die we die nacht kwijt waren, ging op aan navigatie, niet aan fixes.</p><p>Toen we Pier bouwden, liepen we precies hier tegenaan: bureaus moeten bestanden bewerken op een dichtgetimmerde bak, vaak via een paneel waarvan de file manager het niet doet, en ze willen een <a href="/#features">version history</a> van elke wijziging, omdat middernachtelijke edits in de ochtend weer worden teruggedraaid. Wat wij uiteindelijk deden, was lokaal een mirror van de SFTP-tree bijhouden en elke write versioneren, zodat een half geschreven <code>settings.local.php</code> met één klik terug te draaien is, in plaats van een database-round-trip te kosten.</p><p>Heb je een Drupal- of WordPress-site met één admin en één SFTP-user, voeg vanavond nog die tweede SFTP-key toe. Het is een taak van vijf minuten en het scheelt tussen een herstel van 20 minuten en een van 90.</p>
+    </div>
+
+    <aside class="pullquote">Twee SFTP-keys in handen van twee mensen maken van een herstel van 90 minuten om middernacht er een van 20. Voeg de tweede key toe voordat je hem nodig hebt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Sluit fail2ban me buiten als ik mijn SSH-keypassphrase verkeerd typ?</p>
+      <p class="faq-a">Nee. fail2ban kijkt naar authenticatiefouten in sshd, niet naar lokale prompts van je key-agent. Een verkeerde passphrase aan jouw kant bereikt de server nooit, dus die kan ook niet meetellen voor de bandrempel.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is de Drupal-users-tabel direct bewerken veilig?</p>
+      <p class="faq-a">Voor de wachtwoordhash op uid 1 wel, zolang je de hash genereert met core/scripts/password-hash.sh, zodat het formaat klopt. Schrijf hashes niet met de hand uit en kopieer ze niet van een andere site.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom de flood-tabel leegmaken tijdens herstel?</p>
+      <p class="faq-a">De flood control van Drupal kan de adminlogin een uur lang dichtgooien na een serie mislukte pogingen. Door de relevante rows op te ruimen voorkom je dat een vers, correct wachtwoord als rate-limited wordt afgewezen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg" alt="Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Drupal 7 achter Cloudflare: admin en image styles intact</h3>
+      <span class="pc-lede">Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/chmod-777-permissions-recovery/hero.jpg" alt="Stilleven van boven op linnen: Unix-rechten spiekbriefje, PHP-FPM foutenlog, manila map wp-content, koperen CHMOD-plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>chmod -R 777 herstel: rechten terugzetten op een legacy site</h3>
+      <span class="pc-lede">Een chmod -R 777 in paniek voelde om 23:41 als de snelste oplossing. Twaalf minuten later weigerde PHP-FPM elk script en gaf de loginpagina 500s.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/drupal-sftp-lockout-recovery/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
