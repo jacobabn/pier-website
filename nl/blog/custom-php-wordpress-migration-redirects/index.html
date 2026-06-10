@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="migration, wordpress, php, htaccess, mysql, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/custom-php-wordpress-migration-redirects/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/custom-php-wordpress-migration-redirects/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk">
+<meta property="og:description" content="Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T02:32:02.566Z">
+<meta property="article:modified_time" content="2026-06-10T02:32:02.566Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk">
+<meta name="twitter:description" content="Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/custom-php-wordpress-migration-redirects/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/"},
+  "url":"https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/",
+  "headline":"600 PHP-pagina's naar WordPress migreren zonder linkbreuk",
+  "description":"Een Nederlands bureau verhuisde 612 URL's custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel."
+  },
+  "datePublished":"2026-06-10T02:32:02.566Z",
+  "dateModified":"2026-06-10T02:32:02.566Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"migration, wordpress, php, htaccess, mysql, workflow",
+  "wordCount":1630,
+  "articleSection":"Migration",
+  "articleBody":"De briefing kwam binnen in een gedeeld Notion-document op een dinsdagmiddag. Een bureau van 22 mensen waar we mee werken had de verouderde site van een meubelfabrikant overgenomen. 612 URL's custom PHP uit 2014, draaiend op PHP 7.4, gehost op één Strato VPS, met een codebase uit het mysql_real_escape_string() -tijdperk die de deprecation cliff van PHP 8.2 niet zou overleven. De klant wilde WordPress. Het non-negotiable: er mocht geen enkele inkomende link breken. Dat klinkt simpel tot je naar de linkgrafiek kijkt. Twaalf jaar aan organische backlinks. Vakbladen die naar productpagina's linken op SKU. Vergelijkingssites van retailers die diep linken naar categoriefilters. Veertien PDF-datasheets op /pdf/datasheet-*.pdf , waarvan er twee opdoken in branche-rapporten die het salesteam van de fabrikant elk kwartaal nog naar inkoopcontacten mailde. Een 404 op een van die URL's zou niet alleen de SEO raken. Die zou als klacht in iemands inbox landen. Hieronder de aanpak die het bureau heeft gevolgd. Vijf weken, nul kapotte URL's bij cutover, en een handvol fouten die het opschrijven waard zijn. De hele klus is een tekstboek-PHP-naar-WordPress-migratie, maar de waarde zit in de kleine beslissingen die vóór de eerste WordPress-plugin werden genomen. Elke URL in kaart brengen voordat je iets nieuws bouwt De eerste klus is niet bouwen. Het is precies weten wat je hebt. Het CMS vertelde ons dat er 612 gepubliceerde pagina's waren. De realiteit, nadat we twaalf maanden aan Apache access logs hadden opgehaald, lag dichter bij 700 URL's die echt menselijk verkeer kregen. We begonnen met een recursieve crawl en kruisten die met de logs: wget --spider --recursive --no-parent \\ --domains=furniture-example.com \\ -o crawl.log https://furniture-example.com # Then pull every URL ever hit in the last 12 months awk '{print $7}' /var/log/apache2/access.log* \\ | sort | uniq -c | sort -rn > url-canon.txt De crawl gaf 612 terug. De logs leverden er 47 extra op. De meeste van die 47 waren oude campagne-landingspagina's die het CMS stilletjes had verweesd, maar die Google nog wel indexeerde. Acht waren querystring-varianten die echte semantische lading droegen, zoals /products.php?cat=12&item=144 , die een brochureachtige PHP-site uit 2017 als echte product-URL had behandeld. We dumpten de union in een spreadsheet met drie kolommen: URL , hits over 12 maanden , intent . De intent-kolom was het echte werk. Voor elke rij beslis je: voortleven met een nieuwe slug, redirecten naar de dichtstbijzijnde match, of stilletjes met pensioen. Die stap valt niet te automatiseren. De bureaulead besteedde er twee dagen aan. Die twee dagen scheelden ze drie weken verderop. De nieuwe permalinkstructuur ontwerpen WordPress staat standaard op /%postname%/ en daar zijn we ook geland. De oude site gebruikte overal PHP-bestandsextensies: /products/oak-dining-table.php , /about-us.php , /pdf/datasheet-oak.pdf . De .php er onderweg via Apache afhalen is de voor de hand liggende zet, maar voor de PDF's gold een andere beslissing. De vakbladen hadden direct naar /pdf/datasheet-oak.pdf gelinkt. WordPress zou die bestanden van nature in /wp-content/uploads/2026/06/ willen hebben. Die verhuizing zou elke link in elk artikel vanaf 2017 ongeldig hebben gemaakt. Dus we hielden het legacy-pad aan. De PDF's staan op schijf in /wp-content/uploads/legacy/datasheet-oak.pdf , en een Apache-rewrite vangt het oude pad af en serveert ze ter plekke. Geen 301, geen client-side blink, gewoon een transparante map. Van de 659 URL's op de canon-lijst zag de verdeling er zo uit: 547 werden WordPress-posts of custom post types met een één-op-één-slug 51 werden samengevoegd tot een kleinere set nieuwe pagina's, met de oude URL's die er via 301 binnenkwamen 14 waren de PDF's, behouden op het oorspronkelijke pad 47 zombie-URL's werden ge-301'd naar het dichtstbijzijnde levende equivalent De .htaccess-laag die alles bij elkaar houdt De volledige redirect map staat in één enkele .htaccess op de document root. Volgorde doet ertoe. Legacy-regels moeten vóór het WordPress-blok komen, anders slokt de catch-all van WordPress alles op. De Apache mod_rewrite-documentatie is de canonieke referentie, maar de vorm is voorspelbaar. # Legacy redirects. MUST come before the WordPress block. RewriteEngine On # Query-string product URLs: /products.php?cat=12&item=144 RewriteCond %{QUERY_STRING} ^cat=12&item=144$ RewriteRule ^products\\.php$ /products/oak-dining-table/? [R=301,L] RewriteCond %{QUERY_STRING} ^cat=12&item=145$ RewriteRule ^products\\.php$ /products/oak-bench/? [R=301,L] # Legacy PDFs: served in place from a frozen directory RewriteRule ^pdf/datasheet-(.+)\\.pdf$ \\ /wp-content/uploads/legacy/datasheet-$1.pdf [L] # Specific .php pages RewriteRule ^about-us\\.php$ /about/ [R=301,L] RewriteRule ^contact\\.php$ /contact/ [R=301,L] # Generic .php fall-through RewriteRule ^(.+)\\.php$ /$1/ [R=301,L] # WordPress RewriteRule ^index\\.php$ - [L] RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FIL",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"600 PHP-pagina's naar WordPress migreren zonder linkbreuk","item":"https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt een migratie van 600 pagina's custom PHP naar WordPress?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vijf weken voor het team hierboven beschreven. Twee daarvan gingen op aan URL-mapping en het opschonen van content voordat er een nieuwe WordPress-installatie werd aangeraakt. Sla die fase over en je betaalt er bij cutover voor."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik de oude .php-URL's voor altijd in leven houden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, zolang inkomende links er nog naar wijzen. Een 301 van het oude pad naar het nieuwe is permanent in die zin dat crawlers, bookmarks en emailtemplates die nog jaren zullen volgen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik een redirect-plugin gebruiken in plaats van .htaccess?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Plugins zijn handig voor doorlopend onderhoud. De initiële migratie hoort in .htaccess, omdat die draait voordat WordPress opstart, sneller is, en het deactiveren van plugins of een themewissel overleeft."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/custom-php-wordpress-migration-redirects/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 078</span>
+      </div>
+      <p class="eyebrow"><span class="n">078 —</span>Migration</p>
+      <h1 class="display-l post-title">600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk</h1>
+      <p class="lede post-lede">Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T02:32:02.566Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/custom-php-wordpress-migration-redirects/hero.webp" type="image/webp">
+      <img src="/blog/custom-php-wordpress-migration-redirects/hero.jpg" alt="Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 078</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De briefing kwam binnen in een gedeeld Notion-document op een dinsdagmiddag. Een bureau van 22 mensen waar we mee werken had de <a href="/">verouderde site</a> van een meubelfabrikant overgenomen. 612 URL's custom PHP uit 2014, draaiend op PHP 7.4, gehost op één Strato VPS, met een codebase uit het <code>mysql_real_escape_string()</code>-tijdperk die <a href="https://www.php.net/supported-versions.php">de deprecation cliff van PHP 8.2</a> niet zou overleven. De klant wilde WordPress. Het non-negotiable: er mocht geen enkele inkomende link breken.</p>
+
+<p>Dat klinkt simpel tot je naar de linkgrafiek kijkt. Twaalf jaar aan organische backlinks. Vakbladen die naar productpagina's linken op SKU. Vergelijkingssites van retailers die diep linken naar categoriefilters. Veertien PDF-datasheets op <code>/pdf/datasheet-*.pdf</code>, waarvan er twee opdoken in branche-rapporten die het salesteam van de fabrikant elk kwartaal nog naar inkoopcontacten mailde. Een 404 op een van die URL's zou niet alleen de SEO raken. Die zou als klacht in iemands inbox landen.</p>
+
+<p>Hieronder de aanpak die het bureau heeft gevolgd. Vijf weken, nul kapotte URL's bij cutover, en een handvol fouten die het opschrijven waard zijn. De hele klus is een tekstboek-PHP-naar-WordPress-migratie, maar de waarde zit in de kleine beslissingen die vóór de eerste WordPress-plugin werden genomen.</p>
+
+<h2>Elke URL in kaart brengen voordat je iets nieuws bouwt</h2>
+
+<p>De eerste klus is niet bouwen. Het is precies weten wat je hebt. Het CMS vertelde ons dat er 612 gepubliceerde pagina's waren. De realiteit, nadat we twaalf maanden aan Apache access logs hadden opgehaald, lag dichter bij 700 URL's die echt menselijk verkeer kregen.</p>
+
+<p>We begonnen met een recursieve crawl en kruisten die met de logs:</p>
+
+<pre><code class="lang-bash">wget --spider --recursive --no-parent \
+  --domains=furniture-example.com \
+  -o crawl.log https://furniture-example.com
+
+# Then pull every URL ever hit in the last 12 months
+awk '{print $7}' /var/log/apache2/access.log* \
+  | sort | uniq -c | sort -rn &gt; url-canon.txt
+</code></pre>
+
+<p>De crawl gaf 612 terug. De logs leverden er 47 extra op. De meeste van die 47 waren oude campagne-landingspagina's die het CMS stilletjes had verweesd, maar die Google nog wel indexeerde. Acht waren querystring-varianten die echte semantische lading droegen, zoals <code>/products.php?cat=12&amp;item=144</code>, die een brochureachtige PHP-site uit 2017 als echte product-URL had behandeld.</p>
+
+<p>We dumpten de union in een spreadsheet met drie kolommen: <em>URL</em>, <em>hits over 12 maanden</em>, <em>intent</em>. De intent-kolom was het echte werk. Voor elke rij beslis je: voortleven met een nieuwe slug, redirecten naar de dichtstbijzijnde match, of stilletjes met pensioen. Die stap valt niet te automatiseren. De bureaulead besteedde er twee dagen aan. Die twee dagen scheelden ze drie weken verderop.</p>
+
+<h2>De nieuwe permalinkstructuur ontwerpen</h2>
+
+<p>WordPress staat standaard op <code>/%postname%/</code> en daar zijn we ook geland. De oude site gebruikte overal PHP-bestandsextensies: <code>/products/oak-dining-table.php</code>, <code>/about-us.php</code>, <code>/pdf/datasheet-oak.pdf</code>. De <code>.php</code> er onderweg via Apache afhalen is de voor de hand liggende zet, maar voor de PDF's gold een andere beslissing.</p>
+
+<p>De vakbladen hadden direct naar <code>/pdf/datasheet-oak.pdf</code> gelinkt. WordPress zou die bestanden van nature in <code>/wp-content/uploads/2026/06/</code> willen hebben. Die verhuizing zou elke link in elk artikel vanaf 2017 ongeldig hebben gemaakt. Dus we hielden het legacy-pad aan. De PDF's staan op schijf in <code>/wp-content/uploads/legacy/datasheet-oak.pdf</code>, en een Apache-rewrite vangt het oude pad af en serveert ze ter plekke. Geen 301, geen client-side blink, gewoon een transparante map.</p>
+
+<p>Van de 659 URL's op de canon-lijst zag de verdeling er zo uit:</p>
+
+<ul>
+  <li>547 werden WordPress-posts of custom post types met een één-op-één-slug</li>
+  <li>51 werden samengevoegd tot een kleinere set nieuwe pagina's, met de oude URL's die er via 301 binnenkwamen</li>
+  <li>14 waren de PDF's, behouden op het oorspronkelijke pad</li>
+  <li>47 zombie-URL's werden ge-301'd naar het dichtstbijzijnde levende equivalent</li>
+</ul>
+
+<h2>De .htaccess-laag die alles bij elkaar houdt</h2>
+
+<p>De volledige redirect map staat in één enkele <code>.htaccess</code> op de document root. Volgorde doet ertoe. Legacy-regels moeten vóór het WordPress-blok komen, anders slokt de catch-all van WordPress alles op. De <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">Apache mod_rewrite-documentatie</a> is de canonieke referentie, maar de vorm is voorspelbaar.</p>
+
+<pre><code class="lang-apache"># Legacy redirects. MUST come before the WordPress block.
+RewriteEngine On
+
+# Query-string product URLs: /products.php?cat=12&amp;item=144
+RewriteCond %{QUERY_STRING} ^cat=12&amp;item=144$
+RewriteRule ^products\.php$ /products/oak-dining-table/? [R=301,L]
+
+RewriteCond %{QUERY_STRING} ^cat=12&amp;item=145$
+RewriteRule ^products\.php$ /products/oak-bench/? [R=301,L]
+
+# Legacy PDFs: served in place from a frozen directory
+RewriteRule ^pdf/datasheet-(.+)\.pdf$ \
+  /wp-content/uploads/legacy/datasheet-$1.pdf [L]
+
+# Specific .php pages
+RewriteRule ^about-us\.php$    /about/      [R=301,L]
+RewriteRule ^contact\.php$     /contact/    [R=301,L]
+
+# Generic .php fall-through
+RewriteRule ^(.+)\.php$ /$1/ [R=301,L]
+
+# WordPress
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</code></pre>
+
+<aside class="callout">De afsluitende <code>?</code> op elk <code>RewriteRule</code>-target is geen decoratie. Zonder die <code>?</code> plakt Apache de oorspronkelijke querystring achter de nieuwe URL. De redirect voor <code>/products.php?cat=12&amp;item=144</code> zou dan landen op <code>/products/oak-dining-table/?cat=12&amp;item=144</code>, wat WordPress vrolijk rendert, maar wat je canonical URL's maandenlang fragmenteert in Search Console.</aside>
+
+<p>De 51 individuele product-redirects stonden in een gegenereerd blok van het bestand, geschreven door een klein Node-script dat de redirect-kolom van de spreadsheet inlas. Het is het soort bestand dat je op schaal niet handmatig bewerkt. We versioneerden de generator, niet de output. Toen een stakeholder twee weken na cutover een redirect-doel wilde wijzigen, was de aanpassing één rij in de spreadsheet en één keer regenereren.</p>
+
+<h2>Content overzetten uit de custom MySQL-tabellen</h2>
+
+<p>De oude site bewaarde alles in drie tabellen: <code>products</code>, <code>categories</code>, <code>news</code>. De bodies waren HTML met inline styles, een decennium aan opgestapelde markup. Die in <code>wp_posts</code> trekken vergde zorg, niet omdat de import technisch lastig was, maar omdat de import het moment is om de rommel weg te gooien.</p>
+
+<p>We gebruikten <code>wp-load.php</code> zodat WordPress' eigen hooks afgingen tijdens insert. Term-toewijzingen, slug-uniciteit, ACF-veldsaves, het werkt allemaal als je via <code>wp_insert_post()</code> gaat in plaats van directe INSERT-statements te schrijven. De <a href="https://developer.wordpress.org/reference/functions/wp_insert_post/">WordPress-referentie voor wp_insert_post</a> beschrijft het contract.</p>
+
+<pre><code class="lang-php">&lt;?php
+require_once '/var/www/wordpress/wp-load.php';
+
+$old = new mysqli($host, $user, $pass, 'legacy_furniture');
+$old-&gt;set_charset('utf8mb4');
+
+$result = $old-&gt;query(
+  "SELECT id, name, slug, body, category_id, created_at
+   FROM products
+   ORDER BY id"
+);
+
+while ($row = $result-&gt;fetch_assoc()) {
+    $clean_body = sanitize_legacy_html($row['body']);
+
+    $post_id = wp_insert_post([
+        'post_title'   =&gt; $row['name'],
+        'post_name'    =&gt; $row['slug'],
+        'post_content' =&gt; $clean_body,
+        'post_status'  =&gt; 'publish',
+        'post_type'    =&gt; 'product',
+        'post_date'    =&gt; $row['created_at'],
+        'meta_input'   =&gt; [
+            'legacy_id'          =&gt; $row['id'],
+            'legacy_category_id' =&gt; $row['category_id'],
+        ],
+    ]);
+
+    if (is_wp_error($post_id)) {
+        fwrite(STDERR, "FAIL {$row['id']}: "
+            . $post_id-&gt;get_error_message() . "\n");
+        continue;
+    }
+    echo "imported {$row['id']} -&gt; {$post_id}\n";
+}
+</code></pre>
+
+<p>Drie details die het waard zijn er even uit te lichten. Het <code>post_date</code>-veld krijgt de oorspronkelijke timestamp, waardoor de jaararchieven blijven kloppen. De <code>legacy_id</code>-meta laat je later redirects rijmen zonder te gokken. En <code>sanitize_legacy_html()</code> was een functie van 60 regels die inline styles stripte, image-paden van <code>/img/products/</code> naar de nieuwe media library normaliseerde, en de body door HTML Tidy haalde. De <a href="https://owasp.org/www-community/attacks/xss/">OWASP-richtlijn over cross-site scripting</a> is het herlezen waard voordat je een decennium aan untrusted HTML in een nieuwe database kopieert.</p>
+
+<h2>De rewrite map testen tegen de canon</h2>
+
+<p>Voordat hier iets in de buurt van productie kwam, moesten we weten of de redirect map daadwerkelijk deed wat de spreadsheet beweerde. We bouwden een staging-kopie van de nieuwe WordPress-installatie op een subdomein, zetten daar de voorgestelde <code>.htaccess</code> in, en draaiden een kleine loop die elke URL uit de canon raakte en het resultaat noteerde.</p>
+
+<pre><code class="lang-bash">while IFS= read -r url; do
+  status=$(curl -s -o /dev/null \
+    -w "%{http_code} %{redirect_url}" \
+    "https://staging.furniture-example.com${url}")
+  echo "${url} -&gt; ${status}"
+done &lt; url-canon.txt &gt; redirect-results.txt
+</code></pre>
+
+<p>Het resultaatbestand gaf ons de waarheid. Elke 404 was een ontbrekende regel. Elke 200 op een oude URL betekende dat een rewrite die een 301 had moeten zijn werd opgeslokt door WordPress. Elke 301 die wees naar een URL die niet in de nieuwe sitemap stond, betekende dat we de bestemming verkeerd hadden getypt. We draaiden deze loop zeven keer over drie dagen. De zevende ronde kwam terug met nul 404's, nul onverwachte 200's, en 612 schone 301's.</p>
+
+<h2>Cutover en de dingen die alsnog braken</h2>
+
+<p>DNS schakelde op een woensdag om 06:00 lokale tijd. De bureaulead zat met een terminal open op de Apache-log van de nieuwe server, en een tweede venster dat de oude server tailde, die we 72 uur warm hielden achter een andere hostname voor het geval rollback nodig zou zijn. Dat was niet nodig.</p>
+
+<p>Binnen vier uur kwamen in de nieuwe log 32 unieke 404's naar boven die de URL-canon had gemist. Ze vielen in drie groepen.</p>
+
+<p>Een vendor-emailtemplate, die nog steeds maandelijks naar groothandelsklanten werd verstuurd, hotlinkte <code>/img/hero-2018.jpg</code>. We dropten een kopie van het beeld op het oude pad en gingen verder. Drie retailerportalen polden <code>/api/products.php?format=json</code> voor voorraad. Het bureau schreef een PHP-shim van 40 regels die op het legacy-pad leefde en dezelfde vorm terugkaatste, met een WP REST-query eronder. Twee PDF's waarvan we dachten dat ze met pensioen waren, bleken gelinkt vanuit een industrie-whitepaper die Google in 2019 had geïndexeerd. We zetten ze binnen een uur terug op het legacy-pad.</p>
+
+<p>Het coverage-rapport in Search Console wiebelde acht dagen, daarna stabiliseerde het. Op dag elf zat het aantal geïndexeerde pagina's binnen drie van het pre-migratiegetal, en doken de nieuwe URL's op in queries waarop de oude slugs eerder hadden gerankt. Dat deel is grotendeels Google die bijhaalt. Versnellen kun je niet kopen.</p>
+
+<h2>Wat we hiervan voor ons eigen werk hebben meegenomen</h2>
+
+<p>Toen we Pier bouwden liepen we precies dit patroon meer dan eens tegen het lijf: een klant wil de URL-structuur van een <a href="/">verouderde site</a> refactoren maar kan zich geen enkele dode link veroorloven. De manier waarop we het uiteindelijk hebben opgelost: elke <code>.htaccess</code>-aanpassing terugdraaibaar maken vanuit de <a href="/#features">version history</a>, en de <a href="/#database">MySQL editor</a> een manier geven om een redirect map te testen tegen een lijst geplakte URL's voordat er iets live gaat.</p>
+
+<h2>De kleinste versie hiervan die je vandaag kunt doen</h2>
+
+<p>Als er ergens op je roadmap een PHP-naar-WordPress-migratie staat, doe dan vanmiddag één ding. Trek de access logs van de afgelopen twaalf maanden uit je huidige hosting en draai dit:</p>
+
+<pre><code class="lang-bash">awk '{print $7}' access.log* \
+  | sort | uniq -c | sort -rn | head -200
+</code></pre>
+
+<p>De lijst die terugkomt is de URL-canon die je moet behouden. De rest is decoratie.</p>
+    </div>
+
+    <aside class="pullquote">Een PHP-naar-WordPress-migratie van 600 pagina&#39;s staat of valt met de URL-canon die je opbouwt voordat de nieuwe installatie bestaat. Trek eerst twaalf maanden access logs.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt een migratie van 600 pagina&#39;s custom PHP naar WordPress?</p>
+      <p class="faq-a">Vijf weken voor het team hierboven beschreven. Twee daarvan gingen op aan URL-mapping en het opschonen van content voordat er een nieuwe WordPress-installatie werd aangeraakt. Sla die fase over en je betaalt er bij cutover voor.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik de oude .php-URL&#39;s voor altijd in leven houden?</p>
+      <p class="faq-a">Ja, zolang inkomende links er nog naar wijzen. Een 301 van het oude pad naar het nieuwe is permanent in die zin dat crawlers, bookmarks en emailtemplates die nog jaren zullen volgen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik een redirect-plugin gebruiken in plaats van .htaccess?</p>
+      <p class="faq-a">Plugins zijn handig voor doorlopend onderhoud. De initiële migratie hoort in .htaccess, omdat die draait voordat WordPress opstart, sneller is, en het deactiveren van plugins of een themewissel overleeft.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/php-56-to-82-weekend-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-56-to-82-weekend-migration/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-56-to-82-weekend-migration/hero.jpg" alt="Plat gelegd papieren register PHP 5.6 naar 8.2, gestencilde uitdraaien met rode strepen, koperen presse-papier op eiken." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>PHP 5.6 naar 8.2 in één weekend: de realistische versie</h3>
+      <span class="pc-lede">De Loom kwam binnen om 23:41 op vrijdagavond. 48 uur om een 14 jaar oude PHP-codebase van 5.6 naar 8.2 te krijgen. Dit is de volgorde waarin het brak.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/custom-php-wordpress-migration-redirects/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
