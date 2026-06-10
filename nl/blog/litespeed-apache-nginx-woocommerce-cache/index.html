@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken · Pier — Blog</title>
+<meta name="description" content="Eén WooCommerce-shop van zes jaar oud, 14k producten, één VPS. We wisselden drie keer van reverse cache en keken wat de TTFB daadwerkelijk verschoof.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, operations, tooling, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/litespeed-apache-nginx-woocommerce-cache/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/litespeed-apache-nginx-woocommerce-cache/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken">
+<meta property="og:description" content="Eén WooCommerce-shop van zes jaar oud, 14k producten, één VPS. We wisselden drie keer van reverse cache en keken wat de TTFB daadwerkelijk verschoof.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Stilleven op beige linnen: gestapelde benchmarkkaarten, vhost-print, ruitjespapier, messing CACHE-plaat, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T20:58:56.601Z">
+<meta property="article:modified_time" content="2026-06-10T20:58:56.601Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken">
+<meta name="twitter:description" content="Eén WooCommerce-shop van zes jaar oud, 14k producten, één VPS. We wisselden drie keer van reverse cache en keken wat de TTFB daadwerkelijk verschoof.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/hero.jpg">
+<meta name="twitter:image:alt" content="Stilleven op beige linnen: gestapelde benchmarkkaarten, vhost-print, ruitjespapier, messing CACHE-plaat, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/litespeed-apache-nginx-woocommerce-cache/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/"},
+  "url":"https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/",
+  "headline":"LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken",
+  "description":"Eén WooCommerce-shop van zes jaar oud, 14k producten, één VPS. We wisselden drie keer van reverse cache en keken wat de TTFB daadwerkelijk verschoof.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Stilleven op beige linnen: gestapelde benchmarkkaarten, vhost-print, ruitjespapier, messing CACHE-plaat, rode lakzegel."
+  },
+  "datePublished":"2026-06-10T20:58:56.601Z",
+  "dateModified":"2026-06-10T20:58:56.601Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, operations, tooling, architecture",
+  "wordCount":1547,
+  "articleSection":"Operations",
+  "articleBody":"De shop is van een Nederlands bureau waar we mee samenwerken: een zes jaar oude WooCommerce-shop op een Hetzner-bak met 4 vCPU, 14.000 producten, een admin-paneel dat negen seconden nodig heeft om /wp-admin/edit.php?post_type=product te openen, en aanstaande vrijdagavond een uitverkoop. De eigenaar wil niet migreren naar Shopify. Hij wil dat de cart minder aanvoelt als nat karton. We hadden een vrije middag en root op de bak, dus deden we het voor de hand liggende experiment: dezelfde site, dezelfde database, dezelfde plugins, drie reverse caches. LiteSpeed Enterprise met LSCache, Apache 2.4 met mod_cache_disk voor PHP-FPM, en Nginx met de FastCGI cache. Alle drie kregen ze dezelfde warm-up: wget --mirror over de top 200 product-URL's uit de laatste 30 dagen GA, daarna tien minuten wrk op concurrency 50. Dit is wat we zagen, wat ons verbaasde, en de configs die de cijfers opleverden. Als jij een legacy site draait zoals deze en je moet in 2026 beslissen wat je voor PHP-FPM zet, dan is het antwoord minder voor de hand liggend dan de LiteSpeed-marketing suggereert, maar ook minder vanzelfsprekend dan de \"gewoon Nginx\"-consensus op Reddit. De shop en de baseline WooCommerce 8.4, WordPress 6.5, PHP 8.2-fpm, MariaDB 10.11, Redis voor object cache, geen CDN ervoor (bewust, omdat het bureau de origin eerlijk wilde meten). Het thema is een zwaar aangepaste Flatsome. Er zijn 41 actieve plugins. Yoast, WPML, een custom verzendcalculator, een B2B-prijzenplugin, en de gebruikelijke verzameling \"dit was urgent in 2021\"-resten die nooit zijn opgeruimd. Koude TTFB op de homepage zonder reverse cache, alleen PHP-FPM achter Apache: 1.840 ms . Koude TTFB op een productpagina: 2.210 ms . Onder wrk -t4 -c50 -d60s bleef de bak hangen op 7,2 req/s en klom de load average naar 18 voordat PHP-FPM 502'jes ging gooien. Dit is de baseline. Alles hieronder wordt daartegen afgemeten. LiteSpeed Enterprise + LSCache LiteSpeed Enterprise kost ongeveer $26 per maand voor een 4-CPU VPS-licentie. Het bureau betaalde daar al voor. LSCache is een plugin die in de wp-content-map leeft en met de LiteSpeed-server praat via een privé cache-API, waardoor purges plaatsvinden bij post save, bij order completion en bij cart change. Dat laatste is belangrijk voor WooCommerce: een naïeve page cache serveert een verouderde mini-cart, waardoor klanten gaan refreshen en refreshen en uiteindelijk afhaken. Het relevante blok in .htaccess nadat je LSCache hebt aangezet: <IfModule LiteSpeed> CacheLookup on RewriteEngine On RewriteRule .* - [E=Cache-Control:no-cache,L] [E=cache-control:no-cache] RewriteCond %{REQUEST_URI} !^/(wp-admin|wp-login|cart|checkout|my-account) RewriteCond %{HTTP_COOKIE} !(wp-postpass|wordpress_logged_in|woocommerce_items_in_cart) [NC] RewriteRule .* - [E=Cache-Control:max-age=300] </IfModule> Warme TTFB op de homepage: 71 ms . Warme TTFB op een productpagina: 88 ms . Onder dezelfde wrk -run: 4.910 req/s, load average 1,1. De cart bleef correct updaten omdat LSCache vary-keyed op de cart-hash cookie, precies het deel dat je bij nginx_fastcgi_cache zelf met de hand moet bouwen. Het nadeel is wat je zou verwachten: het is een gesloten, betaald product, de cache-map heeft eigen rechten-eigenaardigheden (hij staat onder /usr/local/lsws/cachedata/ , niet in je site-root, wat het debuggen van permissies de eerste keer verwarrend maakt), en zodra je naar een host gaat die geen LiteSpeed-licentie meelevert, ben je alles opnieuw aan het schrijven. Apache 2.4 + mod_cache_disk Het native Apache-verhaal is mod_cache_disk voor mod_proxy_fcgi. Het is de optie die je pakt als de hosting je Apache geeft en je geen tweede daemon aan het schema wilt toevoegen. CacheQuickHandler off CacheLock on CacheLockPath /tmp/mod_cache-lock CacheLockMaxAge 5 CacheRoot /var/cache/apache2/woo CacheEnable disk / CacheDirLevels 2 CacheDirLength 1 CacheIgnoreHeaders Set-Cookie CacheIgnoreNoLastMod On CacheDefaultExpire 300 CacheMaxExpire 600 <LocationMatch \"^/(cart|checkout|my-account|wp-admin|wp-login)\"> CacheDisable on </LocationMatch> Warme TTFB op de homepage: 148 ms . Productpagina: 171 ms . Onder wrk : 2.140 req/s, load average 3,4. De Apache-documentatie voor mod_cache is écht goed en het is de moeite waard om die één keer door te lezen voordat je iets gaat tunen. Het eerlijke probleem met deze configuratie is invalidatie. mod_cache_disk weet niet dat je net een post hebt gepubliceerd. We knoopten een klein WordPress mu-plugin in elkaar dat htcacheclean -p /var/cache/apache2/woo -t draait op save_post en woocommerce_update_product . Dat werkt, maar het is het soort lijmwerk waar je niet meer aan denkt totdat een klant belt over een prijs die niet bijgewerkt is. Er bestaat een CacheSocache -backend die shared memory gebruikt en sneller is bij hits, maar die overleeft een restart niet, en dat wilden we niet voor een uitverkoop op vrijdag. De Set-Cookie-val WooCommerce zet bij bijna elke ongecachede pageview een cookie ( woocommerce_cart_hash , de session cookie, de r",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken","item":"https://pier.abn.company/nl/blog/litespeed-apache-nginx-woocommerce-cache/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Werkt LSCache ook buiten LiteSpeed-servers?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De plugin praat met een privé cache-API in de LiteSpeed-server. Installeer hem op Apache of Nginx en de page-cache-features doen stilzwijgend niets, hoewel de object cache wel blijft werken."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom niet gewoon Cloudflare ervoor en de origin cache overslaan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Cloudflare helpt anonieme traffic, maar cachet geen ingelogde WooCommerce-sessions of admin-pagina's. Je hebt nog steeds een origin cache nodig, want het trage pad is precies waar je klanten over klagen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is mod_cache_disk veilig onder hoge schrijfbelasting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, mits CacheLock aanstaat en CacheLockPath naar een snel filesystem wijst. Onder zware purge-belasting kunnen de lock-bestanden zich opstapelen, dus draai htcacheclean op een cron of via een save_post-hook."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/litespeed-apache-nginx-woocommerce-cache/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 100</span>
+      </div>
+      <p class="eyebrow"><span class="n">100 —</span>Operations</p>
+      <h1 class="display-l post-title">LiteSpeed vs Apache vs Nginx: WooCommerce-cache vergeleken</h1>
+      <p class="lede post-lede">Eén WooCommerce-shop van zes jaar oud, 14k producten, één VPS. We wisselden drie keer van reverse cache en keken wat de TTFB daadwerkelijk verschoof.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T20:58:56.601Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/litespeed-apache-nginx-woocommerce-cache/hero.webp" type="image/webp">
+      <img src="/blog/litespeed-apache-nginx-woocommerce-cache/hero.jpg" alt="Stilleven op beige linnen: gestapelde benchmarkkaarten, vhost-print, ruitjespapier, messing CACHE-plaat, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 100</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De shop is van een Nederlands bureau waar we mee samenwerken: een zes jaar oude WooCommerce-shop op een Hetzner-bak met 4 vCPU, 14.000 producten, een admin-paneel dat negen seconden nodig heeft om <code>/wp-admin/edit.php?post_type=product</code> te openen, en aanstaande vrijdagavond een uitverkoop. De eigenaar wil niet migreren naar Shopify. Hij wil dat de cart minder aanvoelt als nat karton.</p><p>We hadden een vrije middag en root op de bak, dus deden we het voor de hand liggende experiment: dezelfde site, dezelfde database, dezelfde plugins, drie reverse caches. LiteSpeed Enterprise met LSCache, Apache 2.4 met mod_cache_disk voor PHP-FPM, en Nginx met de FastCGI cache. Alle drie kregen ze dezelfde warm-up: <code>wget --mirror</code> over de top 200 product-URL's uit de laatste 30 dagen GA, daarna tien minuten <code>wrk</code> op concurrency 50.</p><p>Dit is wat we zagen, wat ons verbaasde, en de configs die de cijfers opleverden. Als jij een <a href="/">legacy site</a> draait zoals deze en je moet in 2026 beslissen wat je voor PHP-FPM zet, dan is het antwoord minder voor de hand liggend dan de LiteSpeed-marketing suggereert, maar ook minder vanzelfsprekend dan de "gewoon Nginx"-consensus op Reddit.</p><h2>De shop en de baseline</h2><p>WooCommerce 8.4, WordPress 6.5, PHP 8.2-fpm, MariaDB 10.11, Redis voor object cache, geen CDN ervoor (bewust, omdat het bureau de origin eerlijk wilde meten). Het thema is een zwaar aangepaste Flatsome. Er zijn 41 actieve plugins. Yoast, WPML, een custom verzendcalculator, een B2B-prijzenplugin, en de gebruikelijke verzameling "dit was urgent in 2021"-resten die nooit zijn opgeruimd.</p><p>Koude TTFB op de homepage zonder reverse cache, alleen PHP-FPM achter Apache: <strong>1.840 ms</strong>. Koude TTFB op een productpagina: <strong>2.210 ms</strong>. Onder <code>wrk -t4 -c50 -d60s</code> bleef de bak hangen op 7,2 req/s en klom de load average naar 18 voordat PHP-FPM 502'jes ging gooien. Dit is de baseline. Alles hieronder wordt daartegen afgemeten.</p><h2>LiteSpeed Enterprise + LSCache</h2><p>LiteSpeed Enterprise kost ongeveer $26 per maand voor een 4-CPU VPS-licentie. Het bureau betaalde daar al voor. LSCache is een plugin die in de wp-content-map leeft en met de LiteSpeed-server praat via een privé cache-API, waardoor purges plaatsvinden bij post save, bij order completion en bij cart change. Dat laatste is belangrijk voor WooCommerce: een naïeve page cache serveert een verouderde mini-cart, waardoor klanten gaan refreshen en refreshen en uiteindelijk afhaken.</p><p>Het relevante blok in <code>.htaccess</code> nadat je LSCache hebt aangezet:</p><pre><code class="lang-apache">&lt;IfModule LiteSpeed&gt;
+  CacheLookup on
+  RewriteEngine On
+  RewriteRule .* - [E=Cache-Control:no-cache,L] [E=cache-control:no-cache]
+  RewriteCond %{REQUEST_URI} !^/(wp-admin|wp-login|cart|checkout|my-account)
+  RewriteCond %{HTTP_COOKIE} !(wp-postpass|wordpress_logged_in|woocommerce_items_in_cart) [NC]
+  RewriteRule .* - [E=Cache-Control:max-age=300]
+&lt;/IfModule&gt;</code></pre><p>Warme TTFB op de homepage: <strong>71 ms</strong>. Warme TTFB op een productpagina: <strong>88 ms</strong>. Onder dezelfde <code>wrk</code>-run: 4.910 req/s, load average 1,1. De cart bleef correct updaten omdat LSCache vary-keyed op de cart-hash cookie, precies het deel dat je bij nginx_fastcgi_cache zelf met de hand moet bouwen.</p><p>Het nadeel is wat je zou verwachten: het is een gesloten, betaald product, de cache-map heeft eigen rechten-eigenaardigheden (hij staat onder <code>/usr/local/lsws/cachedata/</code>, niet in je site-root, wat het debuggen van permissies de eerste keer verwarrend maakt), en zodra je naar een host gaat die geen LiteSpeed-licentie meelevert, ben je alles opnieuw aan het schrijven.</p><h2>Apache 2.4 + mod_cache_disk</h2><p>Het native Apache-verhaal is mod_cache_disk voor mod_proxy_fcgi. Het is de optie die je pakt als de hosting je Apache geeft en je geen tweede daemon aan het schema wilt toevoegen.</p><pre><code class="lang-apache">CacheQuickHandler off
+CacheLock on
+CacheLockPath /tmp/mod_cache-lock
+CacheLockMaxAge 5
+CacheRoot /var/cache/apache2/woo
+CacheEnable disk /
+CacheDirLevels 2
+CacheDirLength 1
+CacheIgnoreHeaders Set-Cookie
+CacheIgnoreNoLastMod On
+CacheDefaultExpire 300
+CacheMaxExpire 600
+
+&lt;LocationMatch "^/(cart|checkout|my-account|wp-admin|wp-login)"&gt;
+  CacheDisable on
+&lt;/LocationMatch&gt;</code></pre><p>Warme TTFB op de homepage: <strong>148 ms</strong>. Productpagina: <strong>171 ms</strong>. Onder <code>wrk</code>: 2.140 req/s, load average 3,4. De Apache-documentatie voor <a href="https://httpd.apache.org/docs/2.4/mod/mod_cache.html">mod_cache</a> is écht goed en het is de moeite waard om die één keer door te lezen voordat je iets gaat tunen.</p><p>Het eerlijke probleem met deze configuratie is invalidatie. mod_cache_disk weet niet dat je net een post hebt gepubliceerd. We knoopten een klein WordPress mu-plugin in elkaar dat <code>htcacheclean -p /var/cache/apache2/woo -t</code> draait op <code>save_post</code> en <code>woocommerce_update_product</code>. Dat werkt, maar het is het soort lijmwerk waar je niet meer aan denkt totdat een klant belt over een prijs die niet bijgewerkt is. Er bestaat een <code>CacheSocache</code>-backend die shared memory gebruikt en sneller is bij hits, maar die overleeft een restart niet, en dat wilden we niet voor een uitverkoop op vrijdag.</p><h3>De Set-Cookie-val</h3><p>WooCommerce zet bij bijna elke ongecachede pageview een cookie (<code>woocommerce_cart_hash</code>, de session cookie, de recently-viewed-products cookie). Apache weigert standaard om een response te cachen die een <code>Set-Cookie</code>-header bevat, waardoor je cache hit rate op nul blijft hangen en je gaat aannemen dat de cache stuk is. <code>CacheIgnoreHeaders Set-Cookie</code> is de regel die dat oplost, in combinatie met een zorgvuldige <code>LocationMatch</code> voor de pagina's die echt per-user state nodig hebben.</p><h2>Nginx + FastCGI cache</h2><p>De Nginx-config die onze cijfers opleverde, ingekort tot de cache-relevante regels:</p><pre><code class="lang-nginx">fastcgi_cache_path /var/cache/nginx/woo levels=1:2 keys_zone=WOO:100m
+                   inactive=60m max_size=2g use_temp_path=off;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+
+map $http_cookie $skip_cache {
+  default 0;
+  "~*wordpress_logged_in"        1;
+  "~*woocommerce_items_in_cart=1" 1;
+  "~*wp_woocommerce_session"     1;
+}
+
+map $request_uri $skip_cache_uri {
+  default 0;
+  "~*/(cart|checkout|my-account|wp-admin|wp-login)" 1;
+}
+
+location ~ \.php$ {
+  fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+  fastcgi_cache WOO;
+  fastcgi_cache_valid 200 301 302 5m;
+  fastcgi_cache_bypass $skip_cache $skip_cache_uri;
+  fastcgi_no_cache    $skip_cache $skip_cache_uri;
+  add_header X-Cache $upstream_cache_status;
+}</code></pre><p>Warme TTFB op de homepage: <strong>62 ms</strong>. Productpagina: <strong>74 ms</strong>. Onder <code>wrk</code>: 6.380 req/s, load average 0,9. Dit is het snelste resultaat van de drie en op papier zou dit het antwoord moeten zijn.</p><p>Wat de cijfers niet laten zien, is dat we hier twee uur over deden. De cookie-map hierboven is de derde versie. De eerste negeerde de cart-items cookie en serveerde ingelogde gebruikers elkaars mini-carts (we hebben het op staging opgevangen, op het nippertje). De tweede cachede de checkout-endpoint omdat we de regex niet hadden vastgezet. De derde is degene die we nu in elke Nginx + WooCommerce-setup overnemen, en we lezen hem nog steeds opnieuw door voordat we hem in productie zetten.</p><aside class="callout"><strong>Let op de cart-hash cookie.</strong> WooCommerce wijzigt <code>woocommerce_cart_hash</code> bij elke cart-mutatie. Als je cache key de cookie meeneemt maar je bypass-regel niet, vul je de cache met één entry per gebruiker per add-to-cart. De schijf zit in een paar uur vol en de hit rate blijft tegen nul.</aside><h2>De drie getallen, naast elkaar</h2><p>Koude TTFB homepage / warme TTFB homepage / sustained req/s onder <code>wrk -t4 -c50 -d60s</code>:</p><ul><li><strong>LiteSpeed + LSCache:</strong> 1.840 ms / 71 ms / 4.910 req/s</li><li><strong>Apache + mod_cache_disk:</strong> 1.840 ms / 148 ms / 2.140 req/s</li><li><strong>Nginx + FastCGI cache:</strong> 1.840 ms / 62 ms / 6.380 req/s</li></ul><p>Nginx wint op pure doorvoer. LiteSpeed wint op time-to-correctness, omdat de WooCommerce-bewuste vary-logica met de plugin meekomt in plaats van een regex te zijn die jij om 22:00 hebt geschreven. Apache verliest op beide vlakken, maar het is de enige van de drie die geen nieuwe daemon of betaalde licentie nodig heeft, en voor een site die 30k pageviews per dag doet, is een TTFB van 148 ms echt prima.</p><h2>Wanneer kies je wat</h2><p>Heb je al LiteSpeed omdat je hostingmaatschappij het meelevert (veel cPanel-hosts doen dat tegenwoordig), hou het dan. De LSCache-plugin heeft het minst slechte cache-invalidatieverhaal in de WordPress-wereld, en je middag is beter besteed aan andere problemen. De <a href="https://docs.litespeedtech.com/lscache/lscwp/configuration/">LSCache-docs</a> zijn ongebruikelijk eerlijk over de trade-offs.</p><p>Draai je op een VPS waar je zelf de baas bent en heb je een ops-persoon die regex zonder fronsen leest, dan geeft Nginx + FastCGI cache je de beste doorvoer en de meeste knoppen om aan te draaien. Reserveer die twee uur. Lees de cookie-map twee keer voordat je hem pusht. Voeg <code>add_header X-Cache $upstream_cache_status</code> toe en laat het in productie aanstaan: je zult jezelf dankbaar zijn de eerste keer dat een klant een verouderde prijs meldt.</p><p>Zit je vast aan Apache omdat de host of de bestaande <code>.htaccess</code>-knoop een swap riskant maakt, dan is mod_cache_disk plus een kleine mu-plugin voor invalidatie echt werkbaar. Het is trager dan de andere twee, maar het gat met de baseline is enorm en het gat met Nginx is voor de meeste shops onzichtbaar voor de klant.</p><h2>Het deel dat we niet gemeten hebben</h2><p>Geen van deze cijfers omvat database-queries. De reverse cache verbergt de database zolang de pagina warm is. Op het moment dat een ingelogde klant op checkout klikt, of de admin <code>edit.php?post_type=product</code> opent, stapt de cache opzij en zit je terug bij Woo's queryplan. Daar zitten de meeste "mijn shop is traag"-tickets daadwerkelijk, en geen enkele hoeveelheid reverse-cache-tuning lost dat op.</p><p>Toen we Pier bouwden, liepen we hier herhaaldelijk tegenaan: de cache is snel, de front-end ziet er goed uit, en dan opent iemand de admin en valt de site om omdat <code>wp_postmeta</code> geen index heeft op de kolom waar WooCommerce constant op filtert. Hoe we het uiteindelijk hebben opgelost, was door de operator een chat-gekoppelde <a href="/#database">MySQL editor</a> te geven naast de bestandenboom, plus <a href="/#features">version history</a> voor elke schema-wijziging, zodat de "voeg een index toe, kijk of het helpt, draai terug als het niets oplevert"-loop dertig seconden duurt in plaats van een onderhoudsvenster.</p><p>Het kleinste wat je vandaag kunt doen: SSH naar je bak, draai <code>curl -w "%{time_starttransfer}\n" -o /dev/null -s https://jouwsite/</code> tien keer tegen je homepage, schrijf de mediaan op. Doe dan hetzelfde voor een productpagina. Die twee getallen vertellen je of het volgende wat je moet aanpakken de reverse cache is, de database, of geen van beide.</p>
+    </div>
+
+    <aside class="pullquote">Nginx FastCGI cache wint op pure doorvoer, LiteSpeed wint op WooCommerce-bewuste invalidatie, en Apache mod_cache_disk is voor de meeste shops prima als je blijft zitten waar je zit.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Werkt LSCache ook buiten LiteSpeed-servers?</p>
+      <p class="faq-a">Nee. De plugin praat met een privé cache-API in de LiteSpeed-server. Installeer hem op Apache of Nginx en de page-cache-features doen stilzwijgend niets, hoewel de object cache wel blijft werken.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom niet gewoon Cloudflare ervoor en de origin cache overslaan?</p>
+      <p class="faq-a">Cloudflare helpt anonieme traffic, maar cachet geen ingelogde WooCommerce-sessions of admin-pagina&#39;s. Je hebt nog steeds een origin cache nodig, want het trage pad is precies waar je klanten over klagen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is mod_cache_disk veilig onder hoge schrijfbelasting?</p>
+      <p class="faq-a">Ja, mits CacheLock aanstaat en CacheLockPath naar een snel filesystem wijst. Onder zware purge-belasting kunnen de lock-bestanden zich opstapelen, dus draai htcacheclean op een cron of via een save_post-hook.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/php-fpm-pool-tuning-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-fpm-pool-tuning-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg" alt="Bovenaanzicht van papieren PHP-FPM-werkblad, Apache 502-logvel, koperen FPM POOL-plaatje, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>PHP-FPM tunen: de zes settings achter de 40-user crash</h3>
+      <span class="pc-lede">Je traffic verdubbelt en de site wordt wit. PHP-FPM workers staan vast op vijf, de queue zit vol, Apache krijgt time-outs. Dit is de cheatsheet.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/php-fpm-slowlog-stack-trace-shapes/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-fpm-slowlog-stack-trace-shapes/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg" alt="Geprinte php-fpm slowlog op linnen met inkt-gemarkeerde stack traces, manilamap, vulpen, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>php-fpm slowlog lezen: drie stack-trace patronen herkennen</h3>
+      <span class="pc-lede">Veldgids voor php-fpm slowlogs op shared hosting: de drie stack-trace vormen die je tegenkomt, wat ze betekenen en waar je het volgende uur moet zoeken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/litespeed-apache-nginx-woocommerce-cache/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
