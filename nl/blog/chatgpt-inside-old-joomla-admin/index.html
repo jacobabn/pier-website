@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm · Pier — Blog</title>
+<meta name="description" content="Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, ai, php, security, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/chatgpt-inside-old-joomla-admin/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/chatgpt-inside-old-joomla-admin/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm">
+<meta property="og:description" content="Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van getekende Joomla-wireframe op ruitjespapier, manilla map, runsheet, messing plaatje, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T12:38:15.423Z">
+<meta property="article:modified_time" content="2026-06-10T12:38:15.423Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm">
+<meta name="twitter:description" content="Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van getekende Joomla-wireframe op ruitjespapier, manilla map, runsheet, messing plaatje, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/chatgpt-inside-old-joomla-admin/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/"},
+  "url":"https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/",
+  "headline":"ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm",
+  "description":"Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van getekende Joomla-wireframe op ruitjespapier, manilla map, runsheet, messing plaatje, rode lakzegel."
+  },
+  "datePublished":"2026-06-10T12:38:15.423Z",
+  "dateModified":"2026-06-10T12:38:15.423Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, ai, php, security, architecture",
+  "wordCount":1398,
+  "articleSection":"AI",
+  "articleBody":"De Loom kwam binnen op een dinsdag om 23:41. Een Nederlandse uitgever waar we mee werken, zo'n 14 redacteuren, draait een Joomla 3.10-installatie waarvan het template voor het laatst in 2015 is aangeraakt. Hun commercieel directeur had het weekend met ChatGPT doorgebracht en wilde nu hetzelfde vakje in de artikel-editor. Concreet: een zijbalk die de lede herschrijft, een SEO-titel voorstelt en drie social pull-quotes aandraagt. De briefing eindigde met de zin waar elke freelancer van huivert: \"Dat moet snel kunnen, toch? Het is gewoon een API-call.\" Het is niet gewoon een API-call. Maar het is ook geen rebuild. Na dit de afgelopen acht maanden op vier verouderde Joomla-sites te hebben gedaan, is er een vorm die blijft werken. Dit stuk is die vorm, geschreven voor de developer die het vrijdag moet opleveren en in 2027 nog steeds het onderhoudscontract wil hebben. Wat de klant eigenlijk vraagt Splits de vraag, voordat je code schrijft, in de drie dingen die in elke briefing door elkaar lopen. Een assistent in de admin. Redacteuren willen een paneel naast het artikelveld. Geen nieuw tabblad, geen aparte tool. De kosten van context-switchen zijn precies waarom ze het vragen. Kennis van hun content. Ze willen suggesties die klinken als hun huisstijl, geen generieke GPT-proza. Dit is waar de meeste goedkope implementaties stranden en binnen een week worden uitgezet. Enige vorm van governance. Meestal onuitgesproken. De commercieel directeur vraagt de dag na livegang naar kostenplafonds. De FG vraagt de dag daarna naar de datastromen. Lever je alleen het eerste, dan ship je speelgoed. De kleinste bruikbare vorm dekt alle drie, en op een Joomla 3-site past die in ruwweg 400 regels PHP plus een klein Vue-eilandje. Geen core hacks, geen template-chirurgie, geen com_users-patches. De vorm: een plugin, een endpoint en een lade De architectuur bestaat uit drie stukken, bewust saai. Een Joomla system -plugin die een kleine JS-bundle alleen in de admin injecteert, en alleen op com_content -bewerkviews. Eén PHP-endpoint onder /administrator/index.php?option=com_ajax dat proxiet naar de LLM-aanbieder. De browser ziet de API-sleutel nooit. Een Vue-in-een-script-tag lade die de huidige artikelvelden uit de DOM leest, naar het endpoint post, en suggesties terugschrijft als hangende wijzigingen die de redacteur kan accepteren. Het plugin-skelet is het stuk waar de meeste teams overengineeren. Dit is de load-gate, het enige echt ingewikkelde stukje: public function onBeforeRender() { $app = JFactory::getApplication(); if (!$app->isClient('administrator')) return; $input = $app->input; $option = $input->getCmd('option'); $view = $input->getCmd('view'); $layout = $input->getCmd('layout', 'default'); if ($option !== 'com_content' || $view !== 'article' || $layout !== 'edit') { return; } $doc = JFactory::getDocument(); $doc->addScript(JUri::root(true) . '/media/plg_system_assistant/drawer.js', [], ['defer' => true]); } Die gate is belangrijk. De Joomla-admin laadt een hoop views waar je niet aan wil komen (com_installer, com_users, com_config). Scope de injectie of je krijgt een supportticket dat de assistent op de globale configuratiepagina verschijnt, wat precies de plek is waar je geen LLM behulpzaam databasecredentials wil laten herschrijven. Het endpoint, en wat het weigert te doen In het proxy-endpoint wordt het security-argument gewonnen of verloren. Drie regels, in volgorde van hoe hard de klant zal tegensputteren. Eén: de LLM-sleutel komt nooit in de browser. Het endpoint leest hem uit een bestand buiten de webroot, of uit een Joomla-pluginparameter in #__extensions . Als het eerste idee van je klant is \"hardcode het even in de JS zodat we kunnen testen\", is het antwoord nee. Die sleutel staat binnen een maand in de cache van een willekeurige CDN. Dit is niet theoretisch; zie OWASP's notities over sensitive data exposure voor de canonieke versie van waarom. Twee: het endpoint heeft een allow-list per intentie. Eén endpoint, een vaste enum aan operaties: rewrite_lede , suggest_title , pull_quotes . Geen generieke \"stuur een prompt\"-tunnel. Op het moment dat je vrije prompting blootlegt vanuit de admin, heb je een manier gebouwd waarop elke gebruiker met redacteurrechten het API-budget van het bedrijf kan verbranden aan wat hij maar wil. De Joomla-sessiecheck ( JSession::checkToken() ) staat op elke request. Drie: het endpoint logt de prompt en het antwoord, met user-id, in een kleine tabel. Niet voor surveillance. Voor het onvermijdelijke gesprek in week drie waarin iemand zegt \"de AI heeft iets raars geschreven en we hebben het gepubliceerd.\" Zonder de log gok je. Mét de log heb je een rij. public function onAjaxAssistant() { JSession::checkToken('get') or jexit('Invalid token'); $user = JFactory::getUser(); if ($user->guest || !$user->authorise('core.edit', 'com_content')) { throw new RuntimeException('Forbidden', 403); } $input = JFactory::getApplication()->input; $intent = $input->getCmd('intent'); $body = $input->get('b",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm","item":"https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan dit ook zonder een Joomla-plugin te schrijven?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Je kunt de lade in een template-override stoppen, maar dan verlies je het schone uninstall-pad en de load-gate. Een system-plugin is zo'n 60 regels en ruimt zichzelf netjes op."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik eerst upgraden naar Joomla 4 of 5?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Als het budget er is, ja. Zo niet, lever dan de assistent op met de proxy en logging op orde, en gebruik de werkelijke kostendata om de upgrade in het volgende kwartaal te onderbouwen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Welk model moet de proxy aanroepen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Pak degene waar je klant al een factureerrelatie mee heeft. De vorm van het endpoint verandert niet. Wissel aanbieders achter de AssistantClient-klasse zonder de plugin aan te raken."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/chatgpt-inside-old-joomla-admin/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 090</span>
+      </div>
+      <p class="eyebrow"><span class="n">090 —</span>AI</p>
+      <h1 class="display-l post-title">ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm</h1>
+      <p class="lede post-lede">Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T12:38:15.423Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/chatgpt-inside-old-joomla-admin/hero.webp" type="image/webp">
+      <img src="/blog/chatgpt-inside-old-joomla-admin/hero.jpg" alt="Bovenaanzicht van getekende Joomla-wireframe op ruitjespapier, manilla map, runsheet, messing plaatje, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 090</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom kwam binnen op een dinsdag om 23:41. Een Nederlandse uitgever waar we mee werken, zo'n 14 redacteuren, draait een Joomla 3.10-installatie waarvan het template voor het laatst in 2015 is aangeraakt. Hun commercieel directeur had het weekend met ChatGPT doorgebracht en wilde nu hetzelfde vakje in de artikel-editor. Concreet: een zijbalk die de lede herschrijft, een SEO-titel voorstelt en drie social pull-quotes aandraagt. De briefing eindigde met de zin waar elke freelancer van huivert: <em>"Dat moet snel kunnen, toch? Het is gewoon een API-call."</em></p>
+<p>Het is niet gewoon een API-call. Maar het is ook geen rebuild. Na dit de afgelopen acht maanden op vier verouderde Joomla-sites te hebben gedaan, is er een vorm die blijft werken. Dit stuk is die vorm, geschreven voor de developer die het vrijdag moet opleveren en in 2027 nog steeds het onderhoudscontract wil hebben.</p>
+<h2>Wat de klant eigenlijk vraagt</h2>
+<p>Splits de vraag, voordat je code schrijft, in de drie dingen die in elke briefing door elkaar lopen.</p>
+<ul>
+<li><strong>Een assistent in de admin.</strong> Redacteuren willen een paneel naast het artikelveld. Geen nieuw tabblad, geen aparte tool. De kosten van context-switchen zijn precies waarom ze het vragen.</li>
+<li><strong>Kennis van hun content.</strong> Ze willen suggesties die klinken als hun huisstijl, geen generieke GPT-proza. Dit is waar de meeste goedkope implementaties stranden en binnen een week worden uitgezet.</li>
+<li><strong>Enige vorm van governance.</strong> Meestal onuitgesproken. De commercieel directeur vraagt de dag na livegang naar kostenplafonds. De FG vraagt de dag daarna naar de datastromen.</li>
+</ul>
+<p>Lever je alleen het eerste, dan ship je speelgoed. De kleinste <em>bruikbare</em> vorm dekt alle drie, en op een Joomla 3-site past die in ruwweg 400 regels PHP plus een klein Vue-eilandje. Geen core hacks, geen template-chirurgie, geen com_users-patches.</p>
+<h2>De vorm: een plugin, een endpoint en een lade</h2>
+<p>De architectuur bestaat uit drie stukken, bewust saai.</p>
+<ol>
+<li>Een Joomla <code>system</code>-plugin die een kleine JS-bundle alleen in de admin injecteert, en alleen op <code>com_content</code>-bewerkviews.</li>
+<li>Eén PHP-endpoint onder <code>/administrator/index.php?option=com_ajax</code> dat proxiet naar de LLM-aanbieder. De browser ziet de API-sleutel nooit.</li>
+<li>Een Vue-in-een-script-tag lade die de huidige artikelvelden uit de DOM leest, naar het endpoint post, en suggesties terugschrijft als hangende wijzigingen die de redacteur kan accepteren.</li>
+</ol>
+<p>Het plugin-skelet is het stuk waar de meeste teams overengineeren. Dit is de load-gate, het enige echt ingewikkelde stukje:</p>
+<pre><code class="lang-php">public function onBeforeRender()
+{
+    $app = JFactory::getApplication();
+    if (!$app-&gt;isClient('administrator')) return;
+
+    $input  = $app-&gt;input;
+    $option = $input-&gt;getCmd('option');
+    $view   = $input-&gt;getCmd('view');
+    $layout = $input-&gt;getCmd('layout', 'default');
+
+    if ($option !== 'com_content' || $view !== 'article' || $layout !== 'edit') {
+        return;
+    }
+
+    $doc = JFactory::getDocument();
+    $doc-&gt;addScript(JUri::root(true) . '/media/plg_system_assistant/drawer.js', [], ['defer' =&gt; true]);
+}
+</code></pre>
+<p>Die gate is belangrijk. De Joomla-admin laadt een hoop views waar je niet aan wil komen (com_installer, com_users, com_config). Scope de injectie of je krijgt een supportticket dat de assistent op de globale configuratiepagina verschijnt, wat precies de plek is waar je geen LLM behulpzaam databasecredentials wil laten herschrijven.</p>
+<h2>Het endpoint, en wat het weigert te doen</h2>
+<p>In het proxy-endpoint wordt het security-argument gewonnen of verloren. Drie regels, in volgorde van hoe hard de klant zal tegensputteren.</p>
+<p><strong>Eén: de LLM-sleutel komt nooit in de browser.</strong> Het endpoint leest hem uit een bestand buiten de webroot, of uit een Joomla-pluginparameter in <code>#__extensions</code>. Als het eerste idee van je klant is "hardcode het even in de JS zodat we kunnen testen", is het antwoord nee. Die sleutel staat binnen een maand in de cache van een willekeurige CDN. Dit is niet theoretisch; zie OWASP's notities over <a href="https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure">sensitive data exposure</a> voor de canonieke versie van waarom.</p>
+<p><strong>Twee: het endpoint heeft een allow-list per intentie.</strong> Eén endpoint, een vaste enum aan operaties: <code>rewrite_lede</code>, <code>suggest_title</code>, <code>pull_quotes</code>. Geen generieke "stuur een prompt"-tunnel. Op het moment dat je vrije prompting blootlegt vanuit de admin, heb je een manier gebouwd waarop elke gebruiker met redacteurrechten het API-budget van het bedrijf kan verbranden aan wat hij maar wil. De Joomla-sessiecheck (<code>JSession::checkToken()</code>) staat op elke request.</p>
+<p><strong>Drie: het endpoint logt de prompt en het antwoord, met user-id, in een kleine tabel.</strong> Niet voor surveillance. Voor het onvermijdelijke gesprek in week drie waarin iemand zegt "de AI heeft iets raars geschreven en we hebben het gepubliceerd." Zonder de log gok je. Mét de log heb je een rij.</p>
+<pre><code class="lang-php">public function onAjaxAssistant()
+{
+    JSession::checkToken('get') or jexit('Invalid token');
+
+    $user = JFactory::getUser();
+    if ($user-&gt;guest || !$user-&gt;authorise('core.edit', 'com_content')) {
+        throw new RuntimeException('Forbidden', 403);
+    }
+
+    $input  = JFactory::getApplication()-&gt;input;
+    $intent = $input-&gt;getCmd('intent');
+    $body   = $input-&gt;get('body', '', 'RAW');
+
+    $allowed = ['rewrite_lede', 'suggest_title', 'pull_quotes'];
+    if (!in_array($intent, $allowed, true)) {
+        throw new RuntimeException('Unknown intent', 400);
+    }
+
+    // hard cap on input size, in characters not bytes
+    if (mb_strlen($body) &gt; 8000) {
+        throw new RuntimeException('Body too large', 413);
+    }
+
+    return AssistantClient::call($intent, $body, $user-&gt;id);
+}
+</code></pre>
+<p>De grens van 8000 tekens is niet willekeurig. Het is de grootte waarbij één redacteur je niet langer per ongeluk €4 aan tokens kost door het hele archief te plakken. Kies een getal, documenteer het, schrijf het op het wijzigingsticket.</p>
+<h2>Huisstijl zonder vector-database</h2>
+<p>De verleiding is bij elk van deze klussen om naar embeddings en een vector store te grijpen. Doe het niet bij de eerste oplevering. Een Joomla 3-uitgever met 14 redacteuren heeft geen RAG-pipeline nodig; ze hebben hun stijlgids in de system prompt nodig.</p>
+<p>Wat werkt: zet één tekstbestand op <code>/administrator/components/com_assistant/style.md</code> (of een pluginparameter) met de daadwerkelijke stijlgids van de uitgever. Twee A4'tjes, platte markdown. Het endpoint leest hem één keer per request en plakt hem voorop. Dat is de hele "huisstijl"-feature. Het levert 80 procent van de gevoelde kwaliteit van een fine-tune op, voor nul procent van de infrastructuur.</p>
+<p>Als de redactie het zes maanden later nog dagelijks gebruikt en scherpere recall uit het eigen archief vraagt, dan heb je bewijs om embeddings te rechtvaardigen. Bouw op het bewijs, niet op de brochure.</p>
+<h2>De Joomla 3-olifant in de kamer</h2>
+<p>Joomla 3.10 is end of life. <a href="https://docs.joomla.org/Joomla!_3.10">De officiële docs</a> zeggen dat sinds augustus 2023. Het eerlijke gesprek met de klant is dat je een 2026-feature op een CMS-tak zet die geen security patches meer krijgt, en dat het LLM-endpoint nu deel uitmaakt van hun aanvalsoppervlak.</p>
+<p>Twee dingen maken dit verantwoord in plaats van roekeloos. Eén: het endpoint hierboven introduceert geen nieuwe auth, het erft die van Joomla. Als hun admin gecompromitteerd is, is de assistent het kleinste van hun problemen. Twee: de proxy geeft je één chokepoint waar je kan rate-limiten, loggen en de integratie met één config-flip kan stilleggen. Vergelijk dat met redacteuren die op hun telefoon content in chat.openai.com plakken, wat ze vandaag doen.</p>
+<aside class="callout"><strong>Let op de tokenkosten bij draft-autosave.</strong> De Joomla-admin doet autosave op het bewerkformulier. Hang je de lade aan "suggereer bij wijziging", dan vuur je een request elke keer dat de redacteur even stopt met typen. Debounce aan de client-kant (1500 ms is comfortabel) en eis een expliciete buttonklik voor alles wat het model aanroept. We hebben een schatting van €0 in 11 dagen €380 zien worden door precies deze fout.</aside>
+<h2>Wat we bewust weglaten</h2>
+<p>De vorm hierboven omvat bewust niet: beeldgeneratie, auto-publish, multi-step agents, ingeplande herschrijvingen of reactiemoderatie. Elk daarvan is in het eerste gesprek door een klant gevraagd. Elk daarvan is binnen twee maanden door diezelfde klant stilletjes afgeschoten, omdat de redactionele workflow eigenlijk geen robot publicatiebeslissingen wil laten nemen. Hij wil een snellere kladversie.</p>
+<p>Bouw de snellere kladversie. Lever hem op. Kijk vier weken naar wat redacteuren feitelijk gebruiken. Beslis daarna wat volgt op basis van echte gebruikslogs, niet op basis van het ChatGPT-weekend van de commercieel directeur.</p>
+<h2>De Pier-vormige voetnoot</h2>
+<p>Het saaie deel van dit alles, het deel waar niemand voor betaalt, is wat er gebeurt als de assistent iets in een artikel zet, de redacteur publiceert het, en twee dagen later wil iemand weten wat er is veranderd. Op een <a href="/">legacy site</a> zonder audit trail zit je Apache-logs te lezen en te hopen. Toen we Pier bouwden liepen we hier precies tegenaan bij een Magento-klus; de manier waarop we het uiteindelijk hebben opgelost was om per bestand een <a href="/#features">version history</a> bij te houden voor elke schrijfactie via de editor, inclusief de AI-ondersteunde, zodat de vraag "wat heeft die robot dinsdag aangepast" een antwoord van één klik is in plaats van een forensisch onderzoek.</p>
+<p>Als je één ding uit dit stuk meeneemt naar de oplevering van vrijdag, maak het dan het proxy-endpoint met de allow-list van drie intenties. Die ene beslissing scheidt een nette assistent van een publieke, geauthenticeerde, token-verbrandende prompt-tunnel die in een tien jaar oude admin zit.</p>
+    </div>
+
+    <aside class="pullquote">Lever één proxy-endpoint met een vaste intent-allow-list, plak de stijlgids in de prompt, en log elke call. De rest kan wachten tot er echte gebruiksdata is.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan dit ook zonder een Joomla-plugin te schrijven?</p>
+      <p class="faq-a">Je kunt de lade in een template-override stoppen, maar dan verlies je het schone uninstall-pad en de load-gate. Een system-plugin is zo&#39;n 60 regels en ruimt zichzelf netjes op.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik eerst upgraden naar Joomla 4 of 5?</p>
+      <p class="faq-a">Als het budget er is, ja. Zo niet, lever dan de assistent op met de proxy en logging op orde, en gebruik de werkelijke kostendata om de upgrade in het volgende kwartaal te onderbouwen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Welk model moet de proxy aanroepen?</p>
+      <p class="faq-a">Pak degene waar je klant al een factureerrelatie mee heeft. De vorm van het endpoint verandert niet. Wissel aanbieders achter de AssistantClient-klasse zonder de plugin aan te raken.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=ai">#ai</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Joomla-template ontkoppelen: een gefaseerd extractieplan</h3>
+      <span class="pc-lede">Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/scoping-ai-feature-old-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/scoping-ai-feature-old-wordpress/hero.webp" type="image/webp">
+        <img src="/nl/blog/scoping-ai-feature-old-wordpress/hero.jpg" alt="Bovenaanzicht van papieren AI-scopeblad, PHP 5.6-auditvel, manilamap wp-content, messing plaat, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>AI scopen op een WordPress uit 2014: nuchtere methode</h3>
+      <span class="pc-lede">Een klant vraagt om &#39;gewoon een kleine AI-functie&#39; op een WordPress-site uit 2014. Dit is de scoping-methode die voorkomt dat je blind offreert op PHP 5.6.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/chatgpt-inside-old-joomla-admin/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
