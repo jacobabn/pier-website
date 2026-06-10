@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla-template ontkoppelen: een gefaseerd extractieplan · Pier — Blog</title>
+<meta name="description" content="Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, php, migration, architecture, workflow, mysql">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla-template ontkoppelen: een gefaseerd extractieplan">
+<meta property="og:description" content="Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T01:40:21.038Z">
+<meta property="article:modified_time" content="2026-06-10T01:40:21.038Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Joomla">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="mysql">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla-template ontkoppelen: een gefaseerd extractieplan">
+<meta name="twitter:description" content="Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Joomla">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/"},
+  "url":"https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/",
+  "headline":"Joomla-template ontkoppelen: een gefaseerd extractieplan",
+  "description":"Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel."
+  },
+  "datePublished":"2026-06-10T01:40:21.038Z",
+  "dateModified":"2026-06-10T01:40:21.038Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, php, migration, architecture, workflow, mysql",
+  "wordCount":1536,
+  "articleSection":"Joomla",
+  "articleBody":"Een Nederlands bureau waar we mee werken stuurde op een zondagavond een Loom. Twaalf minuten waarin de lead developer door /templates/agency_custom_2014/index.php scrolde op een Joomla 3.10-installatie die binnenkort naar Joomla 5 zou worden gehesen. Om de regel stond er een $db->setQuery() , een hardcoded module-ID, of een plugin-aanroep verpakt in een try/catch die fouten geruisloos opslokte. De template was zes jaar geleden opgehouden een template te zijn. Het was in feite een tweede CMS, vastgelast op het eerste. Dat is de situatie waar dit plan voor is. Je hebt een custom Joomla-template die schoon begon en die nu de helft van het werk van het framework doet. De site werkt. De klant vindt het ontwerp mooi. Je kunt de template niet aanraken zonder drie pagina's verderop iets te slopen, en je kunt nergens naartoe migreren (niet naar Joomla 5, niet naar een headless backend, zelfs niet naar een fatsoenlijke lokale dev-loop) totdat die koppeling eruit is. We hebben deze Joomla-template-ontkoppeling in de afgelopen achttien maanden drie keer gedaan op verouderde sites . De vorm is steeds dezelfde: inventariseren, de database-aanroepen afvoeren, hardcoded modules omzetten naar posities, de render isoleren. Hieronder de gefaseerde versie, mét de faalmodi die ons de eerste keer uren hebben gekost, zodat ze jou geen tijd kosten. Wat er in twaalf jaar in een Joomla-template versmelt Eerst de diagnose, dan het werk. Een custom Joomla-template hoort een dunne schil te zijn: een doctype, een <head> , een handvol <jdoc:include> -positietags, een footer. Al het andere is aangekoekte koppeling. In de build van het bureau die we openden vonden we: Directe JFactory::getDbo() -aanroepen in index.php , die featured artikelen ophaalden op category-ID. Hardcoded module-ID's: echo JModuleHelper::renderModule(JModuleHelper::getModuleById('36')); , negen keer herhaald door de template heen. Een inline <script> -blok dat elke dertig seconden een Joomla session-URL aanriep om een sidebar-widget te verversen. Een /html/com_content/article/default.php -override die zelf door de category-tree liep om gerelateerde artikelen op te halen in plaats van JComponentHelper te gebruiken. Plugin-output ingebakken in de layout omdat iemand in 2017 tien minuten voor een persdeadline nog snel een kaartwidget nodig had. Niets hiervan is bijzonder. Dit is wat er gebeurt als een template lang genoeg leeft om drie developers te overleven. Het punt van ontkoppelen is niet om de vorige build de maat te nemen. Het is om de volgende persoon een oppervlak te geven waar zonder bibberen aan gewerkt kan worden. Inventariseer voordat je één regel aanraakt Grep eerst door de hele template-tree. Drie passes, drie categorieën koppeling. grep -rn \"JFactory\\|getDbo\\|setQuery\\|loadResult\\|loadObjectList\" templates/agency_custom_2014/ grep -rn \"renderModule\\|loadModule\\|loadposition\\|getModuleById\" templates/agency_custom_2014/ grep -rn \"JPluginHelper\\|JComponentHelper\\|JModelLegacy\" templates/agency_custom_2014/ Pipe de output naar een spreadsheet. Per rij: bestand, regel, type koppeling, vervangingsstrategie, fase. Saai werk. Doe het toch. Op elke site waar we deze stap oversloegen kostte het ons later dubbel zoveel tijd, omdat we op het laatste moment toch nog overrides in html/mod_random_image/ tegenkwamen waarvan niemand zich het bestaan herinnerde. Terwijl je toch bezig bent: doe ook even een telling tegen de database. Een gekoppelde template hangt meestal aan specifieke row-ID's die iemand allang vergeten is. SELECT id, title, position, published FROM `#__modules` WHERE id IN (36, 41, 47, 58, 62, 71) ORDER BY position, ordering; Als een van die ID's nul rijen oplevert, rendert de template in productie al jaren geruisloos niets. Dat is geen ramp. Schrijf het op. In fase drie zet je het om in een echte positie-toewijzing. Fase een: asset-extractie Trek /css , /js en /images uit de template-directory en zet ze in een build pipeline. Wij gebruiken Vite hiervoor, maar de tool maakt niet uit. Het gaat niet om modernisering. Het gaat erom dat assets niet langer verstrengeld zijn met PHP. Zodra ze een build-artifact zijn met gehashte bestandsnamen, verwijst index.php alleen nog naar het manifest en kan de volgende fase vrij bewegen. Eén valkuil: inline <style> -blokken in index.php die naar Joomla template-parameters verwijzen. Een regel als body { background: <?php echo $this->params->get('bgcolor'); ?> } kan niet zomaar naar een statisch bestand verhuizen zonder dat de parameter verdwijnt. De oplossing: schrijf vanuit PHP één :root -blok dat die waarden als CSS custom properties blootstelt en laat de rest van de styling in de build-output zitten. <style>:root { --bg: <?php echo htmlspecialchars($this->params->get('bgcolor', '#ffffff'), ENT_QUOTES); ?>; --accent: <?php echo htmlspecialchars($this->params->get('accent', '#d97706'), ENT_QUOTES); ?>; }</style> Fase twee: de data-grens Iedere JFactory::getDbo() -aanroep wordt achter een expliciete fetcher gezet. We ma",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla-template ontkoppelen: een gefaseerd extractieplan","item":"https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt een volledige Joomla-template-ontkoppeling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor een matig verstrengelde template van twaalf jaar oud reken je op twee weken gefocust werk: een dag voor de inventarisatie, drie tot vier dagen per fase, en twee dagen voor pariteitstests over een representatieve set URL's."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moeten we Joomla upgraden vóór of na de ontkoppeling?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Erna. Ontkoppel op de bestaande Joomla-versie, zodat de live site je referentie-render is. Eerst upgraden verandert te veel variabelen tegelijk en je verliest je pariteits-baseline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "En de overrides in /html dan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Behandel ze net als index.php. Inventariseer elke override, duw het ophalen van data achter de ene Data-laag, en laat de markup met rust totdat de pariteit met de live site bevestigd is."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 077</span>
+      </div>
+      <p class="eyebrow"><span class="n">077 —</span>Joomla</p>
+      <h1 class="display-l post-title">Joomla-template ontkoppelen: een gefaseerd extractieplan</h1>
+      <p class="lede post-lede">Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T01:40:21.038Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+      <img src="/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 077</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waar we mee werken stuurde op een zondagavond een Loom. Twaalf minuten waarin de lead developer door <code>/templates/agency_custom_2014/index.php</code> scrolde op een Joomla 3.10-installatie die binnenkort naar Joomla 5 zou worden gehesen. Om de regel stond er een <code>$db-&gt;setQuery()</code>, een hardcoded module-ID, of een plugin-aanroep verpakt in een <code>try/catch</code> die fouten geruisloos opslokte. De template was zes jaar geleden opgehouden een template te zijn. Het was in feite een tweede CMS, vastgelast op het eerste.</p>
+
+<p>Dat is de situatie waar dit plan voor is. Je hebt een custom Joomla-template die schoon begon en die nu de helft van het werk van het framework doet. De site werkt. De klant vindt het ontwerp mooi. Je kunt de template niet aanraken zonder drie pagina's verderop iets te slopen, en je kunt nergens naartoe migreren (niet naar Joomla 5, niet naar een headless backend, zelfs niet naar een fatsoenlijke lokale dev-loop) totdat die koppeling eruit is.</p>
+
+<p>We hebben deze Joomla-template-ontkoppeling in de afgelopen achttien maanden drie keer gedaan op <a href="/">verouderde sites</a>. De vorm is steeds dezelfde: inventariseren, de database-aanroepen afvoeren, hardcoded modules omzetten naar posities, de render isoleren. Hieronder de gefaseerde versie, mét de faalmodi die ons de eerste keer uren hebben gekost, zodat ze jou geen tijd kosten.</p>
+
+<h2>Wat er in twaalf jaar in een Joomla-template versmelt</h2>
+
+<p>Eerst de diagnose, dan het werk. Een custom Joomla-template hoort een dunne schil te zijn: een doctype, een <code>&lt;head&gt;</code>, een handvol <code>&lt;jdoc:include&gt;</code>-positietags, een footer. Al het andere is aangekoekte koppeling. In de build van het bureau die we openden vonden we:</p>
+
+<ul>
+  <li>Directe <code>JFactory::getDbo()</code>-aanroepen in <code>index.php</code>, die featured artikelen ophaalden op category-ID.</li>
+  <li>Hardcoded module-ID's: <code>echo JModuleHelper::renderModule(JModuleHelper::getModuleById('36'));</code>, negen keer herhaald door de template heen.</li>
+  <li>Een inline <code>&lt;script&gt;</code>-blok dat elke dertig seconden een Joomla session-URL aanriep om een sidebar-widget te verversen.</li>
+  <li>Een <code>/html/com_content/article/default.php</code>-override die zelf door de category-tree liep om gerelateerde artikelen op te halen in plaats van <a href="https://docs.joomla.org/Component_Helpers" rel="nofollow">JComponentHelper</a> te gebruiken.</li>
+  <li>Plugin-output ingebakken in de layout omdat iemand in 2017 tien minuten voor een persdeadline nog snel een kaartwidget nodig had.</li>
+</ul>
+
+<p>Niets hiervan is bijzonder. Dit is wat er gebeurt als een template lang genoeg leeft om drie developers te overleven. Het punt van ontkoppelen is niet om de vorige build de maat te nemen. Het is om de volgende persoon een oppervlak te geven waar zonder bibberen aan gewerkt kan worden.</p>
+
+<h2>Inventariseer voordat je één regel aanraakt</h2>
+
+<p>Grep eerst door de hele template-tree. Drie passes, drie categorieën koppeling.</p>
+
+<pre><code class="lang-bash">grep -rn "JFactory\|getDbo\|setQuery\|loadResult\|loadObjectList" templates/agency_custom_2014/
+grep -rn "renderModule\|loadModule\|loadposition\|getModuleById" templates/agency_custom_2014/
+grep -rn "JPluginHelper\|JComponentHelper\|JModelLegacy" templates/agency_custom_2014/</code></pre>
+
+<p>Pipe de output naar een spreadsheet. Per rij: bestand, regel, type koppeling, vervangingsstrategie, fase. Saai werk. Doe het toch. Op elke site waar we deze stap oversloegen kostte het ons later dubbel zoveel tijd, omdat we op het laatste moment toch nog overrides in <code>html/mod_random_image/</code> tegenkwamen waarvan niemand zich het bestaan herinnerde.</p>
+
+<p>Terwijl je toch bezig bent: doe ook even een telling tegen de database. Een gekoppelde template hangt meestal aan specifieke row-ID's die iemand allang vergeten is.</p>
+
+<pre><code class="lang-sql">SELECT id, title, position, published
+FROM `#__modules`
+WHERE id IN (36, 41, 47, 58, 62, 71)
+ORDER BY position, ordering;</code></pre>
+
+<p>Als een van die ID's nul rijen oplevert, rendert de template in productie al jaren geruisloos niets. Dat is geen ramp. Schrijf het op. In fase drie zet je het om in een echte positie-toewijzing.</p>
+
+<h2>Fase een: asset-extractie</h2>
+
+<p>Trek <code>/css</code>, <code>/js</code> en <code>/images</code> uit de template-directory en zet ze in een build pipeline. Wij gebruiken <a href="https://vitejs.dev/guide/build.html" rel="nofollow">Vite</a> hiervoor, maar de tool maakt niet uit. Het gaat niet om modernisering. Het gaat erom dat assets niet langer verstrengeld zijn met PHP. Zodra ze een build-artifact zijn met gehashte bestandsnamen, verwijst <code>index.php</code> alleen nog naar het manifest en kan de volgende fase vrij bewegen.</p>
+
+<p>Eén valkuil: inline <code>&lt;style&gt;</code>-blokken in <code>index.php</code> die naar Joomla template-parameters verwijzen. Een regel als <code>body { background: &lt;?php echo $this-&gt;params-&gt;get('bgcolor'); ?&gt; }</code> kan niet zomaar naar een statisch bestand verhuizen zonder dat de parameter verdwijnt. De oplossing: schrijf vanuit PHP één <code>:root</code>-blok dat die waarden als CSS custom properties blootstelt en laat de rest van de styling in de build-output zitten.</p>
+
+<pre><code class="lang-php">&lt;style&gt;:root {
+  --bg: &lt;?php echo htmlspecialchars($this-&gt;params-&gt;get('bgcolor', '#ffffff'), ENT_QUOTES); ?&gt;;
+  --accent: &lt;?php echo htmlspecialchars($this-&gt;params-&gt;get('accent', '#d97706'), ENT_QUOTES); ?&gt;;
+}&lt;/style&gt;</code></pre>
+
+<h2>Fase twee: de data-grens</h2>
+
+<p>Iedere <code>JFactory::getDbo()</code>-aanroep wordt achter een expliciete fetcher gezet. We maken <code>/templates/agency_custom_2014/lib/Data.php</code> aan met benoemde methodes, één per datavorm die de template daadwerkelijk nodig heeft:</p>
+
+<pre><code class="lang-php">&lt;?php
+namespace Agency\Template;
+
+use Joomla\CMS\Factory;
+
+class Data
+{
+    public static function featuredArticles(int $limit = 3): array
+    {
+        $db = Factory::getDbo();
+        $q  = $db-&gt;getQuery(true)
+            -&gt;select($db-&gt;quoteName(['id','title','introtext','catid','created']))
+            -&gt;from($db-&gt;quoteName('#__content'))
+            -&gt;where('state = 1 AND featured = 1')
+            -&gt;order('created DESC')
+            -&gt;setLimit($limit);
+        $db-&gt;setQuery($q);
+        return $db-&gt;loadObjectList() ?: [];
+    }
+}</code></pre>
+
+<p>Vervolgens doet <code>index.php</code> simpelweg <code>$featured = \Agency\Template\Data::featuredArticles(3);</code> en rendert de loop met het resultaat. De template heeft nu één plek waar het data-interface leeft. Als deze site morgen van Joomla af gaat, vervang je de body van de methode en blijft de markup staan. Vandaag heb je nog niets gesloopt.</p>
+
+<p>Het niet-voor-de-hand-liggende stukje: de oude code lekte vrijwel zeker state via <code>$app</code> of <code>$document</code> binnen wat eruit zag als data-fetches. Audit op <code>Factory::getDocument()-&gt;addScript()</code> en vergelijkbare aanroepen binnen loops. Dat zijn globale side effects die zich voordoen als reads. Verplaats ze naar een expliciete render-prep-stap bovenin <code>index.php</code>, nadat de datalaag terugkomt en voordat de eerste byte HTML wordt uitgestuurd.</p>
+
+<h2>Fase drie: modules en plugins loswrikken</h2>
+
+<p>Hardcoded module-ID's zijn de op een na grootste pijnbron. <code>&lt;jdoc:include type="modules" name="position-7" /&gt;</code> is prima. <code>JModuleHelper::renderModule(JModuleHelper::getModuleById('36'))</code> niet, want de template hangt nu aan een row-ID in <code>#__modules</code> die niemand kan wijzigen zonder de codebase door te greppen.</p>
+
+<p>Zet iedere aanroep om naar een benoemde template-positie. Wijs in de backend de bestaande modules per pagina aan die posities toe. De visuele output is identiek; de koppeling verhuist van PHP naar de configuratielaag, en daar hoort hij thuis.</p>
+
+<p>Voor ingebedde plugins houden we deze regel aan: rendert de plugin content (een kaartwidget, een contactformulier), dan wordt het een module. Transformeert de plugin content (een content-plugin die artikel-HTML herschrijft), laat hem dan staan, maar documenteer hem. Die twee binnen de template door elkaar mixen is hoe je hier bent gekomen.</p>
+
+<pre><code class="lang-php">// Voor, in index.php
+$plugin = JPluginHelper::getPlugin('content','agency_map');
+$params = new JRegistry($plugin-&gt;params);
+echo MapRenderer::render($params-&gt;get('coords'), $params-&gt;get('zoom'));
+
+// Na, in index.php
+&lt;jdoc:include type="modules" name="map-position" /&gt;</code></pre>
+
+<h2>Fase vier: render-isolatie</h2>
+
+<p>Zodra de datalaag één bron heeft en modules positie-gedreven zijn, hoort <code>index.php</code> er bijna saai uit te zien. Een doctype, een <code>&lt;head&gt;</code>, benoemde posities, een footer. Wat daar niet in past gaat in een partial onder <code>/templates/agency_custom_2014/partials/</code> en wordt opgehaald met een platte <code>include __DIR__.'/partials/header.php';</code>. Geen framework-aanroepen binnen de partials. Geef ze als argumenten mee wat ze nodig hebben.</p>
+
+<p>Waarom dit ertoe doet: op dit punt kun je de template optillen en in een uitgeklede renderer zetten. We schrijven een klein CLI-scriptje dat <code>Factory</code> mockt, de datalaag aanroept met fixture-data en de output van <code>index.php</code> naar disk schrijft. Als de resulterende HTML over een steekproef van vijftig URL's schoon diff't tegen de live site, is de extractie echt. Zo niet, dan vertelt de diff je precies welk koppelpunt je gemist hebt.</p>
+
+<aside class="callout"><strong>Let op:</strong> normaliseer bij de pariteits-diff de whitespace en strip de auto-gegenereerde <code>&lt;meta name="generator"&gt;</code>-tag van Joomla plus eventuele CSRF-tokens. Anders zit je een uur achter spookverschillen aan te jagen en ga je aan de hele fase twijfelen.</aside>
+
+<h2>De pariteit verifiëren</h2>
+
+<p>Twee checks voordat je het werk afgerond noemt.</p>
+
+<p><strong>HTML-diff.</strong> Render vijftig URL's op staging (oude template, volledige Joomla) en op de geëxtraheerde versie. We pipen beide door <a href="https://html.spec.whatwg.org/multipage/parsing.html" rel="nofollow">een standards-compliant parser</a> en sturen canonieke output uit, en diffen die. Strip eerst session-afhankelijke attributen. De diff hoort leeg te zijn of triviaal verklaarbaar.</p>
+
+<p><strong>Asset-graaf.</strong> Open Chrome DevTools Coverage op vijf representatieve pagina's. De set ingeladen CSS- en JS-bestanden, plus hun byte-aantallen binnen tien procent, hoort tussen oud en nieuw te matchen. Als er een script op de nieuwe build laadt maar niet op de oude, heb je een regressie geïntroduceerd. Laadt er een op de oude maar niet op de nieuwe, dan heb je mogelijk een side effect verwijderd waar iemand op leunt. Zoek het uit voordat je live gaat.</p>
+
+<h2>Wat de ontkoppeling je oplevert</h2>
+
+<p>Een Joomla-template die deze cyclus heeft doorlopen kan zonder herschrijfwerk naar Joomla 5 worden gehesen, in een weekend naar Twig-partials worden geport, dienen als referentie-render terwijl je de datalaag naar een nieuwe backend migreert, of eindelijk per bestand met vertrouwen worden geversioneerd (omdat elk bestand nu één taak heeft). Het stopt ook met het bestand te zijn waar elke developer op vrijdagmiddag bang voor is.</p>
+
+<p>Toen we Pier bouwden liepen we bij dit soort werk steeds vast op de inventarisatiefase: inloggen op FTP, templates greppen, module-ID's kruisrefereren in MySQL, eindeloos vensters wisselen. We hebben het uiteindelijk zo opgelost dat de FTP-browser en een <a href="/#database">MySQL-editor</a> in één venster samenkomen, zodat de template-tree en de <code>#__modules</code>-tabel naast elkaar staan en de grep één toetsaanslag is. Elke wijziging belandt in de <a href="/#features">version history</a>, wat de pariteits-diff hierboven merkbaar minder stressvol maakte.</p>
+
+<p>Heb je een gekoppelde Joomla-template waar je niet aan durft te komen: trek vandaag twintig minuten uit om de drie grep-commando's hierboven los te laten op je <code>/templates/</code>-directory en de SQL-query op <code>#__modules</code>. De spreadsheet die eruit rolt ís het plan. Alles daarna is monnikenwerk.</p>
+    </div>
+
+    <aside class="pullquote">Een ontkoppelde Joomla-template is er een waarin het data-interface een naam heeft, modules in posities leven en de renderer vervangen kan worden zonder dat de live site het merkt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt een volledige Joomla-template-ontkoppeling?</p>
+      <p class="faq-a">Voor een matig verstrengelde template van twaalf jaar oud reken je op twee weken gefocust werk: een dag voor de inventarisatie, drie tot vier dagen per fase, en twee dagen voor pariteitstests over een representatieve set URL&#39;s.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moeten we Joomla upgraden vóór of na de ontkoppeling?</p>
+      <p class="faq-a">Erna. Ontkoppel op de bestaande Joomla-versie, zodat de live site je referentie-render is. Eerst upgraden verandert te veel variabelen tegelijk en je verliest je pariteits-baseline.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">En de overrides in /html dan?</p>
+      <p class="faq-a">Behandel ze net als index.php. Inventariseer elke override, duw het ophalen van data achter de ene Data-laag, en laat de markup met rust totdat de pariteit met de live site bevestigd is.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-component-to-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-component-to-plugin/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-component-to-plugin/hero.jpg" alt="Twee papieren vellen gelabeld Joomla 2.5 Component en Joomla 5 Plugin, koperen punaises, liniaal, potlood, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>2 juni 2026</span></span>
+      <h3>Joomla 2.5 component naar Joomla 5 plugin: geen rewrite</h3>
+      <span class="pc-lede">Een oud Joomla 2.5 component draait nog de catalogus van de klant. PHP 8.2 komt eraan. Zo til je het naar Joomla 5 als plugin zonder het schema aan te raken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-1-to-2-weekend-cutover/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-1-to-2-weekend-cutover/hero.jpg" alt="Bovenaanzicht van papieren cutover-kalender, Magento-migratieplan, messing plaatje, lakzegel, liniaal en potlood op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>9 juni 2026</span></span>
+      <h3>Magento 1.9 naar Magento 2: zes weekenden live cutover</h3>
+      <span class="pc-lede">Een Nederlands bureau moest een Magento 1.9-winkel naar 2.4.7 verhuizen zonder de catalogus te bevriezen. Dit is het zes-weekenden-plan dat hield.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
