@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress multisite-lek: een vergeten blogs.dir symlink · Pier — Blog</title>
+<meta name="description" content="Een WordPress multisite serveerde de PDF&#39;s van klant B onder de URL&#39;s van klant A. De oorzaak: een symlink ouder dan het bureau. Dit is de trace.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, operations, security, migration">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-multisite-blogsdir-symlink-incident/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-multisite-blogsdir-symlink-incident/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress multisite-lek: een vergeten blogs.dir symlink">
+<meta property="og:description" content="Een WordPress multisite serveerde de PDF&#39;s van klant B onder de URL&#39;s van klant A. De oorzaak: een symlink ouder dan het bureau. Dit is de trace.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht ruitjespapier bestandsboom, manilla UPLOADS-map, messing SYMLINK-plaat, rode lakzegel LEAK op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T13:27:50.154Z">
+<meta property="article:modified_time" content="2026-06-10T13:27:50.154Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="migration">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress multisite-lek: een vergeten blogs.dir symlink">
+<meta name="twitter:description" content="Een WordPress multisite serveerde de PDF&#39;s van klant B onder de URL&#39;s van klant A. De oorzaak: een symlink ouder dan het bureau. Dit is de trace.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht ruitjespapier bestandsboom, manilla UPLOADS-map, messing SYMLINK-plaat, rode lakzegel LEAK op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-multisite-blogsdir-symlink-incident/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/"},
+  "url":"https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/",
+  "headline":"WordPress multisite-lek: een vergeten blogs.dir symlink",
+  "description":"Een WordPress multisite serveerde de PDF's van klant B onder de URL's van klant A. De oorzaak: een symlink ouder dan het bureau. Dit is de trace.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht ruitjespapier bestandsboom, manilla UPLOADS-map, messing SYMLINK-plaat, rode lakzegel LEAK op linnen."
+  },
+  "datePublished":"2026-06-10T13:27:50.154Z",
+  "dateModified":"2026-06-10T13:27:50.154Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, operations, security, migration",
+  "wordCount":1275,
+  "articleSection":"WordPress",
+  "articleBody":"Het eerste bericht kwam binnen om 15:47 op een dinsdag. Een Nederlands bureau waar we mee samenwerken draait een WordPress multisite met 14 sites voor een keten regionale kranten. Een van hun redacteuren had de mediabibliotheek geopend op site 7 en zag daar een PDF die ze niet kende: een salarisoverzicht, gemarkeerd als vertrouwelijk, behorend bij site 4. Ze ververste. Hij stond er nog. Ze opende het bestand. Het werd gewoon weergegeven. Ze klapte haar laptop dicht en belde de studio lead. Om 16:10 zaten we op een screen-share. Om 16:55 hadden we de oorzaak te pakken: een blogs.dir symlink die in 2014 verwijderd had moeten worden bleek nog steeds te resolven, en een .htaccess rewrite die voor de oude indeling was geschreven volgde hem vrolijk. Dit is de trace, uitgeschreven zodat je je eigen versie ervan vindt voordat een redacteur dat doet. Het symptoom dat de redacteur zag De mediabibliotheek van site 7 toonde een thumbnail en bestandsnaam van een bestand dat elf maanden eerder op site 4 was geüpload. De URL in de browser was het domein van site 7. Het bestand dat geserveerd werd was de PDF van site 4. Dezelfde bytes, dezelfde hash, geserveerd onder de hostnaam van de verkeerde tenant, achter de login van de verkeerde tenant. Multisite slaat uploads per blog op. Op een moderne installatie (3.5+) betekent dat wp-content/uploads/sites/<blog_id>/YYYY/MM/ . Op installaties die vóór 3.5 zijn aangemaakt en in plaats zijn ge-upgrade, krijg je daarnaast ook nog de legacy layout: wp-content/blogs.dir/<blog_id>/files/YYYY/MM/ . De WordPress multisite documentatie verwijst nog steeds naar deze splitsing omdat zoveel installaties van vóór de wijziging dateren. De installatie van dit bureau was oorspronkelijk in 2012 opgezet. Hij was ge-upgrade, in 2017 naar een nieuwe host gemigreerd, en in 2021 nogmaals gemigreerd. Bij elke migratie liep rsync -a over wp-content . Bij elke migratie bleef alles eronder behouden, inclusief een symlink waar in negen jaar niemand meer aan gedacht had. De trace Het eerste wat we deden was de URL in kwestie aanroepen met curl -I vanaf een schone shell: $ curl -sI https://site7.example.nl/files/2024/08/salaris-overzicht.pdf HTTP/2 200 content-type: application/pdf content-length: 184223 last-modified: Wed, 14 Aug 2024 09:11:42 GMT x-served-by: site7-pool 200, geserveerd door de pool van site 7, het bestand bestond echt op disk onder dat pad. De rewrite klopte dus, het filesystem niet. We gingen op de machine zelf kijken. $ cd /var/www/wp-content/blogs.dir $ ls -la drwxr-xr-x 4 www-data www-data 4096 Jun 12 2014 . drwxr-xr-x 12 www-data www-data 4096 Mar 4 2024 .. drwxr-xr-x 3 www-data www-data 4096 Aug 14 2024 4 lrwxrwxrwx 1 root root 12 Jun 12 2014 7 -> ../blogs.dir/4 Daar stond het. De blogs.dir entry van site 7 was een symlink naar de directory van site 4, gedateerd 12 juni 2014, eigendom van root. Niemand van het huidige team werkte in 2014 bij het bureau. Git trackte wp-content niet. Niemand wist ervan. Waarom de rewrite hem nog steeds raakte WordPress 3.5 veranderde waar uploads staan, maar behield een .htaccess rewrite voor backward compatibility op installaties die in plaats zijn ge-upgrade. Op deze server zagen de multisite rewrites in wp-content/.htaccess er zo uit: RewriteEngine On RewriteBase / RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L] Dat is de canonieke regel die de WordPress .htaccess reference meelevert. Hij routeert /files/<path> op een subsite via ms-files.php , die vervolgens kijkt naar het huidige blog ID en het bestand serveert uit blogs.dir/<id>/files/ . Als blogs.dir/7 een symlink is naar blogs.dir/4 , serveert ms-files.php de content van site 4 vrolijk onder de hostnaam van site 7, en dat gebeurt binnen een ingelogde session voor site 7, dus het bestand wordt behandeld als in-tenant. Apache volgt symlinks standaard, tenzij je Options -FollowSymLinks of SymLinksIfOwnerMatch hebt gezet. De meeste managed hosts laten FollowSymLinks aanstaan omdat de helft van het WordPress-ecosysteem er zonder kapotgaat. De eigen documentatie van Apache is duidelijk over de trade-off: SymLinksIfOwnerMatch had dit afgevangen, omdat de symlink eigendom was van root en het doel van www-data . Het bureau had hem nooit gezet. Waarom de symlink überhaupt bestond We groeven door het migratieticket uit 2014. De oorspronkelijke installatie had twee sites die een redactionele kalender deelden, en iemand had de directory van het ene blog naar het andere gesymlinkt zodat een embed-plugin dezelfde PDF's kon vinden zonder een tweede upload. De plugin werd zes maanden later verwijderd. De symlink bleef staan. De rsync bij de migratie van 2017 behield hem. De migratie van 2021 behield hem opnieuw. Tussendoor werd site 7 (oorspronkelijk een van het gedeelde paar) hergebruikt voor een andere regionale krant, en op een gegeven moment werd er een nieuwe uploads/sites/7/ boom naast de inmiddels betekenisloze blogs.dir/7 symlink aangemaakt. Nieuwe uploads gingen naar de ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress multisite-lek: een vergeten blogs.dir symlink","item":"https://pier.abn.company/nl/blog/wordpress-multisite-blogsdir-symlink-incident/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wordt blogs.dir nog gebruikt in een moderne WordPress multisite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen op installaties die vanuit pre-3.5 zijn ge-upgrade. Nieuwe installaties gebruiken wp-content/uploads/sites/<id>/. Ge-upgrade installaties houden blogs.dir en de ms-files.php rewrite vaak aan voor backward compatibility."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Had het uitzetten van FollowSymLinks dit voorkomen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. SymLinksIfOwnerMatch alleen had het al geblokkeerd, omdat de bungelende symlink eigendom was van root en het doel van www-data. Apache weigert in dat geval de link te volgen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe vind ik verouderde symlinks op een multisite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai find wp-content -type l vanaf de install-root. Vergelijk de resultaten met wp_blogs om te bevestigen dat elke link wijst waar de huidige tenant-mapping verwacht."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wordpress-multisite-blogsdir-symlink-incident/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 091</span>
+      </div>
+      <p class="eyebrow"><span class="n">091 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress multisite-lek: een vergeten blogs.dir symlink</h1>
+      <p class="lede post-lede">Een WordPress multisite serveerde de PDF&#39;s van klant B onder de URL&#39;s van klant A. De oorzaak: een symlink ouder dan het bureau. Dit is de trace.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T13:27:50.154Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-multisite-blogsdir-symlink-incident/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-multisite-blogsdir-symlink-incident/hero.jpg" alt="Bovenaanzicht ruitjespapier bestandsboom, manilla UPLOADS-map, messing SYMLINK-plaat, rode lakzegel LEAK op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 091</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het eerste bericht kwam binnen om 15:47 op een dinsdag. Een Nederlands bureau waar we mee samenwerken draait een WordPress multisite met 14 sites voor een keten regionale kranten. Een van hun redacteuren had de mediabibliotheek geopend op site 7 en zag daar een PDF die ze niet kende: een salarisoverzicht, gemarkeerd als vertrouwelijk, behorend bij site 4. Ze ververste. Hij stond er nog. Ze opende het bestand. Het werd gewoon weergegeven. Ze klapte haar laptop dicht en belde de studio lead.</p>
+<p>Om 16:10 zaten we op een screen-share. Om 16:55 hadden we de oorzaak te pakken: een <code>blogs.dir</code> symlink die in 2014 verwijderd had moeten worden bleek nog steeds te resolven, en een <code>.htaccess</code> rewrite die voor de oude indeling was geschreven volgde hem vrolijk. Dit is de trace, uitgeschreven zodat je je eigen versie ervan vindt voordat een redacteur dat doet.</p>
+<h2>Het symptoom dat de redacteur zag</h2>
+<p>De mediabibliotheek van site 7 toonde een thumbnail en bestandsnaam van een bestand dat elf maanden eerder op site 4 was geüpload. De URL in de browser was het domein van site 7. Het bestand dat geserveerd werd was de PDF van site 4. Dezelfde bytes, dezelfde hash, geserveerd onder de hostnaam van de verkeerde tenant, achter de login van de verkeerde tenant.</p>
+<p>Multisite slaat uploads per blog op. Op een moderne installatie (3.5+) betekent dat <code>wp-content/uploads/sites/&lt;blog_id&gt;/YYYY/MM/</code>. Op installaties die vóór 3.5 zijn aangemaakt en in plaats zijn ge-upgrade, krijg je daarnaast ook nog de legacy layout: <code>wp-content/blogs.dir/&lt;blog_id&gt;/files/YYYY/MM/</code>. De <a href="https://developer.wordpress.org/advanced-administration/multisite/administration/">WordPress multisite documentatie</a> verwijst nog steeds naar deze splitsing omdat zoveel installaties van vóór de wijziging dateren.</p>
+<p>De installatie van dit bureau was oorspronkelijk in 2012 opgezet. Hij was ge-upgrade, in 2017 naar een nieuwe host gemigreerd, en in 2021 nogmaals gemigreerd. Bij elke migratie liep <code>rsync -a</code> over <code>wp-content</code>. Bij elke migratie bleef alles eronder behouden, inclusief een symlink waar in negen jaar niemand meer aan gedacht had.</p>
+<h2>De trace</h2>
+<p>Het eerste wat we deden was de URL in kwestie aanroepen met <code>curl -I</code> vanaf een schone shell:</p>
+<pre><code class="lang-bash">$ curl -sI https://site7.example.nl/files/2024/08/salaris-overzicht.pdf
+HTTP/2 200
+content-type: application/pdf
+content-length: 184223
+last-modified: Wed, 14 Aug 2024 09:11:42 GMT
+x-served-by: site7-pool</code></pre>
+<p>200, geserveerd door de pool van site 7, het bestand bestond echt op disk onder dat pad. De rewrite klopte dus, het filesystem niet. We gingen op de machine zelf kijken.</p>
+<pre><code class="lang-bash">$ cd /var/www/wp-content/blogs.dir
+$ ls -la
+drwxr-xr-x  4 www-data www-data 4096 Jun 12  2014 .
+drwxr-xr-x 12 www-data www-data 4096 Mar  4  2024 ..
+drwxr-xr-x  3 www-data www-data 4096 Aug 14  2024 4
+lrwxrwxrwx  1 root     root       12 Jun 12  2014 7 -&gt; ../blogs.dir/4</code></pre>
+<p>Daar stond het. De <code>blogs.dir</code> entry van site 7 was een symlink naar de directory van site 4, gedateerd 12 juni 2014, eigendom van root. Niemand van het huidige team werkte in 2014 bij het bureau. Git trackte <code>wp-content</code> niet. Niemand wist ervan.</p>
+<h3>Waarom de rewrite hem nog steeds raakte</h3>
+<p>WordPress 3.5 veranderde waar uploads staan, maar behield een <code>.htaccess</code> rewrite voor backward compatibility op installaties die in plaats zijn ge-upgrade. Op deze server zagen de multisite rewrites in <code>wp-content/.htaccess</code> er zo uit:</p>
+<pre><code class="lang-apache">RewriteEngine On
+RewriteBase /
+RewriteRule ^([_0-9a-zA-Z-]+/)?files/(.+) wp-includes/ms-files.php?file=$2 [L]</code></pre>
+<p>Dat is de canonieke regel die de <a href="https://wordpress.org/documentation/article/htaccess/">WordPress .htaccess reference</a> meelevert. Hij routeert <code>/files/&lt;path&gt;</code> op een subsite via <code>ms-files.php</code>, die vervolgens kijkt naar het huidige blog ID en het bestand serveert uit <code>blogs.dir/&lt;id&gt;/files/</code>. Als <code>blogs.dir/7</code> een symlink is naar <code>blogs.dir/4</code>, serveert <code>ms-files.php</code> de content van site 4 vrolijk onder de hostnaam van site 7, en dat gebeurt binnen een ingelogde session voor site 7, dus het bestand wordt behandeld als in-tenant.</p>
+<p>Apache volgt symlinks standaard, tenzij je <code>Options -FollowSymLinks</code> of <code>SymLinksIfOwnerMatch</code> hebt gezet. De meeste managed hosts laten <code>FollowSymLinks</code> aanstaan omdat de helft van het WordPress-ecosysteem er zonder kapotgaat. De <a href="https://httpd.apache.org/docs/2.4/mod/core.html#options">eigen documentatie van Apache</a> is duidelijk over de trade-off: <code>SymLinksIfOwnerMatch</code> had dit afgevangen, omdat de symlink eigendom was van root en het doel van <code>www-data</code>. Het bureau had hem nooit gezet.</p>
+<h2>Waarom de symlink überhaupt bestond</h2>
+<p>We groeven door het migratieticket uit 2014. De oorspronkelijke installatie had twee sites die een redactionele kalender deelden, en iemand had de directory van het ene blog naar het andere gesymlinkt zodat een embed-plugin dezelfde PDF's kon vinden zonder een tweede upload. De plugin werd zes maanden later verwijderd. De symlink bleef staan. De <code>rsync</code> bij de migratie van 2017 behield hem. De migratie van 2021 behield hem opnieuw. Tussendoor werd site 7 (oorspronkelijk een van het gedeelde paar) hergebruikt voor een andere regionale krant, en op een gegeven moment werd er een nieuwe <code>uploads/sites/7/</code> boom naast de inmiddels betekenisloze <code>blogs.dir/7</code> symlink aangemaakt. Nieuwe uploads gingen naar de nieuwe boom. De handvol URL's die nog naar <code>/files/</code> wezen, gingen naar de symlink. Op de meeste van die URL's klikte niemand meer. Tot een redacteur dat wel deed.</p>
+<aside class="callout"><strong>Het riskante stuk:</strong> <code>ms-files.php</code> zet de <code>Content-Type</code> op basis van de bestandsextensie en controleert het tenant-eigenaarschap van het opgeloste pad niet opnieuw. Als een symlink tenants kruist, wordt het bestand geserveerd alsof het bij de aanvragende tenant hoort. In de logs is geen waarschuwing te zien. De access log toont een 200 op de vhost van de aanvragende site, en dat is het enige spoor.</aside>
+<h2>De fix en de audit</h2>
+<p>De directe fix was vier regels:</p>
+<pre><code class="lang-bash">$ cd /var/www/wp-content/blogs.dir
+$ rm 7
+$ find . -maxdepth 1 -type l -printf '%p -&gt; %l\n'
+$ # (geen output, geen andere cross-tenant links)</code></pre>
+<p>Daarna controleerden we de rest. Drie dingen om te checken op elke multisite ouder dan WordPress 3.5, of die daarvan is gemigreerd:</p>
+<ol><li>Elke entry in <code>wp-content/blogs.dir/</code> hoort een directory te zijn die eigendom is van de webserver-user. Alles wat een symlink is, is verdacht. <code>find wp-content/blogs.dir -maxdepth 2 -type l</code> vindt ze in één pass.</li><li>De tabel <code>wp_blogs</code> moet overeenkomen met de directories op disk. <code>SELECT blog_id, domain, path FROM wp_blogs;</code> naast <code>ls wp-content/blogs.dir/</code> en <code>ls wp-content/uploads/sites/</code> legt wezen aan beide kanten bloot.</li><li>Als je de legacy <code>/files/</code> route niet nodig hebt, zet dan <code>define( 'NOBLOGREDIRECT', '...' );</code> en haal de <code>ms-files.php</code> rewrite uit <code>.htaccess</code>. De <a href="https://developer.wordpress.org/advanced-administration/multisite/administration/">multisite admin guide</a> beschrijft de overstap. De meeste installaties die na 3.5 ge-upgrade zijn, hebben hem niet nodig.</li></ol>
+<p>We voegden ook <code>Options -FollowSymLinks +SymLinksIfOwnerMatch</code> toe aan de vhost. Dat alleen had de lek voorkomen, omdat de eigenaar van de bungelende symlink niet overeenkwam met die van zijn doel. Het is een wijziging van één regel die zichzelf terugbetaalt zodra een migratie voor het eerst een oud artefact meeneemt.</p>
+<h2>Wat de post-mortem feitelijk zei</h2>
+<p>De interne write-up van het bureau noemde drie bijdragende oorzaken en één hoofdoorzaak. Bijdragend: geen audit van <code>wp-content</code> bij migratie, geen symlink-check in monitoring, <code>FollowSymLinks</code> op de Apache-default gelaten. Hoofdoorzaak: een beslissing uit 2014 om uploads via een symlink te delen werd nooit gedocumenteerd en nooit teruggedraaid.</p>
+<p>Dat is het deel dat <a href="/">legacy sites</a> lastig maakt. De bug zat niet in de code die iemand dat decennium had geschreven. Hij zat in een filesystem-artefact ouder dan het team, door elke migratie meegekopieerd, onzichtbaar voor elke pluginscan, en pas zichtbaar geworden toen één redacteur een bestandsnaam zag die ze niet herkende.</p>
+<p>Toen we Pier bouwden, bleven we tegen varianten hiervan aanlopen: drift op plekken zonder eigenaar, op hosts waar niemand inlogt. Het werd uiteindelijk zo dat elk bestand dat Pier aanraakt door zijn <a href="/#features">version history</a> gaat, en dat de bestandsbrowser symlinks en hun doelen inline naast de gewone boom toont, zodat je kruisingen ziet zonder <code>ls -la</code> te hoeven draaien.</p>
+<p>Als je vandaag één ding doet, draai dan <code>find wp-content -type l</code> op elke WordPress multisite die je beheert. Het kost ongeveer dertig seconden per installatie. Alles wat eruit komt, verdient een uitleg.</p>
+    </div>
+
+    <aside class="pullquote">Draai op elke WordPress multisite ouder dan 3.5, of daarvandaan gemigreerd, find wp-content -type l voordat iets op disk een redacteur verrast.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wordt blogs.dir nog gebruikt in een moderne WordPress multisite?</p>
+      <p class="faq-a">Alleen op installaties die vanuit pre-3.5 zijn ge-upgrade. Nieuwe installaties gebruiken wp-content/uploads/sites/&lt;id&gt;/. Ge-upgrade installaties houden blogs.dir en de ms-files.php rewrite vaak aan voor backward compatibility.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Had het uitzetten van FollowSymLinks dit voorkomen?</p>
+      <p class="faq-a">Ja. SymLinksIfOwnerMatch alleen had het al geblokkeerd, omdat de bungelende symlink eigendom was van root en het doel van www-data. Apache weigert in dat geval de link te volgen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe vind ik verouderde symlinks op een multisite?</p>
+      <p class="faq-a">Draai find wp-content -type l vanaf de install-root. Vergelijk de resultaten met wp_blogs om te bevestigen dat elke link wijst waar de huidige tenant-mapping verwacht.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/transactional-email-migration-playbook/hero.jpg" alt="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Transactionele e-mail migreren zonder verzendadres te wijzigen</h3>
+      <span class="pc-lede">Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/chmod-777-permissions-recovery/hero.jpg" alt="Stilleven van boven op linnen: Unix-rechten spiekbriefje, PHP-FPM foutenlog, manila map wp-content, koperen CHMOD-plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>chmod -R 777 herstel: rechten terugzetten op een legacy site</h3>
+      <span class="pc-lede">Een chmod -R 777 in paniek voelde om 23:41 als de snelste oplossing. Twaalf minuten later weigerde PHP-FPM elk script en gaf de loginpagina 500s.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wordpress-multisite-blogsdir-symlink-incident/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
