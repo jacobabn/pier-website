@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Custom PHP CMS naar WordPress-shell: rebuild in vier weken · Pier — Blog</title>
+<meta name="description" content="Een Nederlands bureau had vier weken om een PHP CMS uit 2009 naar WordPress te tillen zonder één van 14.000 URL&#39;s te verliezen. Zo deden ze het.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, migration, htaccess, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/custom-php-cms-wordpress-shell/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/custom-php-cms-wordpress-shell/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Custom PHP CMS naar WordPress-shell: rebuild in vier weken">
+<meta property="og:description" content="Een Nederlands bureau had vier weken om een PHP CMS uit 2009 naar WordPress te tillen zonder één van 14.000 URL&#39;s te verliezen. Zo deden ze het.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht stilleven op linnen: handgetekende URL-redirectkaart op ruitjespapier, manilamap, envelop met lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T10:11:19.532Z">
+<meta property="article:modified_time" content="2026-06-10T10:11:19.532Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Custom PHP CMS naar WordPress-shell: rebuild in vier weken">
+<meta name="twitter:description" content="Een Nederlands bureau had vier weken om een PHP CMS uit 2009 naar WordPress te tillen zonder één van 14.000 URL&#39;s te verliezen. Zo deden ze het.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht stilleven op linnen: handgetekende URL-redirectkaart op ruitjespapier, manilamap, envelop met lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="12 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/custom-php-cms-wordpress-shell/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/"},
+  "url":"https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/",
+  "headline":"Custom PHP CMS naar WordPress-shell: rebuild in vier weken",
+  "description":"Een Nederlands bureau had vier weken om een PHP CMS uit 2009 naar WordPress te tillen zonder één van 14.000 URL's te verliezen. Zo deden ze het.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht stilleven op linnen: handgetekende URL-redirectkaart op ruitjespapier, manilamap, envelop met lakzegel."
+  },
+  "datePublished":"2026-06-10T10:11:19.532Z",
+  "dateModified":"2026-06-10T10:11:19.532Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, mysql, migration, htaccess, architecture",
+  "wordCount":2195,
+  "articleSection":"Migration",
+  "articleBody":"Een Nederlands bureau waarmee we samenwerken stuurde afgelopen maart om 23:41 een Loom. Hun klant, een regionale zorginstelling, had een custom PHP CMS geërfd dat in 2009 was gebouwd door een leverancier die niet meer bestaat. Zo'n 14.000 geïndexeerde URL's, vier content types, een redactie van zes die weigerde iets anders dan WordPress te leren, en een PHP 8.2-deadline die hen aankeek vanaf de statuspagina van hun hostingmaatschappij. De briefing was van het ongemakkelijke soort. Ze wilden WordPress voor het admin-gedeelte. Ze mochten geen enkele URL verliezen. Het custom PHP CMS bevatte tien jaar redactioneel werk in tabellen die in niets leken op wp_posts . En het budget dekte vier weken, geen vier maanden. Die vier weken waren ook niet willekeurig: de hostingmaatschappij had een harde datum gegeven voor het uitfaseren van PHP 7.4, en het verouderde CMS gebruikte create_function() in twee hot paths die op 8.x zouden falen. We hebben dit soort legacy site -rebuilds vaak genoeg gedaan dat het antwoord dinsdag al duidelijk was: een dunne WordPress-shell over de legacy database, met een SQL-brug ertussen. Dit is de post-mortem. De vorm van het beest uit 2009 De eerste week was lezen. Het CMS had geen documentatie, geen tests, en er was geen ontwikkelaar meer over die zich er iets van herinnerde. We haalden de database door een paar audit-queries en printten het schema als wandposter. De relevante tabellen zagen er zo uit: cms_pages (id, parent_id, slug, title, body, status, ts_created, ts_updated) cms_articles (id, category_id, slug, title, intro, body, author, published_at) cms_sections (id, page_id, position, kind, payload) cms_categories (id, slug, name, parent_id) cms_users (id, email, password_md5, role) Twee dingen vielen op. Ten eerste de slug-strategie: cms_pages gebruikte geneste paden die op runtime werden opgebouwd door recursief parent_id te lopen. Dat betekende dat een pagina op /zorg/locaties/utrecht-noord/ leefde, maar als platte rij was opgeslagen met slug = \"utrecht-noord\" . Ten tweede was cms_sections.payload een geserialiseerde PHP-array, geen JSON, omdat PHP 5.2 de wereld was toen dit werd gebouwd. De audit-queries zelf waren saai maar dragend. SHOW TABLE STATUS voor row counts. SELECT COUNT(DISTINCT slug) FROM cms_pages WHERE parent_id IS NULL voor het aantal top-level URL's. EXPLAIN op een homepage-render om te zien wat het legacy script de database daadwerkelijk vroeg. Dat antwoord was lelijk: 47 queries op de homepage, geen index op cms_articles.published_at , en een functie genaamd build_breadcrumb() die in PHP recursief werkte in plaats van in SQL en bij elke pageview opnieuw draaide. Als we dit op de naïeve manier hadden geïmporteerd in wp_posts , hadden we de URL-structuur verloren, elke interne link gebroken, en een redactie gedwongen om vanaf dag één een nieuw contentmodel te leren. Geen daarvan was acceptabel. Dus deden we het omgekeerde. We lieten de legacy tabellen met rust en bouwden een vertaler. De dunne shell-architectuur Het ontwerp waar we op uitkwamen: WordPress draait naast de legacy database, in een verse installatie met eigen wp_* -tabellen. De legacy cms_* -tabellen blijven precies zoals ze zijn. Geen destructieve migratie, geen schemaherschrijving. Een set MySQL- VIEW s ontsluit de legacy content alsof het een custom post type is, met de joins en het slug-walken in SQL gedaan. Een kleine mu-plugin leert WordPress die views als WP_Post -objecten te lezen op de front-end, terwijl writes via handgeschreven repository-methodes teruggaan naar de legacy tabellen. De redactie ziet alleen ooit de WordPress-admin. Onder de motorkap is elke save een custom save_post -hook die het legacy schema bijwerkt. De winst was dat het rollback-verhaal triviaal bleef. Als er op cutover-dag iets brak, konden we Apache terugwijzen naar de oude document root en bleef het legacy CMS gewoon draaien. De legacy database was nooit het migratiedoel. Het was de bron van waarheid, punt. De SQL-brug Dit is het stuk dat de rest mogelijk maakte. We bouwden drie MySQL-views die het legacy schema vertaalden naar iets dat WordPress kon consumeren. De eerste view liep de parent chain af om het volledige URL-pad te materialiseren: CREATE OR REPLACE VIEW v_page_paths AS WITH RECURSIVE chain AS ( SELECT id, parent_id, slug, CAST(slug AS CHAR(1024)) AS full_path FROM cms_pages WHERE parent_id IS NULL UNION ALL SELECT p.id, p.parent_id, p.slug, CONCAT(c.full_path, '/', p.slug) AS full_path FROM cms_pages p JOIN chain c ON p.parent_id = c.id ) SELECT id, slug, full_path FROM chain; Recursieve CTE's vereisen MySQL 8 (zie de MySQL-referentie ). De legacy host zat op 5.7. Dus upgraden we eerst MySQL, wat op zichzelf drie dagen kostte en een apart verhaal is. De tweede view vormde pagina's om naar iets dat WordPress kon lezen: CREATE OR REPLACE VIEW v_wp_pages AS SELECT p.id AS ID, 1 AS post_author, p.ts_created AS post_date, p.ts_updated AS post_modified, p.title AS post_title, p.body AS post_content, vp.full_pa",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Custom PHP CMS naar WordPress-shell: rebuild in vier weken","item":"https://pier.abn.company/nl/blog/custom-php-cms-wordpress-shell/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom de legacy content niet direct migreren naar wp_posts?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De URL-structuur was dragend en de redactie had specifieke gewoontes rond de legacy save-flow. Een dunne shell behoudt beide en laat je leveren in weken in plaats van maanden."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Houdt dit niet twee databases over om te onderhouden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Eén database, met twee schema's erin. De legacy tabellen blijven de bron van waarheid. WordPress schrijft zijn eigen admin-metadata (sessions, users, options) maar dupliceert nooit de redactionele content."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Welke MySQL-versie heb je nodig voor de SQL-brug?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "MySQL 8.0 of nieuwer voor de recursieve CTE die URL-paden materialiseert. Op 5.7 kun je een stored procedure inzetten die de chain iteratief afloopt, maar de views worden dan lastiger te doorgronden."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/custom-php-cms-wordpress-shell/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 087</span>
+      </div>
+      <p class="eyebrow"><span class="n">087 —</span>Migration</p>
+      <h1 class="display-l post-title">Custom PHP CMS naar WordPress-shell: rebuild in vier weken</h1>
+      <p class="lede post-lede">Een Nederlands bureau had vier weken om een PHP CMS uit 2009 naar WordPress te tillen zonder één van 14.000 URL&#39;s te verliezen. Zo deden ze het.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T10:11:19.532Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>12 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/custom-php-cms-wordpress-shell/hero.webp" type="image/webp">
+      <img src="/blog/custom-php-cms-wordpress-shell/hero.jpg" alt="Bovenaanzicht stilleven op linnen: handgetekende URL-redirectkaart op ruitjespapier, manilamap, envelop met lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 087</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waarmee we samenwerken stuurde afgelopen maart om 23:41 een Loom. Hun klant, een regionale zorginstelling, had een custom PHP CMS geërfd dat in 2009 was gebouwd door een leverancier die niet meer bestaat. Zo'n 14.000 geïndexeerde URL's, vier content types, een redactie van zes die weigerde iets anders dan WordPress te leren, en een PHP 8.2-deadline die hen aankeek vanaf de statuspagina van hun hostingmaatschappij.</p>
+<p>De briefing was van het ongemakkelijke soort. Ze wilden WordPress voor het admin-gedeelte. Ze mochten geen enkele URL verliezen. Het custom PHP CMS bevatte tien jaar redactioneel werk in tabellen die in niets leken op <code>wp_posts</code>. En het budget dekte vier weken, geen vier maanden. Die vier weken waren ook niet willekeurig: de hostingmaatschappij had een harde datum gegeven voor het uitfaseren van PHP 7.4, en het verouderde CMS gebruikte <code>create_function()</code> in twee hot paths die op 8.x zouden falen.</p>
+<p>We hebben dit soort <a href="/">legacy site</a>-rebuilds vaak genoeg gedaan dat het antwoord dinsdag al duidelijk was: een dunne WordPress-shell over de legacy database, met een SQL-brug ertussen. Dit is de post-mortem.</p>
+<h2>De vorm van het beest uit 2009</h2>
+<p>De eerste week was lezen. Het CMS had geen documentatie, geen tests, en er was geen ontwikkelaar meer over die zich er iets van herinnerde. We haalden de database door een paar audit-queries en printten het schema als wandposter.</p>
+<p>De relevante tabellen zagen er zo uit:</p>
+<pre><code class="lang-sql">cms_pages       (id, parent_id, slug, title, body, status, ts_created, ts_updated)
+cms_articles    (id, category_id, slug, title, intro, body, author, published_at)
+cms_sections    (id, page_id, position, kind, payload)
+cms_categories  (id, slug, name, parent_id)
+cms_users       (id, email, password_md5, role)
+</code></pre>
+<p>Twee dingen vielen op. Ten eerste de slug-strategie: <code>cms_pages</code> gebruikte geneste paden die op runtime werden opgebouwd door recursief <code>parent_id</code> te lopen. Dat betekende dat een pagina op <code>/zorg/locaties/utrecht-noord/</code> leefde, maar als platte rij was opgeslagen met <code>slug = "utrecht-noord"</code>. Ten tweede was <code>cms_sections.payload</code> een geserialiseerde PHP-array, geen JSON, omdat PHP 5.2 de wereld was toen dit werd gebouwd.</p>
+<p>De audit-queries zelf waren saai maar dragend. <code>SHOW TABLE STATUS</code> voor row counts. <code>SELECT COUNT(DISTINCT slug) FROM cms_pages WHERE parent_id IS NULL</code> voor het aantal top-level URL's. <code>EXPLAIN</code> op een homepage-render om te zien wat het legacy script de database daadwerkelijk vroeg. Dat antwoord was lelijk: 47 queries op de homepage, geen index op <code>cms_articles.published_at</code>, en een functie genaamd <code>build_breadcrumb()</code> die in PHP recursief werkte in plaats van in SQL en bij elke pageview opnieuw draaide.</p>
+<p>Als we dit op de naïeve manier hadden geïmporteerd in <code>wp_posts</code>, hadden we de URL-structuur verloren, elke interne link gebroken, en een redactie gedwongen om vanaf dag één een nieuw contentmodel te leren. Geen daarvan was acceptabel. Dus deden we het omgekeerde. We lieten de legacy tabellen met rust en bouwden een vertaler.</p>
+<h2>De dunne shell-architectuur</h2>
+<p>Het ontwerp waar we op uitkwamen:</p>
+<ul>
+  <li>WordPress draait naast de legacy database, in een verse installatie met eigen <code>wp_*</code>-tabellen.</li>
+  <li>De legacy <code>cms_*</code>-tabellen blijven precies zoals ze zijn. Geen destructieve migratie, geen schemaherschrijving.</li>
+  <li>Een set MySQL-<code>VIEW</code>s ontsluit de legacy content alsof het een custom post type is, met de joins en het slug-walken in SQL gedaan.</li>
+  <li>Een kleine mu-plugin leert WordPress die views als <code>WP_Post</code>-objecten te lezen op de front-end, terwijl writes via handgeschreven repository-methodes teruggaan naar de legacy tabellen.</li>
+  <li>De redactie ziet alleen ooit de WordPress-admin. Onder de motorkap is elke save een custom <code>save_post</code>-hook die het legacy schema bijwerkt.</li>
+</ul>
+<p>De winst was dat het rollback-verhaal triviaal bleef. Als er op cutover-dag iets brak, konden we Apache terugwijzen naar de oude document root en bleef het legacy CMS gewoon draaien. De legacy database was nooit het migratiedoel. Het was de bron van waarheid, punt.</p>
+<h2>De SQL-brug</h2>
+<p>Dit is het stuk dat de rest mogelijk maakte. We bouwden drie MySQL-views die het legacy schema vertaalden naar iets dat WordPress kon consumeren.</p>
+<p>De eerste view liep de parent chain af om het volledige URL-pad te materialiseren:</p>
+<pre><code class="lang-sql">CREATE OR REPLACE VIEW v_page_paths AS
+WITH RECURSIVE chain AS (
+  SELECT id, parent_id, slug, CAST(slug AS CHAR(1024)) AS full_path
+  FROM cms_pages WHERE parent_id IS NULL
+  UNION ALL
+  SELECT p.id, p.parent_id, p.slug,
+         CONCAT(c.full_path, '/', p.slug) AS full_path
+  FROM cms_pages p
+  JOIN chain c ON p.parent_id = c.id
+)
+SELECT id, slug, full_path FROM chain;
+</code></pre>
+<p>Recursieve CTE's vereisen MySQL 8 (zie de <a href="https://dev.mysql.com/doc/refman/8.0/en/with.html" rel="noreferrer">MySQL-referentie</a>). De legacy host zat op 5.7. Dus upgraden we eerst MySQL, wat op zichzelf drie dagen kostte en een apart verhaal is.</p>
+<p>De tweede view vormde pagina's om naar iets dat WordPress kon lezen:</p>
+<pre><code class="lang-sql">CREATE OR REPLACE VIEW v_wp_pages AS
+SELECT
+  p.id                AS ID,
+  1                   AS post_author,
+  p.ts_created        AS post_date,
+  p.ts_updated        AS post_modified,
+  p.title             AS post_title,
+  p.body              AS post_content,
+  vp.full_path        AS post_name,
+  IF(p.status = 1, 'publish', 'draft') AS post_status,
+  'legacy_page'       AS post_type
+FROM cms_pages p
+JOIN v_page_paths vp ON vp.id = p.id;
+</code></pre>
+<p>De derde deed hetzelfde voor artikelen, met een join via <code>cms_categories</code> zodat de URL-prefix uitkwam op <code>/nieuws/{category-slug}/{article-slug}</code>.</p>
+<p>We discussieerden een halve dag over materialized versus gewone views. MySQL heeft geen native materialized views, en de productiedatabase bevatte zo'n 22.000 rijen verdeeld over <code>cms_pages</code> en <code>cms_articles</code> samen. Een enkele CTE-walked lookup kwam warm uit op zo'n 4ms. We hielden ze als gewone views en leunden op een fragment cache in WordPress voor elke view die meer dan drie joins raakte. De cold-cache page render zakte van 870ms op het legacy script naar 110ms op de brug, wat iedereen in de kamer verraste.</p>
+<p>Dit waren read-only views. We hebben er nooit doorheen geprobeerd te schrijven. Writes liepen via gewone PHP-repository-classes die het legacy schema uit hun hoofd kenden.</p>
+<aside class="callout">Een opmerking over serialized PHP. De kolom <code>cms_sections.payload</code> bevatte PHP-serialized arrays, wat betekent dat je hem niet schoon kunt lezen vanuit Python, Go of welke andere runtime dan ook (zie <a href="https://www.php.net/manual/en/function.unserialize.php" rel="noreferrer">unserialize op php.net</a>). We schreven een kleine PHP CLI-tool die elke rij door <code>unserialize()</code> streamde en JSON uitstuurde, en sloegen die JSON ernaast op in een nieuwe kolom met een generated index. De legacy app bleef de oude kolom lezen. WordPress las de nieuwe. Beide bleven in sync via één enkele trigger.</aside>
+<h2>De .htaccess-laag voor URL-behoud</h2>
+<p>De SEO-consultant van de klant had een lijst van zo'n 200 high-value URL's die ze niet wilden verliezen. De overige 13.800 moesten ook hun vorm behouden, maar die 200 waren degene met een kwartaalreview eraan vast.</p>
+<p>De nieuwe WordPress-installatie leefde op dezelfde document root. Apache moest kiezen tussen een request sturen naar het legacy script (tijdens het transitievenster) of naar <code>index.php</code> voor WordPress. De <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html" rel="noreferrer">mod_rewrite</a>-regels zagen er ongeveer zo uit:</p>
+<pre><code class="lang-apache"># Legacy assets stay where they were
+RewriteRule ^uploads/legacy/(.*)$ /uploads/legacy/$1 [L]
+
+# Editorial preview tokens keep hitting the old script during cutover
+RewriteCond %{QUERY_STRING} (^|&)preview_token=
+RewriteRule ^(.*)$ legacy/index.php [L]
+
+# Specific high-value redirects (200 entries, generated from a CSV)
+RewriteRule ^oude-url/specifiek$ /nieuwe-url/specifiek [R=301,L]
+
+# Everything else: WordPress
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</code></pre>
+<p>De volgorde van de regels is hier belangrijker dan mensen onthouden. Apache evalueert van boven naar beneden en de eerste match met <code>[L]</code> stopt de verwerking, dus de legacy preview-token-regel moest boven de WordPress catch-all staan. Iedereen die ooit <code>RewriteRule . /index.php [L]</code> boven zijn static-asset-bypass heeft gezet en elke PNG de homepage zag teruggeven kent het gevoel.</p>
+<p>We hielden de legacy <code>uploads/</code>-directory intact, gemapt op hetzelfde pad waar hij altijd had geleefd. Geen van de twaalf jaar aan redactionele afbeeldingslinks verrotte.</p>
+<h2>WordPress leren om de brug te lezen</h2>
+<p>De mu-plugin was de kleinste component. Zo'n 180 regels. De kern was een <code>posts_request</code>-filter die elke query onderschepte die om <code>post_type=legacy_page</code> vroeg en die herschreef naar <code>v_wp_pages</code> in plaats van <code>wp_posts</code>.</p>
+<pre><code class="lang-php">add_filter('posts_request', function ($sql, $query) {
+    if ($query-&gt;get('post_type') !== 'legacy_page') {
+        return $sql;
+    }
+    return str_replace(
+        $GLOBALS['wpdb']-&gt;posts,
+        'v_wp_pages',
+        $sql
+    );
+}, 10, 2);
+</code></pre>
+<p>Het is een afschuwelijke hack en we houden ervan. WordPress' eigen querylaag doet het zware werk (paginering, sortering, basic <code>WHERE</code>) en wij wisselen alleen op het laatste moment de tabelnaam om. De view doet de rest. Het <a href="https://developer.wordpress.org/reference/hooks/posts_request/" rel="noreferrer">posts_request-filter</a> bestaat in core precies omdat de maintainers wisten dat iemand dit ooit zou doen.</p>
+<h2>Terugschrijven via de admin</h2>
+<p>Reads waren de makkelijke helft. Writes moesten via PHP, omdat schrijfbare joined views een valkuil zijn en omdat het legacy schema constraints had die de view-laag niet kon uitdrukken (een <code>cms_pages</code>-insert heeft bijvoorbeeld een bijbehorende <code>cms_sections</code>-rij nodig).</p>
+<p>Het write-pad haakte <code>save_post</code> voor het custom post type en riep een repository-class aan:</p>
+<pre><code class="lang-php">add_action('save_post_legacy_page', function ($post_id, $post) {
+    if (defined('DOING_AUTOSAVE') &amp;&amp; DOING_AUTOSAVE) return;
+    if (wp_is_post_revision($post_id))            return;
+
+    $repo = new LegacyPageRepository($GLOBALS['wpdb']);
+    $repo-&gt;upsert([
+        'id'         =&gt; (int) $post_id,
+        'title'      =&gt; $post-&gt;post_title,
+        'body'       =&gt; $post-&gt;post_content,
+        'status'     =&gt; $post-&gt;post_status === 'publish' ? 1 : 0,
+        'ts_updated' =&gt; current_time('mysql'),
+    ]);
+}, 10, 2);
+</code></pre>
+<p>De repository-class was zo'n 90 regels per content type. De interessantste truc was dat we de WordPress post ID identiek hielden aan de legacy row ID. Botsingen waren het voor de hand liggende risico: WordPress neemt auto-increment integers aan voor zijn eigen posts, en we wilden niet dat een nieuwe redactionele pagina bovenop een legacy pagina belandde. We reserveerden vooraf een ID-range boven elke plausibele <code>cms_pages.id</code>-waarde door na de installatie <code>ALTER TABLE wp_posts AUTO_INCREMENT = 1000000</code> te zetten. Legacy ID's bleven onder het miljoen. WordPress-native posts begonnen daarboven. De brug-views mappen <code>p.id</code> rechtstreeks naar de <code>ID</code>-kolom, en <code>wp_postmeta</code> bleef leeg voor legacy content omdat niets in de editor daar naartoe schreef.</p>
+<p>Proberen een SQL VIEW schrijfbaar te maken over joins heen is hoe weekends eindigen. Het repository-pattern verschoof die complexiteit naar PHP, waar het in elk geval leesbaar was.</p>
+<h2>Wat brak op cutover-dag</h2>
+<p>We schakelden om 06:00 over op een dinsdag. Om 06:14 renderde de homepage. Om 06:22 logde de redactie in op de WordPress-admin en raakte in paniek omdat de rich-text editor weigerde afbeeldingen te laden.</p>
+<p>Vier echte problemen kwamen boven in de eerste 24 uur:</p>
+<ol>
+  <li><strong>Afbeeldings-URL's in legacy body-velden.</strong> Oude content sloeg absolute URL's op zoals <code>http://www.client.nl/uploads/2014/foo.jpg</code>, met de kale <code>www</code>. De nieuwe site was HTTPS-only met een redirect, wat de editor als untrusted behandelde. Fix: een eenmalige SQL-update die protocol en host normaliseerde over <code>cms_pages.body</code> en <code>cms_articles.body</code>.</li>
+  <li><strong>Character encoding.</strong> De legacy database was gedeclareerd als <code>latin1</code> maar had UTF-8 bytes erin geduwd (het klassieke geval). WordPress querde hem als <code>utf8mb4</code>. De helft van de redactionele copy renderde als mojibake. Fix: een tijdelijke <code>SET NAMES latin1</code> op de brugverbinding, en daarna een one-pass conversie in het weekend. We draaiden eerst <code>CONVERT TO CHARACTER SET utf8mb4</code> tegen een kopie, vergeleken het aantal bytes-gelijke rijen met bytes-gewijzigde, en wisselden pas in productie toen de diff ons niet meer verraste.</li>
+  <li><strong>Zoeken.</strong> De default search van WordPress raakt <code>wp_posts</code>. De site search gaf twee uur lang nul resultaten. Fix: een aparte <code>WP_Query</code> met een <code>posts_clauses</code>-filter dat de views targette, plus een kleine union zodat WordPress-native pagina's ook doorzoekbaar bleven.</li>
+  <li><strong>Stale OPcache.</strong> Apache serveerde de eerste elf minuten na cutover nog het legacy script omdat PHP's OPcache de oude <code>index.php</code> in geheugen hield. <code>opcache_reset()</code> via een tijdelijk admin-endpoint maakte het leeg. We hadden dat in het deploy script moeten zetten vóór de cutover, niet tijdens.</li>
+</ol>
+<p>Totale downtime over het project van vier weken: 31 minuten, voor de database charset-conversie. De legacy URL-structuur overleefde intact. Search Console rapporteerde 4% meer klikken over de volgende 60 dagen, wat we toeschrijven aan performancewinst die het legacy script niet kon leveren (Apache plus object cache in plaats van een ongecachte single-file PHP CMS).</p>
+<h2>Wat we anders zouden doen</h2>
+<p>Vooral drie dingen.</p>
+<p>Ten eerste onderschatten we de redactionele training. Het team kreeg WordPress, maar door de custom <code>save_post</code>-hooks verschenen sommige velden op onbekende plekken. We hadden een dag mee moeten lopen met een redacteur voordat we ook maar één regel code schreven. De Loom om 23:41 was het idee van een druk team van "we hebben een plan". Dat was niet genoeg discovery.</p>
+<p>Ten tweede leefden de SQL-views uiteindelijk in een aparte repo. Dat was een fout. De views zijn nu onderdeel van de applicatie. Ze horen thuis in dezelfde repository als de mu-plugin, in een <code>db/views/*.sql</code>-directory, met een kleine runner die ze bij de deploy toepast. Inmiddels hebben we ze verhuisd.</p>
+<p>Ten derde hadden we vóór de cutover een end-to-end test voor de brug moeten schrijven, niet erna. De mu-plugin had unittests rond de filterlogica, maar geen integratietest die "pagina aanmaken in WP-admin, schrijven via de brug, renderen via legacy URL, matchen tegen verwachte HTML" draaide. De mojibake-bug had zichzelf in CI gevangen als zo'n test had bestaan. Hem na het incident bouwen was twee keer het werk en de helft van de voldoening.</p>
+<p>Toen we Pier bouwden liepen we tegen precies deze vorm van probleem aan. Hoe we het uiteindelijk oplosten was door de <a href="/#database">MySQL editor</a> via SSH met de live database te laten praten en een <a href="/#features">version history</a> bij te houden van elke view en stored procedure, zodat een recursieve CTE bewerken in productie de tweede keer niet meer eng is.</p>
+<p>Het kleinste wat je vandaag kunt doen: pak één legacy tabel die je in vijf jaar niet hebt aangeraakt, schrijf de recursieve CTE die zijn parent chain afloopt, en sla de output op als view. Je ontdekt in zo'n twintig minuten waar je URL-structuur eigenlijk uit bestaat.</p>
+    </div>
+
+    <aside class="pullquote">Een WordPress-shell over een legacy database, gekoppeld door een handvol SQL-views en een kleine repository-laag voor writes, wint van een volledige content-migratie wanneer de URL-graph en redactionele gewoontes niet onderhandelbaar zijn.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom de legacy content niet direct migreren naar wp_posts?</p>
+      <p class="faq-a">De URL-structuur was dragend en de redactie had specifieke gewoontes rond de legacy save-flow. Een dunne shell behoudt beide en laat je leveren in weken in plaats van maanden.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Houdt dit niet twee databases over om te onderhouden?</p>
+      <p class="faq-a">Eén database, met twee schema&#39;s erin. De legacy tabellen blijven de bron van waarheid. WordPress schrijft zijn eigen admin-metadata (sessions, users, options) maar dupliceert nooit de redactionele content.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Welke MySQL-versie heb je nodig voor de SQL-brug?</p>
+      <p class="faq-a">MySQL 8.0 of nieuwer voor de recursieve CTE die URL-paden materialiseert. Op 5.7 kun je een stored procedure inzetten die de chain iteratief afloopt, maar de views worden dan lastiger te doorgronden.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/custom-php-wordpress-migration-redirects/hero.webp" type="image/webp">
+        <img src="/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg" alt="Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk</h3>
+      <span class="pc-lede">Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Joomla-template ontkoppelen: een gefaseerd extractieplan</h3>
+      <span class="pc-lede">Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/custom-php-cms-wordpress-shell/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
