@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen · Pier — Blog</title>
+<meta name="description" content="Een echte migratie van PHP 7.4 naar 8.2: 60.000 regels, vier auteurs, geen testsuite. De zes-stappen-pass die deprecations en stille fouten vindt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, mysql, migration, workflow, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-74-to-82-compatibility-pass/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-74-to-82-compatibility-pass/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen">
+<meta property="og:description" content="Een echte migratie van PHP 7.4 naar 8.2: 60.000 regels, vier auteurs, geen testsuite. De zes-stappen-pass die deprecations en stille fouten vindt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: PHP 7.4 naar 8.2 werkblad, checklist, manilla map, messing plaatje, rode lakzegel op envelop.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T05:56:39.544Z">
+<meta property="article:modified_time" content="2026-06-10T05:56:39.544Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen">
+<meta name="twitter:description" content="Een echte migratie van PHP 7.4 naar 8.2: 60.000 regels, vier auteurs, geen testsuite. De zes-stappen-pass die deprecations en stille fouten vindt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: PHP 7.4 naar 8.2 werkblad, checklist, manilla map, messing plaatje, rode lakzegel op envelop.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-74-to-82-compatibility-pass/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/"},
+  "url":"https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/",
+  "headline":"Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen",
+  "description":"Een echte migratie van PHP 7.4 naar 8.2: 60.000 regels, vier auteurs, geen testsuite. De zes-stappen-pass die deprecations en stille fouten vindt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: PHP 7.4 naar 8.2 werkblad, checklist, manilla map, messing plaatje, rode lakzegel op envelop."
+  },
+  "datePublished":"2026-06-10T05:56:39.544Z",
+  "dateModified":"2026-06-10T05:56:39.544Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, mysql, migration, workflow, tooling",
+  "wordCount":1463,
+  "articleSection":"PHP",
+  "articleBody":"Vrijdag, 17:50. Een lead bij een Nederlands bureau stuurt een mail door van zijn hostingmaatschappij. PHP 7.4 verdwijnt over zes weken van shared hosting. Hun boekingsplatform is ruwweg 60.000 regels custom PHP, geschreven tussen 2014 en 2022 door vier mensen, van wie er twee niet meer reageren op LinkedIn. Er is een tests-map. Daar staan vier bestanden in. Eén ervan heet test_test.php en print \"ok\". Dit is een vrij gemiddelde upgrade van PHP 7.4 naar 8.2. De codebase compileert. Hij draait grotendeels. En ergens daarbinnen gaat een strlen($name) , waarbij $name soms null is, TypeErrors gooien zodra je de runtime omzet. De klus is om die te vinden voor de overgang, niet erna. Wat volgt is de compatibility pass in zes stappen die wij draaien op elke PHP 8.2-migratie, in de volgorde die de minste tijd verspilt. Stap 1: Inventariseer voor je één regel aanpast Het eerste uur is geen code aanpassen. Het is tellen. Je hebt drie getallen nodig voor je iets beslist: hoeveel PHP je daadwerkelijk hebt, welke runtime hij nu target, en wat je dependency graph denkt te ondersteunen. find . -name '*.php' -not -path './vendor/*' | xargs wc -l | tail -1 grep -r 'php_version\\|PHP_VERSION_ID' --include='*.php' . composer why-not php 8.2.0 Dat laatste commando verrast mensen. composer why-not php 8.2.0 loopt elk pakket in je composer.lock langs en vertelt welke nog een plafond onder 8.2 vasthouden. Bij het project van het Nederlandse bureau was de boosdoener een verlaten PDF-library uit 2018 met een \"php\": \"^7.0\" -constraint in zijn manifest, terwijl de code zelf prima draaide onder 8.2. Hem forken en de constraint ophogen kostte twintig minuten. Doen alsof hij niet bestond had een week gekost. Stap 2: PHPStan als triage, niet als rapportcijfer Installeer PHPStan op level 0. Weersta elke neiging om bij level 5 te beginnen. Het doel hier is niet de code repareren, het is de code in kaart brengen. composer require --dev phpstan/phpstan vendor/bin/phpstan analyse src --level=0 --memory-limit=2G --error-format=json > baseline.json Op een legacy codebase van 60.000 regels levert level 0 ergens tussen de 200 en 2.000 fouten op. Dat is prima. Pipe de JSON-output naar een script, groepeer op error code, en je hebt je echte backlog. De categorieën die er bij een 8.2-upgrade toe doen zijn vrijwel altijd dezelfde drie: impliciet nullable parameters (deprecated in 8.0, uiteindelijk fataal), aanroepen naar interne functies met null-argumenten ( strlen(null) , trim(null) , de null-haystack van str_replace ) en dynamische properties (de hoofdpijn-deprecation van 8.2). Die met de dynamische properties is het meest virulent. Elke klasse die stilletjes $obj->newField = 'x' accepteert zonder $newField te declareren, gooit onder 8.2 een E_DEPRECATED bij elke toewijzing. In een controller die 4.000 requests per minuut afhandelt is dat een logbestand dat in één middag een partitie volpompt. // Trips E_DEPRECATED in PHP 8.2 class Booking { public string $id; } $b = new Booking(); $b->customer_email = 'a@b.com'; // Two valid fixes: #[\\AllowDynamicProperties] class Booking { /* ... */ } // Or, preferred: declare the property class Booking { public string $id; public ?string $customer_email = null; } Gebruik #[\\AllowDynamicProperties] als tijdelijke wachtkamer voor de ergste gevallen, niet als eindbestemming. Elke klasse die het attribuut draagt is een stukje schuld dat je het volgende kwartaal terugbetaalt. Stap 3: Rector voor de mechanische fixes Ruwweg 60% van een diff tussen PHP 7.4 en 8.2 is mechanisch: nullable type hints, de spread-operator op associatieve arrays, str_contains in plaats van strpos !== false , de readonly modifier, constructor property promotion. Rector doet dat allemaal zonder mening. Configureer hem één keer per project: // rector.php use Rector\\Config\\RectorConfig; use Rector\\Set\\ValueObject\\LevelSetList; return RectorConfig::configure() ->withPaths([__DIR__ . '/src']) ->withSets([LevelSetList::UP_TO_PHP_82]) ->withImportNames(removeUnusedImports: true); Draai eerst vendor/bin/rector process --dry-run . Lees de diff. Op het boekingsplatform produceerde hij een patch van 38.000 regels. Dat is geen getal dat je in één commit landt. Splits het: types eerst, syntax-modernisering tweede, dode-code-opruim als laatste. Elke commit is een aparte PR met één reviewer. Rector mist soms dingen die voor de hand lijken te liggen. Match-expressies in plaats van switch-statements met fall-through bijvoorbeeld worden niet herschreven, omdat de semantiek net iets anders is. Dat is correct gedrag. Het doel is geen 100% modernisering; het doel is een werkende 8.2-runtime. Stap 4: De deprecation-ronde die grep voor je vindt Sommige 8.2-deprecations worden niet opgepikt door PHPStan of Rector omdat ze eruitzien als gewone string-bewerkingen. Drie die je met de hand moet greppen: grep -rn 'utf8_encode\\|utf8_decode' src/ grep -rn '\\${' src/ | grep -v '//' grep -rn 'mb_convert_encoding.*HTML-ENTITIES' src/ De eerste vindt aanroepen naar utf8_encode e",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen","item":"https://pier.abn.company/nl/blog/php-74-to-82-compatibility-pass/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kunnen we 8.0 en 8.1 overslaan en direct van 7.4 naar 8.2 springen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. De runtime-upgrade is één stap. Wat telt is de deprecations van elke tussenliggende versie oplossen, en daar pakt Rectors UP_TO_PHP_82-set er in één keer doorheen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt dit op een codebase van 60.000 regels?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Twee tot drie geconcentreerde weken voor één ontwikkelaar, aannemende dat er geen testsuite herbouwd hoeft te worden. De encoding- en database-audit is meestal de traagste stap, niet de PHP zelf."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hebben we een echte testsuite nodig voor we upgraden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het helpt, maar de canary-deploy in stap 6 is het alternatief. Statische analyse plus een klein stukje live verkeer vangt meer 8.2-specifieke regressies dan een verouderde PHPUnit-run uit 2019."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/php-74-to-82-compatibility-pass/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 082</span>
+      </div>
+      <p class="eyebrow"><span class="n">082 —</span>PHP</p>
+      <h1 class="display-l post-title">Van PHP 7.4 naar 8.2: een compatibility pass in zes stappen</h1>
+      <p class="lede post-lede">Een echte migratie van PHP 7.4 naar 8.2: 60.000 regels, vier auteurs, geen testsuite. De zes-stappen-pass die deprecations en stille fouten vindt.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T05:56:39.544Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-74-to-82-compatibility-pass/hero.webp" type="image/webp">
+      <img src="/blog/php-74-to-82-compatibility-pass/hero.jpg" alt="Bovenaanzicht op linnen: PHP 7.4 naar 8.2 werkblad, checklist, manilla map, messing plaatje, rode lakzegel op envelop." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 082</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Vrijdag, 17:50. Een lead bij een Nederlands bureau stuurt een mail door van zijn hostingmaatschappij. PHP 7.4 verdwijnt over zes weken van shared hosting. Hun boekingsplatform is ruwweg 60.000 regels custom PHP, geschreven tussen 2014 en 2022 door vier mensen, van wie er twee niet meer reageren op LinkedIn. Er is een tests-map. Daar staan vier bestanden in. Eén ervan heet <code>test_test.php</code> en print "ok".</p>
+
+<p>Dit is een vrij gemiddelde upgrade van PHP 7.4 naar 8.2. De codebase compileert. Hij draait grotendeels. En ergens daarbinnen gaat een <code>strlen($name)</code>, waarbij <code>$name</code> soms null is, TypeErrors gooien zodra je de runtime omzet. De klus is om die te vinden voor de overgang, niet erna. Wat volgt is de compatibility pass in zes stappen die wij draaien op elke PHP 8.2-migratie, in de volgorde die de minste tijd verspilt.</p>
+
+<h2>Stap 1: Inventariseer voor je één regel aanpast</h2>
+
+<p>Het eerste uur is geen code aanpassen. Het is tellen. Je hebt drie getallen nodig voor je iets beslist: hoeveel PHP je daadwerkelijk hebt, welke runtime hij nu target, en wat je dependency graph denkt te ondersteunen.</p>
+
+<pre><code class="lang-bash">find . -name '*.php' -not -path './vendor/*' | xargs wc -l | tail -1
+grep -r 'php_version\|PHP_VERSION_ID' --include='*.php' .
+composer why-not php 8.2.0
+</code></pre>
+
+<p>Dat laatste commando verrast mensen. <code>composer why-not php 8.2.0</code> loopt elk pakket in je <code>composer.lock</code> langs en vertelt welke nog een plafond onder 8.2 vasthouden. Bij het project van het Nederlandse bureau was de boosdoener een verlaten PDF-library uit 2018 met een <code>"php": "^7.0"</code>-constraint in zijn manifest, terwijl de code zelf prima draaide onder 8.2. Hem forken en de constraint ophogen kostte twintig minuten. Doen alsof hij niet bestond had een week gekost.</p>
+
+<h2>Stap 2: PHPStan als triage, niet als rapportcijfer</h2>
+
+<p>Installeer <a href="https://phpstan.org/user-guide/getting-started">PHPStan</a> op level 0. Weersta elke neiging om bij level 5 te beginnen. Het doel hier is niet de code repareren, het is de code in kaart brengen.</p>
+
+<pre><code class="lang-bash">composer require --dev phpstan/phpstan
+vendor/bin/phpstan analyse src --level=0 --memory-limit=2G --error-format=json &gt; baseline.json
+</code></pre>
+
+<p>Op een legacy codebase van 60.000 regels levert level 0 ergens tussen de 200 en 2.000 fouten op. Dat is prima. Pipe de JSON-output naar een script, groepeer op error code, en je hebt je echte backlog. De categorieën die er bij een 8.2-upgrade toe doen zijn vrijwel altijd dezelfde drie: impliciet nullable parameters (deprecated in 8.0, uiteindelijk fataal), aanroepen naar interne functies met null-argumenten (<code>strlen(null)</code>, <code>trim(null)</code>, de null-haystack van <code>str_replace</code>) en dynamische properties (de hoofdpijn-deprecation van 8.2).</p>
+
+<p>Die met de dynamische properties is het meest virulent. Elke klasse die stilletjes <code>$obj-&gt;newField = 'x'</code> accepteert zonder <code>$newField</code> te declareren, gooit onder 8.2 een E_DEPRECATED bij elke toewijzing. In een controller die 4.000 requests per minuut afhandelt is dat een logbestand dat in één middag een partitie volpompt.</p>
+
+<pre><code class="lang-php">// Trips E_DEPRECATED in PHP 8.2
+class Booking {
+    public string $id;
+}
+$b = new Booking();
+$b-&gt;customer_email = 'a@b.com';
+
+// Two valid fixes:
+#[\AllowDynamicProperties]
+class Booking { /* ... */ }
+
+// Or, preferred: declare the property
+class Booking {
+    public string $id;
+    public ?string $customer_email = null;
+}
+</code></pre>
+
+<p>Gebruik <code>#[\AllowDynamicProperties]</code> als tijdelijke wachtkamer voor de ergste gevallen, niet als eindbestemming. Elke klasse die het attribuut draagt is een stukje schuld dat je het volgende kwartaal terugbetaalt.</p>
+
+<h2>Stap 3: Rector voor de mechanische fixes</h2>
+
+<p>Ruwweg 60% van een diff tussen PHP 7.4 en 8.2 is mechanisch: nullable type hints, de spread-operator op associatieve arrays, <code>str_contains</code> in plaats van <code>strpos !== false</code>, de readonly modifier, constructor property promotion. <a href="https://getrector.com/">Rector</a> doet dat allemaal zonder mening. Configureer hem één keer per project:</p>
+
+<pre><code class="lang-php">// rector.php
+use Rector\Config\RectorConfig;
+use Rector\Set\ValueObject\LevelSetList;
+
+return RectorConfig::configure()
+    -&gt;withPaths([__DIR__ . '/src'])
+    -&gt;withSets([LevelSetList::UP_TO_PHP_82])
+    -&gt;withImportNames(removeUnusedImports: true);
+</code></pre>
+
+<p>Draai eerst <code>vendor/bin/rector process --dry-run</code>. Lees de diff. Op het boekingsplatform produceerde hij een patch van 38.000 regels. Dat is geen getal dat je in één commit landt. Splits het: types eerst, syntax-modernisering tweede, dode-code-opruim als laatste. Elke commit is een aparte PR met één reviewer.</p>
+
+<p>Rector mist soms dingen die voor de hand lijken te liggen. Match-expressies in plaats van switch-statements met fall-through bijvoorbeeld worden niet herschreven, omdat de semantiek net iets anders is. Dat is correct gedrag. Het doel is geen 100% modernisering; het doel is een werkende 8.2-runtime.</p>
+
+<h2>Stap 4: De deprecation-ronde die grep voor je vindt</h2>
+
+<p>Sommige 8.2-deprecations worden niet opgepikt door PHPStan of Rector omdat ze eruitzien als gewone string-bewerkingen. Drie die je met de hand moet greppen:</p>
+
+<pre><code class="lang-bash">grep -rn 'utf8_encode\|utf8_decode' src/
+grep -rn '\${' src/ | grep -v '//'
+grep -rn 'mb_convert_encoding.*HTML-ENTITIES' src/
+</code></pre>
+
+<p>De eerste vindt aanroepen naar <a href="https://www.php.net/manual/en/function.utf8-encode.php"><code>utf8_encode</code></a> en <code>utf8_decode</code>, in 8.2 deprecated ten gunste van de expliciete mbstring-vorm. Veel verouderde WordPress- en Joomla-codebases gebruiken ze als een soort magische talisman tegen latin-1-invoer uit oude MySQL-tabellen. Vervang elke aanroep door <code>mb_convert_encoding($s, 'UTF-8', 'ISO-8859-1')</code>, maar lees de volgende callout voor je dat doet.</p>
+
+<aside class="callout"><strong>Gotcha.</strong> <code>utf8_encode</code> heeft altijd alleen maar ISO-8859-1 geconverteerd. <code>mb_convert_encoding</code> met diezelfde bron-charset is een echt equivalent. Maar als de bron-bytes in werkelijkheid Windows-1252 waren (wat het geval is in de meeste CMS-exports uit de jaren 2010), verlies je stilletjes je smart quotes, em-dashes en trademark-tekens. Bemonster je échte data met <code>mb_detect_encoding</code> voor je de vervangende charset kiest, niet erna.</aside>
+
+<p>De tweede grep vindt de deprecated <code>"${var}"</code>-interpolatiesyntax. De fix is de accolade-vorm <code>"{$var}"</code>, die in elke PHP-versie sinds 5 heeft gewerkt. De derde vindt aanroepen naar <code>mb_convert_encoding($s, 'HTML-ENTITIES', 'UTF-8')</code>, deprecated in 8.2, en die de meeste senior PHP-ontwikkelaars minstens één keer hebben geschreven. De vervanging is <code>htmlentities($s, ENT_QUOTES, 'UTF-8')</code>.</p>
+
+<h2>Stap 5: De encoding- en database-laag</h2>
+
+<p>De bug die bij een PHP 8.2-upgrade naar productie gaat zit vrijwel nooit in PHP zelf. Hij zit in de kolom tussen PHP en MySQL. PDO-gedrag rond null-waarden, de wisselwerking tussen strict_types en <code>fetch</code>, en de default <code>SET NAMES</code> schuiven op manieren die er in dev prima uitzien en in productie stuk gaan.</p>
+
+<p>Drie checks voor de overgang. Eén: elke PDO-connectie hoort expliciet <code>PDO::ATTR_EMULATE_PREPARES =&gt; false</code> en <code>PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC</code> te zetten. Default-emulatiegedrag rond gebonden integers is geluidloos veranderd tussen minor-versies, en een numeriek ID dat vergeleken wordt met een string-getypte primary key kan nu nul rijen matchen waar het er eerst één matchte.</p>
+
+<pre><code class="lang-php">$pdo = new PDO($dsn, $user, $pass, [
+    PDO::ATTR_EMULATE_PREPARES   =&gt; false,
+    PDO::ATTR_ERRMODE            =&gt; PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC,
+    PDO::MYSQL_ATTR_INIT_COMMAND =&gt; "SET NAMES utf8mb4",
+]);
+</code></pre>
+
+<p>Twee: doorzoek je schema op <code>utf8</code> (de driebyte-alias). MySQL's <code>utf8</code> is geen echte UTF-8 en is dat ook nooit geweest. Elke kolom die een emoji of een Chinees karakter moet kunnen bevatten heeft <code>utf8mb4</code> nodig. De conversie is één statement per tabel, maar hij lockt, dus plan hem in: <code>ALTER TABLE bookings CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;</code>.</p>
+
+<p>Drie: scan je codebase op SQL die met <code>(int)</code>-casts op user-input wordt opgebouwd via concatenatie. PHP 8 heeft veranderd hoe strings met getallen vergeleken worden, en de oude defensieve cast <code>"WHERE id = " . (int) $_GET['id']</code> werkt nog steeds, maar beschermt niet meer tegen het lek waarvoor hij geschreven is. Zet die om naar bound parameters, één query tegelijk.</p>
+
+<h2>Stap 6: De canary, niet de big-bang</h2>
+
+<p>Zet de runtime nooit overal tegelijk om. Het patroon dat werkt: deploy de 8.2-fix-branch achter een runtime-selector, route een klein percentage van het verkeer ernaartoe, en kijk twee werkdagen mee in de error log. Op shared hosting betekent dat vaak een tweede subdomein dat naar dezelfde DocumentRoot wijst met een <code>.htaccess</code>-override:</p>
+
+<pre><code class="lang-apache"># /canary/.htaccess on cPanel-style hosts
+AddHandler application/x-httpd-php82 .php
+&lt;IfModule mod_suphp.c&gt;
+    suPHP_ConfigPath /home/user/etc/php82
+&lt;/IfModule&gt;
+</code></pre>
+
+<p>Stuur eerst je eigen sessie ernaartoe. Daarna intern personeel. Daarna 5% van het klantverkeer, 48 uur lang. Laat de PHP error log meelopen met <code>grep -E 'Deprecated|TypeError|Fatal'</code> in een tmux-pane, de hele periode. Twee schone dagen is je groene licht; alles daaronder gaat terug naar stap 2 met het nieuwe bewijs.</p>
+
+<h2>Wat dit met de codebase doet</h2>
+
+<p>Zes stappen, twee à drie weken geconcentreerd werk, en een 60.000 regels tellende verouderde codebase die de komende vier jaar op een ondersteunde runtime draait. De Rector-commits laten je bovendien achter met constructor property promotion, readonly properties op je value objects en enum-getypte statusvelden. Dat was geen van allen het doel, maar het is wel het dividend.</p>
+
+<p>Toen wij <a href="/">Pier</a> bouwden liepen we tegen precies deze lus aan op de <a href="/">legacy site</a> van een klant met een PHP 7-base van 70.000 regels, en het pijnlijke stuk waren nooit de deprecations zelf. Het was het terugtraceren van een regressie drie dagen na deploy naar één Rector-aanpassing op één regel, en daarom wordt elke wijziging die Pier maakt vastgelegd in <a href="/#features">version history</a> en is elke databasewijziging via de <a href="/#database">MySQL editor</a> één klik verwijderd van de vorige staat.</p>
+
+<p>De kleinste stap voor vandaag: draai <code>composer why-not php 8.2.0</code> en <code>vendor/bin/phpstan analyse --level=0</code> op je grootste module voor het einde van de werkdag. De output vertelt je of volgende week een sprint of een kwartaal wordt.</p>
+    </div>
+
+    <aside class="pullquote">Statische analyse en Rector pakken 80% van een PHP 8.2-migratie mechanisch af; de overige 20% verstopt zich in de encoding-laag en op de plekken waar nullable types nooit zijn gedeclareerd.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kunnen we 8.0 en 8.1 overslaan en direct van 7.4 naar 8.2 springen?</p>
+      <p class="faq-a">Ja. De runtime-upgrade is één stap. Wat telt is de deprecations van elke tussenliggende versie oplossen, en daar pakt Rectors UP_TO_PHP_82-set er in één keer doorheen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt dit op een codebase van 60.000 regels?</p>
+      <p class="faq-a">Twee tot drie geconcentreerde weken voor één ontwikkelaar, aannemende dat er geen testsuite herbouwd hoeft te worden. De encoding- en database-audit is meestal de traagste stap, niet de PHP zelf.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hebben we een echte testsuite nodig voor we upgraden?</p>
+      <p class="faq-a">Het helpt, maar de canary-deploy in stap 6 is het alternatief. Statische analyse plus een klein stukje live verkeer vangt meer 8.2-specifieke regressies dan een verouderde PHPUnit-run uit 2019.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/custom-php-wordpress-migration-redirects/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/custom-php-wordpress-migration-redirects/hero.webp" type="image/webp">
+        <img src="/nl/blog/custom-php-wordpress-migration-redirects/hero.jpg" alt="Bovenaanzicht op linnen: papieren redirect-kaart, 301 spiekbriefje, manilla map, messing plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>600 PHP-pagina&#39;s naar WordPress migreren zonder linkbreuk</h3>
+      <span class="pc-lede">Een Nederlands bureau verhuisde 612 URL&#39;s custom PHP naar WordPress in vijf weken. Geen dode links. De crawl, de rewrites, de MySQL-port en wat alsnog brak.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/nl/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Bovenaanzicht op linnen: inkt Joomla-blauwdruk, calqueerpapier, manilla tab, messing plaatje, rood lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Joomla-template ontkoppelen: een gefaseerd extractieplan</h3>
+      <span class="pc-lede">Een 12 jaar oude Joomla-template, vastgeklonken aan het CMS, moest eruit zonder de live site om te leggen. Dit is hoe we het bestand voor bestand uit elkaar trokken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/php-74-to-82-compatibility-pass/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
