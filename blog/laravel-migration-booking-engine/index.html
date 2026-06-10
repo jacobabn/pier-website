@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Laravel migration without downtime: booking engine rebuild · Pier — Blog</title>
+<meta name="description" content="A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="migration, php, mysql, architecture, databases, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/laravel-migration-booking-engine/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/laravel-migration-booking-engine/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/laravel-migration-booking-engine/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/laravel-migration-booking-engine/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Laravel migration without downtime: booking engine rebuild">
+<meta property="og:description" content="A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.">
+<meta property="og:url" content="https://pier.abn.company/blog/laravel-migration-booking-engine/">
+<meta property="og:image" content="https://pier.abn.company/blog/laravel-migration-booking-engine/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/laravel-migration-booking-engine/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead still life of inked migration plan, Gantt strip, manila folder, brass plate, wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T16:01:27.269Z">
+<meta property="article:modified_time" content="2026-06-10T16:01:27.269Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Laravel migration without downtime: booking engine rebuild">
+<meta name="twitter:description" content="A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/laravel-migration-booking-engine/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead still life of inked migration plan, Gantt strip, manila folder, brass plate, wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/laravel-migration-booking-engine/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/laravel-migration-booking-engine/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/laravel-migration-booking-engine/"},
+  "url":"https://pier.abn.company/blog/laravel-migration-booking-engine/",
+  "headline":"Laravel migration without downtime: booking engine rebuild",
+  "description":"A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/laravel-migration-booking-engine/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead still life of inked migration plan, Gantt strip, manila folder, brass plate, wax seal on linen."
+  },
+  "datePublished":"2026-06-10T16:01:27.269Z",
+  "dateModified":"2026-06-10T16:01:27.269Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"migration, php, mysql, architecture, databases, workflow",
+  "wordCount":1814,
+  "articleSection":"Migration",
+  "articleBody":"The Loom landed in our inbox at 23:41 on a Wednesday. A Dutch agency we work with had taken on an emergency rescue, and the brief was tight: a 14-year-old custom-PHP booking engine, written in 2012 by a developer who had since moved to Berlin and stopped answering email. The end client wanted Laravel. The calendar could not go offline for more than 60 seconds. PHP 8.2 end-of-life was 11 months out. The recording showed the codebase. booking.php at 4,800 lines. A single functions.php at 11,000 lines. A config.php with the database credentials in clear text three directories above the docroot. The session store was a MySQL table called sessions_NEW2 (the NEW2 was from 2017). The booking calendar was rendered by a 600-line switch statement. What follows is how we got it onto Laravel 11 across eight weeks of dual-running, without losing a single reservation, and what we would do differently if we ran the Laravel migration again. The shape we inherited Before any Laravel migration, we mapped the surface. Not in a Confluence doc, in a single text file on the lead developer's desktop, because the codebase moved faster than the doc would. The engine had three layers, none of them clean: A public booking widget. One PHP file, jQuery 1.7, a tangle of inline CSS. An admin panel at /beheer/ behind HTTP Basic auth, with its own session handler and its own copy of the calendar code. A REST-ish endpoint at /api/v2.php used by three Android tablets at the front desk. The tablets ran a WebView app last updated in 2018. Nobody had the source. The MySQL schema was 47 tables. Sixteen of them were unused. Six of them held booking data: bookings , booking_lines , booking_slots , booking_holds , booking_history , and a table called booking_temp that turned out to be load-bearing. Removing it broke the seat-hold logic, because a stored procedure from 2015 used it as a scratch space during collision checks. The first decision was to leave the schema alone for the first cutover. Laravel would read and write the same tables the legacy code wrote to. Schema changes would come after the rebuild was stable. The constraint that wouldn't move The calendar ran 24/7. Reservations came in at all hours from three feeder channels. The client's hard limit was a 60-second window for the cutover itself, and zero data loss across the entire Laravel migration. No \"we lost the last hour, please rebook.\" Their support team was four people and they were already saturated. That ruled out the cleanest approach (export, transform, import, swap DNS, hope). We needed both stacks running side by side, writing to the same data, until we could prove the new one was correct under live load. The pattern is well-known: the strangler fig . Martin Fowler's framing is the one we kept coming back to. Route a thin slice of traffic to the new stack. Watch it. Route more. Eventually the old codebase is dead branches you can prune. The twist for this engine was that the seam wasn't in HTTP, it was in the database. The booking widget, the admin panel, and the tablet API all wrote to the same six tables. If we forked the writes, we would fork the truth. So we kept one writer at a time per row, and we used MySQL to keep both stacks in sync until we were ready to flip. Routing the seam at nginx We put nginx in front of the existing Apache. The legacy code stayed on Apache; Laravel ran on PHP-FPM 8.3 behind nginx on a second box. The routing rule for the Laravel migration was a single map block: map $request_uri $backend { default apache_legacy; ~^/api/v3/ laravel_new; ~^/beheer/v2/ laravel_new; ~^/widget/v2/ laravel_new; } server { listen 443 ssl; server_name booking.example.nl; location / { proxy_pass http://$backend; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $remote_addr; } } New endpoints lived under versioned prefixes. Old endpoints kept their paths. The tablet API was the hardest case because the WebView clients had baked-in URLs we couldn't change. We solved that by writing a Laravel route that matched the legacy path exactly, with a small shim that translated the old payload shape (XML, snake_case fields, an MD5 token instead of an API key) into a modern request before the controller saw it. Dual writes via MySQL triggers For the first six weeks, every booking written by the legacy code had to appear in the Laravel-readable shape, and every booking written by Laravel had to appear in the legacy shape. We didn't trust application-layer dual writes. Too many places to forget. Instead, we used MySQL triggers. The legacy schema stayed authoritative. Laravel wrote to a parallel set of tables ( bookings_v2 , etc.). A trigger on each table mirrored the row across. DELIMITER $ CREATE TRIGGER bookings_to_v2 AFTER INSERT ON bookings FOR EACH ROW BEGIN INSERT INTO bookings_v2 ( id, reference, customer_id, slot_id, status, total_cents, created_at, source ) VALUES ( NEW.id, NEW.reference, NEW.customer_id, NEW.slot_id, NEW.status, ROUND(NEW.total * 100), NEW.cr",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/laravel-migration-booking-engine/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Laravel migration without downtime: booking engine rebuild","item":"https://pier.abn.company/blog/laravel-migration-booking-engine/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can you really cut over a live booking system in under a minute?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes if you stage it. The legacy code goes read-only first, in-flight writes drain, then you flip the routing layer. Most of the time is the drain, not the flip."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why MySQL triggers instead of dual writes in PHP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Application-layer dual writes need every code path to remember. A trigger fires for every write, including cron jobs, raw SQL in legacy scripts, and manual fixes. Fewer places to forget."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should the overlap window last?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Long enough to see one full business cycle (a week for most consumer apps, a month for B2B with longer billing cycles) and short enough that nobody stops paying attention. Four weeks is usually right."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the legacy code uses stored procedures Laravel doesn't know about?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Call them from Laravel as raw SQL during the overlap. Migrate the logic into application code only after cutover, when you can change one writer at a time without coordination."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/laravel-migration-booking-engine/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 094</span>
+      </div>
+      <p class="eyebrow"><span class="n">094 —</span>Migration</p>
+      <h1 class="display-l post-title">Laravel migration without downtime: booking engine rebuild</h1>
+      <p class="lede post-lede">A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T16:01:27.269Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/laravel-migration-booking-engine/hero.webp" type="image/webp">
+      <img src="/blog/laravel-migration-booking-engine/hero.jpg" alt="Overhead still life of inked migration plan, Gantt strip, manila folder, brass plate, wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 094</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom landed in our inbox at 23:41 on a Wednesday. A Dutch agency we work with had taken on an emergency rescue, and the brief was tight: a 14-year-old custom-PHP booking engine, written in 2012 by a developer who had since moved to Berlin and stopped answering email. The end client wanted Laravel. The calendar could not go offline for more than 60 seconds. <a href="https://www.php.net/supported-versions.php">PHP 8.2 end-of-life</a> was 11 months out.</p>
+
+<p>The recording showed the codebase. <code>booking.php</code> at 4,800 lines. A single <code>functions.php</code> at 11,000 lines. A <code>config.php</code> with the database credentials in clear text three directories above the docroot. The session store was a MySQL table called <code>sessions_NEW2</code> (the NEW2 was from 2017). The booking calendar was rendered by a 600-line switch statement.</p>
+
+<p>What follows is how we got it onto Laravel 11 across eight weeks of dual-running, without losing a single reservation, and what we would do differently if we ran the Laravel migration again.</p>
+
+<h2>The shape we inherited</h2>
+
+<p>Before any Laravel migration, we mapped the surface. Not in a Confluence doc, in a single text file on the lead developer's desktop, because the codebase moved faster than the doc would.</p>
+
+<p>The engine had three layers, none of them clean:</p>
+
+<ul>
+<li>A public booking widget. One PHP file, jQuery 1.7, a tangle of inline CSS.</li>
+<li>An admin panel at <code>/beheer/</code> behind HTTP Basic auth, with its own session handler and its own copy of the calendar code.</li>
+<li>A REST-ish endpoint at <code>/api/v2.php</code> used by three Android tablets at the front desk. The tablets ran a WebView app last updated in 2018. Nobody had the source.</li>
+</ul>
+
+<p>The MySQL schema was 47 tables. Sixteen of them were unused. Six of them held booking data: <code>bookings</code>, <code>booking_lines</code>, <code>booking_slots</code>, <code>booking_holds</code>, <code>booking_history</code>, and a table called <code>booking_temp</code> that turned out to be load-bearing. Removing it broke the seat-hold logic, because a stored procedure from 2015 used it as a scratch space during collision checks.</p>
+
+<p>The first decision was to leave the schema alone for the first cutover. Laravel would read and write the same tables the legacy code wrote to. Schema changes would come after the rebuild was stable.</p>
+
+<h2>The constraint that wouldn't move</h2>
+
+<p>The calendar ran 24/7. Reservations came in at all hours from three feeder channels. The client's hard limit was a 60-second window for the cutover itself, and zero data loss across the entire Laravel migration. No "we lost the last hour, please rebook." Their support team was four people and they were already saturated.</p>
+
+<p>That ruled out the cleanest approach (export, transform, import, swap DNS, hope). We needed both stacks running side by side, writing to the same data, until we could prove the new one was correct under live load.</p>
+
+<p>The pattern is well-known: the <a href="https://martinfowler.com/bliki/StranglerFigApplication.html">strangler fig</a>. Martin Fowler's framing is the one we kept coming back to. Route a thin slice of traffic to the new stack. Watch it. Route more. Eventually the old codebase is dead branches you can prune.</p>
+
+<p>The twist for this engine was that the seam wasn't in HTTP, it was in the database. The booking widget, the admin panel, and the tablet API all wrote to the same six tables. If we forked the writes, we would fork the truth. So we kept one writer at a time per row, and we used MySQL to keep both stacks in sync until we were ready to flip.</p>
+
+<h2>Routing the seam at nginx</h2>
+
+<p>We put nginx in front of the existing Apache. The legacy code stayed on Apache; Laravel ran on PHP-FPM 8.3 behind nginx on a second box. The routing rule for the Laravel migration was a single <code>map</code> block:</p>
+
+<pre><code class="lang-nginx">map $request_uri $backend {
+    default            apache_legacy;
+    ~^/api/v3/         laravel_new;
+    ~^/beheer/v2/      laravel_new;
+    ~^/widget/v2/      laravel_new;
+}
+
+server {
+    listen 443 ssl;
+    server_name booking.example.nl;
+
+    location / {
+        proxy_pass http://$backend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+    }
+}
+</code></pre>
+
+<p>New endpoints lived under versioned prefixes. Old endpoints kept their paths. The tablet API was the hardest case because the WebView clients had baked-in URLs we couldn't change. We solved that by writing a Laravel route that matched the legacy path exactly, with a small shim that translated the old payload shape (XML, snake_case fields, an MD5 token instead of an API key) into a modern request before the controller saw it.</p>
+
+<h2>Dual writes via MySQL triggers</h2>
+
+<p>For the first six weeks, every booking written by the legacy code had to appear in the Laravel-readable shape, and every booking written by Laravel had to appear in the legacy shape. We didn't trust application-layer dual writes. Too many places to forget.</p>
+
+<p>Instead, we used MySQL triggers. The legacy schema stayed authoritative. Laravel wrote to a parallel set of tables (<code>bookings_v2</code>, etc.). A trigger on each table mirrored the row across.</p>
+
+<pre><code class="lang-sql">DELIMITER $
+
+CREATE TRIGGER bookings_to_v2
+AFTER INSERT ON bookings
+FOR EACH ROW
+BEGIN
+    INSERT INTO bookings_v2 (
+        id, reference, customer_id, slot_id,
+        status, total_cents, created_at, source
+    ) VALUES (
+        NEW.id, NEW.reference, NEW.customer_id, NEW.slot_id,
+        NEW.status, ROUND(NEW.total * 100), NEW.created_at, 'legacy'
+    )
+    ON DUPLICATE KEY UPDATE
+        status = VALUES(status),
+        total_cents = VALUES(total_cents);
+END$
+
+DELIMITER ;
+</code></pre>
+
+<p>The <code>ON DUPLICATE KEY UPDATE</code> made the trigger idempotent. If Laravel wrote first and the legacy code wrote second (which happened during the overlap window), the row was reconciled rather than duplicated. <a href="https://dev.mysql.com/doc/refman/8.0/en/triggers.html">The MySQL trigger docs</a> have the full grammar. The gotcha we hit was that triggers do not fire on <code>REPLACE INTO</code> statements the way you would expect, and the legacy admin panel used <code>REPLACE</code> in two places. We patched those two queries to use <code>INSERT … ON DUPLICATE KEY UPDATE</code> instead, then verified the trigger fired on each.</p>
+
+<aside class="callout">Triggers fire inside the same transaction as the originating write. If your mirror table lives on a different connection or has heavy indexes, you will feel it as latency on the original insert. We saw the <code>bookings</code> insert go from 4ms to 19ms once the trigger was live. Acceptable here. Measure before you assume.</aside>
+
+<h2>The collision problem</h2>
+
+<p>The seat-hold logic was the riskiest piece of the Laravel migration. Two customers landing on the same time slot at the same second had to see one success and one "sorry, just sold." The legacy code used a stored procedure with a row-level lock on <code>booking_temp</code>. Laravel didn't know about that procedure.</p>
+
+<p>For the overlap period, we didn't try to be clever. Both stacks called the same stored procedure. Laravel's reservation controller ended with a raw <code>DB::statement('CALL hold_slot(?, ?, ?)')</code>. Ugly, but correct. The procedure stayed authoritative until the cutover, at which point we rewrote it as a Laravel transaction with <code>SELECT … FOR UPDATE</code> and retired the procedure.</p>
+
+<p>We caught one collision bug during this phase. A race condition where the tablet API and the public widget held the same slot for 800ms before one was rejected. It had been latent in the legacy code for years. The agency's lead developer noticed it because Laravel's structured logs surfaced it. The legacy code had been silently overwriting the loser with an empty row, and the customer-facing error message read "er ging iets mis," which had been ignored as noise for at least a year.</p>
+
+<h2>Cutover at 03:47</h2>
+
+<p>The actual switch happened on a Tuesday morning. The lowest-traffic window for this client was Tuesday between 03:30 and 04:30 Amsterdam time. Two bookings on average during that hour.</p>
+
+<p>The sequence was four steps and took 38 seconds:</p>
+
+<ol>
+<li>Flip a feature flag in the legacy code that put the booking widget into read-only mode (calendar visible, form button disabled, banner reading "Even geduld, we werken aan iets moois").</li>
+<li>Wait for in-flight requests to drain. We watched <code>SHOW PROCESSLIST</code> in one terminal and the nginx access log in another. Eight seconds to fully drain.</li>
+<li>Update the nginx <code>map</code> block so the default became <code>laravel_new</code> instead of <code>apache_legacy</code>. Reload nginx with <code>nginx -s reload</code>. Zero dropped connections, because nginx hot-reloads gracefully.</li>
+<li>Remove the read-only banner in Laravel's config and clear the cache.</li>
+</ol>
+
+<p>Total user-facing downtime: 38 seconds, all of it during the drain. No bookings were attempted in that window. We had a rollback script ready that flipped the <code>map</code> block back and re-enabled the legacy code, but we never ran it.</p>
+
+<p>The first booking through the new stack came in at 04:11. The tablet at the front desk had been on standby, and the morning shift's first walk-in booked a 09:00 slot. It wrote to <code>bookings_v2</code>, and the trigger mirrored it back to <code>bookings</code> so the legacy admin panel (which we hadn't migrated yet) still saw it. We kept the trigger running for another five weeks, then dropped it after the admin panel rebuild went live and the Laravel migration was complete.</p>
+
+<h2>What we would do differently</h2>
+
+<p>Three things.</p>
+
+<p>First, we would write trigger tests before the triggers. We tested the mirroring by hand, and we missed the <code>REPLACE INTO</code> case on the first pass. A 30-line PHP script that inserts, updates, replaces, and deletes into both tables and asserts equality would have caught it in five minutes.</p>
+
+<p>Second, we would snapshot more aggressively. We took a database dump at the start of every overlap-period week. That was right. What we did not do was snapshot the Apache document root, and we paid for it when a junior dev on the agency's side renamed a file in the legacy code mid-migration to "tidy up." The rename broke the booking confirmation email for six hours. A daily <code>tar -czf</code> of the docroot would have made the rollback trivial.</p>
+
+<p>Third, we would shorten the overlap. Six weeks of dual-writing was too long. The agency was paying attention for the first two weeks, going through the motions for the next two, and skimming for the last two. The bugs we found in week six were bugs we should have looked for in week two. Four weeks would have been enough.</p>
+
+<h2>The smallest version of this</h2>
+
+<p>If you are staring down a similar Laravel migration, the first step is not to write code. It is to put one MySQL trigger on your most important table and watch what your application does to it for a week. Not a mirror trigger. Just an audit trigger that logs every <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> with the connection ID and the originating statement. You will learn things about your codebase. Then plan the migration.</p>
+
+<p>When we built <a href="/">Pier</a> we ran into this exact pattern, and the way we handled the dual-truth window was to give every file and database row a <a href="/#features">version history</a> entry that survives the cutover. The <a href="/#database">MySQL editor</a> was built to make those triggers visible and editable alongside the rows they touch.</p>
+
+<p>The smallest thing you can do today: open one of your noisiest tables and write a one-line audit trigger. You will know more about your migration in 24 hours than a week of code reading would tell you.</p>
+    </div>
+
+    <aside class="pullquote">Cut over at the routing layer, dual-write at the database, and let MySQL triggers (not your codebase) be the source of truth during the overlap.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can you really cut over a live booking system in under a minute?</p>
+      <p class="faq-a">Yes if you stage it. The legacy code goes read-only first, in-flight writes drain, then you flip the routing layer. Most of the time is the drain, not the flip.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why MySQL triggers instead of dual writes in PHP?</p>
+      <p class="faq-a">Application-layer dual writes need every code path to remember. A trigger fires for every write, including cron jobs, raw SQL in legacy scripts, and manual fixes. Fewer places to forget.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should the overlap window last?</p>
+      <p class="faq-a">Long enough to see one full business cycle (a week for most consumer apps, a month for B2B with longer billing cycles) and short enough that nobody stops paying attention. Four weeks is usually right.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if the legacy code uses stored procedures Laravel doesn&#39;t know about?</p>
+      <p class="faq-a">Call them from Laravel as raw SQL during the overlap. Migrate the logic into application code only after cutover, when you can change one writer at a time without coordination.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Overhead still life on bone linen: inked Joomla template blueprint, tracing overlay, manila tab, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Decoupling a Joomla template: a staged extraction playbook</h3>
+      <span class="pc-lede">A 12-year-old custom Joomla template had grown into a second CMS welded onto the first. Here is the staged extraction that pulled it back apart.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-1-to-2-weekend-cutover/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-1-to-2-weekend-cutover/hero.webp" type="image/webp">
+        <img src="/blog/magento-1-to-2-weekend-cutover/hero.jpg" alt="Overhead view of a six-week paper cutover calendar, Magento migration run-sheet, brass plate, wax seal, ruler, pencil on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>9 June 2026</span></span>
+      <h3>Magento 1.9 to Magento 2: a six-weekend live cutover</h3>
+      <span class="pc-lede">A Dutch agency had to move a Magento 1.9 store onto 2.4.7 without ever freezing the catalog. This is the six-weekend rebuild plan that actually held.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/laravel-migration-booking-engine/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
