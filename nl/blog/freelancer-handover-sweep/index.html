@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Freelancer-overdracht: twaalf minuten voor ze verdwijnt · Pier — Blog</title>
+<meta name="description" content="Twaalf minuten is genoeg om de SSH-key, de wees-cronjob, de knoop in file ownership en de mail-alias te vinden die de freelancer vergat te noemen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, security, operations, mysql, sftp, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/freelancer-handover-sweep/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/freelancer-handover-sweep/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/freelancer-handover-sweep/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/freelancer-handover-sweep/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Freelancer-overdracht: twaalf minuten voor ze verdwijnt">
+<meta property="og:description" content="Twaalf minuten is genoeg om de SSH-key, de wees-cronjob, de knoop in file ownership en de mail-alias te vinden die de freelancer vergat te noemen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/freelancer-handover-sweep/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/freelancer-handover-sweep/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/freelancer-handover-sweep/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bureau van boven: overdrachtlijst, manilla KEYS-map, crontab-strook, messing 12:00-plaat, ijzeren sleutel, stopwatch, rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T17:40:45.883Z">
+<meta property="article:modified_time" content="2026-06-10T17:40:45.883Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Freelancer-overdracht: twaalf minuten voor ze verdwijnt">
+<meta name="twitter:description" content="Twaalf minuten is genoeg om de SSH-key, de wees-cronjob, de knoop in file ownership en de mail-alias te vinden die de freelancer vergat te noemen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/freelancer-handover-sweep/hero.jpg">
+<meta name="twitter:image:alt" content="Bureau van boven: overdrachtlijst, manilla KEYS-map, crontab-strook, messing 12:00-plaat, ijzeren sleutel, stopwatch, rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/freelancer-handover-sweep/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/freelancer-handover-sweep/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/freelancer-handover-sweep/"},
+  "url":"https://pier.abn.company/nl/blog/freelancer-handover-sweep/",
+  "headline":"Freelancer-overdracht: twaalf minuten voor ze verdwijnt",
+  "description":"Twaalf minuten is genoeg om de SSH-key, de wees-cronjob, de knoop in file ownership en de mail-alias te vinden die de freelancer vergat te noemen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/freelancer-handover-sweep/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bureau van boven: overdrachtlijst, manilla KEYS-map, crontab-strook, messing 12:00-plaat, ijzeren sleutel, stopwatch, rood lakzegel."
+  },
+  "datePublished":"2026-06-10T17:40:45.883Z",
+  "dateModified":"2026-06-10T17:40:45.883Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, security, operations, mysql, sftp, tooling",
+  "wordCount":1863,
+  "articleSection":"Workflow",
+  "articleBody":"Een ervaren contractor bij een Rotterdams bureau rondt haar laatste sprint af op vrijdag om 16:30. De maandag erna gaat haar laptop terug naar het bureau, haar SSO wordt ingetrokken, haar telefoonnummer verdwijnt uit Slack. De Drupal 7-site die ze vier jaar lang heeft onderhouden, een regionale supermarktketen met zeventien filialen, blijft draaien omdat niemand iets heeft aangeraakt. Dan, woensdagmiddag, valt iemand op dat de nachtelijke productfeed sinds zondag niet meer is gedraaid. Het cron-entry wees naar een script onder /home/marije/bin/feed-export.sh . Haar home-directory is weg. Dit is het gat in de freelancer-overdracht dat niemand documenteert. Tussen haar laatste commit en het eerste incident zit een venster waarin haar oppervlak nog steeds verweven is met productie: SSH-keys, cron-entries, file ownership, mail-aliases, een .htaccess -blok gekoppeld aan haar oude staging-IP. Niets daarvan komt naar boven in een code review. Niets daarvan staat in het overdrachtsdocument, tenzij iemand er expliciet naar vraagt. Dus draaien we de freelancer-overdrachtssweep op de vrijdagmiddag voor ze vertrekt, en houden we het bewust kort. Twaalf minuten, vier checkpoints, één tekstbestand aan het eind. Twaalf minuten, vier checkpoints De freelancer-overdrachtssweep is kort omdat langere audits gewoon niet gebeuren. Als je het kunt doen vanuit één SSH-sessie en een database client, dan doe je het. Als het drie agenda-uitnodigingen en een stand-up vereist, dan niet. De vier checkpoints vangen vier verschillende faalmodi: Login-oppervlakken. Wie kan er nog bij de server, de database, het paneel. Geplande taken. Wat draait er zonder dat er een persoon aan vastzit, en wat breekt zodra die persoon weg is. File ownership. Welke UID is eigenaar van de bestanden die de webserver morgen moet overschrijven. Mail-routes. Waar klantmail daadwerkelijk landt, in plaats van waar de klant dénkt dat het landt. Elk checkpoint is twee of drie commando's. Je kunt de hele sweep in een runbook plakken en hergebruiken voor elke volgende freelancer-overdracht. SSH-keys: elk account op de server Begin met authorized_keys voor elke user op de server. De key van de freelancer zelf is de voor de hand liggende, maar let ook op de keys die met haar zijn meegekomen. Een junior die ze vorig jaar heeft ingewerkt. Een deploy key uit haar oude Bitbucket-account. Een GitHub Actions runner die ze in 2022 heeft opgezet en waar niemand meer aan denkt. for u in $(cut -d: -f1 /etc/passwd); do f=\"$(getent passwd \"$u\" | cut -d: -f6)/.ssh/authorized_keys\" [ -f \"$f\" ] && echo \"== $u ==\" && cat \"$f\" done Lees de comment aan het eind van elke key-regel. Dat is het enige label dat SSH je geeft, en freelancers zetten er meestal hun e-mailadres of hostname neer. Heeft een key geen comment, dan is vragen voor verwijderen de veilige route. Onveilig is hem laten staan en jezelf wijsmaken dat je er later op terugkomt. Twee specifieke gevallen verdienen een tweede ronde. Eén: keys op het root -account die eruitzien als deploy-pipeline keys. Heeft de freelancer die pipeline opgezet, dan is de key ervan nu een wees, en draaien is niet optioneel. Twee: keys in /etc/ssh/ssh_known_hosts die ze heeft toegevoegd zodat haar CI uitgaand kon verbinden. Die laten niemand binnen, maar ze vertellen je wel waar ze mee praatte. Nu je toch in /etc/ssh zit: scan sshd_config op Match User -blokken. Freelancers met verhoogde rechten krijgen soms een uitzondering (SFTP-only chroot, alternatieve poort, password auth weer aan), en dat blok overleeft de behoefte ruim. De OpenSSH sshd_config manual documenteert de precedentieregels, wat ertoe doet als je een ruim blok wilt laten staan voor een opvolger. Nog één pass voor je doorgaat: SFTP-only users. Veel verouderde WordPress- en Joomla-sites leunen op een aparte SFTP-account met een naam als wp-deploy of staging . Controleer /etc/passwd op shells die op /usr/sbin/nologin of /bin/false staan, en kijk dan of de authorized_keys van dat account nog de key van de freelancer bevat. Cron en timers: de wees-jobs Cron is de meest voorkomende landmijn in een freelancer-overdracht. De user wordt verwijderd, de crontab blijft draaien, het falen is stil omdat ze de output jaren geleden naar /dev/null heeft doorgesluisd. # system-wide cron ls -la /etc/cron.d/ /etc/cron.hourly/ /etc/cron.daily/ cat /etc/crontab # per-user crontabs for u in $(cut -d: -f1 /etc/passwd); do out=$(crontab -u \"$u\" -l 2>/dev/null) [ -n \"$out\" ] && echo \"-- $u --\" && echo \"$out\" done # systemd timers, die steeds meer installs verkiezen systemctl list-timers --all Lees elke regel. Het signaal waar je naar zoekt: paden onder de home-directory van de freelancer, scripts die onder haar user draaien, of commando's die naar een persoonlijk e-mailadres pipen. De fix is meestal drie stappen: verplaats het script naar /usr/local/bin , zet eigendom op root:root , en voeg het cron-entry opnieuw toe onder een systeem-user met hetzelfde schema. Raakt een job een database, controleer dan of d",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/freelancer-handover-sweep/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Freelancer-overdracht: twaalf minuten voor ze verdwijnt","item":"https://pier.abn.company/nl/blog/freelancer-handover-sweep/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat als de freelancer al onbereikbaar is en we dit niet samen met haar kunnen doen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai het toch, maar behandel elke onbekende key en elke persoonlijk ogende forwarder als vijandig totdat het tegendeel is bewezen. De sweep werkt ook retroactief, hij levert alleen meer openstaande vragen op."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan de freelancer-overdrachtssweep zonder root-toegang?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het meeste wel. authorized_keys, per-user crontabs en find tegen de docroot werken als elke user met leesrechten. /etc/aliases, sshd_config en chown vereisen root of sudo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Geldt dit ook op shared hosting waar ik alleen cPanel of Plesk heb?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Vervang de SSH-stappen door de File Manager- en Cron Jobs-panelen, en check de sectie Email Forwarders voor de alias-stap. De vier checkpoints corresponderen één-op-één met paneel-schermen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/freelancer-handover-sweep/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 096</span>
+      </div>
+      <p class="eyebrow"><span class="n">096 —</span>Workflow</p>
+      <h1 class="display-l post-title">Freelancer-overdracht: twaalf minuten voor ze verdwijnt</h1>
+      <p class="lede post-lede">Twaalf minuten is genoeg om de SSH-key, de wees-cronjob, de knoop in file ownership en de mail-alias te vinden die de freelancer vergat te noemen.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T17:40:45.883Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/freelancer-handover-sweep/hero.webp" type="image/webp">
+      <img src="/blog/freelancer-handover-sweep/hero.jpg" alt="Bureau van boven: overdrachtlijst, manilla KEYS-map, crontab-strook, messing 12:00-plaat, ijzeren sleutel, stopwatch, rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 096</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een ervaren contractor bij een Rotterdams bureau rondt haar laatste sprint af op vrijdag om 16:30. De maandag erna gaat haar laptop terug naar het bureau, haar SSO wordt ingetrokken, haar telefoonnummer verdwijnt uit Slack. De Drupal 7-site die ze vier jaar lang heeft onderhouden, een regionale supermarktketen met zeventien filialen, blijft draaien omdat niemand iets heeft aangeraakt. Dan, woensdagmiddag, valt iemand op dat de nachtelijke productfeed sinds zondag niet meer is gedraaid. Het cron-entry wees naar een script onder <code>/home/marije/bin/feed-export.sh</code>. Haar home-directory is weg.</p><p>Dit is het gat in de freelancer-overdracht dat niemand documenteert. Tussen haar laatste commit en het eerste incident zit een venster waarin haar oppervlak nog steeds verweven is met productie: SSH-keys, cron-entries, file ownership, mail-aliases, een <code>.htaccess</code>-blok gekoppeld aan haar oude staging-IP. Niets daarvan komt naar boven in een code review. Niets daarvan staat in het overdrachtsdocument, tenzij iemand er expliciet naar vraagt. Dus draaien we de freelancer-overdrachtssweep op de vrijdagmiddag voor ze vertrekt, en houden we het bewust kort. Twaalf minuten, vier checkpoints, één tekstbestand aan het eind.</p><h2>Twaalf minuten, vier checkpoints</h2><p>De freelancer-overdrachtssweep is kort omdat langere audits gewoon niet gebeuren. Als je het kunt doen vanuit één SSH-sessie en een database client, dan doe je het. Als het drie agenda-uitnodigingen en een stand-up vereist, dan niet.</p><p>De vier checkpoints vangen vier verschillende faalmodi:</p><ol><li><strong>Login-oppervlakken.</strong> Wie kan er nog bij de server, de database, het paneel.</li><li><strong>Geplande taken.</strong> Wat draait er zonder dat er een persoon aan vastzit, en wat breekt zodra die persoon weg is.</li><li><strong>File ownership.</strong> Welke UID is eigenaar van de bestanden die de webserver morgen moet overschrijven.</li><li><strong>Mail-routes.</strong> Waar klantmail daadwerkelijk landt, in plaats van waar de klant dénkt dat het landt.</li></ol><p>Elk checkpoint is twee of drie commando's. Je kunt de hele sweep in een runbook plakken en hergebruiken voor elke volgende freelancer-overdracht.</p><h2>SSH-keys: elk account op de server</h2><p>Begin met <code>authorized_keys</code> voor elke user op de server. De key van de freelancer zelf is de voor de hand liggende, maar let ook op de keys die met haar zijn meegekomen. Een junior die ze vorig jaar heeft ingewerkt. Een deploy key uit haar oude Bitbucket-account. Een GitHub Actions runner die ze in 2022 heeft opgezet en waar niemand meer aan denkt.</p><pre><code class="lang-bash">for u in $(cut -d: -f1 /etc/passwd); do
+  f="$(getent passwd "$u" | cut -d: -f6)/.ssh/authorized_keys"
+  [ -f "$f" ] &amp;&amp; echo "== $u ==" &amp;&amp; cat "$f"
+done</code></pre><p>Lees de comment aan het eind van elke key-regel. Dat is het enige label dat SSH je geeft, en freelancers zetten er meestal hun e-mailadres of hostname neer. Heeft een key geen comment, dan is vragen voor verwijderen de veilige route. Onveilig is hem laten staan en jezelf wijsmaken dat je er later op terugkomt.</p><p>Twee specifieke gevallen verdienen een tweede ronde. Eén: keys op het <code>root</code>-account die eruitzien als deploy-pipeline keys. Heeft de freelancer die pipeline opgezet, dan is de key ervan nu een wees, en draaien is niet optioneel. Twee: keys in <code>/etc/ssh/ssh_known_hosts</code> die ze heeft toegevoegd zodat haar CI uitgaand kon verbinden. Die laten niemand binnen, maar ze vertellen je wel waar ze mee praatte.</p><p>Nu je toch in <code>/etc/ssh</code> zit: scan <code>sshd_config</code> op <code>Match User</code>-blokken. Freelancers met verhoogde rechten krijgen soms een uitzondering (SFTP-only chroot, alternatieve poort, password auth weer aan), en dat blok overleeft de behoefte ruim. De <a href="https://man.openbsd.org/sshd_config">OpenSSH sshd_config manual</a> documenteert de precedentieregels, wat ertoe doet als je een ruim blok wilt laten staan voor een opvolger.</p><p>Nog één pass voor je doorgaat: SFTP-only users. Veel verouderde WordPress- en Joomla-sites leunen op een aparte SFTP-account met een naam als <code>wp-deploy</code> of <code>staging</code>. Controleer <code>/etc/passwd</code> op shells die op <code>/usr/sbin/nologin</code> of <code>/bin/false</code> staan, en kijk dan of de <code>authorized_keys</code> van dat account nog de key van de freelancer bevat.</p><h2>Cron en timers: de wees-jobs</h2><p>Cron is de meest voorkomende landmijn in een freelancer-overdracht. De user wordt verwijderd, de crontab blijft draaien, het falen is stil omdat ze de output jaren geleden naar <code>/dev/null</code> heeft doorgesluisd.</p><pre><code class="lang-bash"># system-wide cron
+ls -la /etc/cron.d/ /etc/cron.hourly/ /etc/cron.daily/
+cat /etc/crontab
+
+# per-user crontabs
+for u in $(cut -d: -f1 /etc/passwd); do
+  out=$(crontab -u "$u" -l 2&gt;/dev/null)
+  [ -n "$out" ] &amp;&amp; echo "-- $u --" &amp;&amp; echo "$out"
+done
+
+# systemd timers, die steeds meer installs verkiezen
+systemctl list-timers --all</code></pre><p>Lees elke regel. Het signaal waar je naar zoekt: paden onder de home-directory van de freelancer, scripts die onder haar user draaien, of commando's die naar een persoonlijk e-mailadres pipen. De fix is meestal drie stappen: verplaats het script naar <code>/usr/local/bin</code>, zet eigendom op <code>root:root</code>, en voeg het cron-entry opnieuw toe onder een systeem-user met hetzelfde schema.</p><p>Raakt een job een database, controleer dan of de credentials in het script zelf staan of in een <code>.my.cnf</code> onder haar home-directory. Het tweede geval breekt stil zodra haar account weg is, omdat het bestand er dan niet meer is voor <code>mysql</code> om te lezen.</p><p>Dezelfde logica geldt voor PHP-FPM pool-definities. Als <code>/etc/php/8.1/fpm/pool.d/</code> een pool bevat die als <code>marije</code> draait, dan stopt de site die door die pool wordt bediend met reageren zodra haar user wordt verwijderd. Pools worden makkelijk over het hoofd gezien omdat ze ooit tijdens een oude migratie zijn ingesteld en daarna nooit meer aangeraakt.</p><aside class="callout">Op shared hosting waar je de crontabs van andere users niet kunt zien, log dan ook in op het controlepaneel en controleer daar. Zowel cPanel als Plesk hebben per account een Cron Jobs-sectie, en freelancers voegen jobs vaak toe via het paneel in plaats van via de shell. Die jobs verschijnen niet in <code>crontab -l</code> voor de SSH-user waarmee jij bent ingelogd.</aside><h2>File ownership en de www-data-val</h2><p>Draai <code>find</code> tegen de document root en zoek naar bestanden die eigendom zijn van de freelancer. Op een opgeruimde server levert dat niets op. Op een vier jaar oude WordPress-installatie levert het duizenden treffers op, omdat elke plugin die ze via SFTP heeft geïnstalleerd haar UID draagt, elke plugin-update die via de WordPress-admin is geschreven de UID van de webserver draagt, en die twee nooit met elkaar zijn verzoend.</p><pre><code class="lang-bash">find /var/www/example.com -not -user www-data -printf '%u %p\n' \
+  | sort | uniq -c | sort -rn | head</code></pre><p>De output vertelt je wie er onder welke naam naar disk heeft geschreven. Zie je 1.800 bestanden van <code>marije</code> in <code>wp-content/plugins</code>, dan is dat het oppervlak dat je moet hernormaliseren voor de volgende deploy. Los het op in twee stappen. Paden waar de applicatie zelf naar schrijft krijgen de web-user. De rest krijgt een deploy-user die de webserver wel kan lezen maar niet kan schrijven.</p><pre><code class="lang-bash"># paden waar de applicatie zelf naar schrijft
+chown -R www-data:www-data /var/www/example.com/wp-content/uploads
+chown -R www-data:www-data /var/www/example.com/wp-content/cache
+
+# de rest gaat naar een deploy-user
+chown -R deploy:www-data /var/www/example.com
+find /var/www/example.com -type d -exec chmod 750 {} \;
+find /var/www/example.com -type f -exec chmod 640 {} \;
+chmod 600 /var/www/example.com/wp-config.php</code></pre><p>De exacte verdeling hangt af van het CMS. De <a href="https://developer.wordpress.org/advanced-administration/security/hardening/">WordPress hardening guide</a> heeft de canonieke getallen en legt uit waarom <code>wp-config.php</code> op <code>600</code> hoort te staan. Drupal, Joomla en Magento hebben elk hun eigen varianten in hun eigen documentatie. Het punt is dat je ownership niet kunt normaliseren zonder eerst de directories te inventariseren waar de applicatie zelf naartoe schrijft. Krijg je dat verkeerd, dan faalt de volgende core-update met een permission error op het slechtst denkbare moment.</p><p>Database-users volgen hetzelfde patroon. De freelancer heeft waarschijnlijk een persoonlijke MySQL-user aangemaakt voor haar eigen debugging, met ruimere grants dan de application-user waarmee de site daadwerkelijk verbindt.</p><pre><code class="lang-sql">SELECT User, Host FROM mysql.user ORDER BY User;
+SHOW GRANTS FOR 'marije_admin'@'%';</code></pre><p>Houd de application-user. Drop de persoonlijke. Weet je niet zeker welke welke is, check dan de DB-credentials in <code>wp-config.php</code>, <code>settings.php</code> of <code>app/etc/env.php</code>. Waar de site mee verbindt, is degene die je houdt.</p><h2>Mail-aliases en de stille forwarder</h2><p>Dit is degene die niemand controleert, en het is degene die de klant een klant kost. Drie plekken om te kijken.</p><pre><code class="lang-bash"># Postfix- of Exim-aliases
+cat /etc/aliases
+postmap -q webmaster@example.com hash:/etc/aliases 2&gt;/dev/null
+
+# .forward-bestanden in elke home-directory
+find /home /root -name '.forward' -exec echo {} \; -exec cat {} \;</code></pre><p>De forwarder waar je op jaagt is degene die stilletjes <code>info@example.com</code> of <code>orders@example.com</code> doorzet naar de privé-Gmail van de freelancer. Soms was het bewust, opgezet tijdens een launchsprint om klantmail te triëren. Soms was het een tijdelijke debug-stap die nooit is teruggedraaid. Hoe dan ook: zes maanden later landt de klantmail in een inbox die de klant niet beheert, en heeft het Gmail-filter van de freelancer hem auto-gearchiveerd.</p><p>Aliases op applicatieniveau zijn de derde plek. Elk CMS heeft z'n eigen versie:</p><pre><code class="lang-sql">-- WordPress
+SELECT option_name, option_value FROM wp_options
+WHERE option_name IN ('admin_email', 'new_admin_email');
+
+-- Drupal 7
+SELECT name, value FROM variable WHERE name = 'site_mail';
+
+-- Magento 2
+SELECT path, value FROM core_config_data
+WHERE path LIKE 'trans_email/ident_%/email';</code></pre><p>Wijst een van deze naar een persoonlijk adres, pas het dan aan. Nu je daar toch zit: controleer de SMTP-plugin of -module. WP Mail SMTP, de SendGrid-extensie voor Magento en de SMTP Authentication Support-module voor Drupal houden allemaal een from-adres bij dat stilletjes via de eigen API key van de freelancer kan routeren. Trekt zij die key in bij vertrek, dan stopt de site volledig met mail versturen, en dat is op zichzelf weer een incident.</p><p><a href="https://datatracker.ietf.org/doc/html/rfc5321">RFC 5321</a> beschrijft het formele model van hoe aliases en forwarders zich tot elkaar verhouden. Het praktische model is dat elk van deze lagen klantmail kan opslokken zonder dat iemand het maandenlang doorheeft.</p><h2>De overdrachtsnotitie die overleeft</h2><p>De freelancer-overdrachtssweep levert één artefact op: een tekstbestand in de repository onder <code>docs/handover-2026-06-10.md</code>. Drie secties, niet meer.</p><ul><li><strong>Ingetrokken oppervlakken.</strong> Verwijderde SSH-keys, gedropte MySQL-users, herschreven aliases, gewiste <code>.htaccess</code>-blokken. Eén regel per wijziging, met de vorige waarde in een comment.</li><li><strong>Oppervlakken die blijven staan.</strong> Jobs die we bewust hebben laten draaien, met de reden. Het deploy-script dat we nog niet de tijd hadden te vervangen. Het cron-entry dat een derde-partij-API raakt waarbij de freelancer nog steeds het contractuele aanspreekpunt is.</li><li><strong>Openstaande vragen.</strong> Het <code>.htaccess</code>-blok dat een IP whitelist'te dat we niet konden thuisbrengen. De MySQL-user die we hebben laten staan omdat de applicatie hem ook lijkt te gebruiken. De CNAME die wijst naar een Heroku-app waar we niet op zijn ingelogd.</li></ul><p>De derde sectie is degene die toekomstige-jij als eerste leest de volgende keer dat er iets breekt, en het telefoonnummer van de freelancer is dan al een jaar verlopen. Schrijf het zo dat volgende-kwartaal-jij ernaar kan handelen zonder context.</p><h2>Wat we uiteindelijk hebben gebouwd</h2><p>Toen we <a href="/">Pier</a> bouwden, bleven we deze sweep handmatig draaien tegen klantservers, en bleef het langer duren dan twaalf minuten omdat de helft van het werk scrollback lezen is en wachten tot <code>find</code> klaar is. De manier waarop we dat uiteindelijk hebben opgelost: de scan op file ownership, de cron- en timer-dump en de alias-check zijn in de <a href="/#database">MySQL editor</a> en SFTP-browser ingebakken, zodat de sweep één leesbare diff oplevert en een <a href="/#features">versiegeschiedenis</a> van elke wijziging die je tegen de verouderde site maakt.</p><p>Het kleinste wat je vandaag kunt doen: open <code>~/.ssh/authorized_keys</code> op je oudste productieserver en lees de comments aan het eind van elke regel. De namen die je niet herkent, zijn het begin van je audit-lijst.</p>
+    </div>
+
+    <aside class="pullquote">Twaalf minuten op authorized_keys, crontab, find -user en /etc/aliases vangt meer freelancer-overdrachtsbugs dan welke code review of onboarding-doc dan ook.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat als de freelancer al onbereikbaar is en we dit niet samen met haar kunnen doen?</p>
+      <p class="faq-a">Draai het toch, maar behandel elke onbekende key en elke persoonlijk ogende forwarder als vijandig totdat het tegendeel is bewezen. De sweep werkt ook retroactief, hij levert alleen meer openstaande vragen op.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan de freelancer-overdrachtssweep zonder root-toegang?</p>
+      <p class="faq-a">Het meeste wel. authorized_keys, per-user crontabs en find tegen de docroot werken als elke user met leesrechten. /etc/aliases, sshd_config en chown vereisen root of sudo.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Geldt dit ook op shared hosting waar ik alleen cPanel of Plesk heb?</p>
+      <p class="faq-a">Ja. Vervang de SSH-stappen door de File Manager- en Cron Jobs-panelen, en check de sectie Email Forwarders voor de alias-stap. De vier checkpoints corresponderen één-op-één met paneel-schermen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/sftp-only-staging-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/sftp-only-staging-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/sftp-only-staging-playbook/hero.jpg" alt="Inkttekening mappenboom, rsync-werkblad, manila SFTP-tab, messing STAGING-label, rode lakzegel op .htaccess-uitdraai." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Staging via alleen SFTP: het lftp-en-rewrite draaiboek</h3>
+      <span class="pc-lede">Een werkende staging-omgeving op een SFTP-only host: geen shell, geen git, geen Docker. Alleen lftp, een serialized-safe rewrite en een lock.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/phpmyadmin-three-safe-settings/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/phpmyadmin-three-safe-settings/hero.webp" type="image/webp">
+        <img src="/nl/blog/phpmyadmin-three-safe-settings/hero.jpg" alt="Bovenaanzicht van phpMyAdmin config op linnen met rood omcirkelde regels, messing plaatje, manilla map, liniaal, potlood, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Tooling</span><span>·</span><span>9 juni 2026</span></span>
+      <h3>phpMyAdmin in 2026: drie instellingen die het veilig houden</h3>
+      <span class="pc-lede">De helft van de senior engineers waar we mee werken wil phpMyAdmin weg in 2026. De andere helft gebruikt het wekelijks. De drie instellingen die de discussie beslechten.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/freelancer-handover-sweep/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
