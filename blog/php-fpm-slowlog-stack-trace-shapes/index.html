@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading a php-fpm slowlog: three stack-trace shapes decoded · Pier — Blog</title>
+<meta name="description" content="A field guide to php-fpm slowlogs on shared hosting: the three stack-trace shapes you&#39;ll meet, what each one is telling you, and where to point the next hour of debugging.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-fpm-slowlog-stack-trace-shapes/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading a php-fpm slowlog: three stack-trace shapes decoded">
+<meta property="og:description" content="A field guide to php-fpm slowlogs on shared hosting: the three stack-trace shapes you&#39;ll meet, what each one is telling you, and where to point the next hour of debugging.">
+<meta property="og:url" content="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/">
+<meta property="og:image" content="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Printed php-fpm slowlog on bone linen with ink-marked stack traces, manila folder, fountain pen, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T16:50:13.961Z">
+<meta property="article:modified_time" content="2026-06-10T16:50:13.961Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading a php-fpm slowlog: three stack-trace shapes decoded">
+<meta name="twitter:description" content="A field guide to php-fpm slowlogs on shared hosting: the three stack-trace shapes you&#39;ll meet, what each one is telling you, and where to point the next hour of debugging.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg">
+<meta name="twitter:image:alt" content="Printed php-fpm slowlog on bone linen with ink-marked stack traces, manila folder, fountain pen, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-fpm-slowlog-stack-trace-shapes/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/"},
+  "url":"https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/",
+  "headline":"Reading a php-fpm slowlog: three stack-trace shapes decoded",
+  "description":"A field guide to php-fpm slowlogs on shared hosting: the three stack-trace shapes you'll meet, what each one is telling you, and where to point the next hour of debugging.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Printed php-fpm slowlog on bone linen with ink-marked stack traces, manila folder, fountain pen, wax seal."
+  },
+  "datePublished":"2026-06-10T16:50:13.961Z",
+  "dateModified":"2026-06-10T16:50:13.961Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, wordpress, mysql, operations, tooling",
+  "wordCount":1358,
+  "articleSection":"PHP",
+  "articleBody":"It's 14:02 on a Tuesday and the shared host's CPU graph has been pegged at 90% for forty minutes. The agency that owns the site can't get into the server, only into cPanel. Inside cPanel, under Errors or sometimes hidden behind a Terminal button, there's a file called php-fpm-slow.log . They open it and see a wall of timestamps, PIDs, and indented function names. They forward it to you. This post is about that file. Specifically, the three stack-trace shapes that show up in a php-fpm slowlog and what each one is quietly telling you about where the time is going. None of this requires root, none of it requires installing a profiler. If you can read the slowlog, you can usually narrow a slow legacy site down to one of three causes in about ten minutes. What a slowlog entry actually is A php-fpm slowlog is not an error log. It's a sampler. When a request takes longer than request_slowlog_timeout (commonly 5s or 10s on managed hosts), php-fpm sends SIGUSR2 -style introspection at the worker, walks its current PHP call stack, and writes that snapshot to the file. The request keeps running. You're seeing a single frozen moment inside a long request, not a profile. A single entry looks roughly like this: [10-Jun-2026 13:47:12] [pool www] pid 24819 script_filename = /home/site/public_html/index.php [0x00007f2c1c0a8b40] mysqli_query() /home/site/public_html/wp-includes/wp-db.php:2056 [0x00007f2c1c0a8a90] query() /home/site/public_html/wp-includes/wp-db.php:1830 [0x00007f2c1c0a89e0] get_results() /home/site/public_html/wp-includes/class-wp-query.php:3145 [0x00007f2c1c0a8930] get_posts() /home/site/public_html/wp-content/plugins/related-posts/related.php:88 [0x00007f2c1c0a8880] rp_render() /home/site/public_html/wp-includes/class-wp-hook.php:308 [0x00007f2c1c0a87d0] apply_filters() /home/site/public_html/wp-includes/post-template.php:256 [0x00007f2c1c0a8720] the_content() /home/site/public_html/wp-content/themes/twentytwentyone/single.php:24 Read it top to bottom. The top frame is what PHP was doing at the instant of the sample. The bottom frame is the entry point. Everything in between is the path from one to the other. That stack of frames has a shape, and the shape is the diagnosis. Shape one: the database tail The first and most common shape ends, at the top, in something that talks to MySQL: mysqli_query , PDOStatement::execute , mysql_query on truly old code, mysqli_real_query , or occasionally mysqli_stmt::fetch . Below it you'll see one or two wrapper functions (in WordPress: wpdb::query , get_results , get_posts ), then theme or plugin code, then the entry point. If the top frame is a database call and the wrappers underneath are thin, the slow query is the story. The PHP code is fine. It asked MySQL for something and MySQL took eight seconds to answer. What to do with this: don't optimise the PHP. Take the parameters from the stack (the plugin name, the function it's in) and find the SQL. In WordPress, wpdb's last_query property is your friend if you can reproduce. Otherwise enable MySQL's slow query log for an hour with long_query_time = 2 . Pair the timestamps with the slowlog timestamps and you'll have the SQL within minutes. The fix is almost never \"add a cache.\" It's usually a missing index on wp_postmeta(meta_key, meta_value(10)) , an ORDER BY rand() hidden in a related-posts plugin, or a NOT IN subquery generated by a tax filter that scans every post. You confirm with EXPLAIN : EXPLAIN SELECT p.* FROM wp_posts p INNER JOIN wp_postmeta m ON m.post_id = p.ID WHERE m.meta_key = '_related_tags' AND m.meta_value LIKE '%shoes%' ORDER BY p.post_date DESC LIMIT 5; If the type column says ALL and the row count is in the millions, you've found it. Shape two: the hook avalanche The second shape is unmistakable once you've seen it twice. The top frame is something cheap and innocent. preg_match . strtolower . apply_filters itself. WP_Hook::apply_filters . Below it: another apply_filters . Below that: another apply_filters . The stack is twenty, thirty, fifty frames deep and most of them are the same three function names repeating. [0x...] strtolower() /home/site/.../seo-plugin/canonical.php:412 [0x...] WP_Hook::apply_filters() /home/site/.../class-wp-hook.php:308 [0x...] apply_filters() /home/site/.../wp-includes/link-template.php:127 [0x...] get_permalink() /home/site/.../seo-plugin/sitemap.php:88 [0x...] WP_Hook::apply_filters() /home/site/.../class-wp-hook.php:308 [0x...] apply_filters() /home/site/.../wp-includes/post-template.php:256 ... (continues for 40+ frames) This is not a slow function. This is a runaway loop of cheap functions, almost always caused by a plugin that hooks the_content or get_permalink and then, inside its filter, calls get_permalink again on every post in the archive. Multiply by 200 posts per page and a couple of nested hooks and you have a request that does forty million function calls to render a category page. What to do with this: identify the plugin from the directory in the middl",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading a php-fpm slowlog: three stack-trace shapes decoded","item":"https://pier.abn.company/blog/php-fpm-slowlog-stack-trace-shapes/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Where do I find the php-fpm slowlog on a shared host?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually under cPanel's Metrics or Errors panel, or at a path like /home/USER/logs/php-fpm-slow.log. If you can't see it, ask the host to enable request_slowlog_timeout and point it at a readable file."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's a sensible value for request_slowlog_timeout?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "5 seconds on a healthy site, 2 seconds when you're actively hunting. Below 2s the file fills with normal traffic and stops being useful."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the slowlog catch fatal errors or 500s?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. It only samples requests that are still running past the timeout. For fatals you want the php error_log; for 500s the web server access log paired with the error_log."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I read a slowlog without shell access?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. If cPanel's File Manager can open the log path, you can read it. The format is plain text. You don't need a parser to read the three shapes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is one stack snapshot enough to diagnose a slow request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Often, but not always. If two samples from the same PID disagree, both findings are real. Fix both before declaring the request healthy."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/php-fpm-slowlog-stack-trace-shapes/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 095</span>
+      </div>
+      <p class="eyebrow"><span class="n">095 —</span>PHP</p>
+      <h1 class="display-l post-title">Reading a php-fpm slowlog: three stack-trace shapes decoded</h1>
+      <p class="lede post-lede">A field guide to php-fpm slowlogs on shared hosting: the three stack-trace shapes you&#39;ll meet, what each one is telling you, and where to point the next hour of debugging.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T16:50:13.961Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-fpm-slowlog-stack-trace-shapes/hero.webp" type="image/webp">
+      <img src="/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg" alt="Printed php-fpm slowlog on bone linen with ink-marked stack traces, manila folder, fountain pen, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 095</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It's 14:02 on a Tuesday and the shared host's CPU graph has been pegged at 90% for forty minutes. The agency that owns the site can't get into the server, only into cPanel. Inside cPanel, under <em>Errors</em> or sometimes hidden behind a <em>Terminal</em> button, there's a file called <code>php-fpm-slow.log</code>. They open it and see a wall of timestamps, PIDs, and indented function names. They forward it to you.</p>
+
+<p>This post is about that file. Specifically, the three stack-trace shapes that show up in a php-fpm slowlog and what each one is quietly telling you about where the time is going. None of this requires root, none of it requires installing a profiler. If you can read the slowlog, you can usually narrow a slow legacy site down to one of three causes in about ten minutes.</p>
+
+<h2>What a slowlog entry actually is</h2>
+
+<p>A php-fpm slowlog is not an error log. It's a sampler. When a request takes longer than <code>request_slowlog_timeout</code> (commonly 5s or 10s on managed hosts), php-fpm sends <code>SIGUSR2</code>-style introspection at the worker, walks its current PHP call stack, and writes that snapshot to the file. The request keeps running. You're seeing a single frozen moment inside a long request, not a profile.</p>
+
+<p>A single entry looks roughly like this:</p>
+
+<pre><code class="lang-text">[10-Jun-2026 13:47:12]  [pool www] pid 24819
+script_filename = /home/site/public_html/index.php
+[0x00007f2c1c0a8b40] mysqli_query() /home/site/public_html/wp-includes/wp-db.php:2056
+[0x00007f2c1c0a8a90] query() /home/site/public_html/wp-includes/wp-db.php:1830
+[0x00007f2c1c0a89e0] get_results() /home/site/public_html/wp-includes/class-wp-query.php:3145
+[0x00007f2c1c0a8930] get_posts() /home/site/public_html/wp-content/plugins/related-posts/related.php:88
+[0x00007f2c1c0a8880] rp_render() /home/site/public_html/wp-includes/class-wp-hook.php:308
+[0x00007f2c1c0a87d0] apply_filters() /home/site/public_html/wp-includes/post-template.php:256
+[0x00007f2c1c0a8720] the_content() /home/site/public_html/wp-content/themes/twentytwentyone/single.php:24
+</code></pre>
+
+<p>Read it top to bottom. The top frame is what PHP was doing at the instant of the sample. The bottom frame is the entry point. Everything in between is the path from one to the other. That stack of frames has a shape, and the shape is the diagnosis.</p>
+
+<h2>Shape one: the database tail</h2>
+
+<p>The first and most common shape ends, at the top, in something that talks to MySQL: <code>mysqli_query</code>, <code>PDOStatement::execute</code>, <code>mysql_query</code> on truly old code, <code>mysqli_real_query</code>, or occasionally <code>mysqli_stmt::fetch</code>. Below it you'll see one or two wrapper functions (in WordPress: <code>wpdb::query</code>, <code>get_results</code>, <code>get_posts</code>), then theme or plugin code, then the entry point.</p>
+
+<p>If the top frame is a database call and the wrappers underneath are thin, the slow query is the story. The PHP code is fine. It asked MySQL for something and MySQL took eight seconds to answer.</p>
+
+<p>What to do with this: don't optimise the PHP. Take the parameters from the stack (the plugin name, the function it's in) and find the SQL. In WordPress, <a href="https://developer.wordpress.org/reference/classes/wpdb/">wpdb's last_query property</a> is your friend if you can reproduce. Otherwise enable MySQL's <a href="https://dev.mysql.com/doc/refman/8.0/en/slow-query-log.html">slow query log</a> for an hour with <code>long_query_time = 2</code>. Pair the timestamps with the slowlog timestamps and you'll have the SQL within minutes.</p>
+
+<p>The fix is almost never "add a cache." It's usually a missing index on <code>wp_postmeta(meta_key, meta_value(10))</code>, an <code>ORDER BY rand()</code> hidden in a related-posts plugin, or a <code>NOT IN</code> subquery generated by a tax filter that scans every post. You confirm with <code>EXPLAIN</code>:</p>
+
+<pre><code class="lang-sql">EXPLAIN SELECT p.* FROM wp_posts p
+INNER JOIN wp_postmeta m ON m.post_id = p.ID
+WHERE m.meta_key = '_related_tags'
+  AND m.meta_value LIKE '%shoes%'
+ORDER BY p.post_date DESC
+LIMIT 5;
+</code></pre>
+
+<p>If the <code>type</code> column says <code>ALL</code> and the row count is in the millions, you've found it.</p>
+
+<h2>Shape two: the hook avalanche</h2>
+
+<p>The second shape is unmistakable once you've seen it twice. The top frame is something cheap and innocent. <code>preg_match</code>. <code>strtolower</code>. <code>apply_filters</code> itself. <code>WP_Hook::apply_filters</code>. Below it: another <code>apply_filters</code>. Below that: another <code>apply_filters</code>. The stack is twenty, thirty, fifty frames deep and most of them are the same three function names repeating.</p>
+
+<pre><code class="lang-text">[0x...] strtolower() /home/site/.../seo-plugin/canonical.php:412
+[0x...] WP_Hook::apply_filters() /home/site/.../class-wp-hook.php:308
+[0x...] apply_filters() /home/site/.../wp-includes/link-template.php:127
+[0x...] get_permalink() /home/site/.../seo-plugin/sitemap.php:88
+[0x...] WP_Hook::apply_filters() /home/site/.../class-wp-hook.php:308
+[0x...] apply_filters() /home/site/.../wp-includes/post-template.php:256
+... (continues for 40+ frames)
+</code></pre>
+
+<p>This is not a slow function. This is a runaway loop of cheap functions, almost always caused by a plugin that hooks <code>the_content</code> or <code>get_permalink</code> and then, inside its filter, calls <code>get_permalink</code> again on every post in the archive. Multiply by 200 posts per page and a couple of nested hooks and you have a request that does forty million function calls to render a category page.</p>
+
+<p>What to do with this: identify the plugin from the directory in the middle of the stack and disable it on a staging copy. If the load drops, you've found it. The actual fix is usually a one-line guard at the top of the plugin's filter callback to skip work it doesn't need.</p>
+
+<aside class="callout"><strong>Easy to misread.</strong> A deep recursive stack with <code>apply_filters</code> at the top sometimes <em>is</em> a database call in disguise. The database client is just below the sample point. Always check the bottom of the recursion. If frame 30 is <code>mysqli_query</code> and frames 1-29 are filter machinery, you have shape one, not shape two. The fix is on the SQL side.</aside>
+
+<h2>Shape three: the remote call</h2>
+
+<p>The third shape is the one that gets misdiagnosed most often. The top of the stack is <code>stream_socket_client</code>, <code>fsockopen</code>, <code>curl_exec</code>, or <code>fread</code> on a stream resource. Below it, <code>wp_remote_get</code>, <code>WP_Http::request</code>, or a vendored Guzzle handler. Below that, application code.</p>
+
+<pre><code class="lang-text">[0x...] curl_exec() /home/site/.../wp-includes/class-wp-http-curl.php:226
+[0x...] WP_Http_Curl::request() /home/site/.../class-wp-http.php:430
+[0x...] WP_Http::request() /home/site/.../http.php:191
+[0x...] wp_remote_get() /home/site/.../plugins/social-feed/feed.php:54
+[0x...] sf_render_widget() /home/site/.../class-wp-widget.php:394
+</code></pre>
+
+<p>The PHP isn't slow. MySQL isn't slow. The site is waiting on someone else's server. A social-feed plugin polling Instagram, a currency converter calling an FX endpoint, a license checker phoning home, an old Gravatar lookup with no timeout. The request takes eight seconds because the upstream took eight seconds, or worse, hit php's default <code>default_socket_timeout</code> of 60 and got close to it.</p>
+
+<p>The diagnosis here is the easiest of the three: the URL is usually in the plugin file referenced in the bottom-most application frame. Open it, find the <code>wp_remote_get</code> call, look at what host it hits. Test that host from your laptop with <code>curl -w "%{time_total}\n" -o /dev/null -s &lt;url&gt;</code>. If it's slow for you too, the fix is a transient cache (the plugin should be storing the response in <code>wp_options</code> for 15 minutes, not hammering the API on every page load) and an aggressive <code>timeout</code> argument:</p>
+
+<pre><code class="lang-php">$response = wp_remote_get( $url, [
+    'timeout'     => 3,
+    'redirection' => 1,
+    'user-agent'  => 'site-name/1.0',
+] );
+if ( is_wp_error( $response ) ) {
+    return $cached_fallback;
+}
+</code></pre>
+
+<p>Three seconds is a reasonable ceiling for a synchronous third-party call inside a page render. Anything more and the upstream owns your uptime.</p>
+
+<h2>What the slowlog won't tell you</h2>
+
+<p>Two honest limits worth saying out loud. First, the slowlog is a snapshot, not a timeline. If a request takes 9 seconds and you get one sample, you're seeing what was on the stack at one moment. A second sample of the same request might land on a different shape. When two consecutive entries in the same PID show different shapes, both are real and both need fixing.</p>
+
+<p>Second, the slowlog doesn't see opcode cache misses, <code>session_start</code> blocking on a file lock, or APCu contention. Those usually present as shape one with no database call at the top, or shape two with a suspiciously low frame count. When the shapes don't fit, look at <code>request_terminate_timeout</code> and whether the host has a single file-based session backend under load.</p>
+
+<h2>One small thing today</h2>
+
+<p>If you have access to a <a href="/">legacy site</a> that's been mysteriously slow, ask the host to enable <code>request_slowlog_timeout = 5s</code> and point it at a file you can read. Then leave it for a day. The shapes will sort themselves out and you'll come back to a file that, read carefully, has already done most of the diagnosis for you.</p>
+
+<p>When we built Pier we kept running into the same shared-host situation: clients with the slowlog visible in cPanel but nothing to read it with. The way we ended up handling it was wiring the <a href="/#database">MySQL editor</a> and the file browser into the same chat session, so you can paste a stack frame and ask "what query is this plugin running on the homepage" without leaving the app. It's the kind of small thing that pays for itself the first time a site is down at 2am.</p>
+    </div>
+
+    <aside class="pullquote">Every php-fpm slowlog entry is one of three shapes: a database tail, a hook avalanche, or a remote call. The shape is the diagnosis.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Where do I find the php-fpm slowlog on a shared host?</p>
+      <p class="faq-a">Usually under cPanel&#39;s Metrics or Errors panel, or at a path like /home/USER/logs/php-fpm-slow.log. If you can&#39;t see it, ask the host to enable request_slowlog_timeout and point it at a readable file.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What&#39;s a sensible value for request_slowlog_timeout?</p>
+      <p class="faq-a">5 seconds on a healthy site, 2 seconds when you&#39;re actively hunting. Below 2s the file fills with normal traffic and stops being useful.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does the slowlog catch fatal errors or 500s?</p>
+      <p class="faq-a">No. It only samples requests that are still running past the timeout. For fatals you want the php error_log; for 500s the web server access log paired with the error_log.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I read a slowlog without shell access?</p>
+      <p class="faq-a">Yes. If cPanel&#39;s File Manager can open the log path, you can read it. The format is plain text. You don&#39;t need a parser to read the three shapes.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is one stack snapshot enough to diagnose a slow request?</p>
+      <p class="faq-a">Often, but not always. If two samples from the same PID disagree, both findings are real. Fix both before declaring the request healthy.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 June 2026</span></span>
+      <h3>SQL audit snippets for legacy WordPress: a cheatsheet</h3>
+      <span class="pc-lede">The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/woocommerce-double-charge-payment-complete-hook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/woocommerce-double-charge-payment-complete-hook/hero.webp" type="image/webp">
+        <img src="/blog/woocommerce-double-charge-payment-complete-hook/hero.jpg" alt="Overhead photo of paper order ledger, Stripe receipt, hook trace diagram, manila folder, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>10 June 2026</span></span>
+      <h3>WooCommerce double charges: tracing a duplicated payment_complete hook</h3>
+      <span class="pc-lede">A WooCommerce store charges every card twice between 14:00 and 16:00. The culprit was not Stripe. It was a payment_complete hook firing from two places at once.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/php-fpm-slowlog-stack-trace-shapes/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
