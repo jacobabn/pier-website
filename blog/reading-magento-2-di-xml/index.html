@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading a Magento 2 di.xml: the four nodes that matter · Pier — Blog</title>
+<meta name="description" content="A class in your Magento 2 store behaves nothing like the vendor source. The answer is in di.xml. Four nodes do the real work; the rest is noise.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, architecture, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading a Magento 2 di.xml: the four nodes that matter">
+<meta property="og:description" content="A class in your Magento 2 store behaves nothing like the vendor source. The answer is in di.xml. Four nodes do the real work; the rest is noise.">
+<meta property="og:url" content="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<meta property="og:image" content="https://pier.abn.company/blog/reading-magento-2-di-xml/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/reading-magento-2-di-xml/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper di.xml schematic, manila folder, dependency tree, brass plate, red wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T06:47:35.337Z">
+<meta property="article:modified_time" content="2026-06-10T06:47:35.337Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading a Magento 2 di.xml: the four nodes that matter">
+<meta name="twitter:description" content="A class in your Magento 2 store behaves nothing like the vendor source. The answer is in di.xml. Four nodes do the real work; the rest is noise.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/reading-magento-2-di-xml/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper di.xml schematic, manila folder, dependency tree, brass plate, red wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-magento-2-di-xml/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/reading-magento-2-di-xml/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/reading-magento-2-di-xml/"},
+  "url":"https://pier.abn.company/blog/reading-magento-2-di-xml/",
+  "headline":"Reading a Magento 2 di.xml: the four nodes that matter",
+  "description":"A class in your Magento 2 store behaves nothing like the vendor source. The answer is in di.xml. Four nodes do the real work; the rest is noise.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/reading-magento-2-di-xml/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper di.xml schematic, manila folder, dependency tree, brass plate, red wax seal on linen."
+  },
+  "datePublished":"2026-06-10T06:47:35.337Z",
+  "dateModified":"2026-06-10T06:47:35.337Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, php, architecture, tooling",
+  "wordCount":1195,
+  "articleSection":"Magento",
+  "articleBody":"It is 16:20 on a Wednesday. You are staring at vendor/magento/module-catalog/Model/Product.php because a getPrice() call in a custom report is returning a number that does not match the database. The class looks innocent. The behaviour is not. The class you are calling is not the class you are reading. Somewhere in the codebase, a di.xml file rewired it. Magento 2's dependency injection layer is powerful and almost entirely declarative, which means the answer to \"why does this thing do that\" hides in XML, not in PHP. If you have ever opened a Magento 2 di.xml and felt your afternoon evaporate, this is the map. Four nodes explain ninety percent of every override you will meet. The rest is plumbing. The four nodes that do the work A Magento 2 di.xml lives in two places per module: etc/di.xml (global) and etc/<area>/di.xml where area is frontend , adminhtml , webapi_rest , webapi_soap , graphql , or crontab . The area-scoped file overlays the global one. The framework reads them in module-load order, merges the lot, caches the result under generated/metadata/ , and serves a single resolved graph at runtime. Inside that file, the four nodes you actually need to read are: <preference> <type> <virtualType> <plugin> (always nested inside a <type> ) Everything else is namespacing, sensitivity hints, or test fixtures. Learn these four and the file becomes legible. preference: swap the implementation A <preference> says: whenever someone asks for interface A, give them concrete class B. <preference for=\"Magento\\Catalog\\Api\\ProductRepositoryInterface\" type=\"Acme\\Catalog\\Model\\ProductRepository\" /> After Magento's object manager resolves this, every constructor that type-hints ProductRepositoryInterface gets Acme\\Catalog\\Model\\ProductRepository instead of the default. It is a flat, total replacement. There is no before and no after. The old class is gone from the graph. Two things to remember. First, <preference> works on classes too, not only interfaces, which is how some third-party modules quietly hijack core implementations without you noticing. Second, the last preference loaded wins. Module load order is decided by app/etc/config.php and the sequence element in each module's module.xml . When two modules both preference the same interface, you get whichever module loaded later. Searching the codebase for preference for=\"Some\\Class\" is the only reliable way to find out who took over. type: configure the constructor A <type> node modifies how a specific class gets built. The most common use is to inject configured arguments into its constructor. <type name=\"Magento\\Framework\\View\\Element\\UiComponent\\DataProvider\\CollectionFactory\"> <arguments> <argument name=\"collections\" xsi:type=\"array\"> <item name=\"acme_invoices_listing_data_source\" xsi:type=\"string\">Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection</item> </argument> </arguments> </type> This is how grid collections, validators, command lists, and event observer pools get extended. The class itself is not replaced. Its constructor argument named collections simply gets one extra entry merged in. The <arguments> block supports xsi:type values for string , boolean , number , null , array , object , and init_parameter . The object type is the interesting one: it tells the object manager to resolve another class and pass that instance. That is the seam where one module can hand its own service to a core class without touching the core class file. The full list lives in the Adobe Commerce docs on dependency injection , worth bookmarking. <type> is also where <plugin> declarations live, which is where this gets interesting. virtualType: a clone with different arguments A <virtualType> defines a new type name backed by an existing concrete class but configured with its own arguments. Nothing new is written to PHP. The name exists only inside the DI container. <virtualType name=\"Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection\" type=\"Magento\\Framework\\View\\Element\\UiComponent\\DataProvider\\SearchResult\"> <arguments> <argument name=\"mainTable\" xsi:type=\"string\">acme_invoice</argument> <argument name=\"resourceModel\" xsi:type=\"string\">Acme\\Invoice\\Model\\ResourceModel\\Invoice</argument> </arguments> </virtualType> You now have a class name ( Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection ) that points to Magento's SearchResult class with a different set of constructor arguments. Reference it anywhere a class FQN is expected. It will not appear in your IDE's class navigator because there is no file. Search by string match when you go looking. This is the node that confuses people the most. If you grep for a class and find zero files but plenty of references, look for a virtualType with that name. plugin: intercept the method A <plugin> is the interceptor mechanism. It attaches before , after , or around methods to a public method of a target type. Plugins do not replace the target. They wrap it. <type name=\"Magento\\Catalog\\Model\\Product\"> <plugin nam",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/reading-magento-2-di-xml/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading a Magento 2 di.xml: the four nodes that matter","item":"https://pier.abn.company/blog/reading-magento-2-di-xml/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is the difference between preference and plugin in Magento 2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A preference replaces the class entirely for everyone who asks for the interface. A plugin wraps a single public method on the target without removing the original implementation from the graph."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use a virtualType outside di.xml?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, by string reference. The virtualType name only exists inside the DI container, but you can pass that name anywhere a class FQN is expected, including other XML files and factory calls."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does my plugin stop firing after a Magento upgrade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The vendor likely changed the target method to private or marked the class final. Plugins only attach to public, non-final method signatures, so the override silently reverts with no error."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Where do area-specific di.xml files live?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Under etc/frontend/, etc/adminhtml/, etc/webapi_rest/, etc/webapi_soap/, etc/graphql/, or etc/crontab/ inside each module. They merge over the global etc/di.xml at the same level."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 083</span>
+      </div>
+      <p class="eyebrow"><span class="n">083 —</span>Magento</p>
+      <h1 class="display-l post-title">Reading a Magento 2 di.xml: the four nodes that matter</h1>
+      <p class="lede post-lede">A class in your Magento 2 store behaves nothing like the vendor source. The answer is in di.xml. Four nodes do the real work; the rest is noise.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T06:47:35.337Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-magento-2-di-xml/hero.webp" type="image/webp">
+      <img src="/blog/reading-magento-2-di-xml/hero.jpg" alt="Overhead photo of paper di.xml schematic, manila folder, dependency tree, brass plate, red wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 083</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is 16:20 on a Wednesday. You are staring at <code>vendor/magento/module-catalog/Model/Product.php</code> because a <code>getPrice()</code> call in a custom report is returning a number that does not match the database. The class looks innocent. The behaviour is not.</p><p>The class you are calling is not the class you are reading. Somewhere in the codebase, a <code>di.xml</code> file rewired it. Magento 2's dependency injection layer is powerful and almost entirely declarative, which means the answer to "why does this thing do that" hides in XML, not in PHP.</p><p>If you have ever opened a Magento 2 di.xml and felt your afternoon evaporate, this is the map. Four nodes explain ninety percent of every override you will meet. The rest is plumbing.</p><h2>The four nodes that do the work</h2><p>A Magento 2 di.xml lives in two places per module: <code>etc/di.xml</code> (global) and <code>etc/&lt;area&gt;/di.xml</code> where area is <code>frontend</code>, <code>adminhtml</code>, <code>webapi_rest</code>, <code>webapi_soap</code>, <code>graphql</code>, or <code>crontab</code>. The area-scoped file overlays the global one. The framework reads them in module-load order, merges the lot, caches the result under <code>generated/metadata/</code>, and serves a single resolved graph at runtime.</p><p>Inside that file, the four nodes you actually need to read are:</p><ul><li><code>&lt;preference&gt;</code></li><li><code>&lt;type&gt;</code></li><li><code>&lt;virtualType&gt;</code></li><li><code>&lt;plugin&gt;</code> (always nested inside a <code>&lt;type&gt;</code>)</li></ul><p>Everything else is namespacing, sensitivity hints, or test fixtures. Learn these four and the file becomes legible.</p><h2>preference: swap the implementation</h2><p>A <code>&lt;preference&gt;</code> says: whenever someone asks for interface A, give them concrete class B.</p><pre><code class="lang-xml">&lt;preference for="Magento\Catalog\Api\ProductRepositoryInterface"
+            type="Acme\Catalog\Model\ProductRepository" /&gt;</code></pre><p>After Magento's object manager resolves this, every constructor that type-hints <code>ProductRepositoryInterface</code> gets <code>Acme\Catalog\Model\ProductRepository</code> instead of the default. It is a flat, total replacement. There is no before and no after. The old class is gone from the graph.</p><p>Two things to remember. First, <code>&lt;preference&gt;</code> works on classes too, not only interfaces, which is how some third-party modules quietly hijack core implementations without you noticing. Second, the last preference loaded wins. Module load order is decided by <code>app/etc/config.php</code> and the <code>sequence</code> element in each module's <code>module.xml</code>. When two modules both preference the same interface, you get whichever module loaded later. Searching the codebase for <code>preference for="Some\Class"</code> is the only reliable way to find out who took over.</p><h2>type: configure the constructor</h2><p>A <code>&lt;type&gt;</code> node modifies how a specific class gets built. The most common use is to inject configured arguments into its constructor.</p><pre><code class="lang-xml">&lt;type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="collections" xsi:type="array"&gt;
+            &lt;item name="acme_invoices_listing_data_source"
+                  xsi:type="string"&gt;Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;</code></pre><p>This is how grid collections, validators, command lists, and event observer pools get extended. The class itself is not replaced. Its constructor argument named <code>collections</code> simply gets one extra entry merged in.</p><p>The <code>&lt;arguments&gt;</code> block supports <code>xsi:type</code> values for <code>string</code>, <code>boolean</code>, <code>number</code>, <code>null</code>, <code>array</code>, <code>object</code>, and <code>init_parameter</code>. The <code>object</code> type is the interesting one: it tells the object manager to resolve another class and pass that instance. That is the seam where one module can hand its own service to a core class without touching the core class file. The full list lives in the Adobe Commerce docs on <a href="https://developer.adobe.com/commerce/php/development/components/dependency-injection/">dependency injection</a>, worth bookmarking.</p><p><code>&lt;type&gt;</code> is also where <code>&lt;plugin&gt;</code> declarations live, which is where this gets interesting.</p><h2>virtualType: a clone with different arguments</h2><p>A <code>&lt;virtualType&gt;</code> defines a new type name backed by an existing concrete class but configured with its own arguments. Nothing new is written to PHP. The name exists only inside the DI container.</p><pre><code class="lang-xml">&lt;virtualType name="Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection"
+             type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="mainTable" xsi:type="string"&gt;acme_invoice&lt;/argument&gt;
+        &lt;argument name="resourceModel" xsi:type="string"&gt;Acme\Invoice\Model\ResourceModel\Invoice&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;</code></pre><p>You now have a class name (<code>Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection</code>) that points to Magento's <code>SearchResult</code> class with a different set of constructor arguments. Reference it anywhere a class FQN is expected. It will not appear in your IDE's class navigator because there is no file. Search by string match when you go looking.</p><p>This is the node that confuses people the most. If you grep for a class and find zero files but plenty of references, look for a <code>virtualType</code> with that name.</p><h2>plugin: intercept the method</h2><p>A <code>&lt;plugin&gt;</code> is the interceptor mechanism. It attaches <code>before</code>, <code>after</code>, or <code>around</code> methods to a public method of a target type. Plugins do not replace the target. They wrap it.</p><pre><code class="lang-xml">&lt;type name="Magento\Catalog\Model\Product"&gt;
+    &lt;plugin name="acme_product_price_audit"
+            type="Acme\PriceAudit\Plugin\Product\PriceLoggerPlugin"
+            sortOrder="10"
+            disabled="false" /&gt;
+&lt;/type&gt;</code></pre><p>The plugin class declares methods named after the target's public methods, prefixed with <code>before</code>, <code>after</code>, or <code>around</code>:</p><pre><code class="lang-php">public function afterGetPrice(
+    \Magento\Catalog\Model\Product $subject,
+    $result
+) {
+    $this-&gt;logger-&gt;info('product_price.read', [
+        'sku'   =&gt; $subject-&gt;getSku(),
+        'price' =&gt; $result,
+    ]);
+    return $result;
+}</code></pre><p>Plugins are the right answer when you want to observe or adjust behaviour without claiming the class for yourself. They are also the wrong answer when more than three modules have plugged the same method, because <code>sortOrder</code> becomes a quiet battlefield. The official guidance is in the Adobe Commerce docs on <a href="https://developer.adobe.com/commerce/php/development/components/plugins/">plugin interception</a>, and it is worth a careful read before you write your fourth one.</p><p><code>around</code> plugins are the most expensive at runtime and the most dangerous when chained. Default to <code>before</code> or <code>after</code> unless you have a reason. The reason is rarely "I want to skip the call". The reason is usually "I want to translate the arguments".</p><aside class="callout">A plugin only works on public methods of a non-final, non-static class. If a vendor changes a method to private or marks the class final in a security release, every plugin pointing at it stops firing silently. There is no error. The behaviour just reverts. Check the vendor changelog when an override "stops working" after an upgrade.</aside><h2>Reading order when you sit down with a real di.xml</h2><p>When you open an unfamiliar Magento 2 di.xml, scan in this order:</p><ol><li>Every <code>&lt;preference&gt;</code>. These are total replacements. Note which interfaces are taken over.</li><li>Every <code>&lt;virtualType&gt;</code>. These are invisible classes. Add them to your mental class list.</li><li>Every <code>&lt;type&gt;</code> with <code>&lt;arguments&gt;</code>. These are configuration injections, almost always either grids, validators, or command pools.</li><li>Every <code>&lt;plugin&gt;</code> inside those <code>&lt;type&gt;</code> nodes. These are the runtime interceptors. Note <code>sortOrder</code> and <code>disabled</code>.</li></ol><p>Then run <code>bin/magento setup:di:compile</code> against a clean copy to see what the generated factories and interceptors look like under <code>generated/code/</code>. The compiled output is verbose, but it tells you the truth about which plugins actually wrapped which methods, in which order. Reading the XML tells you intent. Reading the generated code tells you reality.</p><h2>After this afternoon</h2><p>When we were building <a href="/">Pier</a> for the kind of <a href="/">legacy site</a> where a single Magento 2 store has eleven modules all overriding the same five classes, we ran into this exact thing: the XML is right there, but reading it in a normal editor means flipping between fifteen files to follow one override. The way we ended up handling it was a chat surface that resolves the whole graph for you, with full <a href="/#features">version history</a> on every edit so you can revert any override the moment it goes sideways.</p><p>The smallest thing you can do today: open one di.xml you have been avoiding, grep your repo for every <code>&lt;preference for="&quot;</code> line, and write the list of taken-over interfaces in a comment at the top of the file. The next person on call, including you in three weeks, will get the afternoon back.</p>
+    </div>
+
+    <aside class="pullquote">A Magento 2 di.xml is legible once you only read four nodes: preference, type, virtualType, and plugin. Everything else is plumbing.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What is the difference between preference and plugin in Magento 2?</p>
+      <p class="faq-a">A preference replaces the class entirely for everyone who asks for the interface. A plugin wraps a single public method on the target without removing the original implementation from the graph.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I use a virtualType outside di.xml?</p>
+      <p class="faq-a">Yes, by string reference. The virtualType name only exists inside the DI container, but you can pass that name anywhere a class FQN is expected, including other XML files and factory calls.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does my plugin stop firing after a Magento upgrade?</p>
+      <p class="faq-a">The vendor likely changed the target method to private or marked the class final. Plugins only attach to public, non-final method signatures, so the override silently reverts with no error.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Where do area-specific di.xml files live?</p>
+      <p class="faq-a">Under etc/frontend/, etc/adminhtml/, etc/webapi_rest/, etc/webapi_soap/, etc/graphql/, or etc/crontab/ inside each module. They merge over the global etc/di.xml at the same level.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/php-fpm-pool-tuning-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/php-fpm-pool-tuning-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg" alt="Overhead photo of paper PHP-FPM tuning worksheet, Apache 502 log sheet, brass FPM POOL plate, wax seal on bone linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 June 2026</span></span>
+      <h3>PHP-FPM pool tuning: six settings behind the 40-user wall</h3>
+      <span class="pc-lede">Your traffic doubles and the site goes white. PHP-FPM workers are pinned at five, the queue is full, Apache is timing out. Here is the cheatsheet.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/blog/magento-stuck-queue-message-status/hero.jpg" alt="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Magento order emails: the stuck queue_message_status row</h3>
+      <span class="pc-lede">A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

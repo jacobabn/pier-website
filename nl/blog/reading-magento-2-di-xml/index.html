@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Een Magento 2 di.xml lezen: de vier nodes die tellen · Pier — Blog</title>
+<meta name="description" content="Een class in je Magento 2-shop gedraagt zich anders dan de vendor-broncode. Het antwoord zit in di.xml: vier nodes doen het echte werk, de rest is ruis.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, architecture, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-magento-2-di-xml/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Een Magento 2 di.xml lezen: de vier nodes die tellen">
+<meta property="og:description" content="Een class in je Magento 2-shop gedraagt zich anders dan de vendor-broncode. Het antwoord zit in di.xml: vier nodes doen het echte werk, de rest is ruis.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren di.xml-schema, manilamap, afhankelijkheidsboom, messing plaatje, rode lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T06:47:35.337Z">
+<meta property="article:modified_time" content="2026-06-10T06:47:35.337Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Een Magento 2 di.xml lezen: de vier nodes die tellen">
+<meta name="twitter:description" content="Een class in je Magento 2-shop gedraagt zich anders dan de vendor-broncode. Het antwoord zit in di.xml: vier nodes doen het echte werk, de rest is ruis.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/reading-magento-2-di-xml/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren di.xml-schema, manilamap, afhankelijkheidsboom, messing plaatje, rode lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-magento-2-di-xml/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/reading-magento-2-di-xml/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/reading-magento-2-di-xml/"},
+  "url":"https://pier.abn.company/nl/blog/reading-magento-2-di-xml/",
+  "headline":"Een Magento 2 di.xml lezen: de vier nodes die tellen",
+  "description":"Een class in je Magento 2-shop gedraagt zich anders dan de vendor-broncode. Het antwoord zit in di.xml: vier nodes doen het echte werk, de rest is ruis.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/reading-magento-2-di-xml/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren di.xml-schema, manilamap, afhankelijkheidsboom, messing plaatje, rode lakzegel op linnen."
+  },
+  "datePublished":"2026-06-10T06:47:35.337Z",
+  "dateModified":"2026-06-10T06:47:35.337Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, php, architecture, tooling",
+  "wordCount":1189,
+  "articleSection":"Magento",
+  "articleBody":"Het is 16:20 op een woensdag. Je staart naar vendor/magento/module-catalog/Model/Product.php omdat een getPrice() -call in een custom rapport een getal teruggeeft dat niet klopt met de database. De class ziet er onschuldig uit. Het gedrag niet. De class die je aanroept is niet de class die je leest. Ergens in de codebase heeft een di.xml -bestand hem omgeleid. De dependency injection-laag van Magento 2 doet veel en is bijna volledig declaratief, wat betekent dat het antwoord op \"waarom doet dit ding dat\" verstopt zit in XML, niet in PHP. Als je ooit een Magento 2 di.xml hebt opengeklapt en je middag voelde verdampen, dan is dit je leidraad. Vier nodes verklaren negentig procent van elke override die je tegenkomt. De rest is bijzaak. De vier nodes die het werk doen Een Magento 2 di.xml staat op twee plekken per module: etc/di.xml (globaal) en etc/<area>/di.xml waarbij area gelijk is aan frontend , adminhtml , webapi_rest , webapi_soap , graphql of crontab . Het area-specifieke bestand ligt over het globale heen. Het framework leest ze in module-load-volgorde, mergt het geheel, cachet het resultaat onder generated/metadata/ en serveert tijdens runtime één opgeloste graaf. Binnen dat bestand zijn dit de vier nodes die je echt moet lezen: <preference> <type> <virtualType> <plugin> (altijd genest in een <type> ) De rest is namespacing, sensitivity hints of testfixtures. Leer deze vier en het bestand wordt leesbaar. preference: vervang de implementatie Een <preference> zegt: wanneer iemand interface A opvraagt, geef hem dan concrete class B. <preference for=\"Magento\\Catalog\\Api\\ProductRepositoryInterface\" type=\"Acme\\Catalog\\Model\\ProductRepository\" /> Nadat de object manager van Magento dit heeft opgelost, krijgt elke constructor die type-hint op ProductRepositoryInterface voortaan Acme\\Catalog\\Model\\ProductRepository in plaats van de default. Het is een platte, totale vervanging. Er is geen ervoor en geen erna. De oude class is uit de graaf verdwenen. Twee dingen om te onthouden. Eerst: <preference> werkt ook op classes, niet alleen op interfaces, en zo kapen sommige third-party modules stilletjes core-implementaties zonder dat je het doorhebt. Daarnaast wint de laatst geladen preference. De module-load-volgorde wordt bepaald door app/etc/config.php en het sequence -element in de module.xml van elke module. Als twee modules dezelfde interface allebei prefereren, krijg je degene die later geladen is. De codebase doorzoeken op preference for=\"Some\\Class\" is de enige betrouwbare manier om te achterhalen wie het heeft overgenomen. type: configureer de constructor Een <type> -node past aan hoe een specifieke class gebouwd wordt. Het meest gangbare gebruik is het injecteren van geconfigureerde argumenten in zijn constructor. <type name=\"Magento\\Framework\\View\\Element\\UiComponent\\DataProvider\\CollectionFactory\"> <arguments> <argument name=\"collections\" xsi:type=\"array\"> <item name=\"acme_invoices_listing_data_source\" xsi:type=\"string\">Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection</item> </argument> </arguments> </type> Zo worden grid collections, validators, command lists en event observer pools uitgebreid. De class zelf wordt niet vervangen. Aan zijn constructor-argument collections wordt simpelweg één extra entry toegevoegd. Het <arguments> -blok ondersteunt xsi:type -waarden voor string , boolean , number , null , array , object en init_parameter . Het object -type is het interessante: dat zegt tegen de object manager dat hij een andere class moet oplossen en die instance moet doorgeven. Dat is de naad waar één module zijn eigen service aan een core-class kan doorgeven zonder het core-bestand zelf aan te raken. De volledige lijst staat in de Adobe Commerce docs over dependency injection , een bladwijzer waard. <type> is ook waar <plugin> -declaraties wonen, en daar wordt het interessant. virtualType: een kloon met andere argumenten Een <virtualType> definieert een nieuwe typenaam, gedragen door een bestaande concrete class maar geconfigureerd met eigen argumenten. Er wordt geen nieuwe PHP geschreven. De naam bestaat alleen binnen de DI-container. <virtualType name=\"Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection\" type=\"Magento\\Framework\\View\\Element\\UiComponent\\DataProvider\\SearchResult\"> <arguments> <argument name=\"mainTable\" xsi:type=\"string\">acme_invoice</argument> <argument name=\"resourceModel\" xsi:type=\"string\">Acme\\Invoice\\Model\\ResourceModel\\Invoice</argument> </arguments> </virtualType> Je hebt nu een class-naam ( Acme\\Invoice\\Model\\ResourceModel\\Invoice\\Grid\\Collection ) die wijst naar Magento's SearchResult -class met een andere set constructor-argumenten. Refereer ernaar op elke plek waar een class-FQN verwacht wordt. Hij verschijnt niet in de class-navigator van je IDE, want er is geen bestand. Zoek met string-match als je gaat speuren. Dit is de node die de meeste mensen in de war brengt. Als je grept op een class en nul bestanden vindt maar wel een berg verwijzingen, zoek dan een vir",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/reading-magento-2-di-xml/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Een Magento 2 di.xml lezen: de vier nodes die tellen","item":"https://pier.abn.company/nl/blog/reading-magento-2-di-xml/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat is het verschil tussen preference en plugin in Magento 2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Een preference vervangt de class volledig voor iedereen die de interface opvraagt. Een plugin wikkelt één publieke methode op het target in, zonder de oorspronkelijke implementatie uit de graaf te halen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik een virtualType buiten di.xml gebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, via string-referentie. De virtualType-naam bestaat alleen binnen de DI-container, maar je kunt die naam doorgeven op elke plek waar een class-FQN verwacht wordt, inclusief andere XML-bestanden en factory-calls."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom stopt mijn plugin met vuren na een Magento-upgrade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Waarschijnlijk heeft de vendor de target-methode op private gezet of de class final gemarkeerd. Plugins haken alleen aan publieke, niet-final method-signaturen, dus de override valt geruisloos terug zonder error."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/reading-magento-2-di-xml/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 083</span>
+      </div>
+      <p class="eyebrow"><span class="n">083 —</span>Magento</p>
+      <h1 class="display-l post-title">Een Magento 2 di.xml lezen: de vier nodes die tellen</h1>
+      <p class="lede post-lede">Een class in je Magento 2-shop gedraagt zich anders dan de vendor-broncode. Het antwoord zit in di.xml: vier nodes doen het echte werk, de rest is ruis.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T06:47:35.337Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-magento-2-di-xml/hero.webp" type="image/webp">
+      <img src="/blog/reading-magento-2-di-xml/hero.jpg" alt="Bovenaanzicht van papieren di.xml-schema, manilamap, afhankelijkheidsboom, messing plaatje, rode lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 083</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is 16:20 op een woensdag. Je staart naar <code>vendor/magento/module-catalog/Model/Product.php</code> omdat een <code>getPrice()</code>-call in een custom rapport een getal teruggeeft dat niet klopt met de database. De class ziet er onschuldig uit. Het gedrag niet.</p><p>De class die je aanroept is niet de class die je leest. Ergens in de codebase heeft een <code>di.xml</code>-bestand hem omgeleid. De dependency injection-laag van Magento 2 doet veel en is bijna volledig declaratief, wat betekent dat het antwoord op "waarom doet dit ding dat" verstopt zit in XML, niet in PHP.</p><p>Als je ooit een Magento 2 di.xml hebt opengeklapt en je middag voelde verdampen, dan is dit je leidraad. Vier nodes verklaren negentig procent van elke override die je tegenkomt. De rest is bijzaak.</p><h2>De vier nodes die het werk doen</h2><p>Een Magento 2 di.xml staat op twee plekken per module: <code>etc/di.xml</code> (globaal) en <code>etc/&lt;area&gt;/di.xml</code> waarbij area gelijk is aan <code>frontend</code>, <code>adminhtml</code>, <code>webapi_rest</code>, <code>webapi_soap</code>, <code>graphql</code> of <code>crontab</code>. Het area-specifieke bestand ligt over het globale heen. Het framework leest ze in module-load-volgorde, mergt het geheel, cachet het resultaat onder <code>generated/metadata/</code> en serveert tijdens runtime één opgeloste graaf.</p><p>Binnen dat bestand zijn dit de vier nodes die je echt moet lezen:</p><ul><li><code>&lt;preference&gt;</code></li><li><code>&lt;type&gt;</code></li><li><code>&lt;virtualType&gt;</code></li><li><code>&lt;plugin&gt;</code> (altijd genest in een <code>&lt;type&gt;</code>)</li></ul><p>De rest is namespacing, sensitivity hints of testfixtures. Leer deze vier en het bestand wordt leesbaar.</p><h2>preference: vervang de implementatie</h2><p>Een <code>&lt;preference&gt;</code> zegt: wanneer iemand interface A opvraagt, geef hem dan concrete class B.</p><pre><code class="lang-xml">&lt;preference for="Magento\Catalog\Api\ProductRepositoryInterface"
+            type="Acme\Catalog\Model\ProductRepository" /&gt;</code></pre><p>Nadat de object manager van Magento dit heeft opgelost, krijgt elke constructor die type-hint op <code>ProductRepositoryInterface</code> voortaan <code>Acme\Catalog\Model\ProductRepository</code> in plaats van de default. Het is een platte, totale vervanging. Er is geen ervoor en geen erna. De oude class is uit de graaf verdwenen.</p><p>Twee dingen om te onthouden. Eerst: <code>&lt;preference&gt;</code> werkt ook op classes, niet alleen op interfaces, en zo kapen sommige third-party modules stilletjes core-implementaties zonder dat je het doorhebt. Daarnaast wint de laatst geladen preference. De module-load-volgorde wordt bepaald door <code>app/etc/config.php</code> en het <code>sequence</code>-element in de <code>module.xml</code> van elke module. Als twee modules dezelfde interface allebei prefereren, krijg je degene die later geladen is. De codebase doorzoeken op <code>preference for="Some\Class"</code> is de enige betrouwbare manier om te achterhalen wie het heeft overgenomen.</p><h2>type: configureer de constructor</h2><p>Een <code>&lt;type&gt;</code>-node past aan hoe een specifieke class gebouwd wordt. Het meest gangbare gebruik is het injecteren van geconfigureerde argumenten in zijn constructor.</p><pre><code class="lang-xml">&lt;type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="collections" xsi:type="array"&gt;
+            &lt;item name="acme_invoices_listing_data_source"
+                  xsi:type="string"&gt;Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection&lt;/item&gt;
+        &lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/type&gt;</code></pre><p>Zo worden grid collections, validators, command lists en event observer pools uitgebreid. De class zelf wordt niet vervangen. Aan zijn constructor-argument <code>collections</code> wordt simpelweg één extra entry toegevoegd.</p><p>Het <code>&lt;arguments&gt;</code>-blok ondersteunt <code>xsi:type</code>-waarden voor <code>string</code>, <code>boolean</code>, <code>number</code>, <code>null</code>, <code>array</code>, <code>object</code> en <code>init_parameter</code>. Het <code>object</code>-type is het interessante: dat zegt tegen de object manager dat hij een andere class moet oplossen en die instance moet doorgeven. Dat is de naad waar één module zijn eigen service aan een core-class kan doorgeven zonder het core-bestand zelf aan te raken. De volledige lijst staat in de Adobe Commerce docs over <a href="https://developer.adobe.com/commerce/php/development/components/dependency-injection/">dependency injection</a>, een bladwijzer waard.</p><p><code>&lt;type&gt;</code> is ook waar <code>&lt;plugin&gt;</code>-declaraties wonen, en daar wordt het interessant.</p><h2>virtualType: een kloon met andere argumenten</h2><p>Een <code>&lt;virtualType&gt;</code> definieert een nieuwe typenaam, gedragen door een bestaande concrete class maar geconfigureerd met eigen argumenten. Er wordt geen nieuwe PHP geschreven. De naam bestaat alleen binnen de DI-container.</p><pre><code class="lang-xml">&lt;virtualType name="Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection"
+             type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult"&gt;
+    &lt;arguments&gt;
+        &lt;argument name="mainTable" xsi:type="string"&gt;acme_invoice&lt;/argument&gt;
+        &lt;argument name="resourceModel" xsi:type="string"&gt;Acme\Invoice\Model\ResourceModel\Invoice&lt;/argument&gt;
+    &lt;/arguments&gt;
+&lt;/virtualType&gt;</code></pre><p>Je hebt nu een class-naam (<code>Acme\Invoice\Model\ResourceModel\Invoice\Grid\Collection</code>) die wijst naar Magento's <code>SearchResult</code>-class met een andere set constructor-argumenten. Refereer ernaar op elke plek waar een class-FQN verwacht wordt. Hij verschijnt niet in de class-navigator van je IDE, want er is geen bestand. Zoek met string-match als je gaat speuren.</p><p>Dit is de node die de meeste mensen in de war brengt. Als je grept op een class en nul bestanden vindt maar wel een berg verwijzingen, zoek dan een <code>virtualType</code> met die naam.</p><h2>plugin: onderschep de methode</h2><p>Een <code>&lt;plugin&gt;</code> is het interceptor-mechanisme. Hij hangt <code>before</code>-, <code>after</code>- of <code>around</code>-methodes aan een publieke methode van een target-type. Plugins vervangen het target niet. Ze wikkelen het in.</p><pre><code class="lang-xml">&lt;type name="Magento\Catalog\Model\Product"&gt;
+    &lt;plugin name="acme_product_price_audit"
+            type="Acme\PriceAudit\Plugin\Product\PriceLoggerPlugin"
+            sortOrder="10"
+            disabled="false" /&gt;
+&lt;/type&gt;</code></pre><p>De plugin-class declareert methodes die vernoemd zijn naar de publieke methodes van het target, met <code>before</code>, <code>after</code> of <code>around</code> ervoor:</p><pre><code class="lang-php">public function afterGetPrice(
+    \Magento\Catalog\Model\Product $subject,
+    $result
+) {
+    $this-&gt;logger-&gt;info('product_price.read', [
+        'sku'   =&gt; $subject-&gt;getSku(),
+        'price' =&gt; $result,
+    ]);
+    return $result;
+}</code></pre><p>Plugins zijn het juiste antwoord wanneer je gedrag wilt observeren of bijsturen zonder de class voor jezelf op te eisen. Ze zijn ook het verkeerde antwoord wanneer meer dan drie modules dezelfde methode hebben gepluggd, omdat <code>sortOrder</code> dan een stil slagveld wordt. De officiële richtlijn staat in de Adobe Commerce docs over <a href="https://developer.adobe.com/commerce/php/development/components/plugins/">plugin-interceptie</a>, en een zorgvuldige lezing is geen overbodige luxe voordat je je vierde schrijft.</p><p><code>around</code>-plugins zijn tijdens runtime het duurst en het gevaarlijkst als ze geketend zijn. Kies standaard <code>before</code> of <code>after</code>, tenzij je een reden hebt. Die reden is zelden "ik wil de call overslaan". Die reden is meestal "ik wil de argumenten vertalen".</p><aside class="callout">Een plugin werkt alleen op publieke methodes van een niet-final, niet-statische class. Als een vendor in een security-release een methode op private zet of de class final markeert, stoppen alle plugins die ernaar wijzen geruisloos met vuren. Er volgt geen error. Het gedrag valt gewoon terug. Check de vendor-changelog wanneer een override "niet meer werkt" na een upgrade.</aside><h2>Leesvolgorde wanneer je voor een echte di.xml zit</h2><p>Wanneer je een onbekende Magento 2 di.xml opent, scan in deze volgorde:</p><ol><li>Elke <code>&lt;preference&gt;</code>. Dit zijn totale vervangingen. Noteer welke interfaces zijn overgenomen.</li><li>Elke <code>&lt;virtualType&gt;</code>. Dit zijn onzichtbare classes. Voeg ze toe aan je mentale class-lijst.</li><li>Elke <code>&lt;type&gt;</code> met <code>&lt;arguments&gt;</code>. Dit zijn configuratie-injecties, bijna altijd grids, validators of command pools.</li><li>Elke <code>&lt;plugin&gt;</code> binnen die <code>&lt;type&gt;</code>-nodes. Dit zijn de runtime-interceptors. Noteer <code>sortOrder</code> en <code>disabled</code>.</li></ol><p>Draai daarna <code>bin/magento setup:di:compile</code> tegen een schone kopie om te zien hoe de gegenereerde factories en interceptors eruitzien onder <code>generated/code/</code>. De gecompileerde output is wijdlopig, maar vertelt je de waarheid over welke plugins daadwerkelijk welke methodes hebben omhuld, en in welke volgorde. De XML lezen vertelt je de intentie. De gegenereerde code lezen vertelt je de werkelijkheid.</p><h2>Na vanmiddag</h2><p>Toen we <a href="/">Pier</a> bouwden voor het soort <a href="/">legacy site</a> waar één Magento 2-shop elf modules heeft die allemaal dezelfde vijf classes overriden, liepen we precies hiertegen aan: de XML staat er, maar hem lezen in een normale editor betekent tussen vijftien bestanden bladeren om één override te volgen. Wat we uiteindelijk hebben gedaan, is een chat-interface die de hele graaf voor je oplost, met volledige <a href="/#features">version history</a> op elke wijziging zodat je elke override kunt terugdraaien zodra het misgaat.</p><p>Het kleinste wat je vandaag kunt doen: open één di.xml die je hebt vermeden, grep je repo op elke <code>&lt;preference for="</code>-regel en zet de lijst van overgenomen interfaces in een comment bovenaan het bestand. De volgende persoon op de oproep, inclusief jij over drie weken, krijgt zijn middag terug.</p>
+    </div>
+
+    <aside class="pullquote">Een Magento 2 di.xml wordt leesbaar zodra je alleen vier nodes leest: preference, type, virtualType en plugin. De rest is bijzaak.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat is het verschil tussen preference en plugin in Magento 2?</p>
+      <p class="faq-a">Een preference vervangt de class volledig voor iedereen die de interface opvraagt. Een plugin wikkelt één publieke methode op het target in, zonder de oorspronkelijke implementatie uit de graaf te halen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik een virtualType buiten di.xml gebruiken?</p>
+      <p class="faq-a">Ja, via string-referentie. De virtualType-naam bestaat alleen binnen de DI-container, maar je kunt die naam doorgeven op elke plek waar een class-FQN verwacht wordt, inclusief andere XML-bestanden en factory-calls.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom stopt mijn plugin met vuren na een Magento-upgrade?</p>
+      <p class="faq-a">Waarschijnlijk heeft de vendor de target-methode op private gezet of de class final gemarkeerd. Plugins haken alleen aan publieke, niet-final method-signaturen, dus de override valt geruisloos terug zonder error.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/php-fpm-pool-tuning-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-fpm-pool-tuning-cheatsheet/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-fpm-pool-tuning-cheatsheet/hero.jpg" alt="Bovenaanzicht van papieren PHP-FPM-werkblad, Apache 502-logvel, koperen FPM POOL-plaatje, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>PHP-FPM tunen: de zes settings achter de 40-user crash</h3>
+      <span class="pc-lede">Je traffic verdubbelt en de site wordt wit. PHP-FPM workers staan vast op vijf, de queue zit vol, Apache krijgt time-outs. Dit is de cheatsheet.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Magento bestelmails stoppen: één rij in queue_message_status</h3>
+      <span class="pc-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/reading-magento-2-di-xml/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
