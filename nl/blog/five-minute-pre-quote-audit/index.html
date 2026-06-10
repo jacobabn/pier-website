@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Pre-quote audit in vijf minuten: ls, curl en SQL counts · Pier — Blog</title>
+<meta name="description" content="De vaste-prijs offerte die uitloopt tot drie weken migratie begint meestal met het overslaan van een audit van vijf minuten. Onze checklist voor legacy werk.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="business, operations, workflow, mysql, htaccess, wordpress">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/five-minute-pre-quote-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/five-minute-pre-quote-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Pre-quote audit in vijf minuten: ls, curl en SQL counts">
+<meta property="og:description" content="De vaste-prijs offerte die uitloopt tot drie weken migratie begint meestal met het overslaan van een audit van vijf minuten. Onze checklist voor legacy werk.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: checklist, koperen stopwatch op 5:00, manilla map, telstaat, envelop met rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T11:01:50.486Z">
+<meta property="article:modified_time" content="2026-06-10T11:01:50.486Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Business">
+<meta property="article:tag" content="business">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="wordpress">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Pre-quote audit in vijf minuten: ls, curl en SQL counts">
+<meta name="twitter:description" content="De vaste-prijs offerte die uitloopt tot drie weken migratie begint meestal met het overslaan van een audit van vijf minuten. Onze checklist voor legacy werk.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: checklist, koperen stopwatch op 5:00, manilla map, telstaat, envelop met rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Business">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/five-minute-pre-quote-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/"},
+  "url":"https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/",
+  "headline":"Pre-quote audit in vijf minuten: ls, curl en SQL counts",
+  "description":"De vaste-prijs offerte die uitloopt tot drie weken migratie begint meestal met het overslaan van een audit van vijf minuten. Onze checklist voor legacy werk.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: checklist, koperen stopwatch op 5:00, manilla map, telstaat, envelop met rood lakzegel."
+  },
+  "datePublished":"2026-06-10T11:01:50.486Z",
+  "dateModified":"2026-06-10T11:01:50.486Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"business, operations, workflow, mysql, htaccess, wordpress",
+  "wordCount":1276,
+  "articleSection":"Business",
+  "articleBody":"Een bureau stuurt om 23:41 een Loom door. De briefing: \"kleine WordPress-fix op de checkout van een klant die niet doorgaat, kun je vandaag een offerte sturen?\" Drie screenshots, een staging-URL, FTP-credentials in een 1Password-vault. De verleiding is om er een halve dag voor te quoten en door te gaan. Dat doen we niet, omdat we hebben geleerd wat de eerste vijf minuten na binnenkomst van de credentials ons kunnen besparen. De pre-quote audit op een legacy site is geen discovery sprint. Het is het verschil tussen een bedrag dat je kunt verdedigen en een bedrag waar je spijt van krijgt. Hierna volgt de exacte sequence die we draaien voordat we een eurobedrag in een antwoordmail zetten. Vijf minuten, drie terminalvensters, nog geen app geïnstalleerd. Eerst de directorylisting Voordat je de briefing nog eens leest, vraag je de document root op. Niet in een file manager. In een shell, met timestamps. ssh deploy@client-host.tld cd /var/www/html ls -la ls -la wp-content/ ls -la wp-content/mu-plugins/ 2>/dev/null ls -la wp-content/plugins/ | wc -l du -sh wp-content/uploads/ Wat je zoekt staat niet in de briefing. Het is de vorm van de working tree. Een document root met radio.php , m.php , lock360.php of een ander PHP-bestand met een kleinletter-zelfstandig-naamwoord op het topniveau is bijna altijd een signaal van een compromittering. Een wp-config.php.bak naast wp-config.php is de ontslagbrief van de vorige developer. Een advanced-cache.php of object-cache.php drop-in in wp-content/ betekent een cachinglaag (W3 Total Cache, Redis Object Cache, LiteSpeed) waar je rekening mee moet houden iedere keer dat je gedrag aanpast. De twee getallen die er nu al toe doen: hoeveel directories er in wp-content/plugins/ staan, en hoe groot wp-content/uploads/ is. Een site met 48 plugins en 31 GB aan uploads is een andere offerte dan een site met 9 plugins en 800 MB, ongeacht wat de briefing zegt. Headers voor SQL Open een tweede paneel. Sla de live-URL aan met curl , niet met een browser. Browsers liegen door te behulpzaam te zijn. curl -sI https://client-site.tld/ | sort curl -sI https://client-site.tld/wp-login.php curl -s https://client-site.tld/wp-json/ | head -c 400 curl -sI https://client-site.tld/?p=1 Je leest de headers op vier dingen na. De PHP-versie ( X-Powered-By: PHP/7.4.33 op een site die je in 2026 gaat quoten betekent dat PHP-end-of-life-werk in scope zit, zie de lijst met ondersteunde versies op php.net ). De server ( Apache/2.4.6 (CentOS) is EL7, ook EOL, wat het migratiegesprek verandert). De CMS-bevestiging (een Link: <https://client-site.tld/wp-json/>; rel=\"https://api.w.org/\" -header is WordPress; X-Drupal-Cache is Drupal; X-Magento-Tags is Magento). En de afwezigheid van security headers, die het OWASP Secure Headers project beter in kaart brengt dan welke blogpost dan ook. Wat je liever niet ziet, in willekeurige volgorde: Set-Cookie: PHPSESSID=... zonder HttpOnly; Secure , een ontbrekende Strict-Transport-Security , een Server -header die de patch-versie etaleert, of een 200 OK op /wp-config.php~ (ja, dat komt in 2026 nog steeds voor). Drie SQL counts die de prijs bepalen Derde paneel. Open de database. De briefing had het over checkout. De database vertelt je of checkout het echte probleem is of het symptoom. -- 1. Real publish volume SELECT post_type, post_status, COUNT(*) AS n FROM wp_posts GROUP BY post_type, post_status ORDER BY n DESC LIMIT 20; -- 2. The autoload bloat that slows every page SELECT ROUND(SUM(LENGTH(option_value)) / 1024 / 1024, 2) AS autoload_mb, COUNT(*) AS rows FROM wp_options WHERE autoload = 'yes'; -- 3. The join cost on every WP_Query SELECT COUNT(*) AS postmeta_rows FROM wp_postmeta; SELECT meta_key, COUNT(*) AS n FROM wp_postmeta GROUP BY meta_key ORDER BY n DESC LIMIT 10; De autoload-query is degene die de meeste engineers overslaan, en waar de meeste offerte-spijt mee begint. Iedere waarde boven 1 MB doet schade bij elke uncached request; we hebben 47 MB gezien op een site waarvan de eigenaar niet kon begrijpen waarom de TTFB rond de vier seconden bleef hangen. De fix is meestal een half uur. Het diagnosticeren nadat je de checkout-klus al hebt gequoteerd, kost je het weekend. De postmeta-count vertelt je of er iemand ACF, WooCommerce en een event-plugin samen heeft gedraaid zonder ooit op te ruimen. Een row count boven de vier miljoen op een site met 1.200 gepubliceerde posts is een verhaal dat je vóór je commitment wilt horen, niet erna. Als SHOW TABLE STATUS op een willekeurige wp_ -tabel Engine: MyISAM rapporteert, behandel je de opdracht als een migratie, niet als een fix. Row-level locking bestaat niet op MyISAM, en statistisch gezien is de eerstvolgende plugin-update degene die de site vastzet. De WordPress-documentatie over het converteren van tabellen naar InnoDB klopt, maar onderschat hoe lang dat duurt op een tabel van 30 GB. Het .htaccess-blok bepaalt de moeilijkheid Laatste zestig seconden van de pre-quote audit. Lees de root .htaccess . Niet scannen, lezen.",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Pre-quote audit in vijf minuten: ls, curl en SQL counts","item":"https://pier.abn.company/nl/blog/five-minute-pre-quote-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt de pre-quote audit eigenlijk?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vijf tot tien minuten vanaf het moment dat je de credentials binnen hebt, aangenomen dat je SSH of FTP en een MySQL-prompt hebt. Langer als je achter de toegang aan moet, en die vertraging zelf is een nuttig signaal over de opdracht."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als de klant me alleen SFTP geeft, geen shell?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ls -la over SFTP werkt nog steeds, curl draai je vanaf je eigen machine, en iedere serieuze klant levert phpMyAdmin of een MySQL-bastion zodra je daar schriftelijk om vraagt vóór het uitbrengen van een offerte."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Verschillen deze queries voor WooCommerce of Magento?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De autoload-check is WordPress-specifiek. Op Magento controleer je de row size van core_config_data en de aantallen in de EAV-attribuuttabellen; op Drupal kijk je naar de groottes van de cache_*-tabellen en de row count van watchdog."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/five-minute-pre-quote-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 088</span>
+      </div>
+      <p class="eyebrow"><span class="n">088 —</span>Business</p>
+      <h1 class="display-l post-title">Pre-quote audit in vijf minuten: ls, curl en SQL counts</h1>
+      <p class="lede post-lede">De vaste-prijs offerte die uitloopt tot drie weken migratie begint meestal met het overslaan van een audit van vijf minuten. Onze checklist voor legacy werk.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T11:01:50.486Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/five-minute-pre-quote-audit/hero.webp" type="image/webp">
+      <img src="/blog/five-minute-pre-quote-audit/hero.jpg" alt="Bovenaanzicht op linnen: checklist, koperen stopwatch op 5:00, manilla map, telstaat, envelop met rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 088</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een bureau stuurt om 23:41 een Loom door. De briefing: "kleine WordPress-fix op de checkout van een klant die niet doorgaat, kun je vandaag een offerte sturen?" Drie screenshots, een staging-URL, FTP-credentials in een 1Password-vault. De verleiding is om er een halve dag voor te quoten en door te gaan. Dat doen we niet, omdat we hebben geleerd wat de eerste vijf minuten na binnenkomst van de credentials ons kunnen besparen.</p>
+<p>De pre-quote audit op een <a href="/">legacy site</a> is geen discovery sprint. Het is het verschil tussen een bedrag dat je kunt verdedigen en een bedrag waar je spijt van krijgt. Hierna volgt de exacte sequence die we draaien voordat we een eurobedrag in een antwoordmail zetten. Vijf minuten, drie terminalvensters, nog geen app geïnstalleerd.</p>
+
+<h2>Eerst de directorylisting</h2>
+<p>Voordat je de briefing nog eens leest, vraag je de document root op. Niet in een file manager. In een shell, met timestamps.</p>
+<pre><code class="lang-bash">ssh deploy@client-host.tld
+cd /var/www/html
+ls -la
+ls -la wp-content/
+ls -la wp-content/mu-plugins/ 2&gt;/dev/null
+ls -la wp-content/plugins/ | wc -l
+du -sh wp-content/uploads/</code></pre>
+<p>Wat je zoekt staat niet in de briefing. Het is de vorm van de working tree. Een document root met <code>radio.php</code>, <code>m.php</code>, <code>lock360.php</code> of een ander PHP-bestand met een kleinletter-zelfstandig-naamwoord op het topniveau is bijna altijd een signaal van een compromittering. Een <code>wp-config.php.bak</code> naast <code>wp-config.php</code> is de ontslagbrief van de vorige developer. Een <code>advanced-cache.php</code> of <code>object-cache.php</code> drop-in in <code>wp-content/</code> betekent een cachinglaag (W3 Total Cache, Redis Object Cache, LiteSpeed) waar je rekening mee moet houden iedere keer dat je gedrag aanpast.</p>
+<p>De twee getallen die er nu al toe doen: hoeveel directories er in <code>wp-content/plugins/</code> staan, en hoe groot <code>wp-content/uploads/</code> is. Een site met 48 plugins en 31 GB aan uploads is een andere offerte dan een site met 9 plugins en 800 MB, ongeacht wat de briefing zegt.</p>
+
+<h2>Headers voor SQL</h2>
+<p>Open een tweede paneel. Sla de live-URL aan met <code>curl</code>, niet met een browser. Browsers liegen door te behulpzaam te zijn.</p>
+<pre><code class="lang-bash">curl -sI https://client-site.tld/ | sort
+curl -sI https://client-site.tld/wp-login.php
+curl -s  https://client-site.tld/wp-json/ | head -c 400
+curl -sI https://client-site.tld/?p=1</code></pre>
+<p>Je leest de headers op vier dingen na. De PHP-versie (<code>X-Powered-By: PHP/7.4.33</code> op een site die je in 2026 gaat quoten betekent dat PHP-end-of-life-werk in scope zit, zie de <a href="https://www.php.net/supported-versions.php">lijst met ondersteunde versies op php.net</a>). De server (<code>Apache/2.4.6 (CentOS)</code> is EL7, ook EOL, wat het migratiegesprek verandert). De CMS-bevestiging (een <code>Link: &lt;https://client-site.tld/wp-json/&gt;; rel="https://api.w.org/"</code>-header is WordPress; <code>X-Drupal-Cache</code> is Drupal; <code>X-Magento-Tags</code> is Magento). En de afwezigheid van security headers, die het <a href="https://owasp.org/www-project-secure-headers/">OWASP Secure Headers project</a> beter in kaart brengt dan welke blogpost dan ook.</p>
+<p>Wat je liever niet ziet, in willekeurige volgorde: <code>Set-Cookie: PHPSESSID=...</code> zonder <code>HttpOnly; Secure</code>, een ontbrekende <code>Strict-Transport-Security</code>, een <code>Server</code>-header die de patch-versie etaleert, of een 200 OK op <code>/wp-config.php~</code> (ja, dat komt in 2026 nog steeds voor).</p>
+
+<h2>Drie SQL counts die de prijs bepalen</h2>
+<p>Derde paneel. Open de database. De briefing had het over checkout. De database vertelt je of checkout het echte probleem is of het symptoom.</p>
+<pre><code class="lang-sql">-- 1. Real publish volume
+SELECT post_type, post_status, COUNT(*) AS n
+FROM wp_posts
+GROUP BY post_type, post_status
+ORDER BY n DESC
+LIMIT 20;
+
+-- 2. The autoload bloat that slows every page
+SELECT
+  ROUND(SUM(LENGTH(option_value)) / 1024 / 1024, 2) AS autoload_mb,
+  COUNT(*) AS rows
+FROM wp_options
+WHERE autoload = 'yes';
+
+-- 3. The join cost on every WP_Query
+SELECT COUNT(*) AS postmeta_rows FROM wp_postmeta;
+SELECT meta_key, COUNT(*) AS n
+FROM wp_postmeta
+GROUP BY meta_key
+ORDER BY n DESC
+LIMIT 10;</code></pre>
+<p>De autoload-query is degene die de meeste engineers overslaan, en waar de meeste offerte-spijt mee begint. Iedere waarde boven 1 MB doet schade bij elke uncached request; we hebben 47 MB gezien op een site waarvan de eigenaar niet kon begrijpen waarom de TTFB rond de vier seconden bleef hangen. De fix is meestal een half uur. Het diagnosticeren nadat je de checkout-klus al hebt gequoteerd, kost je het weekend.</p>
+<p>De postmeta-count vertelt je of er iemand ACF, WooCommerce en een event-plugin samen heeft gedraaid zonder ooit op te ruimen. Een row count boven de vier miljoen op een site met 1.200 gepubliceerde posts is een verhaal dat je vóór je commitment wilt horen, niet erna.</p>
+
+<aside class="callout">Als <code>SHOW TABLE STATUS</code> op een willekeurige <code>wp_</code>-tabel <code>Engine: MyISAM</code> rapporteert, behandel je de opdracht als een migratie, niet als een fix. Row-level locking bestaat niet op MyISAM, en statistisch gezien is de eerstvolgende plugin-update degene die de site vastzet. De <a href="https://wordpress.org/documentation/article/converting-database-tables-to-innodb/">WordPress-documentatie over het converteren van tabellen naar InnoDB</a> klopt, maar onderschat hoe lang dat duurt op een tabel van 30 GB.</aside>
+
+<h2>Het .htaccess-blok bepaalt de moeilijkheid</h2>
+<p>Laatste zestig seconden van de pre-quote audit. Lees de root <code>.htaccess</code>. Niet scannen, lezen.</p>
+<pre><code class="lang-bash">cat .htaccess
+cat wp-admin/.htaccess 2&gt;/dev/null
+find . -name ".htaccess" -not -path "./wp-content/cache/*" 2&gt;/dev/null</code></pre>
+<p>Je leest op vier patronen. Een <code>RewriteRule</code>-keten die niet de WordPress-default is (alles buiten het canonieke blok uit de <a href="https://httpd.apache.org/docs/2.4/howto/htaccess.html">Apache htaccess-docs</a>) betekent dat een vorige developer business-logica in URL rewrites heeft verwerkt, en die erf je. Een <code>AddHandler application/x-httpd-php74 .php</code>-regel betekent dat de host de PHP-versie per directory vastpint, dus een server-brede upgrade verzet deze site niet. <code>SecRule</code>-directives betekenen dat mod_security aanstaat, en je toekomstige WooCommerce-admin AJAX-calls krijgen onvoorspelbaar een 403. Een <code>Require ip</code>-blok op <code>wp-admin</code> betekent dat het kantoor-IP van het vorige bureau gewhitelist staat, dat van jou niet, en dat ontdek je vrijdag om 23:00.</p>
+
+<h2>De vijf getallen die de offerte veranderen</h2>
+<p>Zodra de drie panelen gesproken hebben, is de offerte een functie van vijf getallen, niet van de briefing:</p>
+<ol>
+  <li><strong>PHP-versie op de draaiende site.</strong> Alles onder 8.1 betekent dat upgrade-werk in scope zit, of de klant er nu om gevraagd heeft of niet.</li>
+  <li><strong>Autoload-bytes.</strong> Boven de 1 MB: tel een performance-pass erbij op. Boven de 10 MB: tel er twee dagen bij op.</li>
+  <li><strong>Aantal actieve plugins.</strong> Lees dit uit <code>wp_options</code> waar <code>option_name = 'active_plugins'</code>, niet uit het filesystem. Het verschil tussen filesystem en database is het aantal verlaten plugins, en elk daarvan is een toekomstig supportticket.</li>
+  <li><strong>Postmeta-rows per gepubliceerde post.</strong> Boven de 200 is de traagheid van de site structureel, geen caching-tweak.</li>
+  <li><strong>Last-modified date op <code>wp-content/uploads/&lt;current-year&gt;/</code>.</strong> Als die ouder is dan vier maanden, is de site feitelijk verlaten en is de briefing waarschijnlijk een reddingsoperatie, geen fix.</li>
+</ol>
+<p>Deze vijf getallen passen in de eerste alinea van je antwoordmail. Het zijn ook de vijf getallen waar de klant niet over kan redetwisten, omdat ze van zijn eigen server komen.</p>
+
+<h2>Wat we met de checklist hebben gedaan</h2>
+<p>Twee jaar lang draaiden we deze pre-quote audit met de hand bij iedere binnenkomende vraag. Drie terminal-tabs, een notitiebestand, een spreadsheet met getallen per klant. Het werkte, en het was vervelend genoeg dat we het SQL-paneel soms oversloegen als de briefing simpel klonk. De briefing klinkt altijd simpel.</p>
+<p>Toen we Pier bouwden liepen we hier in ons eigen klantwerk precies tegenaan, dus hebben we de audit direct in het dock-scherm vastgezet: zodra een FTP- en MySQL-verbinding zijn opgeslagen, draaien de directorylisting, de response headers en de drie SQL counts hierboven tegelijk en staan de resultaten naast de chat. De <a href="/#database">MySQL editor</a> onthoudt de autoload-query zoals een goede editor je laatste grep onthoudt, en de <a href="/#features">version history</a> zorgt dat het origineel één klik terug is op het moment dat je tijdens een audit aan de <code>.htaccess</code> komt.</p>
+<p>Het kleinste wat je vandaag kunt doen: bewaar de drie SQL-queries hierboven als een gist met de naam <code>pre-quote-audit.sql</code>, en voeg een shell-alias <code>quote-prep</code> toe die de <code>ls</code>- en <code>curl -sI</code>-sequence in één keer draait. De volgende keer dat er om 23:41 een Loom binnenkomt, ben je vijf minuten verwijderd van een bedrag dat je kunt verdedigen.</p>
+    </div>
+
+    <aside class="pullquote">De briefing klinkt altijd simpel. De directorylisting, de response headers en drie SQL counts bepalen of je offerte het contact met de echte site overleeft.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt de pre-quote audit eigenlijk?</p>
+      <p class="faq-a">Vijf tot tien minuten vanaf het moment dat je de credentials binnen hebt, aangenomen dat je SSH of FTP en een MySQL-prompt hebt. Langer als je achter de toegang aan moet, en die vertraging zelf is een nuttig signaal over de opdracht.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als de klant me alleen SFTP geeft, geen shell?</p>
+      <p class="faq-a">ls -la over SFTP werkt nog steeds, curl draai je vanaf je eigen machine, en iedere serieuze klant levert phpMyAdmin of een MySQL-bastion zodra je daar schriftelijk om vraagt vóór het uitbrengen van een offerte.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Verschillen deze queries voor WooCommerce of Magento?</p>
+      <p class="faq-a">De autoload-check is WordPress-specifiek. Op Magento controleer je de row size van core_config_data en de aantallen in de EAV-attribuuttabellen; op Drupal kijk je naar de groottes van de cache_*-tabellen en de row count van watchdog.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=business">#business</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-manifest-file/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-manifest-file/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-manifest-file/hero.jpg" alt="Open houten kaartenbaklade op linnen, messing labelhouder, uitgewaaierde kaarten, kleirood lint aan één kaart." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Manifestbestand voor legacy sites: audit in 20 minuten</h3>
+      <span class="pc-lede">Je erft vrijdagmiddag om 16:00 een 9 jaar oude WordPress-site. Om 16:20 hoort er een manifest te liggen dat de volgende persoon vertelt wat er draait.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/shared-cpanel-clients-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/shared-cpanel-clients-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/shared-cpanel-clients-field-guide/hero.jpg" alt="Houten kaartenbaklade half open op donker eiken bureau, messing labelhouder, ivoren kaarten, één met rood lintje." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Business</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Shared cPanel klanten: de vier soorten en wat ze nodig hebben</h3>
+      <span class="pc-lede">Vrijwel elk bureau heeft nog een staart aan shared cPanel klanten. Er leven er vier soorten op, en weten welke voor je zit scheelt een uur per gesprek.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/five-minute-pre-quote-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
