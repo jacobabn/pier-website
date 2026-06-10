@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Apache vs Nginx headers: veldgids voor legacy hosting · Pier — Blog</title>
+<meta name="description" content="De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, htaccess, php, tooling, security">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Apache vs Nginx headers: veldgids voor legacy hosting">
+<meta property="og:description" content="De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van HTTP-headeruitdraai, papieren boekje HEADERS, manilla label, messing VIA-plaat, rode lakzegel op 200 OK telegram.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T11:51:25.443Z">
+<meta property="article:modified_time" content="2026-06-10T11:51:25.443Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="security">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Apache vs Nginx headers: veldgids voor legacy hosting">
+<meta name="twitter:description" content="De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van HTTP-headeruitdraai, papieren boekje HEADERS, manilla label, messing VIA-plaat, rode lakzegel op 200 OK telegram.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/apache-nginx-headers-field-guide/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/"},
+  "url":"https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/",
+  "headline":"Apache vs Nginx headers: veldgids voor legacy hosting",
+  "description":"De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van HTTP-headeruitdraai, papieren boekje HEADERS, manilla label, messing VIA-plaat, rode lakzegel op 200 OK telegram."
+  },
+  "datePublished":"2026-06-10T11:51:25.443Z",
+  "dateModified":"2026-06-10T11:51:25.443Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"operations, htaccess, php, tooling, security",
+  "wordCount":1302,
+  "articleSection":"Operations",
+  "articleBody":"Een klant stuurt je vrijdagmiddag een staging-URL door. Voordat je inlogt, voordat je om SSH vraagt, voordat je ook maar één regel PHP openslaat, draai je curl -I https://staging.example.com en kijk je naar wat er terugkomt. Zes regels headers. Goed gelezen vertellen ze je of Apache of Nginx antwoordt, wie de response cachet, wat hem comprimeert, en of er iets stilletjes tussen jou en de origin zit. Slordig gelezen sturen ze je de rest van de middag de verkeerde kant op. Dit is een veldgids voor die headers, specifiek voor Apache en Nginx op het soort shared hosting waar je niet via SSH binnenkomt en het controlepaneel de versienummers verstopt. Het doel is niet om elke entry in de MDN reference te dekken, alleen de regels die bepalen hoe je een legacy site debugt. De Server-regel en wat hij verbergt De eerste header waar de meeste mensen naar kijken is ook degene waar het meest over wordt gelogen. Server: Apache kan Apache 2.4 zijn die direct met PHP-FPM praat. Het kan ook Apache zijn die voor LiteSpeed staat, of Nginx met een vhost die server_tokens onderweg herschrijft. Shared hosts redigeren dit voortdurend. $ curl -sI https://example.com | head -n 6 HTTP/2 200 date: Tue, 10 Jun 2026 07:14:02 GMT content-type: text/html; charset=UTF-8 server: Apache x-powered-by: PHP/7.4.33 link: <https://example.com/wp-json/>; rel=\"https://api.w.org/\" Twee dingen om op te merken. server: Apache zonder versienummer betekent meestal dat de host ServerTokens Prod heeft ingesteld, een gewoonte beschreven in de Apache core docs , die het patch-niveau verbergt. x-powered-by: PHP/7.4.33 is nuttiger: PHP 7.4 is sinds november 2022 end of life, wat je meteen vertelt hoe het beveiligingsgesprek met de klant eruit gaat zien. De link header met wp-json erin bevestigt WordPress voordat je de homepage überhaupt opent. LiteSpeed onderscheiden van Apache LiteSpeed is wire-compatible met Apache en leest .htaccess op dezelfde manier, dus de enige eerlijke aanwijzing is ergens in de stack een x-litespeed-cache of x-powered-by: LiteSpeed header. Zie je geen van beide, maar werken rewrite-regels duidelijk wel, ga er dan vanuit dat het Apache is en kijk verder. Cache-headers ontcijferd Drie headers dragen het cache-contract: Cache-Control , Expires , en de validators ETag en Last-Modified . Op Apache stel je die in via mod_expires en mod_headers : <IfModule mod_expires.c> ExpiresActive On ExpiresByType image/jpeg \"access plus 30 days\" ExpiresByType text/css \"access plus 7 days\" ExpiresByType text/html \"access plus 0 seconds\" </IfModule> <IfModule mod_headers.c> Header set Cache-Control \"public, max-age=2592000\" \"expr=%{REQUEST_URI} =~ m#\\.(jpg|png|webp)$#\" </IfModule> Op Nginx krimpt dezelfde bedoeling tot een paar regels: location ~* \\.(jpg|png|webp)$ { expires 30d; add_header Cache-Control \"public, immutable\" always; } In beide gevallen moet de response op een JPG Cache-Control: public, max-age=2592000 tonen met een Expires 30 dagen verderop. Zie je Cache-Control: no-store, max-age=0 op een JPG, dan overschrijft iets verderop in de keten de origin. Op een verouderde WordPress-installatie is de gebruikelijke verdachte een security plugin die Header always set Cache-Control \"no-cache\" op elke admin-route plakt en de directive op de front-end laat lekken. Cache-Control wint van Expires bij elke moderne client volgens RFC 9111, dus eerst achter de Expires -mismatch aangaan is een verloren uur. Validators zijn de andere helft van het verhaal. ETag is op een fingerprint gebaseerd, Last-Modified op een timestamp. Op een load-balanced Apache-farm kunnen ETag -waarden voor hetzelfde bestand per node verschillen, omdat het standaard Apache-formaat de inode meeneemt. De oplossing is ofwel FileETag MTime Size in .htaccess , of, eerlijker, ETags helemaal laten vallen en op Last-Modified leunen. Compressie op de lijn Compressie verschijnt op twee regels: Content-Encoding op de response, en Vary: Accept-Encoding zodat elke cache ertussen de gzip- en brotli-kopieën uit elkaar houdt. $ curl -sI -H 'Accept-Encoding: br, gzip' \\ https://example.com/wp-content/themes/site/style.css \\ | grep -iE 'encoding|vary' content-encoding: br vary: Accept-Encoding Content-Encoding: br is brotli, ondersteund in Apache via mod_brotli sinds 2.4.26 en in Nginx via de third-party ngx_brotli module. gzip is de veilige standaard. Komt er een HTML-pagina van 50 KB terug zonder enige Content-Encoding , dan staat compressie bij de host uit en zal je Lighthouse-score dat weerspiegelen. <IfModule mod_deflate.c> AddOutputFilterByType DEFLATE text/html text/css text/javascript \\ application/javascript application/json \\ image/svg+xml </IfModule> Eén valkuil op oudere 2.2-bakken: mod_deflate en mod_expires werken niet altijd goed samen. Zie je Vary: Accept-Encoding maar geen Content-Encoding op dezelfde response, dan is de body één keer gecomprimeerd, ergens upstream ongecomprimeerd gecached, en wordt nu zonder de gzip-pas geserveerd. De oplossing is Vary correct zetten in de cache-la",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Apache vs Nginx headers: veldgids voor legacy hosting","item":"https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik de Server-header op een shared host vertrouwen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet helemaal. Hosts strippen de versie met ServerTokens Prod, en reverse proxies overschrijven hem. Behandel het als een werkhypothese, niet als feit, en kruiscontroleer met x-powered-by en de fingerprints van de proxy."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom wint Cache-Control van Expires?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Volgens RFC 9111 respecteren moderne clients Cache-Control als beide aanwezig zijn. Expires is alleen nog een fallback voor HTTP/1.0-caches die je in productie vrijwel nooit meer tegenkomt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is de snelste manier om Cloudflare van Varnish te onderscheiden?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "cf-ray en cf-cache-status betekenen Cloudflare. via en X-Varnish betekenen Varnish. Verschijnen ze allebei, dan staat Cloudflare voor Varnish, wat werkt maar het invalidatiewerk verdubbelt."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 089</span>
+      </div>
+      <p class="eyebrow"><span class="n">089 —</span>Operations</p>
+      <h1 class="display-l post-title">Apache vs Nginx headers: veldgids voor legacy hosting</h1>
+      <p class="lede post-lede">De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T11:51:25.443Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/apache-nginx-headers-field-guide/hero.webp" type="image/webp">
+      <img src="/blog/apache-nginx-headers-field-guide/hero.jpg" alt="Bovenaanzicht van HTTP-headeruitdraai, papieren boekje HEADERS, manilla label, messing VIA-plaat, rode lakzegel op 200 OK telegram." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 089</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een klant stuurt je vrijdagmiddag een staging-URL door. Voordat je inlogt, voordat je om SSH vraagt, voordat je ook maar één regel PHP openslaat, draai je <code>curl -I https://staging.example.com</code> en kijk je naar wat er terugkomt. Zes regels headers. Goed gelezen vertellen ze je of Apache of Nginx antwoordt, wie de response cachet, wat hem comprimeert, en of er iets stilletjes tussen jou en de origin zit. Slordig gelezen sturen ze je de rest van de middag de verkeerde kant op.</p>
+
+<p>Dit is een veldgids voor die headers, specifiek voor Apache en Nginx op het soort shared hosting waar je niet via SSH binnenkomt en het controlepaneel de versienummers verstopt. Het doel is niet om elke entry in de <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers">MDN reference</a> te dekken, alleen de regels die bepalen hoe je een <a href="/">legacy site</a> debugt.</p>
+
+<h2>De Server-regel en wat hij verbergt</h2>
+
+<p>De eerste header waar de meeste mensen naar kijken is ook degene waar het meest over wordt gelogen. <code>Server: Apache</code> kan Apache 2.4 zijn die direct met PHP-FPM praat. Het kan ook Apache zijn die voor LiteSpeed staat, of Nginx met een vhost die <code>server_tokens</code> onderweg herschrijft. Shared hosts redigeren dit voortdurend.</p>
+
+<pre><code class="lang-bash">$ curl -sI https://example.com | head -n 6
+HTTP/2 200 
+date: Tue, 10 Jun 2026 07:14:02 GMT
+content-type: text/html; charset=UTF-8
+server: Apache
+x-powered-by: PHP/7.4.33
+link: &lt;https://example.com/wp-json/&gt;; rel="https://api.w.org/"
+</code></pre>
+
+<p>Twee dingen om op te merken. <code>server: Apache</code> zonder versienummer betekent meestal dat de host <code>ServerTokens Prod</code> heeft ingesteld, een gewoonte beschreven in de <a href="https://httpd.apache.org/docs/2.4/mod/core.html#servertokens">Apache core docs</a>, die het patch-niveau verbergt. <code>x-powered-by: PHP/7.4.33</code> is nuttiger: PHP 7.4 is sinds november 2022 end of life, wat je meteen vertelt hoe het beveiligingsgesprek met de klant eruit gaat zien. De <code>link</code> header met <code>wp-json</code> erin bevestigt WordPress voordat je de homepage überhaupt opent.</p>
+
+<h3>LiteSpeed onderscheiden van Apache</h3>
+
+<p>LiteSpeed is wire-compatible met Apache en leest <code>.htaccess</code> op dezelfde manier, dus de enige eerlijke aanwijzing is ergens in de stack een <code>x-litespeed-cache</code> of <code>x-powered-by: LiteSpeed</code> header. Zie je geen van beide, maar werken rewrite-regels duidelijk wel, ga er dan vanuit dat het Apache is en kijk verder.</p>
+
+<h2>Cache-headers ontcijferd</h2>
+
+<p>Drie headers dragen het cache-contract: <code>Cache-Control</code>, <code>Expires</code>, en de validators <code>ETag</code> en <code>Last-Modified</code>. Op Apache stel je die in via <code>mod_expires</code> en <code>mod_headers</code>:</p>
+
+<pre><code class="lang-apacheconf">&lt;IfModule mod_expires.c&gt;
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType text/css   "access plus 7 days"
+  ExpiresByType text/html  "access plus 0 seconds"
+&lt;/IfModule&gt;
+
+&lt;IfModule mod_headers.c&gt;
+  Header set Cache-Control "public, max-age=2592000" "expr=%{REQUEST_URI} =~ m#\.(jpg|png|webp)$#"
+&lt;/IfModule&gt;
+</code></pre>
+
+<p>Op Nginx krimpt dezelfde bedoeling tot een paar regels:</p>
+
+<pre><code class="lang-nginx">location ~* \.(jpg|png|webp)$ {
+  expires 30d;
+  add_header Cache-Control "public, immutable" always;
+}
+</code></pre>
+
+<p>In beide gevallen moet de response op een JPG <code>Cache-Control: public, max-age=2592000</code> tonen met een <code>Expires</code> 30 dagen verderop. Zie je <code>Cache-Control: no-store, max-age=0</code> op een JPG, dan overschrijft iets verderop in de keten de origin. Op een verouderde WordPress-installatie is de gebruikelijke verdachte een security plugin die <code>Header always set Cache-Control "no-cache"</code> op elke admin-route plakt en de directive op de front-end laat lekken. <code>Cache-Control</code> wint van <code>Expires</code> bij elke moderne client volgens RFC 9111, dus eerst achter de <code>Expires</code>-mismatch aangaan is een verloren uur.</p>
+
+<p>Validators zijn de andere helft van het verhaal. <code>ETag</code> is op een fingerprint gebaseerd, <code>Last-Modified</code> op een timestamp. Op een load-balanced Apache-farm kunnen <code>ETag</code>-waarden voor hetzelfde bestand per node verschillen, omdat het standaard Apache-formaat de inode meeneemt. De oplossing is ofwel <code>FileETag MTime Size</code> in <code>.htaccess</code>, of, eerlijker, ETags helemaal laten vallen en op <code>Last-Modified</code> leunen.</p>
+
+<h2>Compressie op de lijn</h2>
+
+<p>Compressie verschijnt op twee regels: <code>Content-Encoding</code> op de response, en <code>Vary: Accept-Encoding</code> zodat elke cache ertussen de gzip- en brotli-kopieën uit elkaar houdt.</p>
+
+<pre><code class="lang-bash">$ curl -sI -H 'Accept-Encoding: br, gzip' \
+    https://example.com/wp-content/themes/site/style.css \
+    | grep -iE 'encoding|vary'
+content-encoding: br
+vary: Accept-Encoding
+</code></pre>
+
+<p><code>Content-Encoding: br</code> is brotli, ondersteund in Apache via <code>mod_brotli</code> sinds 2.4.26 en in Nginx via de third-party <code>ngx_brotli</code> module. <code>gzip</code> is de veilige standaard. Komt er een HTML-pagina van 50 KB terug zonder enige <code>Content-Encoding</code>, dan staat compressie bij de host uit en zal je Lighthouse-score dat weerspiegelen.</p>
+
+<pre><code class="lang-apacheconf">&lt;IfModule mod_deflate.c&gt;
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript \
+                                application/javascript application/json \
+                                image/svg+xml
+&lt;/IfModule&gt;
+</code></pre>
+
+<p>Eén valkuil op oudere 2.2-bakken: <code>mod_deflate</code> en <code>mod_expires</code> werken niet altijd goed samen. Zie je <code>Vary: Accept-Encoding</code> maar geen <code>Content-Encoding</code> op dezelfde response, dan is de body één keer gecomprimeerd, ergens upstream ongecomprimeerd gecached, en wordt nu zonder de gzip-pas geserveerd. De oplossing is <code>Vary</code> correct zetten in de cache-laag, niet vechten met <code>mod_deflate</code>.</p>
+
+<aside class="callout"><p><strong>Let op de volgorde.</strong> Als <code>mod_pagespeed</code>, <code>mod_security</code>, of een WordPress-optimalisatieplugin in de keten zit, kan die <code>Vary</code> strippen of herschrijven nadat Apache hem heeft gezet. De header die je bij de client uitleest, is van wie als laatste schreef, niet van wat in <code>.htaccess</code> staat.</p></aside>
+
+<h2>De fingerprint van de reverse proxy</h2>
+
+<p>De meeste verouderde sites hebben inmiddels minstens één reverse proxy ervoor staan, ook al is het bureau dat de site bouwde dat allang vergeten. Cloudflare is de voor de hand liggende. Varnish is degene die je stilletjes bijt.</p>
+
+<p>Cloudflare laat drie signalen achter:</p>
+
+<pre><code class="lang-http">server: cloudflare
+cf-ray: 8b3f2a1e5c8f1234-AMS
+cf-cache-status: HIT
+</code></pre>
+
+<p><code>cf-cache-status: HIT</code> betekent dat de asset van de Cloudflare-edge in Amsterdam kwam (het <code>-AMS</code>-achtervoegsel op de ray-ID) en nooit de origin heeft geraakt. <code>MISS</code> betekent dat dat net wel gebeurde. <code>DYNAMIC</code> betekent dat Cloudflare naar de response heeft gekeken en besloten heeft hem niet te cachen, meestal omdat PHP een <code>Cache-Control: private</code> teruggaf of een session cookie zette.</p>
+
+<p>Varnish kondigt zichzelf anders aan:</p>
+
+<pre><code class="lang-http">via: 1.1 varnish (Varnish/6.0)
+x-varnish: 32145678 32144567
+age: 412
+</code></pre>
+
+<p>Twee integers op <code>X-Varnish</code> betekent een cache hit, en je leest de ID's van de huidige request en de oorspronkelijk gecachete request. <code>Age: 412</code> zegt dat het object 412 seconden in de cache zit. Doe je <code>curl -I</code> twee keer en stijgt <code>Age</code> mee met de seconden op de klok tussen de calls, dan zit je in de cache. Reset het naar een klein getal, dan is het object net ververst of liep er een <code>PURGE</code>. Deze ene header heeft meer "waarom toont de homepage nog de oude hero"-tickets opgelost dan welke console-sessie ook.</p>
+
+<p>LiteSpeed voegt <code>x-litespeed-cache: hit</code> of <code>miss</code> toe. Nginx met de <code>proxy_cache</code> module zet meestal <code>x-cache: HIT</code> als de beheerder dat via <code>add_header</code> heeft doorgezet. Daar is geen conventie voor, dus zie je een custom <code>x-cache-*</code> header, grep dan de vhost om te zien wie hem heeft gezet.</p>
+
+<h2>Een cheatsheet bouwen die je opnieuw kunt draaien</h2>
+
+<p>Als je eenmaal weet wat elke regel betekent, is de volgende stap het lezen goedkoop maken. Een shell-functie van één regel doet het:</p>
+
+<pre><code class="lang-bash">peek() {
+  curl -sI -H 'Accept-Encoding: br, gzip' "$1" \
+    | grep -iE '^(server|x-powered-by|cache-control|expires|age|vary|content-encoding|cf-cache-status|x-varnish|x-litespeed-cache):'
+}
+
+$ peek https://example.com/
+server: cloudflare
+cache-control: max-age=14400, public
+age: 9821
+vary: Accept-Encoding
+content-encoding: br
+cf-cache-status: HIT
+</code></pre>
+
+<p>Gooi dat in je <code>~/.bashrc</code>. De volgende keer dat een klant meldt dat "de nieuwe CSS niet laadt", is het eerste commando dat je draait <code>peek</code> tegen de asset-URL. Negen van de tien keer is het antwoord ofwel <code>age: 9821</code> (Varnish of Cloudflare houdt hem vast) ofwel <code>cache-control: max-age=2592000</code> (de browser doet het, en de klant moet een hard-reload doen).</p>
+
+<p>Toen we Pier bouwden liepen we precies tegen dit patroon aan, keer op keer: een klant die een stylesheet over FTP bewerkte, op opslaan drukte, en in een onveranderde pagina terechtkwam omdat twee cache-lagen tussen hem en het bestand zaten. Onze oplossing werd om de live response headers naast elk bestand in de editor te tonen, zodat de <a href="/#features">version history</a> op schijf en de <code>age</code> op de lijn in één view samenvallen, met datzelfde paneel naast de <a href="/#database">MySQL editor</a> voor <code>wp_options</code> autoload-rijen.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: pak de drie URL's die je klanten het vaakst verversen, draai <code>curl -sI</code> tegen elk, en plak de output in een notitie. De volgende keer dat er iets "niet bijwerkt", heb je een bekend-goede baseline om tegen te diffen.</p>
+    </div>
+
+    <aside class="pullquote">Lees de response headers voordat je de PHP leest: ze benoemen de webserver, de cache-laag, de compressie en de proxyketen in zes regels.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik de Server-header op een shared host vertrouwen?</p>
+      <p class="faq-a">Niet helemaal. Hosts strippen de versie met ServerTokens Prod, en reverse proxies overschrijven hem. Behandel het als een werkhypothese, niet als feit, en kruiscontroleer met x-powered-by en de fingerprints van de proxy.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom wint Cache-Control van Expires?</p>
+      <p class="faq-a">Volgens RFC 9111 respecteren moderne clients Cache-Control als beide aanwezig zijn. Expires is alleen nog een fallback voor HTTP/1.0-caches die je in productie vrijwel nooit meer tegenkomt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is de snelste manier om Cloudflare van Varnish te onderscheiden?</p>
+      <p class="faq-a">cf-ray en cf-cache-status betekenen Cloudflare. via en X-Varnish betekenen Varnish. Verschijnen ze allebei, dan staat Cloudflare voor Varnish, wat werkt maar het invalidatiewerk verdubbelt.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/drupal-7-pharma-hack-walkthrough/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.webp" type="image/webp">
+        <img src="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.jpg" alt="Bovenaanzicht op linnen: geannoteerde sitemap, .htaccess-vel, manilla map, cv-pagina, koperen Drupal 7-plaat, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Drupal 7 pharma hack: een oude uploads-injectie traceren</h3>
+      <span class="pc-lede">De Google-snippet van de klant zei &#39;Buy Cialis 20mg&#39; maar de pagina zelf zag er schoon uit. De Drupal 7 pharma hack traceren ging via htaccess cloaking.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg" alt="Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Drupal 7 achter Cloudflare: admin en image styles intact</h3>
+      <span class="pc-lede">Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
