@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 reindex pinned MySQL to 100%: a stale flat row · Pier — Blog</title>
+<meta name="description" content="A Magento 2 catalog reindex pinned MySQL at 100% CPU at 07:14 on a Tuesday. The culprit was 47 orphan rows in catalog_product_flat_1. Here is the trace.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, databases, operations, php">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 reindex pinned MySQL to 100%: a stale flat row">
+<meta property="og:description" content="A Magento 2 catalog reindex pinned MySQL at 100% CPU at 07:14 on a Tuesday. The culprit was 47 orphan rows in catalog_product_flat_1. Here is the trace.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead shot of bone linen desk with Magento 2 reindex run-sheet, ER blueprint, index cards, fountain pen, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T23:38:27.824Z">
+<meta property="article:modified_time" content="2026-06-10T23:38:27.824Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 reindex pinned MySQL to 100%: a stale flat row">
+<meta name="twitter:description" content="A Magento 2 catalog reindex pinned MySQL at 100% CPU at 07:14 on a Tuesday. The culprit was 47 orphan rows in catalog_product_flat_1. Here is the trace.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead shot of bone linen desk with Magento 2 reindex run-sheet, ER blueprint, index cards, fountain pen, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-reindex-mysql-flat-row/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-reindex-mysql-flat-row/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-reindex-mysql-flat-row/"},
+  "url":"https://pier.abn.company/blog/magento-reindex-mysql-flat-row/",
+  "headline":"Magento 2 reindex pinned MySQL to 100%: a stale flat row",
+  "description":"A Magento 2 catalog reindex pinned MySQL at 100% CPU at 07:14 on a Tuesday. The culprit was 47 orphan rows in catalog_product_flat_1. Here is the trace.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-reindex-mysql-flat-row/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead shot of bone linen desk with Magento 2 reindex run-sheet, ER blueprint, index cards, fountain pen, red wax seal."
+  },
+  "datePublished":"2026-06-10T23:38:27.824Z",
+  "dateModified":"2026-06-10T23:38:27.824Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, mysql, databases, operations, php",
+  "wordCount":2332,
+  "articleSection":"Magento",
+  "articleBody":"The 07:14 ping The Slack message from the ops lead at a Dutch agency we work with came in at 07:14 on a Tuesday. Their Magento 2.4.6 catalog had been fine when the night-shift batch wrapped at 02:00. By the time the first warehouse picker logged in to print labels, the admin would not load. New Relic showed MySQL CPU pegged at 100% on a single mysqld process. The first guess was a cron flood. It was not. The Magento 2 catalog reindex had started on schedule at 06:33 and had been running for 41 minutes by the time we got the ping. The store sits on a single-box LAMP stack: 14,000 simple products, three store views, 16 GB of RAM, a typical mid-market B2B catalog. The agency moved off a separate DB host last year to cut costs, against our advice. That decision is the only reason this incident registered as an outage instead of a slow morning, and it is worth naming up front: catalog_product_flat trouble on a shared box hits everything, including the admin login. The pickers were locked out because mysqld was starving everyone else for the cores PHP-FPM needed to render the dashboard. The warehouse manager works the floor from 06:30 and is patient about ten-minute outages. He is not patient about forty-minute ones. First look at the box SSH in. top confirms mysqld eating one core flat. No swap pressure, no disk I/O wait, just CPU. iostat -x 2 showed the data partition under 5% utilisation. That ruled out a stuck disk and confirmed the bottleneck was inside the query planner, not the storage layer. Before assuming Magento was the problem, we also checked the connection count and the InnoDB row-lock state: SHOW GLOBAL STATUS LIKE 'Threads_running'; SHOW ENGINE INNODB STATUS\\G Threads_running was 23 on a box that normally idles at 4. InnoDB status showed no deadlock waiters and no long-held locks other than the one held by the indexer's own INSERT. So this was not contention; it was a single query running hot. We opened a second shell and ran the obvious thing: SHOW FULL PROCESSLIST; One query had been running for 41 minutes. It was an INSERT ... SELECT into catalog_product_flat_1 . The Magento process had spawned it from the indexer. Confirming the indexer state took one command: bin/magento indexer:status That showed catalog_product_flat in the working state since 06:33. The reindex had started fine. It just never finished. Killing the query and restarting would buy maybe 90 seconds before the same INSERT pinned the same core again, and we had verified that pattern on a smaller incident at a different client two weeks earlier. We needed to know which row the query was tripping on, not just that it was tripping. Tracing the query Magento's flat indexer rebuilds catalog_product_flat_<store_id> from catalog_product_entity joined against the EAV attribute tables. The query the indexer emits looks roughly like this: INSERT INTO catalog_product_flat_1 (entity_id, sku, type_id, ...) SELECT cpe.entity_id, cpe.sku, cpe.type_id, ... FROM catalog_product_entity AS cpe LEFT JOIN catalog_product_entity_varchar AS v_name ON v_name.entity_id = cpe.entity_id AND v_name.attribute_id = 73 AND v_name.store_id IN (0, 1) LEFT JOIN catalog_product_entity_int AS i_status ON i_status.entity_id = cpe.entity_id AND i_status.attribute_id = 97 WHERE cpe.entity_id IN (...); We pulled the full text from the slow query log at /var/log/mysql/slow.log , which the agency had already configured at a one-second threshold. Then we ran EXPLAIN on the SELECT half. The plan came back with this row, trimmed for width: id select_type table rows Extra 1 SIMPLE cpe 4823951 Using temporary; Using filesort Eighteen thousand SKUs in the catalog should not produce four million scanned rows. The optimizer had decided one of the join sides was unselective and had given up on the index, falling back to a sort-merge plan that wrote to disk-backed temporary tables on every batch. The reference pages for SHOW PROCESSLIST and EXPLAIN output are the two MySQL docs worth bookmarking for this class of triage; the \"Using temporary; Using filesort\" combination on a join is the single biggest red flag in either. The INSERT side made it worse. An INSERT ... SELECT holds shared locks on every row it reads in the SELECT half for the duration of the statement. So the longer the SELECT ran, the more of catalog_product_entity was locked against everything else. The admin login times out reading the same table to look up the user's store-view permissions, which is why the ops lead saw the admin go down before the storefront did. The storefront caches list pages at the edge for ninety seconds; the admin caches nothing. A Magento 2 reindex that scans orders of magnitude more rows than your catalog contains usually means one of two things. Either an attribute row has a store_id outside the expected set, or a flat-table entity_id has no matching row in catalog_product_entity. Both can happen after a partial product import that timed out or was killed mid-transaction. Finding the orp",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-reindex-mysql-flat-row/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 reindex pinned MySQL to 100%: a stale flat row","item":"https://pier.abn.company/blog/magento-reindex-mysql-flat-row/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I find stale rows in catalog_product_flat without taking the site down?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Run a LEFT JOIN from catalog_product_flat_<n> to catalog_product_entity and count rows where the entity_id on the right is NULL. The query is read-only and finishes in milliseconds."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I just disable the flat catalog index on Magento 2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Stores, Configuration, Catalog, Storefront, set Use Flat Catalog Product to No. Listing performance drops on stores with many attributes, so benchmark on staging first."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the flat table commit when the entity transaction rolls back?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Magento's indexer plugin opens its own database connection. An import killed mid-transaction rolls back catalog_product_entity but leaves earlier flat-table commits in place."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this fixed in Magento 2.4.7 or later?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. The 2.4.7 release adjusted some indexer locking but did not change the flat-table denormalisation. Orphan rows can still appear after any partial write to catalog_product_entity."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should the orphan-row check run?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Once per day, before the catalog_product_flat reindex cron. Hourly is overkill on most stores and adds nothing if your reindex schedule is nightly."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 103</span>
+      </div>
+      <p class="eyebrow"><span class="n">103 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 reindex pinned MySQL to 100%: a stale flat row</h1>
+      <p class="lede post-lede">A Magento 2 catalog reindex pinned MySQL at 100% CPU at 07:14 on a Tuesday. The culprit was 47 orphan rows in catalog_product_flat_1. Here is the trace.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T23:38:27.824Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-reindex-mysql-flat-row/hero.webp" type="image/webp">
+      <img src="/blog/magento-reindex-mysql-flat-row/hero.jpg" alt="Overhead shot of bone linen desk with Magento 2 reindex run-sheet, ER blueprint, index cards, fountain pen, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 103</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The 07:14 ping</h2><p>The Slack message from the ops lead at a Dutch agency we work with came in at 07:14 on a Tuesday. Their Magento 2.4.6 catalog had been fine when the night-shift batch wrapped at 02:00. By the time the first warehouse picker logged in to print labels, the admin would not load. New Relic showed MySQL CPU pegged at 100% on a single mysqld process. The first guess was a cron flood. It was not. The Magento 2 catalog reindex had started on schedule at 06:33 and had been running for 41 minutes by the time we got the ping.</p><p>The store sits on a single-box LAMP stack: 14,000 simple products, three store views, 16 GB of RAM, a typical mid-market B2B catalog. The agency moved off a separate DB host last year to cut costs, against our advice. That decision is the only reason this incident registered as an outage instead of a slow morning, and it is worth naming up front: catalog_product_flat trouble on a shared box hits everything, including the admin login. The pickers were locked out because mysqld was starving everyone else for the cores PHP-FPM needed to render the dashboard. The warehouse manager works the floor from 06:30 and is patient about ten-minute outages. He is not patient about forty-minute ones.</p><h2>First look at the box</h2><p>SSH in. <code>top</code> confirms mysqld eating one core flat. No swap pressure, no disk I/O wait, just CPU. <code>iostat -x 2</code> showed the data partition under 5% utilisation. That ruled out a stuck disk and confirmed the bottleneck was inside the query planner, not the storage layer. Before assuming Magento was the problem, we also checked the connection count and the InnoDB row-lock state:</p><pre><code class="lang-sql">SHOW GLOBAL STATUS LIKE 'Threads_running';
+SHOW ENGINE INNODB STATUS\G</code></pre><p>Threads_running was 23 on a box that normally idles at 4. InnoDB status showed no deadlock waiters and no long-held locks other than the one held by the indexer's own INSERT. So this was not contention; it was a single query running hot. We opened a second shell and ran the obvious thing:</p><pre><code class="lang-sql">SHOW FULL PROCESSLIST;</code></pre><p>One query had been running for 41 minutes. It was an <code>INSERT ... SELECT</code> into <code>catalog_product_flat_1</code>. The Magento process had spawned it from the indexer. Confirming the indexer state took one command:</p><pre><code class="lang-bash">bin/magento indexer:status</code></pre><p>That showed <code>catalog_product_flat</code> in the <code>working</code> state since 06:33. The reindex had started fine. It just never finished. Killing the query and restarting would buy maybe 90 seconds before the same INSERT pinned the same core again, and we had verified that pattern on a smaller incident at a different client two weeks earlier. We needed to know which row the query was tripping on, not just that it was tripping.</p><h2>Tracing the query</h2><p>Magento's flat indexer rebuilds <code>catalog_product_flat_&lt;store_id&gt;</code> from <code>catalog_product_entity</code> joined against the EAV attribute tables. The query the indexer emits looks roughly like this:</p><pre><code class="lang-sql">INSERT INTO catalog_product_flat_1 (entity_id, sku, type_id, ...)
+SELECT cpe.entity_id, cpe.sku, cpe.type_id, ...
+FROM catalog_product_entity AS cpe
+LEFT JOIN catalog_product_entity_varchar AS v_name
+  ON v_name.entity_id = cpe.entity_id
+ AND v_name.attribute_id = 73
+ AND v_name.store_id IN (0, 1)
+LEFT JOIN catalog_product_entity_int AS i_status
+  ON i_status.entity_id = cpe.entity_id
+ AND i_status.attribute_id = 97
+WHERE cpe.entity_id IN (...);</code></pre><p>We pulled the full text from the slow query log at <code>/var/log/mysql/slow.log</code>, which the agency had already configured at a one-second threshold. Then we ran EXPLAIN on the SELECT half. The plan came back with this row, trimmed for width:</p><pre><code class="lang-text">id  select_type  table  rows      Extra
+1   SIMPLE       cpe    4823951   Using temporary; Using filesort</code></pre><p>Eighteen thousand SKUs in the catalog should not produce four million scanned rows. The optimizer had decided one of the join sides was unselective and had given up on the index, falling back to a sort-merge plan that wrote to disk-backed temporary tables on every batch. The reference pages for <a href="https://dev.mysql.com/doc/refman/8.0/en/show-processlist.html">SHOW PROCESSLIST</a> and <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">EXPLAIN output</a> are the two MySQL docs worth bookmarking for this class of triage; the "Using temporary; Using filesort" combination on a join is the single biggest red flag in either.</p><p>The INSERT side made it worse. An <code>INSERT ... SELECT</code> holds shared locks on every row it reads in the SELECT half for the duration of the statement. So the longer the SELECT ran, the more of <code>catalog_product_entity</code> was locked against everything else. The admin login times out reading the same table to look up the user's store-view permissions, which is why the ops lead saw the admin go down before the storefront did. The storefront caches list pages at the edge for ninety seconds; the admin caches nothing.</p><aside class="callout">A Magento 2 reindex that scans orders of magnitude more rows than your catalog contains usually means one of two things. Either an attribute row has a store_id outside the expected set, or a flat-table entity_id has no matching row in catalog_product_entity. Both can happen after a partial product import that timed out or was killed mid-transaction.</aside><h2>Finding the orphan</h2><p>We checked the second case first, because the query is cheap to run:</p><pre><code class="lang-sql">SELECT cpf.entity_id
+FROM catalog_product_flat_1 AS cpf
+LEFT JOIN catalog_product_entity AS cpe
+  ON cpf.entity_id = cpe.entity_id
+WHERE cpe.entity_id IS NULL;</code></pre><p>It returned 47 rows. The oldest was from March. The newest had been added at 01:47 the same morning, in the middle of the night-shift import. We grepped <code>/var/log/syslog</code> for the same window:</p><pre><code class="lang-bash">grep -i 'killed process' /var/log/syslog | grep '01:4'</code></pre><p>One hit at 01:48: the kernel OOM killer had taken out a PHP process holding 4.2 GB. That was the night-shift import, killed mid-stream on a 14,000-product CSV. The outer transaction wrapping each product create had rolled back. The inner work the indexer plugin had already committed on its own connection had not. So <code>catalog_product_entity</code> reverted. <code>catalog_product_flat_1</code> did not. The morning reindex then tried to rebuild flat over the top of 47 entity_ids that no longer existed, and the join planner gave up on the index.</p><p>We sanity-checked one of the orphan rows directly:</p><pre><code class="lang-sql">SELECT * FROM catalog_product_entity WHERE entity_id = 184421;
+-- Empty set
+
+SELECT entity_id, sku, type_id, attribute_set_id
+FROM catalog_product_flat_1 WHERE entity_id = 184421;
+-- 1 row: sku NULL, type_id 'simple', attribute_set_id 4</code></pre><p>The flat row had a null SKU. The indexer's downstream filters that prune by status were not pruning it, because NULL is not falsy in the way the indexer assumes. The join then expanded the scan across the EAV attribute tables, and the temporary table ballooned. Forty-seven null-SKU rows had turned an 18k-product reindex into a four-million-row table scan.</p><h2>Cross-checking the other stores</h2><p>Store 1 was clean. Before unlocking the admin we checked the other two store views, because the killed import would have written to all three flat tables in the same way. The same LEFT JOIN run against <code>catalog_product_flat_2</code> returned 47 rows; against <code>catalog_product_flat_3</code> it returned 31. The deltas matched what we expected: stores 2 and 3 share an attribute set and a status filter that excluded a handful of products, so the import had touched fewer of them in each.</p><p>We also widened the check to the search index, because the catalogsearch fulltext indexer reads from the flat tables on rebuild and a stale flat row will silently mismatch search results against product-detail-page availability until the next nightly reindex catches up. Same join, different left side, returned twelve mismatches. Better to flush all of them while you already have the admin offline.</p><h2>The cleanup</h2><p>Before deleting anything, we dumped the orphan rows. Even on an 11 KB result set, a flat-row delete that hits the wrong store view will take down product listings, and we wanted a paper trail. We used <code>mysqldump</code> rather than <code>SELECT INTO OUTFILE</code> so the dump came back as INSERT statements ready to replay on a staging instance if needed, and so the file ownership stayed under the agency's normal backup user rather than the mysql daemon:</p><pre><code class="lang-bash">mysqldump \
+  --no-create-info \
+  --where="entity_id IN (SELECT entity_id FROM (
+    SELECT cpf.entity_id FROM catalog_product_flat_1 cpf
+    LEFT JOIN catalog_product_entity cpe
+      ON cpf.entity_id = cpe.entity_id
+    WHERE cpe.entity_id IS NULL) x)" \
+  client_db catalog_product_flat_1 \
+  &gt; /var/backups/orphan-flat-rows-2026-06-10.sql</code></pre><p>The dump went to the agency's S3 bucket and to a local copy on the box, with the same dump repeated for stores 2 and 3. Then the deletes, one per store:</p><pre><code class="lang-sql">DELETE cpf
+FROM catalog_product_flat_1 AS cpf
+LEFT JOIN catalog_product_entity AS cpe
+  ON cpf.entity_id = cpe.entity_id
+WHERE cpe.entity_id IS NULL;
+-- 47 rows affected</code></pre><p>We reran the orphan-row SELECT against all three stores to confirm zero hits, then killed the wedged INSERT and reset the affected indexers:</p><pre><code class="lang-bash">mysql&gt; KILL 4471823;
+
+$ bin/magento indexer:reset catalog_product_flat catalogsearch_fulltext
+$ bin/magento indexer:reindex catalog_product_flat catalogsearch_fulltext</code></pre><p>The flat reindex finished in 94 seconds and fulltext in another 38. CPU dropped to baseline. Admin came back. The warehouse started printing labels. Total time from first ping to green: 38 minutes, including a coffee.</p><p>One sanity check before walking away: we timed a 1,000-SKU subset reindex against the full 18,000-SKU run. The subset took 5 seconds, the full run 94. The ratio matched the SKU ratio almost exactly, which is the cleanest signal you can get that no drift is hiding in the corners. A full reindex that runs more than 10–15% slower than its SKU-proportional baseline is still carrying ballast somewhere.</p><h2>Why flat tables drift</h2><p>Three things make <code>catalog_product_flat_&lt;n&gt;</code> a recurring sore spot on Magento 2 stores.</p><p>The first is denormalisation. The flat tables duplicate data from <code>catalog_product_entity</code> and the EAV attribute tables, by design, so storefront product listings can read from one table instead of nine. Any partial write that touches one source table but not the others leaves the flat table holding stale references. Adobe's own <a href="https://developer.adobe.com/commerce/php/development/components/indexing/">indexing documentation</a> lists the catalog flat indexers among the most expensive of the standard set, and the reason is that they fan out across every store view. A store with three views and 18,000 products is rebuilding 54,000 flat rows on every full reindex.</p><p>The second is transaction-boundary mismatch. The indexer plugin opens its own database connection. A bulk import that gets killed by the OOM killer or by a deploy will roll back <code>catalog_product_entity</code> on its own connection, but the flat-table inserts on the indexer connection can already have committed. We have now seen this pattern on three different Magento 2 stores over the last 18 months, always after an OOM kill during a bulk import. Magento Commerce installations behave the same way; the asynchronous indexer queue does not change the connection model, it only defers when the writes happen.</p><p>The third is silent failure mode. The drift produces no error. The site keeps serving. The indexer keeps reporting <code>valid</code> on its status output, because as far as it is concerned, the last successful rebuild succeeded. The first symptom is a CPU spike during the next reindex, by which time the import that caused it is hours or days in the past and nobody connects the two. The Magento default monitoring stack has no probe for orphan rows. New Relic will tell you the INSERT is slow; it will not tell you why. We have seen drift survive eight weeks of uneventful reindexes on a store whose catalog rebuild ran inside its budget every night, only to collapse the morning a different import pushed the row count past whatever threshold flipped the optimizer's plan.</p><h2>The check that prevents the next outage</h2><p>The single highest-value thing you can add to a Magento 2 <a href="/">legacy site</a> you inherit is an orphan-row check that runs before the indexer cron, not after the outage. Five lines of bash and a cron entry at 03:00:</p><pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+for STORE in 1 2 3; do
+  COUNT=$(mysql -N -e "
+    SELECT COUNT(*) FROM catalog_product_flat_${STORE} cpf
+    LEFT JOIN catalog_product_entity cpe ON cpf.entity_id = cpe.entity_id
+    WHERE cpe.entity_id IS NULL;" client_db)
+  if [ "$COUNT" -gt 0 ]; then
+    curl -s -X POST -d "text=Magento orphan rows on flat_${STORE}: ${COUNT}" \
+      https://hooks.slack.com/services/.../...
+  fi
+done</code></pre><p>Adjust the store IDs to match whatever store views the merchant has configured. Run it before the indexer cron, so you have time to clear the rows before traffic arrives. The check has caught two outages-in-waiting on this same agency's stores in the eight weeks since we put it in.</p><p>You can also disable the flat catalog entirely (Stores, Configuration, Catalog, Storefront, set Use Flat Catalog Product to No) and the indexer goes away with it. On a store with this many filterable attributes that is a measurable category-page slowdown, on the order of 200 to 400 ms on listing renders, which is the cost of regular customer-service calls about page latency. The flat tables exist for a reason. Keeping them and running the orphan-row check costs less.</p><p>The agency also took two longer-term steps. They raised the import process memory limit to 6 GB and added a swap file the OOM killer can reach for before it goes after PHP, which buys headroom on a single-box stack without paying for a separate DB host. And they switched the catalog indexers from <code>realtime</code> to <code>schedule</code> mode, so flat-table writes route through the <code>mview</code> changelog queue instead of firing synchronously on every catalog write. Schedule mode does not eliminate the transaction-boundary drift, but it batches changes and surfaces failures as cron job errors rather than silent partial commits. Neither change replaces the orphan-row check. They reduce how often it has anything to report.</p><p>When we built Pier we ran into this exact pattern often enough that the <a href="/#database">MySQL editor</a> ships with a saved query template for finding orphan rows in <code>catalog_product_flat_&lt;n&gt;</code>, and every destructive query goes through <a href="/#features">version history</a> so a 03:00 cleanup that hits the wrong row can be rolled back in one click. The point is not the tooling, though. The point is that the orphan-row check belongs on every Magento 2 store you maintain, whatever you use to run it.</p><p>If you do one thing today, open the slow query log on your busiest Magento 2 store and grep for <code>catalog_product_flat</code>. Anything older than your reindex window is worth a look.</p>
+    </div>
+
+    <aside class="pullquote">A Magento 2 reindex that pins MySQL is usually one orphan row in catalog_product_flat_&lt;n&gt;, left by a killed import. Find it with a LEFT JOIN.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How do I find stale rows in catalog_product_flat without taking the site down?</p>
+      <p class="faq-a">Run a LEFT JOIN from catalog_product_flat_&lt;n&gt; to catalog_product_entity and count rows where the entity_id on the right is NULL. The query is read-only and finishes in milliseconds.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I just disable the flat catalog index on Magento 2?</p>
+      <p class="faq-a">Yes. Stores, Configuration, Catalog, Storefront, set Use Flat Catalog Product to No. Listing performance drops on stores with many attributes, so benchmark on staging first.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does the flat table commit when the entity transaction rolls back?</p>
+      <p class="faq-a">Magento&#39;s indexer plugin opens its own database connection. An import killed mid-transaction rolls back catalog_product_entity but leaves earlier flat-table commits in place.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is this fixed in Magento 2.4.7 or later?</p>
+      <p class="faq-a">No. The 2.4.7 release adjusted some indexer locking but did not change the flat-table denormalisation. Orphan rows can still appear after any partial write to catalog_product_entity.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How often should the orphan-row check run?</p>
+      <p class="faq-a">Once per day, before the catalog_product_flat reindex cron. Hourly is overkill on most stores and adds nothing if your reindex schedule is nightly.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/blog/magento-stuck-queue-message-status/hero.jpg" alt="Overhead photo on bone linen: Magento queue-debug worksheet, SQL notes, UNDELIVERED email printout, manila folder, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Magento order emails: the stuck queue_message_status row</h3>
+      <span class="pc-lede">A Dutch agency calls at 23:41: their Magento store has not sent an order confirmation in three days. The trail leads to one row in queue_message_status.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Overhead shot of printed CSV sheet, manila folder, brass key, ruler, red pencil, index cards, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Magento CSV import without downtime: a 9,000-row swap</h3>
+      <span class="pc-lede">A 23:41 Loom, a 9,043-row supplier CSV, and a storefront that could not go down. The post-mortem on how a Dutch agency staged the import without losing a minute of uptime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

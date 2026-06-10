@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 reindex op 100% MySQL: een verouderde flat-rij · Pier — Blog</title>
+<meta name="description" content="Een Magento 2 catalogus-reindex hield MySQL op 100% CPU op een dinsdag om 07:14. Oorzaak: 47 orphan rows in catalog_product_flat_1. Hier het spoor.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, databases, operations, php">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 reindex op 100% MySQL: een verouderde flat-rij">
+<meta property="og:description" content="Een Magento 2 catalogus-reindex hield MySQL op 100% CPU op een dinsdag om 07:14. Oorzaak: 47 orphan rows in catalog_product_flat_1. Hier het spoor.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van linnen bureau met Magento 2 reindex-runsheet, ER-schets, indexkaarten, vulpen en rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T23:38:27.824Z">
+<meta property="article:modified_time" content="2026-06-10T23:38:27.824Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 reindex op 100% MySQL: een verouderde flat-rij">
+<meta name="twitter:description" content="Een Magento 2 catalogus-reindex hield MySQL op 100% CPU op een dinsdag om 07:14. Oorzaak: 47 orphan rows in catalog_product_flat_1. Hier het spoor.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van linnen bureau met Magento 2 reindex-runsheet, ER-schets, indexkaarten, vulpen en rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-reindex-mysql-flat-row/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/"},
+  "url":"https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/",
+  "headline":"Magento 2 reindex op 100% MySQL: een verouderde flat-rij",
+  "description":"Een Magento 2 catalogus-reindex hield MySQL op 100% CPU op een dinsdag om 07:14. Oorzaak: 47 orphan rows in catalog_product_flat_1. Hier het spoor.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van linnen bureau met Magento 2 reindex-runsheet, ER-schets, indexkaarten, vulpen en rode lakzegel."
+  },
+  "datePublished":"2026-06-10T23:38:27.824Z",
+  "dateModified":"2026-06-10T23:38:27.824Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, mysql, databases, operations, php",
+  "wordCount":2345,
+  "articleSection":"Magento",
+  "articleBody":"De ping om 07:14 Het Slack-bericht van de ops lead bij een Nederlands bureau waar we mee werken kwam binnen om 07:14 op een dinsdag. Hun Magento 2.4.6 catalogus had prima gedraaid toen de nachtbatch om 02:00 klaar was. Tegen de tijd dat de eerste magazijnpicker inlogde om labels te printen, laadde de admin niet meer. New Relic liet MySQL CPU zien, vastgenageld op 100% op één mysqld-proces. Eerste gok: een cron-overflow. Dat was het niet. De Magento 2 catalogus-reindex was om 06:33 op schema gestart en draaide al 41 minuten toen we de ping kregen. De winkel draait op een single-box LAMP-stack: 14.000 simple products, drie store views, 16 GB RAM, een typische mid-market B2B-catalogus. Het bureau heeft vorig jaar de aparte DB-host opgeheven om kosten te besparen, tegen ons advies in. Die beslissing is de enige reden dat dit incident als storing telde in plaats van als trage ochtend, en het is de moeite waard om dat vooraf te benoemen: trouble met catalog_product_flat op een gedeelde bak raakt alles, ook de admin-login. De pickers waren buitengesloten omdat mysqld iedereen anders uithongerde voor de cores die PHP-FPM nodig had om het dashboard te renderen. De warehouse manager loopt vanaf 06:30 op de vloer en is geduldig bij storingen van tien minuten. Bij veertig minuten is hij dat niet. Eerste blik op de bak SSH erin. top bevestigt dat mysqld één core volledig opeet. Geen swap-druk, geen disk-I/O-wait, alleen CPU. iostat -x 2 liet zien dat de data-partitie onder de 5% gebruik zat. Dat sloot een vastzittende disk uit en bevestigde dat de bottleneck in de query planner zat, niet in de storage layer. Voordat we aannamen dat Magento het probleem was, controleerden we ook het aantal connecties en de InnoDB row-lock state: SHOW GLOBAL STATUS LIKE 'Threads_running'; SHOW ENGINE INNODB STATUS\\G Threads_running stond op 23 op een bak die normaal idle is op 4. InnoDB-status liet geen deadlock waiters zien en geen langlopende locks anders dan die van de eigen INSERT van de indexer. Dit was dus geen contention; het was één query die heet draaide. We openden een tweede shell en deden het voor de hand liggende: SHOW FULL PROCESSLIST; Eén query draaide al 41 minuten. Het was een INSERT ... SELECT in catalog_product_flat_1 . Het Magento-proces had hem vanuit de indexer afgevuurd. De indexer-status bevestigen kostte één commando: bin/magento indexer:status Dat liet catalog_product_flat zien in de working state sinds 06:33. De reindex was prima gestart. Hij was alleen nooit klaar gekomen. De query killen en herstarten zou misschien 90 seconden opleveren voordat dezelfde INSERT dezelfde core opnieuw zou vastzetten, en we hadden dat patroon twee weken eerder geverifieerd bij een kleiner incident bij een andere klant. We moesten weten op welke rij de query struikelde, niet alleen dát hij struikelde. De query traceren De flat indexer van Magento herbouwt catalog_product_flat_<store_id> uit catalog_product_entity , gejoined tegen de EAV attribute tables. De query die de indexer uitzendt ziet er ongeveer zo uit: INSERT INTO catalog_product_flat_1 (entity_id, sku, type_id, ...) SELECT cpe.entity_id, cpe.sku, cpe.type_id, ... FROM catalog_product_entity AS cpe LEFT JOIN catalog_product_entity_varchar AS v_name ON v_name.entity_id = cpe.entity_id AND v_name.attribute_id = 73 AND v_name.store_id IN (0, 1) LEFT JOIN catalog_product_entity_int AS i_status ON i_status.entity_id = cpe.entity_id AND i_status.attribute_id = 97 WHERE cpe.entity_id IN (...); We trokken de volledige tekst uit de slow query log op /var/log/mysql/slow.log , die het bureau al had ingesteld op een drempel van één seconde. Daarna draaiden we EXPLAIN op de SELECT-helft. Het plan kwam terug met deze rij, ingekort voor breedte: id select_type table rows Extra 1 SIMPLE cpe 4823951 Using temporary; Using filesort Achttienduizend SKU's in de catalogus zouden geen vier miljoen gescande rijen mogen opleveren. De optimizer had besloten dat een van de join-kanten niet-selectief was en had de index opgegeven, terugvallend op een sort-merge plan dat bij elke batch naar disk-gebackte temporary tables schreef. De referentiepagina's voor SHOW PROCESSLIST en EXPLAIN output zijn de twee MySQL-docs die bookmarken waard zijn voor dit soort triage; de combinatie \"Using temporary; Using filesort\" op een join is in beide de grootste rode vlag. De INSERT-kant maakte het erger. Een INSERT ... SELECT houdt shared locks op elke rij die hij in de SELECT-helft leest, voor de duur van de statement. Dus hoe langer de SELECT draaide, hoe meer van catalog_product_entity gelocked stond tegen al het andere. De admin-login leest dezelfde tabel uit om de store-view-rechten van de gebruiker op te zoeken, en daarom zag de ops lead de admin uitvallen voordat de storefront dat deed. De storefront cachet listingpagina's aan de edge voor negentig seconden; de admin cachet niets. Een Magento 2 reindex die ordes van grootte meer rijen scant dan je catalogus bevat, betekent meestal een van twee dingen. Of een a",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 reindex op 100% MySQL: een verouderde flat-rij","item":"https://pier.abn.company/nl/blog/magento-reindex-mysql-flat-row/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe vind ik verouderde rijen in catalog_product_flat zonder de site offline te halen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai een LEFT JOIN van catalog_product_flat_<n> naar catalog_product_entity en tel de rijen waar entity_id aan de rechterkant NULL is. De query is read-only en is in milliseconden klaar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik de flat catalog index op Magento 2 niet gewoon uitzetten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Stores, Configuration, Catalog, Storefront, zet Use Flat Catalog Product op No. Listing-performance daalt op winkels met veel attributes, dus benchmark eerst op staging."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom commit de flat-tabel terwijl de entity-transactie terugrolt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De indexer-plugin van Magento opent zijn eigen databaseconnectie. Een import die midden in een transactie wordt gekilled rolt catalog_product_entity terug, maar laat eerdere flat-tabel commits staan."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 103</span>
+      </div>
+      <p class="eyebrow"><span class="n">103 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 reindex op 100% MySQL: een verouderde flat-rij</h1>
+      <p class="lede post-lede">Een Magento 2 catalogus-reindex hield MySQL op 100% CPU op een dinsdag om 07:14. Oorzaak: 47 orphan rows in catalog_product_flat_1. Hier het spoor.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T23:38:27.824Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-reindex-mysql-flat-row/hero.webp" type="image/webp">
+      <img src="/blog/magento-reindex-mysql-flat-row/hero.jpg" alt="Bovenaanzicht van linnen bureau met Magento 2 reindex-runsheet, ER-schets, indexkaarten, vulpen en rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 103</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De ping om 07:14</h2><p>Het Slack-bericht van de ops lead bij een Nederlands bureau waar we mee werken kwam binnen om 07:14 op een dinsdag. Hun Magento 2.4.6 catalogus had prima gedraaid toen de nachtbatch om 02:00 klaar was. Tegen de tijd dat de eerste magazijnpicker inlogde om labels te printen, laadde de admin niet meer. New Relic liet MySQL CPU zien, vastgenageld op 100% op één mysqld-proces. Eerste gok: een cron-overflow. Dat was het niet. De Magento 2 catalogus-reindex was om 06:33 op schema gestart en draaide al 41 minuten toen we de ping kregen.</p><p>De winkel draait op een single-box LAMP-stack: 14.000 simple products, drie store views, 16 GB RAM, een typische mid-market B2B-catalogus. Het bureau heeft vorig jaar de aparte DB-host opgeheven om kosten te besparen, tegen ons advies in. Die beslissing is de enige reden dat dit incident als storing telde in plaats van als trage ochtend, en het is de moeite waard om dat vooraf te benoemen: trouble met catalog_product_flat op een gedeelde bak raakt alles, ook de admin-login. De pickers waren buitengesloten omdat mysqld iedereen anders uithongerde voor de cores die PHP-FPM nodig had om het dashboard te renderen. De warehouse manager loopt vanaf 06:30 op de vloer en is geduldig bij storingen van tien minuten. Bij veertig minuten is hij dat niet.</p><h2>Eerste blik op de bak</h2><p>SSH erin. <code>top</code> bevestigt dat mysqld één core volledig opeet. Geen swap-druk, geen disk-I/O-wait, alleen CPU. <code>iostat -x 2</code> liet zien dat de data-partitie onder de 5% gebruik zat. Dat sloot een vastzittende disk uit en bevestigde dat de bottleneck in de query planner zat, niet in de storage layer. Voordat we aannamen dat Magento het probleem was, controleerden we ook het aantal connecties en de InnoDB row-lock state:</p><pre><code class="lang-sql">SHOW GLOBAL STATUS LIKE 'Threads_running';
+SHOW ENGINE INNODB STATUS\G</code></pre><p>Threads_running stond op 23 op een bak die normaal idle is op 4. InnoDB-status liet geen deadlock waiters zien en geen langlopende locks anders dan die van de eigen INSERT van de indexer. Dit was dus geen contention; het was één query die heet draaide. We openden een tweede shell en deden het voor de hand liggende:</p><pre><code class="lang-sql">SHOW FULL PROCESSLIST;</code></pre><p>Eén query draaide al 41 minuten. Het was een <code>INSERT ... SELECT</code> in <code>catalog_product_flat_1</code>. Het Magento-proces had hem vanuit de indexer afgevuurd. De indexer-status bevestigen kostte één commando:</p><pre><code class="lang-bash">bin/magento indexer:status</code></pre><p>Dat liet <code>catalog_product_flat</code> zien in de <code>working</code> state sinds 06:33. De reindex was prima gestart. Hij was alleen nooit klaar gekomen. De query killen en herstarten zou misschien 90 seconden opleveren voordat dezelfde INSERT dezelfde core opnieuw zou vastzetten, en we hadden dat patroon twee weken eerder geverifieerd bij een kleiner incident bij een andere klant. We moesten weten op welke rij de query struikelde, niet alleen dát hij struikelde.</p><h2>De query traceren</h2><p>De flat indexer van Magento herbouwt <code>catalog_product_flat_&lt;store_id&gt;</code> uit <code>catalog_product_entity</code>, gejoined tegen de EAV attribute tables. De query die de indexer uitzendt ziet er ongeveer zo uit:</p><pre><code class="lang-sql">INSERT INTO catalog_product_flat_1 (entity_id, sku, type_id, ...)
+SELECT cpe.entity_id, cpe.sku, cpe.type_id, ...
+FROM catalog_product_entity AS cpe
+LEFT JOIN catalog_product_entity_varchar AS v_name
+  ON v_name.entity_id = cpe.entity_id
+ AND v_name.attribute_id = 73
+ AND v_name.store_id IN (0, 1)
+LEFT JOIN catalog_product_entity_int AS i_status
+  ON i_status.entity_id = cpe.entity_id
+ AND i_status.attribute_id = 97
+WHERE cpe.entity_id IN (...);</code></pre><p>We trokken de volledige tekst uit de slow query log op <code>/var/log/mysql/slow.log</code>, die het bureau al had ingesteld op een drempel van één seconde. Daarna draaiden we EXPLAIN op de SELECT-helft. Het plan kwam terug met deze rij, ingekort voor breedte:</p><pre><code class="lang-text">id  select_type  table  rows      Extra
+1   SIMPLE       cpe    4823951   Using temporary; Using filesort</code></pre><p>Achttienduizend SKU's in de catalogus zouden geen vier miljoen gescande rijen mogen opleveren. De optimizer had besloten dat een van de join-kanten niet-selectief was en had de index opgegeven, terugvallend op een sort-merge plan dat bij elke batch naar disk-gebackte temporary tables schreef. De referentiepagina's voor <a href="https://dev.mysql.com/doc/refman/8.0/en/show-processlist.html">SHOW PROCESSLIST</a> en <a href="https://dev.mysql.com/doc/refman/8.0/en/explain.html">EXPLAIN output</a> zijn de twee MySQL-docs die bookmarken waard zijn voor dit soort triage; de combinatie "Using temporary; Using filesort" op een join is in beide de grootste rode vlag.</p><p>De INSERT-kant maakte het erger. Een <code>INSERT ... SELECT</code> houdt shared locks op elke rij die hij in de SELECT-helft leest, voor de duur van de statement. Dus hoe langer de SELECT draaide, hoe meer van <code>catalog_product_entity</code> gelocked stond tegen al het andere. De admin-login leest dezelfde tabel uit om de store-view-rechten van de gebruiker op te zoeken, en daarom zag de ops lead de admin uitvallen voordat de storefront dat deed. De storefront cachet listingpagina's aan de edge voor negentig seconden; de admin cachet niets.</p><aside class="callout">Een Magento 2 reindex die ordes van grootte meer rijen scant dan je catalogus bevat, betekent meestal een van twee dingen. Of een attribute-rij heeft een store_id buiten de verwachte set, of een flat-table entity_id heeft geen bijbehorende rij in catalog_product_entity. Beide kunnen voorkomen na een gedeeltelijke product-import die getimeout is of midden in een transactie is gekilled.</aside><h2>De wees vinden</h2><p>We checkten het tweede geval eerst, omdat de query goedkoop is om te draaien:</p><pre><code class="lang-sql">SELECT cpf.entity_id
+FROM catalog_product_flat_1 AS cpf
+LEFT JOIN catalog_product_entity AS cpe
+  ON cpf.entity_id = cpe.entity_id
+WHERE cpe.entity_id IS NULL;</code></pre><p>Hij gaf 47 rijen terug. De oudste was van maart. De nieuwste was om 01:47 dezelfde ochtend toegevoegd, midden in de nacht-shift import. We grepten <code>/var/log/syslog</code> voor hetzelfde tijdvenster:</p><pre><code class="lang-bash">grep -i 'killed process' /var/log/syslog | grep '01:4'</code></pre><p>Eén hit om 01:48: de kernel OOM killer had een PHP-proces uitgeschakeld dat 4,2 GB vasthield. Dat was de nacht-shift import, gekilled midden in een CSV van 14.000 producten. De buitenste transactie die elke product-create wikkelde was teruggerold. Het binnenste werk dat de indexer-plugin al had gecommit op zijn eigen connectie was dat niet. Dus <code>catalog_product_entity</code> rolde terug. <code>catalog_product_flat_1</code> niet. De ochtend-reindex probeerde toen flat te herbouwen over 47 entity_ids die niet meer bestonden, en de join planner gaf de index op.</p><p>We controleerden een van de orphan rows direct:</p><pre><code class="lang-sql">SELECT * FROM catalog_product_entity WHERE entity_id = 184421;
+-- Empty set
+
+SELECT entity_id, sku, type_id, attribute_set_id
+FROM catalog_product_flat_1 WHERE entity_id = 184421;
+-- 1 row: sku NULL, type_id 'simple', attribute_set_id 4</code></pre><p>De flat-rij had een null SKU. De downstream filters van de indexer die op status snoeien, snoeiden hem niet, omdat NULL niet falsy is op de manier die de indexer aanneemt. De join breidde de scan vervolgens uit over de EAV attribute tables, en de temporary table zwol op. Zevenenveertig null-SKU-rijen hadden van een 18k-product reindex een tabelscan van vier miljoen rijen gemaakt.</p><h2>De andere stores tegenchecken</h2><p>Store 1 was schoon. Voordat we de admin ontgrendelden, controleerden we de andere twee store views, omdat de gekilde import op dezelfde manier naar alle drie de flat-tabellen zou hebben geschreven. Dezelfde LEFT JOIN tegen <code>catalog_product_flat_2</code> gaf 47 rijen terug; tegen <code>catalog_product_flat_3</code> 31. De deltas kwamen overeen met wat we verwachtten: stores 2 en 3 delen een attribute set en een statusfilter dat een handvol producten uitsloot, dus de import had bij elk minder producten geraakt.</p><p>We breidden de check ook uit naar de search index, omdat de catalogsearch fulltext indexer bij herbouw uit de flat-tabellen leest, en een verouderde flat-rij zorgt er stilletjes voor dat search-resultaten mismatchen met de beschikbaarheid op de productdetailpagina, totdat de volgende nachtelijke reindex bijtrekt. Zelfde join, andere left side, twaalf mismatches terug. Beter om ze allemaal door te spoelen terwijl je de admin toch al offline hebt.</p><h2>De opschoning</h2><p>Voordat we iets verwijderden, dumpten we de orphan rows. Zelfs op een result set van 11 KB legt een flat-row delete die de verkeerde store view raakt productlijsten plat, en we wilden een papieren spoor. We gebruikten <code>mysqldump</code> in plaats van <code>SELECT INTO OUTFILE</code> zodat de dump terugkwam als INSERT statements die desgewenst op een staging instance te replayen zijn, en zodat het file ownership bij de normale backup-user van het bureau bleef in plaats van bij de mysql daemon:</p><pre><code class="lang-bash">mysqldump \
+  --no-create-info \
+  --where="entity_id IN (SELECT entity_id FROM (
+    SELECT cpf.entity_id FROM catalog_product_flat_1 cpf
+    LEFT JOIN catalog_product_entity cpe
+      ON cpf.entity_id = cpe.entity_id
+    WHERE cpe.entity_id IS NULL) x)" \
+  client_db catalog_product_flat_1 \
+  &gt; /var/backups/orphan-flat-rows-2026-06-10.sql</code></pre><p>De dump ging naar de S3-bucket van het bureau en naar een lokale kopie op de bak, met dezelfde dump herhaald voor stores 2 en 3. Daarna de deletes, één per store:</p><pre><code class="lang-sql">DELETE cpf
+FROM catalog_product_flat_1 AS cpf
+LEFT JOIN catalog_product_entity AS cpe
+  ON cpf.entity_id = cpe.entity_id
+WHERE cpe.entity_id IS NULL;
+-- 47 rows affected</code></pre><p>We draaiden de orphan-row SELECT opnieuw tegen alle drie de stores om nul hits te bevestigen, killden de vastzittende INSERT en resetten de getroffen indexers:</p><pre><code class="lang-bash">mysql&gt; KILL 4471823;
+
+$ bin/magento indexer:reset catalog_product_flat catalogsearch_fulltext
+$ bin/magento indexer:reindex catalog_product_flat catalogsearch_fulltext</code></pre><p>De flat reindex was in 94 seconden klaar, fulltext in nog eens 38. CPU zakte naar baseline. Admin kwam terug. Het magazijn begon labels te printen. Totale tijd van eerste ping naar groen: 38 minuten, inclusief een koffie.</p><p>Eén sanity check voor we wegliepen: we timeden een reindex van een subset van 1.000 SKU's tegen de volledige run van 18.000 SKU's. De subset duurde 5 seconden, de volle run 94. De ratio kwam vrijwel exact overeen met de SKU-ratio, en dat is het schoonste signaal dat je kunt krijgen dat er nergens nog drift verstopt zit. Een volledige reindex die meer dan 10 à 15% langzamer draait dan zijn SKU-proportionele baseline draagt ergens nog ballast mee.</p><h2>Waarom flat-tabellen driften</h2><p>Drie dingen maken <code>catalog_product_flat_&lt;n&gt;</code> een terugkerend pijnpunt op Magento 2 stores.</p><p>Het eerste is denormalisatie. De flat-tabellen dupliceren data uit <code>catalog_product_entity</code> en de EAV attribute tables, by design, zodat storefront-productlijsten uit één tabel kunnen lezen in plaats van negen. Elke gedeeltelijke write die één brontabel raakt maar niet de andere, laat de flat-tabel met verouderde referenties zitten. Adobe's eigen <a href="https://developer.adobe.com/commerce/php/development/components/indexing/">indexing-documentatie</a> noemt de catalog flat indexers tot de duurste van de standaardset, en de reden is dat ze uitwaaieren over elke store view. Een winkel met drie views en 18.000 producten herbouwt 54.000 flat-rijen op elke volledige reindex.</p><p>Het tweede is een mismatch in transactiegrenzen. De indexer-plugin opent zijn eigen databaseconnectie. Een bulk import die door de OOM killer of door een deploy wordt gekilled, rolt <code>catalog_product_entity</code> terug op zijn eigen connectie, maar de flat-tabel inserts op de indexer-connectie kunnen al gecommit zijn. We hebben dit patroon inmiddels gezien op drie verschillende Magento 2 stores in de afgelopen 18 maanden, telkens na een OOM kill tijdens een bulk import. Magento Commerce-installaties gedragen zich op dezelfde manier; de asynchrone indexer queue verandert het connectiemodel niet, hij stelt alleen uit wanneer de writes gebeuren.</p><p>Het derde is de silent failure mode. De drift produceert geen error. De site blijft serven. De indexer blijft <code>valid</code> rapporteren op zijn status-output, want wat hem betreft is de laatste herbouw geslaagd. Het eerste symptoom is een CPU-spike tijdens de volgende reindex, tegen die tijd ligt de import die hem heeft veroorzaakt uren of dagen terug en niemand legt het verband. De standaard monitoring-stack van Magento heeft geen probe voor orphan rows. New Relic vertelt je dat de INSERT traag is; hij vertelt je niet waarom. We hebben drift acht weken zien overleven op een winkel waarvan de catalog-herbouw elke nacht binnen budget draaide, om vervolgens in te storten op de ochtend dat een andere import het aantal rijen voorbij de drempel duwde waar het plan van de optimizer kantelde.</p><h2>De check die de volgende storing voorkomt</h2><p>Het enige met het hoogste rendement dat je kunt toevoegen aan een Magento 2 <a href="/">legacy site</a> die je overneemt, is een orphan-row check die vóór de indexer-cron draait, niet ná de storing. Vijf regels bash en een cron-entry om 03:00:</p><pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+for STORE in 1 2 3; do
+  COUNT=$(mysql -N -e "
+    SELECT COUNT(*) FROM catalog_product_flat_${STORE} cpf
+    LEFT JOIN catalog_product_entity cpe ON cpf.entity_id = cpe.entity_id
+    WHERE cpe.entity_id IS NULL;" client_db)
+  if [ "$COUNT" -gt 0 ]; then
+    curl -s -X POST -d "text=Magento orphan rows on flat_${STORE}: ${COUNT}" \
+      https://hooks.slack.com/services/.../...
+  fi
+done</code></pre><p>Pas de store-IDs aan op de store views die de merchant heeft geconfigureerd. Draai hem voor de indexer-cron, zodat je tijd hebt om de rijen te verwijderen voordat het verkeer aankomt. De check heeft op de stores van ditzelfde bureau twee wachtende storingen onderschept in de acht weken sinds we hem hebben ingezet.</p><p>Je kunt de flat catalog ook in zijn geheel uitschakelen (Stores, Configuration, Catalog, Storefront, zet Use Flat Catalog Product op No) en de indexer verdwijnt mee. Op een winkel met zoveel filterable attributes is dat een meetbare vertraging op categoriepagina's, in de orde van 200 tot 400 ms op listing-renders, oftewel de kostprijs van reguliere customer-service-telefoontjes over paginalatentie. De flat-tabellen bestaan met een reden. Ze houden en de orphan-row check draaien kost minder.</p><p>Het bureau heeft ook twee langetermijn-stappen genomen. Ze hebben de geheugenlimiet van het import-proces opgetrokken naar 6 GB en een swap-bestand toegevoegd waar de OOM killer eerst naar kan reiken voor hij PHP aanvalt, wat headroom oplevert op een single-box stack zonder dat je voor een aparte DB-host hoeft te betalen. En ze hebben de catalog indexers omgezet van <code>realtime</code> naar <code>schedule</code> mode, zodat flat-tabel writes door de <code>mview</code> changelog queue lopen in plaats van synchroon af te vuren op elke catalog-write. Schedule mode elimineert de transactiegrens-drift niet, maar het batcht veranderingen en brengt failures aan de oppervlakte als cron-job errors in plaats van stille gedeeltelijke commits. Geen van beide vervangt de orphan-row check. Ze beperken hoe vaak hij iets te rapporteren heeft.</p><p>Toen we Pier bouwden, kwamen we dit exacte patroon vaak genoeg tegen dat de <a href="/#database">MySQL editor</a> wordt geleverd met een opgeslagen query-template voor het vinden van orphan rows in <code>catalog_product_flat_&lt;n&gt;</code>, en elke destructieve query loopt door <a href="/#features">versiegeschiedenis</a> zodat een opschoonactie van 03:00 die de verkeerde rij raakt met één klik terug te draaien is. Het punt is niet de tooling. Het punt is dat de orphan-row check op elke Magento 2 winkel hoort die je onderhoudt, wat je ook gebruikt om hem te draaien.</p><p>Als je vandaag één ding doet, open dan de slow query log op je drukste Magento 2 winkel en grep voor <code>catalog_product_flat</code>. Alles ouder dan je reindex-window is een blik waard.</p>
+    </div>
+
+    <aside class="pullquote">Een Magento 2 reindex die MySQL vastzet is meestal één orphan row in catalog_product_flat_&lt;n&gt;, achtergelaten door een gekilde import. Vind hem met een LEFT JOIN.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe vind ik verouderde rijen in catalog_product_flat zonder de site offline te halen?</p>
+      <p class="faq-a">Draai een LEFT JOIN van catalog_product_flat_&lt;n&gt; naar catalog_product_entity en tel de rijen waar entity_id aan de rechterkant NULL is. De query is read-only en is in milliseconden klaar.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik de flat catalog index op Magento 2 niet gewoon uitzetten?</p>
+      <p class="faq-a">Ja. Stores, Configuration, Catalog, Storefront, zet Use Flat Catalog Product op No. Listing-performance daalt op winkels met veel attributes, dus benchmark eerst op staging.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom commit de flat-tabel terwijl de entity-transactie terugrolt?</p>
+      <p class="faq-a">De indexer-plugin van Magento opent zijn eigen databaseconnectie. Een import die midden in een transactie wordt gekilled rolt catalog_product_entity terug, maar laat eerdere flat-tabel commits staan.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Magento bestelmails stoppen: één rij in queue_message_status</h3>
+      <span class="pc-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-csv-import-without-downtime/hero.jpg" alt="Bovenaanzicht van CSV-vel, manilamap, messing sleutel, liniaal, rood potlood, indexkaarten, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Magento CSV-import zonder downtime: 9.000 rijen wisselen</h3>
+      <span class="pc-lede">Een Loom van 23:41, een leverancier-CSV met 9.043 rijen en een webshop die niet plat mocht. Hoe een Nederlands bureau de import draaide zonder een minuut downtime.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-reindex-mysql-flat-row/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
