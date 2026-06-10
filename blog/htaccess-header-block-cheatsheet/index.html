@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>.htaccess header block: a security cheatsheet for handover · Pier — Blog</title>
+<meta name="description" content="A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, htaccess, wordpress, php, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/htaccess-header-block-cheatsheet/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content=".htaccess header block: a security cheatsheet for handover">
+<meta property="og:description" content="A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.">
+<meta property="og:url" content="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/">
+<meta property="og:image" content="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of printed .htaccess cheatsheet, manila folder tab, brass plate, index card, iron key, red wax seal on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-10T15:08:38.369Z">
+<meta property="article:modified_time" content="2026-06-10T15:08:38.369Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content=".htaccess header block: a security cheatsheet for handover">
+<meta name="twitter:description" content="A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of printed .htaccess cheatsheet, manila folder tab, brass plate, index card, iron key, red wax seal on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/htaccess-header-block-cheatsheet/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/htaccess-header-block-cheatsheet/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/htaccess-header-block-cheatsheet/"},
+  "url":"https://pier.abn.company/blog/htaccess-header-block-cheatsheet/",
+  "headline":".htaccess header block: a security cheatsheet for handover",
+  "description":"A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/htaccess-header-block-cheatsheet/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of printed .htaccess cheatsheet, manila folder tab, brass plate, index card, iron key, red wax seal on linen."
+  },
+  "datePublished":"2026-06-10T15:08:38.369Z",
+  "dateModified":"2026-06-10T15:08:38.369Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"security, htaccess, wordpress, php, workflow",
+  "wordCount":1137,
+  "articleSection":"Security",
+  "articleBody":"It's Friday afternoon. The migration ticket is closed, the client signed off on staging, and there is a draft email open titled Handover: credentials inside . Before that send button gets pressed, there is a block of .htaccess we always paste at the top of the production site's root config. It costs ninety seconds, it ships ten years of accumulated \"oh no, that one\" fixes, and it makes the next pentest report read about half as kind. This post is that block. The whole thing, with the reasoning for every line, in the order we paste it. It targets Apache 2.4 on shared hosting, which is still where most legacy site installations of WordPress, Drupal and Magento actually live. The block Paste this at the top of the docroot .htaccess , above any existing WordPress, Drupal or Magento rewrite rules. # === Handover hardening block, v6 (2026-06) # Tested on Apache 2.4 + cPanel / Plesk / DirectAdmin <IfModule mod_headers.c> Header always set X-Frame-Options \"SAMEORIGIN\" Header always set X-Content-Type-Options \"nosniff\" Header always set Referrer-Policy \"strict-origin-when-cross-origin\" Header always set Permissions-Policy \"camera=(), microphone=(), geolocation=(), interest-cohort=()\" Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\" Header always unset X-Powered-By Header always unset Server </IfModule> <IfModule mod_rewrite.c> RewriteEngine On # WordPress author enumeration RewriteCond %{QUERY_STRING} ^author=\\d+ [NC] RewriteRule .* - [F,L] # xmlrpc brute force amplifier RewriteRule ^xmlrpc\\.php$ - [F,L] </IfModule> # Lock dotfiles and stack config files <FilesMatch \"^(\\.env|\\.git.*|wp-config\\.php|configuration\\.php|settings\\.php|local\\.xml|app\\.php)$\"> Require all denied </FilesMatch> # No PHP execution in user uploads <Directory \"/home/CLIENT/public_html/wp-content/uploads\"> <FilesMatch \"\\.(php|phar|phtml|pl|py|cgi)$\"> Require all denied </FilesMatch> </Directory> Options -Indexes ServerSignature Off That is it. Seven response headers, two rewrite rules, three lockdowns. The rest of the post is the reasoning, line by line, so you can defend it during code review and trim what does not apply. Why each header earns its line The five we set X-Frame-Options: SAMEORIGIN. Yes, it is the older sibling of CSP's frame-ancestors directive, and yes, a proper CSP makes it redundant. On a legacy site we are typically a year away from shipping a real CSP, and there is no harm in shipping both. It blocks the cheapest clickjacking trick: loading the admin login in an invisible iframe. X-Content-Type-Options: nosniff. Without it, older browsers second-guess MIME types. A .jpg in /uploads with PHP bytes inside can execute. We have seen this on a Magento 1 store with a contact-form upload that did not validate. The one-line fix is nosniff . MDN has the full reference . Referrer-Policy: strict-origin-when-cross-origin. The same default Chrome ships. Stops your /wp-admin/ URLs leaking into third-party analytics when the editor clicks an outbound link in a draft post. Permissions-Policy. Most legacy sites have no business asking for camera or geolocation. We close those gates by default. The interest-cohort=() token opts the site out of FLoC and its successors, which is mostly hygiene at this point. Strict-Transport-Security. 31536000 is one year. We do not add preload on handover, because once a domain enters the browser preload list getting it off is a multi-month process and we cannot assume the client will keep certificates healthy forever. The two we unset Apache and PHP both volunteer their versions by default via Server and X-Powered-By . There is no good reason for the open internet to know your stack runs PHP 7.4.33 on Apache/2.4.41. mod_headers unset trims both. ServerSignature Off handles the rest, including the footer Apache adds to error pages. The lockdown half: files, paths, PHP in uploads Author enumeration. WordPress responds to /?author=1 with a 301 to /author/admin/ or whatever the slug is. That is a free username for anyone running wpscan. Block the query string and the redirect never fires. xmlrpc.php. Unless the client specifically uses Jetpack or the WordPress mobile app, xmlrpc is a brute-force amplifier: one POST can try a thousand passwords via system.multicall . We deny it outright. If Jetpack screams later, whitelist Automattic's published IP ranges instead of reopening the door. FilesMatch on config and dotfiles. Covers wp-config.php (WordPress), settings.php (Drupal), configuration.php (Joomla), local.xml (Magento 1), and any stray .env or .git the previous agency left behind. We have found a populated .env being served from more than one Laravel-leftover directory still living in production. PHP in uploads. This is the one that has saved real sites. /wp-content/uploads should never execute PHP. Same for Drupal /sites/default/files and Magento /pub/media . The Directory block pins the rule to the upload directory; adjust the absolute path per site. The OWASP Secure Headers ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/htaccess-header-block-cheatsheet/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":".htaccess header block: a security cheatsheet for handover","item":"https://pier.abn.company/blog/htaccess-header-block-cheatsheet/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Do I still need X-Frame-Options if I ship a Content-Security-Policy?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, CSP's frame-ancestors supersedes it. But on a legacy site without a real CSP, X-Frame-Options is the single line that buys you clickjacking protection. Cheap to keep both."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not enable HSTS preload on handover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because once a domain is in the browser preload list, removing it takes months and a Chrome release. On a handover you cannot guarantee the client will keep every subdomain certificate renewed forever."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will denying xmlrpc.php break Jetpack or the WordPress mobile app?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. If the client uses either, whitelist Automattic's published IP ranges instead of removing the deny rule. Most agency sites have no live xmlrpc consumer and the deny is safe."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does this work on Nginx?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, .htaccess is Apache-only. Translate the directives into add_header lines and location blocks inside your server config. The semantics map cleanly; the syntax does not."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/htaccess-header-block-cheatsheet/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 093</span>
+      </div>
+      <p class="eyebrow"><span class="n">093 —</span>Security</p>
+      <h1 class="display-l post-title">.htaccess header block: a security cheatsheet for handover</h1>
+      <p class="lede post-lede">A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T15:08:38.369Z">10 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/htaccess-header-block-cheatsheet/hero.webp" type="image/webp">
+      <img src="/blog/htaccess-header-block-cheatsheet/hero.jpg" alt="Overhead photo of printed .htaccess cheatsheet, manila folder tab, brass plate, index card, iron key, red wax seal on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 093</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It's Friday afternoon. The migration ticket is closed, the client signed off on staging, and there is a draft email open titled <em>Handover: credentials inside</em>. Before that send button gets pressed, there is a block of .htaccess we always paste at the top of the production site's root config. It costs ninety seconds, it ships ten years of accumulated "oh no, that one" fixes, and it makes the next pentest report read about half as kind.</p>
+
+<p>This post is that block. The whole thing, with the reasoning for every line, in the order we paste it. It targets Apache 2.4 on shared hosting, which is still where most <a href="/">legacy site</a> installations of WordPress, Drupal and Magento actually live.</p>
+
+<h2>The block</h2>
+
+<p>Paste this at the top of the docroot <code>.htaccess</code>, above any existing WordPress, Drupal or Magento rewrite rules.</p>
+
+<pre><code class="lang-apache"># === Handover hardening block, v6 (2026-06)
+# Tested on Apache 2.4 + cPanel / Plesk / DirectAdmin
+
+&lt;IfModule mod_headers.c&gt;
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header always unset X-Powered-By
+    Header always unset Server
+&lt;/IfModule&gt;
+
+&lt;IfModule mod_rewrite.c&gt;
+    RewriteEngine On
+    # WordPress author enumeration
+    RewriteCond %{QUERY_STRING} ^author=\d+ [NC]
+    RewriteRule .* - [F,L]
+    # xmlrpc brute force amplifier
+    RewriteRule ^xmlrpc\.php$ - [F,L]
+&lt;/IfModule&gt;
+
+# Lock dotfiles and stack config files
+&lt;FilesMatch "^(\.env|\.git.*|wp-config\.php|configuration\.php|settings\.php|local\.xml|app\.php)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;
+
+# No PHP execution in user uploads
+&lt;Directory "/home/CLIENT/public_html/wp-content/uploads"&gt;
+    &lt;FilesMatch "\.(php|phar|phtml|pl|py|cgi)$"&gt;
+        Require all denied
+    &lt;/FilesMatch&gt;
+&lt;/Directory&gt;
+
+Options -Indexes
+ServerSignature Off
+</code></pre>
+
+<p>That is it. Seven response headers, two rewrite rules, three lockdowns. The rest of the post is the reasoning, line by line, so you can defend it during code review and trim what does not apply.</p>
+
+<h2>Why each header earns its line</h2>
+
+<h3>The five we set</h3>
+
+<p><strong>X-Frame-Options: SAMEORIGIN.</strong> Yes, it is the older sibling of CSP's <code>frame-ancestors</code> directive, and yes, a proper CSP makes it redundant. On a legacy site we are typically a year away from shipping a real CSP, and there is no harm in shipping both. It blocks the cheapest clickjacking trick: loading the admin login in an invisible iframe.</p>
+
+<p><strong>X-Content-Type-Options: nosniff.</strong> Without it, older browsers second-guess MIME types. A <code>.jpg</code> in <code>/uploads</code> with PHP bytes inside can execute. We have seen this on a Magento 1 store with a contact-form upload that did not validate. The one-line fix is <code>nosniff</code>. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options">MDN has the full reference</a>.</p>
+
+<p><strong>Referrer-Policy: strict-origin-when-cross-origin.</strong> The same default Chrome ships. Stops your <code>/wp-admin/</code> URLs leaking into third-party analytics when the editor clicks an outbound link in a draft post.</p>
+
+<p><strong>Permissions-Policy.</strong> Most legacy sites have no business asking for camera or geolocation. We close those gates by default. The <code>interest-cohort=()</code> token opts the site out of FLoC and its successors, which is mostly hygiene at this point.</p>
+
+<p><strong>Strict-Transport-Security.</strong> 31536000 is one year. We do not add <code>preload</code> on handover, because once a domain enters the <a href="https://hstspreload.org/">browser preload list</a> getting it off is a multi-month process and we cannot assume the client will keep certificates healthy forever.</p>
+
+<h3>The two we unset</h3>
+
+<p>Apache and PHP both volunteer their versions by default via <code>Server</code> and <code>X-Powered-By</code>. There is no good reason for the open internet to know your stack runs PHP 7.4.33 on Apache/2.4.41. <code>mod_headers unset</code> trims both. <code>ServerSignature Off</code> handles the rest, including the footer Apache adds to error pages.</p>
+
+<h2>The lockdown half: files, paths, PHP in uploads</h2>
+
+<p><strong>Author enumeration.</strong> WordPress responds to <code>/?author=1</code> with a 301 to <code>/author/admin/</code> or whatever the slug is. That is a free username for anyone running wpscan. Block the query string and the redirect never fires.</p>
+
+<p><strong>xmlrpc.php.</strong> Unless the client specifically uses Jetpack or the WordPress mobile app, xmlrpc is a brute-force amplifier: one POST can try a thousand passwords via <code>system.multicall</code>. We deny it outright. If Jetpack screams later, whitelist Automattic's published IP ranges instead of reopening the door.</p>
+
+<p><strong>FilesMatch on config and dotfiles.</strong> Covers <code>wp-config.php</code> (WordPress), <code>settings.php</code> (Drupal), <code>configuration.php</code> (Joomla), <code>local.xml</code> (Magento 1), and any stray <code>.env</code> or <code>.git</code> the previous agency left behind. We have found a populated <code>.env</code> being served from more than one Laravel-leftover directory still living in production.</p>
+
+<p><strong>PHP in uploads.</strong> This is the one that has saved real sites. <code>/wp-content/uploads</code> should never execute PHP. Same for Drupal <code>/sites/default/files</code> and Magento <code>/pub/media</code>. The <code>Directory</code> block pins the rule to the upload directory; adjust the absolute path per site. The <a href="https://owasp.org/www-project-secure-headers/">OWASP Secure Headers project</a> has more if you want to go further.</p>
+
+<h2>Gotchas before you commit</h2>
+
+<aside class="callout"><p><strong>HSTS is a one-way door.</strong> <code>includeSubDomains</code> with a one-year max-age locks every <code>staging.example.com</code>, <code>api.example.com</code> and forgotten <code>old.example.com</code> to HTTPS for that year. Before you paste it, confirm every subdomain under the apex has a valid certificate. If one is HTTP-only, it stops loading in any browser that visits the apex first, and you cannot undo it until the max-age expires or you reach every visitor's cache. Which is to say, you cannot.</p></aside>
+
+<p>A few more that bite us:</p>
+
+<ul>
+<li>Always test on staging first. If <code>mod_headers</code> is not loaded, Apache silently drops everything inside the <code>IfModule</code>. The site keeps working; the headers do not. Curl with <code>-I https://example.com</code> and verify each line is actually present.</li>
+<li>The <code>Directory</code> block needs an absolute server path, not a URL. <code>CLIENT</code> in the snippet is a placeholder. On cPanel hosts it is typically <code>/home/USERNAME/public_html</code>; on Plesk it is <code>/var/www/vhosts/example.com/httpdocs</code>.</li>
+<li>If the site sits behind Cloudflare or another CDN, headers may also be set at the edge. Two copies of most headers is harmless. Two HSTS headers with conflicting max-ages cause undefined browser behaviour. Pick one origin and stick to it.</li>
+<li>Nginx is a different language. Translate the directives into <code>add_header</code> and <code>location</code> blocks. The semantics are the same; the syntax is not. Apache's <a href="https://httpd.apache.org/docs/2.4/mod/mod_headers.html">mod_headers documentation</a> is the canonical reference.</li>
+</ul>
+
+<h2>What to do today</h2>
+
+<p>Open the <code>.htaccess</code> on the next legacy site you touch. Diff our block against what is already there. You will find half of these set in three different places by three different plugins, sometimes contradicting each other. Consolidate. Comment what stays. Comment why.</p>
+
+<p>When we built Pier we ran into this exact thing on almost every site we docked with: nobody on the team wanted to be the one who shipped an HSTS header on the wrong host. The way we ended up handling it was to make every <code>.htaccess</code> edit a checkpoint in the <a href="/#features">version history</a>, with the docked <a href="/#database">MySQL editor</a> on hand to flip the WordPress <code>siteurl</code> back if a header change locked anyone out of the admin. Two clicks to revert, no SSH session.</p>
+
+<p>The smallest thing you can do today: paste the block above into a comment at the top of your team's snippet repo, label it v1, and stop solving this problem from scratch on every handover.</p>
+    </div>
+
+    <aside class="pullquote">Seven headers, two rewrite rules and three lockdown blocks in .htaccess will close the cheapest 80% of attack surface on a legacy WordPress, Drupal or Magento site before handover.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Do I still need X-Frame-Options if I ship a Content-Security-Policy?</p>
+      <p class="faq-a">No, CSP&#39;s frame-ancestors supersedes it. But on a legacy site without a real CSP, X-Frame-Options is the single line that buys you clickjacking protection. Cheap to keep both.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why not enable HSTS preload on handover?</p>
+      <p class="faq-a">Because once a domain is in the browser preload list, removing it takes months and a Chrome release. On a handover you cannot guarantee the client will keep every subdomain certificate renewed forever.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will denying xmlrpc.php break Jetpack or the WordPress mobile app?</p>
+      <p class="faq-a">Yes. If the client uses either, whitelist Automattic&#39;s published IP ranges instead of removing the deny rule. Most agency sites have no live xmlrpc consumer and the deny is safe.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does this work on Nginx?</p>
+      <p class="faq-a">No, .htaccess is Apache-only. Translate the directives into add_header lines and location blocks inside your server config. The semantics map cleanly; the syntax does not.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-behind-cloudflare-playbook/hero.jpg" alt="Overhead photo: handwritten Cloudflare cache-rule sheet, settings.php printout, Drupal 7 folder tab, wax seal on envelope." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Drupal 7 behind Cloudflare: don&#39;t break admin or images</h3>
+      <span class="pc-lede">Flip the orange cloud on a Drupal 7 site and two things break first: the editor login loops, and image styles 404. Here&#39;s the settings.php and cache-rule playbook that holds.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/htaccess-header-block-cheatsheet/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
