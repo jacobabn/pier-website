@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal 7 achter Cloudflare: admin en image styles intact · Pier — Blog</title>
+<meta name="description" content="Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, php, security, htaccess, workflow, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal 7 achter Cloudflare: admin en image styles intact">
+<meta property="og:description" content="Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T05:07:21.154Z">
+<meta property="article:modified_time" content="2026-06-10T05:07:21.154Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal 7 achter Cloudflare: admin en image styles intact">
+<meta name="twitter:description" content="Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/"},
+  "url":"https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/",
+  "headline":"Drupal 7 achter Cloudflare: admin en image styles intact",
+  "description":"Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond."
+  },
+  "datePublished":"2026-06-10T05:07:21.154Z",
+  "dateModified":"2026-06-10T05:07:21.154Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"drupal, php, security, htaccess, workflow, operations",
+  "wordCount":1634,
+  "articleSection":"Drupal",
+  "articleBody":"De flip om 22:55 De oranje cloud ging om 22:55 aan. Tegen 23:41 zat de lead developer van een klein Nederlands bureau waar we mee werken in onze DM's met drie screenshots: een /user login die meteen terugstuurde naar /user, een editor-homepage carrousel waar elke image style een 404 gaf, en een Slack-bericht van haar klant met de vraag of de demo de volgende ochtend om 09:00 nog doorging. De legacy site was een twaalf jaar oude Drupal 7-installatie. Ongeveer 4.200 nodes, een editorial layout met veel Views, een hele berg image styles voor de carrousel en article cards, en een adminteam van negen. Het migratiedoel was bescheiden: Cloudflare ervoor zetten voor DDoS-bescherming en bandbreedte, vóór een perscyclus. Niemand was van plan om code aan te raken. Twintig minuten na het flippen van de DNS-proxy waren twee specifieke dingen kapot, en het zijn bijna altijd dezelfde twee dingen op elke Drupal 7-site die voor het eerst achter een CDN wordt gezet. Dit is de playbook die we die avond met haar doorlopen hebben, opgeschreven zodat je hem kunt doen in het rustige deel van een middag in plaats van 's nachts. Settings.php: vertrouw eerst de proxy Drupal 7 ziet de Cloudflare-edge als de client tenzij je iets anders configureert. Dat breekt meer dan alleen IP-logging. Alles wat ip_address() aanroept, waaronder Flood, login throttling en de meeste spammodules, gaat elke bezoeker behandelen als dezelfde machine. De eerste aanpassing gaat in sites/default/settings.php : // Trust Cloudflare's edge as the reverse proxy. $conf['reverse_proxy'] = TRUE; $conf['reverse_proxy_header'] = 'HTTP_CF_CONNECTING_IP'; $conf['reverse_proxy_addresses'] = array( // IPv4 ranges, current as of writing. '173.245.48.0/20', '103.21.244.0/22', '103.22.200.0/22', '103.31.4.0/22', '141.101.64.0/18', '108.162.192.0/18', '190.93.240.0/20', '188.114.96.0/20', '197.234.240.0/22', '198.41.128.0/17', '162.158.0.0/15', '104.16.0.0/13', '104.24.0.0/14', '172.64.0.0/13', '131.0.72.0/22', ); De lijst komt rechtstreeks van cloudflare.com/ips . Haal hem daar op tijdens deploy in plaats van hem één keer te copy-pasten en dan te vergeten; de ranges veranderen wel degelijk. Wij hebben een Drush-command in onze deploy hook zitten die deze array overschrijft vanuit de officiële endpoint. HTTP_CF_CONNECTING_IP is bij Cloudflare de schonere header om te lezen; HTTP_X_FORWARDED_FOR werkt ook, maar dan moet je de chain parsen. Door CF-Connecting-IP te lezen geeft ip_address() elke keer één waarde terug. HTTPS en de redirect loop De loginloop die het bureau om 23:41 raakte heeft bijna altijd dezelfde root cause: Cloudflare termineert TLS op de edge en proxiet HTTP naar de origin. Drupal ziet HTTP, beslist dat de huidige request onveilig is, en op elk pad dat HTTPS vereist (wat met de Secure Login-module of een custom login redirect ook /user omvat) stuurt het een 302 naar https://... . Cloudflare ontvangt die, serveert hem, de browser volgt hem, Cloudflare proxiet weer HTTP naar de origin. Loop. Twee extra regels in settings.php : // Detect HTTPS via Cloudflare's forwarded protocol. if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') { $_SERVER['HTTPS'] = 'on'; } // Pin the canonical base URL. $base_url = 'https://www.example.com'; De X-Forwarded-Proto -header is de standaard manier om het oorspronkelijke schema door een reverse proxy heen te zien. Door $_SERVER['HTTPS'] vroeg te zetten geeft drupal_is_https() de waarheid terug, en eindigt de redirect chain. Pin $base_url expliciet. Anders leidt Drupal hem af uit $_SERVER['HTTP_HOST'] , wat Cloudflare correct zet, maar wat een gedrochtelijke Worker, een Page Rule die Host herschrijft, of een slecht geconfigureerde Argo Tunnel stilletjes kan verminken. Door hem te pinnen elimineer je een hele klasse bugs uit je toekomst. Cache rules die editors ingelogd houden Cloudflare cachet standaard statische assets en respecteert Cache-Control op dynamische responses. Drupal stuurt Cache-Control: no-cache, must-revalidate, post-check=0, pre-check=0 op anonieme cacheable pagina's en een strenger private op authenticated pagina's, wat prima is, maar je moet niet alleen op de origin headers vertrouwen. Je wilt dat de edge weet dat alles met een Drupal session cookie niet cacheable is. Drupal session cookies hebben prefix SESS over HTTP en SSESS over HTTPS. De cache rule die je wilt, in de Cloudflare Cache Rules UI: When incoming requests match: (http.cookie contains \"SESS\") or (http.cookie contains \"SSESS\") Then: Cache eligibility: Bypass cache Voeg een tweede rule toe voor de paden die nooit gecached mogen worden, zelfs niet voor een anonieme bezoeker die koud binnenkomt: When incoming requests match: (starts_with(http.request.uri.path, \"/user\")) or (starts_with(http.request.uri.path, \"/admin\")) or (http.request.uri.path contains \"/edit\") or (starts_with(http.request.uri.path, \"/node/add\")) Then: Cache eligibility: Bypass cache De /edit contains-match vangt /node/123/edit , /taxono",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal 7 achter Cloudflare: admin en image styles intact","item":"https://pier.abn.company/nl/blog/drupal-7-behind-cloudflare-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Krijgt Drupal 7 nog security support?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Community support is in januari 2025 gestopt. Het D7 Security Team bestaat niet meer. Je staat er alleen voor met patches, en precies daarom telt een WAF ervoor zetten nu zwaarder dan vroeger."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heb ik Cloudflare's Full (Strict) SSL nodig met Drupal 7?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, als je het kunt regelen. Installeer een gratis origin certificate van Cloudflare, configureer Apache om het te vereisen, en zet de encryption mode op Full (Strict). Flexible mode is de redirect-loop val."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik Rocket Loader uitzetten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Op de meeste Drupal 7-sites: ja. Het stelt inline scripts uit op een manier die de admin Overlay, CKEditor en sommige Views AJAX breekt. Laat Auto Minify aan voor CSS, uit voor JS, totdat je elke editorial workflow hebt getest."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 081</span>
+      </div>
+      <p class="eyebrow"><span class="n">081 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal 7 achter Cloudflare: admin en image styles intact</h1>
+      <p class="lede post-lede">Een Drupal 7-site achter Cloudflare zetten en twee dingen breken meteen: editor login loopt vast, image styles geven 404. Een playbook die wel houdt.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T05:07:21.154Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp">
+      <img src="/blog/drupal-7-behind-cloudflare-playbook/hero.jpg" alt="Bovenaanzicht: handgeschreven Cloudflare cache-regels, settings.php-print, Drupal 7-map, waszegel op envelop, linnen ondergrond." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 081</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De flip om 22:55</h2><p>De oranje cloud ging om 22:55 aan. Tegen 23:41 zat de lead developer van een klein Nederlands bureau waar we mee werken in onze DM's met drie screenshots: een /user login die meteen terugstuurde naar /user, een editor-homepage carrousel waar elke image style een 404 gaf, en een Slack-bericht van haar klant met de vraag of de demo de volgende ochtend om 09:00 nog doorging.</p><p>De <a href="/">legacy site</a> was een twaalf jaar oude Drupal 7-installatie. Ongeveer 4.200 nodes, een editorial layout met veel Views, een hele berg image styles voor de carrousel en article cards, en een adminteam van negen. Het migratiedoel was bescheiden: Cloudflare ervoor zetten voor DDoS-bescherming en bandbreedte, vóór een perscyclus. Niemand was van plan om code aan te raken. Twintig minuten na het flippen van de DNS-proxy waren twee specifieke dingen kapot, en het zijn bijna altijd dezelfde twee dingen op elke Drupal 7-site die voor het eerst achter een CDN wordt gezet.</p><p>Dit is de playbook die we die avond met haar doorlopen hebben, opgeschreven zodat je hem kunt doen in het rustige deel van een middag in plaats van 's nachts.</p><h2>Settings.php: vertrouw eerst de proxy</h2><p>Drupal 7 ziet de Cloudflare-edge als de client tenzij je iets anders configureert. Dat breekt meer dan alleen IP-logging. Alles wat <code>ip_address()</code> aanroept, waaronder Flood, login throttling en de meeste spammodules, gaat elke bezoeker behandelen als dezelfde machine. De eerste aanpassing gaat in <code>sites/default/settings.php</code>:</p><pre><code class="lang-php">// Trust Cloudflare's edge as the reverse proxy.
+$conf['reverse_proxy'] = TRUE;
+$conf['reverse_proxy_header'] = 'HTTP_CF_CONNECTING_IP';
+$conf['reverse_proxy_addresses'] = array(
+  // IPv4 ranges, current as of writing.
+  '173.245.48.0/20',
+  '103.21.244.0/22',
+  '103.22.200.0/22',
+  '103.31.4.0/22',
+  '141.101.64.0/18',
+  '108.162.192.0/18',
+  '190.93.240.0/20',
+  '188.114.96.0/20',
+  '197.234.240.0/22',
+  '198.41.128.0/17',
+  '162.158.0.0/15',
+  '104.16.0.0/13',
+  '104.24.0.0/14',
+  '172.64.0.0/13',
+  '131.0.72.0/22',
+);</code></pre><p>De lijst komt rechtstreeks van <a href="https://www.cloudflare.com/ips/" rel="nofollow">cloudflare.com/ips</a>. Haal hem daar op tijdens deploy in plaats van hem één keer te copy-pasten en dan te vergeten; de ranges veranderen wel degelijk. Wij hebben een Drush-command in onze deploy hook zitten die deze array overschrijft vanuit de officiële endpoint.</p><p><code>HTTP_CF_CONNECTING_IP</code> is bij Cloudflare de schonere header om te lezen; <code>HTTP_X_FORWARDED_FOR</code> werkt ook, maar dan moet je de chain parsen. Door <code>CF-Connecting-IP</code> te lezen geeft <code>ip_address()</code> elke keer één waarde terug.</p><h2>HTTPS en de redirect loop</h2><p>De loginloop die het bureau om 23:41 raakte heeft bijna altijd dezelfde root cause: Cloudflare termineert TLS op de edge en proxiet HTTP naar de origin. Drupal ziet HTTP, beslist dat de huidige request onveilig is, en op elk pad dat HTTPS vereist (wat met de Secure Login-module of een custom login redirect ook /user omvat) stuurt het een 302 naar <code>https://...</code>. Cloudflare ontvangt die, serveert hem, de browser volgt hem, Cloudflare proxiet weer HTTP naar de origin. Loop.</p><p>Twee extra regels in <code>settings.php</code>:</p><pre><code class="lang-php">// Detect HTTPS via Cloudflare's forwarded protocol.
+if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])
+    &amp;&amp; $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+  $_SERVER['HTTPS'] = 'on';
+}
+
+// Pin the canonical base URL.
+$base_url = 'https://www.example.com';</code></pre><p>De <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Forwarded-Proto" rel="nofollow">X-Forwarded-Proto</a>-header is de standaard manier om het oorspronkelijke schema door een reverse proxy heen te zien. Door <code>$_SERVER['HTTPS']</code> vroeg te zetten geeft <code>drupal_is_https()</code> de waarheid terug, en eindigt de redirect chain.</p><p>Pin <code>$base_url</code> expliciet. Anders leidt Drupal hem af uit <code>$_SERVER['HTTP_HOST']</code>, wat Cloudflare correct zet, maar wat een gedrochtelijke Worker, een Page Rule die Host herschrijft, of een slecht geconfigureerde Argo Tunnel stilletjes kan verminken. Door hem te pinnen elimineer je een hele klasse bugs uit je toekomst.</p><h2>Cache rules die editors ingelogd houden</h2><p>Cloudflare cachet standaard statische assets en respecteert <code>Cache-Control</code> op dynamische responses. Drupal stuurt <code>Cache-Control: no-cache, must-revalidate, post-check=0, pre-check=0</code> op anonieme cacheable pagina's en een strenger <code>private</code> op authenticated pagina's, wat prima is, maar je moet niet alleen op de origin headers vertrouwen. Je wilt dat de edge weet dat alles met een Drupal session cookie niet cacheable is.</p><p>Drupal session cookies hebben prefix <code>SESS</code> over HTTP en <code>SSESS</code> over HTTPS. De cache rule die je wilt, in de Cloudflare Cache Rules UI:</p><pre><code class="lang-text">When incoming requests match:
+  (http.cookie contains "SESS") or (http.cookie contains "SSESS")
+Then:
+  Cache eligibility: Bypass cache</code></pre><p>Voeg een tweede rule toe voor de paden die nooit gecached mogen worden, zelfs niet voor een anonieme bezoeker die koud binnenkomt:</p><pre><code class="lang-text">When incoming requests match:
+  (starts_with(http.request.uri.path, "/user"))
+  or (starts_with(http.request.uri.path, "/admin"))
+  or (http.request.uri.path contains "/edit")
+  or (starts_with(http.request.uri.path, "/node/add"))
+Then:
+  Cache eligibility: Bypass cache</code></pre><p>De <code>/edit</code> contains-match vangt <code>/node/123/edit</code>, <code>/taxonomy/term/4/edit</code> en wat custom modules ook maar blootstellen. Het is een botte regel, maar op een Drupal admin-oppervlak is bot correct.</p><aside class="callout"><strong>De cookie die anonieme caching breekt.</strong> Sommige Drupal contrib modules (met name oudere versies van <code>commerce_cart</code>, <code>flag</code> en een handjevol analytics modules) zetten een niet-SESS cookie op anonieme bezoeken. Cloudflare cachet die responses nog steeds, maar de response van de origin is niet cacheable omdat Drupal een cookie zag die het niet herkende en daarmee in authenticated mode schoot. Draai <code>curl -I -H "User-Agent: smoke" https://www.example.com/</code> twee keer vanaf koud. Geeft de tweede hit binnen een minuut geen <code>cf-cache-status: HIT</code> terug, grep dan je modules op <code>setcookie(</code> en zoek de boosdoener.</aside><h2>Image styles en het itok token</h2><p>Het tweede kapotte ding op de screenshot van 23:41, de 404-carrousel, heeft een andere oorzaak en een andere fix. Image styles worden on demand gegenereerd. De URL ziet eruit als:</p><pre><code class="lang-text">/sites/default/files/styles/carousel_large/public/hero.jpg?itok=Hx3p_kQ8</code></pre><p>De <code>itok</code> query parameter is een HMAC van het derivative path en de hash salt van je site. De functie <a href="https://api.drupal.org/api/drupal/modules%21image%21image.module/function/image_style_url/7.x" rel="nofollow"><code>image_style_url()</code></a> genereert hem; <code>image_style_deliver()</code> valideert hem voordat het derivative wordt gegenereerd. Het token bestaat zodat iemand jouw server niet kan vragen een miljoen derivatives te genereren door URL's te raden.</p><p>Twee dingen gaan fout achter Cloudflare. Ten eerste: Cloudflare's standaard Cache Level is <em>Standard</em>, wat de query string in de cache key meeneemt. Dat deel is prima. Maar sommige bureaus, ook wij ooit, hebben Cache Level op een eerder project op <em>Ignore Query String</em> gezet en die instelling geërfd op een nieuwe zone. Wordt de query string genegeerd, dan valt elke image style URL terug op dezelfde cache key, wint de eerste request die binnenkomt, en krijgt elke volgende request met een andere <code>itok</code> een gecachte 403.</p><p>Check dit in de Cache Rules. De instelling die je wilt is:</p><pre><code class="lang-text">Cache key includes:
+  - Query string: All query string parameters
+  - Host: example.com</code></pre><p>Ten tweede: het derivative-bestand staat nog niet op disk wanneer de URL voor het eerst wordt opgevraagd. De <code>.htaccess</code> van Drupal herschrijft de request naar <code>index.php</code>, die <code>image_style_deliver()</code> aanroept, het bestand genereert, naar <code>sites/default/files/styles/</code> schrijft en met een 200 terugstuurt. De volgende request leest het bestand direct van disk via Apache. Het probleem is dat die allereerste generation response geen <code>Cache-Control: public</code> meedraagt, en op sommige configuraties draagt hij <code>Cache-Control: no-cache</code>. Cloudflare cachet hem dan niet. Erger nog: geeft Apache een 500 omdat het filesystem niet schrijfbaar is, of een 403 omdat de <code>itok</code> niet klopt (een salt mismatch tussen omgevingen veroorzaakt dat), dan cachet Cloudflare de error voor de default TTL.</p><p>Twee fixes. In <code>settings.php</code>, zorg er absoluut voor dat de hash salt identiek is in elke omgeving die een image style URL deelt:</p><pre><code class="lang-php">$drupal_hash_salt = file_get_contents('/var/www/.drupal-salt');</code></pre><p>En in de Cache Rules, zet:</p><pre><code class="lang-text">When incoming requests match:
+  starts_with(http.request.uri.path, "/sites/default/files/styles/")
+Then:
+  Cache eligibility: Eligible for cache
+  Edge TTL: Override origin, 1 month
+  Browser TTL: 1 day
+  Cache by status code: 200-299 cache, 400-499 bypass, 500-599 bypass</code></pre><p>De status-code rule is de regel die het bureau die avond had gered. De eerste 403 van een salt mismatch mag niet aan de edge blijven plakken. Zodra je de salt fixt, bouwt de volgende request hem correct opnieuw op.</p><h3>Pre-warm waar je kunt</h3><p>Heeft de site meer dan een paar honderd derivatives, draai dan een Drush-task in deploy die over de image fields loopt en elke style URL één keer server-side opvraagt, voordat de eerste echte bezoeker binnenkomt. <code>drush eval</code> met een loop over <code>field_get_items()</code> en <code>image_style_url()</code> is een script van vijftig regels en bespaart je de cold-start tail.</p><h2>Verifieer de chain voor je weggaat</h2><p>Voor je de laptop dichtklapt, draai vier checks. Vanaf een machine die niet achter je kantoor-proxy zit:</p><pre><code class="lang-bash">curl -I https://www.example.com/
+# expect: cf-cache-status: HIT (after the second call)
+
+curl -I https://www.example.com/user/login
+# expect: cf-cache-status: BYPASS
+
+curl -I --cookie "SESS123=fake" https://www.example.com/
+# expect: cf-cache-status: BYPASS
+
+curl -I https://www.example.com/sites/default/files/styles/carousel_large/public/hero.jpg?itok=Hx3p_kQ8
+# expect: HTTP/2 200 and, on the second call, cf-cache-status: HIT</code></pre><p>Log daarna in als een echte editor in een incognito-venster. Sla een node op. Upload een afbeelding. Kijk of de styles renderen. De hele loop kost vier minuten en is het verschil tussen slapen, en om 06:00 worden gewekt door de CEO van de klant.</p><h2>Wat we ervan geleerd hebben</h2><p>Drupal 7 is twaalf jaar voorbij zijn eerste release en een jaar voorbij officieel end-of-life, en de sites die er nog op draaien doen dat bijna altijd omdat ze herschrijven een zescijferig project is waar niemand voor heeft getekend. Een CDN ervoor zetten is een van de moves met de meeste leverage om de runway te verlengen: het absorbeert verkeerspieken, verbergt het IP van de origin, en geeft je een plek om een WAF af te dwingen zonder code aan te raken. De kosten zijn die halve dag knutselen hierboven, één keer gedaan.</p><p>Toen we Pier bouwden liepen we hier exact tegenaan op een Drupal 7-installatie van een klant die we aan het auditen waren. Hoe we het hebben opgelost: één-klik <code>settings.php</code>-snapshots in de <a href="/#features">version history</a> zodat het terugdraaien van een verprutste reverse-proxy-wijziging één toetsaanslag is, plus een <a href="/#database">MySQL editor</a> die uitgaat van de aanname dat je de <code>sessions</code>- en <code>cache_form</code>-tabellen aan het inspecteren bent terwijl je een auth loop aan het debuggen bent.</p><p>Het kleinste wat je vandaag kunt doen: open je productie-<code>settings.php</code> en grep hem op <code>reverse_proxy</code>. Staat die array er niet in, dan heb je een blootgesteld origin-IP en een gebroken <code>ip_address()</code> die wachten om toe te slaan. Fix die ene regel vanavond; de rest kan wachten tot dinsdag.</p>
+    </div>
+
+    <aside class="pullquote">Voor je de oranje cloud aanzet op een Drupal 7-site: zet reverse_proxy in settings.php, bypass cache op SESS-cookies, en cache nooit 4xx op /sites/default/files/styles/.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Krijgt Drupal 7 nog security support?</p>
+      <p class="faq-a">Community support is in januari 2025 gestopt. Het D7 Security Team bestaat niet meer. Je staat er alleen voor met patches, en precies daarom telt een WAF ervoor zetten nu zwaarder dan vroeger.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Heb ik Cloudflare&#39;s Full (Strict) SSL nodig met Drupal 7?</p>
+      <p class="faq-a">Ja, als je het kunt regelen. Installeer een gratis origin certificate van Cloudflare, configureer Apache om het te vereisen, en zet de encryption mode op Full (Strict). Flexible mode is de redirect-loop val.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik Rocket Loader uitzetten?</p>
+      <p class="faq-a">Op de meeste Drupal 7-sites: ja. Het stelt inline scripts uit op een manier die de admin Overlay, CKEditor en sommige Views AJAX breekt. Laat Auto Minify aan voor CSS, uit voor JS, totdat je elke editorial workflow hebt getest.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/drupal-7-pharma-hack-walkthrough/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.webp" type="image/webp">
+        <img src="/nl/blog/drupal-7-pharma-hack-walkthrough/hero.jpg" alt="Bovenaanzicht op linnen: geannoteerde sitemap, .htaccess-vel, manilla map, cv-pagina, koperen Drupal 7-plaat, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>27 mei 2026</span></span>
+      <h3>Drupal 7 pharma hack: een oude uploads-injectie traceren</h3>
+      <span class="pc-lede">De Google-snippet van de klant zei &#39;Buy Cialis 20mg&#39; maar de pagina zelf zag er schoon uit. De Drupal 7 pharma hack traceren ging via htaccess cloaking.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/nl/blog/web-root-audit-checklist/hero.jpg" alt="Antieke messing scheepsbel op donkere eiken beugel tegen botkleurige pleisterwand, rode rafelige koord aan klepel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>Web root: zeven bestanden die je nooit publiek serveert</h3>
+      <span class="pc-lede">Een WordPress-site die sinds 2014 draait, vertelt alles over zichzelf als je weet welke zeven bestanden je moet opvragen. Geen ervan hoort er te staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
