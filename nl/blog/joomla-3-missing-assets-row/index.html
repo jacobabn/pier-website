@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min · Pier — Blog</title>
+<meta name="description" content="Een Joomla 3-site gaf een 500 bij elke save. De oorzaak: één ontbrekende rij in #__assets. Hier is de trace, met de SQL erbij.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, php, mysql, databases, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-3-missing-assets-row/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-3-missing-assets-row/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min">
+<meta property="og:description" content="Een Joomla 3-site gaf een 500 bij elke save. De oorzaak: één ontbrekende rij in #__assets. Hier is de trace, met de SQL erbij.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van handgeschreven Joomla-incidentvel, assets-tabelschema, manilla tab, messing sleutel, envelop met lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-10T08:26:10.607Z">
+<meta property="article:modified_time" content="2026-06-10T08:26:10.607Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Joomla">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min">
+<meta name="twitter:description" content="Een Joomla 3-site gaf een 500 bij elke save. De oorzaak: één ontbrekende rij in #__assets. Hier is de trace, met de SQL erbij.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van handgeschreven Joomla-incidentvel, assets-tabelschema, manilla tab, messing sleutel, envelop met lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Joomla">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-3-missing-assets-row/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/"},
+  "url":"https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/",
+  "headline":"Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min",
+  "description":"Een Joomla 3-site gaf een 500 bij elke save. De oorzaak: één ontbrekende rij in #__assets. Hier is de trace, met de SQL erbij.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van handgeschreven Joomla-incidentvel, assets-tabelschema, manilla tab, messing sleutel, envelop met lakzegel."
+  },
+  "datePublished":"2026-06-10T08:26:10.607Z",
+  "dateModified":"2026-06-10T08:26:10.607Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, php, mysql, databases, operations",
+  "wordCount":1338,
+  "articleSection":"Joomla",
+  "articleBody":"De Loom kwam binnen om 07:14 op een dinsdag. Een Nederlands bureau waar we mee samenwerken had een klant op Joomla 3.10, een regionale evenementenuitgever, en elke save op elk artikel gaf een 500 terug. Geen rode flits in de admin, geen validatiemelding: een keiharde Apache-foutpagina met de verkeerde charset, het soort pagina waardoor redacteuren rechtstreeks de bureau-eigenaar bellen. De redacteur was al een uur bezig om een stuk over een dorpsfeest te publiceren. De bureau-lead was twintig minuten wakker en had de twee dingen geprobeerd die je als eerste probeert: de Joomla-cache leeggegooid en PHP-FPM herstart. Geen van beide hielp. Wat hieronder volgt is de daadwerkelijke trace, opgeschreven omdat Joomla 3 dit mensen blijven aandoen. Extended security support stopte in augustus 2023 , en de PHP-versies waar deze sites meestal op draaien zijn grotendeels ook end-of-life. Die combinatie levert een heel specifiek type Joomla 3 -incident op, waarbij de foutmelding niets zegt en de oorzaak structureel is. De eerste tien minuten: lezen wat de server écht zegt De Joomla-admin liet een generieke 0 - Save failed with the following error: -1 banner zien, het soort foutcode dat lijkt te bestaan om middagen te verzieken. Dat getal is geen HTTP-code en geen MySQL-code. Het komt uit de nested-set-logica binnen JTableNested , en op zichzelf vertelt het je vrijwel niets. De eerste nuttige stap was wegkijken van de browser en gaan kijken naar de machine zelf. Het bureau had SSH op deze host, dus we tailden twee dingen tegelijk: tail -f /var/log/apache2/error.log tail -f /var/www/example/administrator/logs/error.php Joomla schrijft zijn eigen log onder administrator/logs/ als log_path is ingesteld in configuration.php , en die is voor applicatiefouten bijna altijd nuttiger dan de Apache-log. Binnen één save-poging produceerde de Joomla-log de regel die de zaak openbrak: PHP Fatal error: Uncaught RuntimeException: Left-Right data inconsistency. Node has no valid parent. in /var/www/example/libraries/joomla/table/nested.php:760 Dat is de echte signatuur. JTableNested is de klasse achter alles in Joomla dat nested sets gebruikt: categorieën, menu's, en de #__assets -tabel die het permissiesysteem ondersteunt. Als hij tijdens een rebuild de parent van een node niet kan vinden, throwt hij en faalt de save. De 500 was alleen maar de catch-all-wrapper eromheen. Nested sets en de #__assets-tabel Als je alleen met WordPress hebt gewerkt, is het de moeite waard om de #__assets -tabel te begrijpen, want Joomla legt daar een groot deel van zijn ACL op neer. Elke component, categorie en elk item heeft een bijbehorende rij in #__assets die zijn positie in een permissieboom opslaat via lft - en rgt -kolommen. Wanneer je een artikel in Joomla 3 opslaat, gaat het save-pad ongeveer zo: Zoek de parent asset voor dit artikel op (meestal de asset van de categorie, of de root van de component). Voeg de rij van het artikel toe of update hem in #__assets , en bereken nieuwe lft - en rgt -waarden ten opzichte van de parent. Voeg het artikel toe of update het in #__content en koppel asset_id terug. Stap één was waar deze site stierf. De categorie die de redacteur had gekozen, \"Evenementen\", was twee jaar eerder aangemaakt door een admin die inmiddels vertrokken was. Ergens onderweg, vrijwel zeker tijdens een mislukte extension-uninstall, was de rij van die categorie in #__assets verwijderd, terwijl de rij in #__categories nog steeds verwees naar het inmiddels ontbrekende asset_id . Joomla zocht de parent asset op, kreeg niets terug, en de nested-set-rebuild throwde. De trace van 20 minuten: de ontbrekende rij bevestigen Uit de fout hadden we al twee sterke hypothesen: een kapotte nested-set-boom, of een dangling asset_id . Beide zijn te controleren met drie korte queries. Hier is de volgorde die we daadwerkelijk hebben gedraaid, op de live database met eerst een verse back-up. -- 1. Find any category whose asset_id does not exist in #__assets SELECT c.id, c.title, c.asset_id FROM jos_categories c LEFT JOIN jos_assets a ON a.id = c.asset_id WHERE c.asset_id > 0 AND a.id IS NULL; Dit gaf precies één rij terug: categorie 47, \"Evenementen\", met asset_id = 312 , en geen bijbehorende rij in jos_assets . Dat bevestigde de dangling referentie. -- 2. Verify the nested-set tree is still consistent for the rest of #__assets SELECT id, name, lft, rgt FROM jos_assets WHERE rgt < lft OR lft < 0 OR rgt < 0; Lege resultaatset. De boom zelf was prima. De corruptie was beperkt tot één ontbrekend blad, wat de goedkope variant van dit probleem is. -- 3. Find the parent we want to graft under (the com_content root asset) SELECT id, name, lft, rgt FROM jos_assets WHERE name = 'com_content'; Dat leverde id = 8 op, met bruikbare lft - en rgt -grenzen. Op dat moment was de diagnose compleet en de fix structureel: de asset-rij van categorie 47 herbouwen onder com_content en asset_id opnieuw aan koppelen. Voordat je #__assets aanraakt: maak een volledige mysqldump van de ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min","item":"https://pier.abn.company/nl/blog/joomla-3-missing-assets-row/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat betekent de Joomla-fout 'Left-Right data inconsistency' eigenlijk?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het betekent dat een nested-set-tabel (meestal #__assets, #__categories of #__menu) een rij heeft waarvan de parent niet meer te vinden is, waardoor JTableNested de lft- en rgt-waarden tijdens het opslaan niet kan herberekenen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om #__assets direct in MySQL aan te passen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen met een volledige database-dump vooraf, en alleen door placeholder-rijen toe te voegen en Joomla daarna de boom vanuit de admin te laten herbouwen. lft en rgt met de hand uitrekenen is de manier waarop mensen de hele tabel om zeep helpen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Gebeurt dit ook op Joomla 4 en Joomla 5?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het onderliggende nested-set-model is vergelijkbaar, maar de asset-rebuild is defensiever in nieuwere versies. Het dangling-asset_id-patroon is grotendeels een Joomla 3-probleem dat ontstaat door oude extension-uninstalls."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/joomla-3-missing-assets-row/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 085</span>
+      </div>
+      <p class="eyebrow"><span class="n">085 —</span>Joomla</p>
+      <h1 class="display-l post-title">Joomla 3 500 bij opslaan: ontbrekende #__assets-rij in 40 min</h1>
+      <p class="lede post-lede">Een Joomla 3-site gaf een 500 bij elke save. De oorzaak: één ontbrekende rij in #__assets. Hier is de trace, met de SQL erbij.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-10T08:26:10.607Z">10 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-3-missing-assets-row/hero.webp" type="image/webp">
+      <img src="/blog/joomla-3-missing-assets-row/hero.jpg" alt="Bovenaanzicht van handgeschreven Joomla-incidentvel, assets-tabelschema, manilla tab, messing sleutel, envelop met lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 085</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Loom kwam binnen om 07:14 op een dinsdag. Een Nederlands bureau waar we mee samenwerken had een klant op Joomla 3.10, een regionale evenementenuitgever, en elke save op elk artikel gaf een 500 terug. Geen rode flits in de admin, geen validatiemelding: een keiharde Apache-foutpagina met de verkeerde charset, het soort pagina waardoor redacteuren rechtstreeks de bureau-eigenaar bellen. De redacteur was al een uur bezig om een stuk over een dorpsfeest te publiceren. De bureau-lead was twintig minuten wakker en had de twee dingen geprobeerd die je als eerste probeert: de Joomla-cache leeggegooid en PHP-FPM herstart. Geen van beide hielp.</p>
+
+<p>Wat hieronder volgt is de daadwerkelijke trace, opgeschreven omdat Joomla 3 dit mensen blijven aandoen. Extended security support stopte in <a href="https://docs.joomla.org/Special:MyLanguage/Joomla!_3.10_version_history">augustus 2023</a>, en de <a href="https://www.php.net/supported-versions.php">PHP-versies waar deze sites meestal op draaien</a> zijn grotendeels ook end-of-life. Die combinatie levert een heel specifiek type <strong>Joomla 3</strong>-incident op, waarbij de foutmelding niets zegt en de oorzaak structureel is.</p>
+
+<h2>De eerste tien minuten: lezen wat de server écht zegt</h2>
+
+<p>De Joomla-admin liet een generieke <code>0 - Save failed with the following error: -1</code> banner zien, het soort foutcode dat lijkt te bestaan om middagen te verzieken. Dat getal is geen HTTP-code en geen MySQL-code. Het komt uit de nested-set-logica binnen <code>JTableNested</code>, en op zichzelf vertelt het je vrijwel niets.</p>
+
+<p>De eerste nuttige stap was wegkijken van de browser en gaan kijken naar de machine zelf. Het bureau had SSH op deze host, dus we tailden twee dingen tegelijk:</p>
+
+<pre><code class="lang-bash">tail -f /var/log/apache2/error.log
+tail -f /var/www/example/administrator/logs/error.php</code></pre>
+
+<p>Joomla schrijft zijn eigen log onder <code>administrator/logs/</code> als <code>log_path</code> is ingesteld in <code>configuration.php</code>, en die is voor applicatiefouten bijna altijd nuttiger dan de Apache-log. Binnen één save-poging produceerde de Joomla-log de regel die de zaak openbrak:</p>
+
+<pre><code class="lang-text">PHP Fatal error: Uncaught RuntimeException: Left-Right data inconsistency.
+Node has no valid parent. in /var/www/example/libraries/joomla/table/nested.php:760</code></pre>
+
+<p>Dat is de echte signatuur. <code>JTableNested</code> is de klasse achter alles in Joomla dat nested sets gebruikt: categorieën, menu's, en de <code>#__assets</code>-tabel die het permissiesysteem ondersteunt. Als hij tijdens een rebuild de parent van een node niet kan vinden, throwt hij en faalt de save. De 500 was alleen maar de catch-all-wrapper eromheen.</p>
+
+<h2>Nested sets en de #__assets-tabel</h2>
+
+<p>Als je alleen met WordPress hebt gewerkt, is het de moeite waard om de <code>#__assets</code>-tabel te begrijpen, want Joomla legt daar een groot deel van zijn ACL op neer. Elke component, categorie en elk item heeft een bijbehorende rij in <code>#__assets</code> die zijn positie in een permissieboom opslaat via <code>lft</code>- en <code>rgt</code>-kolommen. Wanneer je een artikel in Joomla 3 opslaat, gaat het save-pad ongeveer zo:</p>
+
+<ol>
+  <li>Zoek de parent asset voor dit artikel op (meestal de asset van de categorie, of de root van de component).</li>
+  <li>Voeg de rij van het artikel toe of update hem in <code>#__assets</code>, en bereken nieuwe <code>lft</code>- en <code>rgt</code>-waarden ten opzichte van de parent.</li>
+  <li>Voeg het artikel toe of update het in <code>#__content</code> en koppel <code>asset_id</code> terug.</li>
+</ol>
+
+<p>Stap één was waar deze site stierf. De categorie die de redacteur had gekozen, "Evenementen", was twee jaar eerder aangemaakt door een admin die inmiddels vertrokken was. Ergens onderweg, vrijwel zeker tijdens een mislukte extension-uninstall, was de rij van die categorie in <code>#__assets</code> verwijderd, terwijl de rij in <code>#__categories</code> nog steeds verwees naar het inmiddels ontbrekende <code>asset_id</code>. Joomla zocht de parent asset op, kreeg niets terug, en de nested-set-rebuild throwde.</p>
+
+<h2>De trace van 20 minuten: de ontbrekende rij bevestigen</h2>
+
+<p>Uit de fout hadden we al twee sterke hypothesen: een kapotte nested-set-boom, of een dangling <code>asset_id</code>. Beide zijn te controleren met drie korte queries. Hier is de volgorde die we daadwerkelijk hebben gedraaid, op de live database met eerst een verse back-up.</p>
+
+<pre><code class="lang-sql">-- 1. Find any category whose asset_id does not exist in #__assets
+SELECT c.id, c.title, c.asset_id
+FROM   jos_categories c
+LEFT   JOIN jos_assets a ON a.id = c.asset_id
+WHERE  c.asset_id &gt; 0
+AND    a.id IS NULL;</code></pre>
+
+<p>Dit gaf precies één rij terug: categorie 47, "Evenementen", met <code>asset_id = 312</code>, en geen bijbehorende rij in <code>jos_assets</code>. Dat bevestigde de dangling referentie.</p>
+
+<pre><code class="lang-sql">-- 2. Verify the nested-set tree is still consistent for the rest of #__assets
+SELECT id, name, lft, rgt
+FROM   jos_assets
+WHERE  rgt &lt; lft
+OR     lft &lt; 0
+OR     rgt &lt; 0;</code></pre>
+
+<p>Lege resultaatset. De boom zelf was prima. De corruptie was beperkt tot één ontbrekend blad, wat de goedkope variant van dit probleem is.</p>
+
+<pre><code class="lang-sql">-- 3. Find the parent we want to graft under (the com_content root asset)
+SELECT id, name, lft, rgt
+FROM   jos_assets
+WHERE  name = 'com_content';</code></pre>
+
+<p>Dat leverde <code>id = 8</code> op, met bruikbare <code>lft</code>- en <code>rgt</code>-grenzen. Op dat moment was de diagnose compleet en de fix structureel: de asset-rij van categorie 47 herbouwen onder <code>com_content</code> en <code>asset_id</code> opnieuw aan koppelen.</p>
+
+<aside class="callout"><strong>Voordat je <code>#__assets</code> aanraakt:</strong> maak een volledige <code>mysqldump</code> van de database, niet alleen van die twee tabellen. Nested-set-rebuilds kunnen op manieren cascaderen die makkelijk uit een dump terug te draaien zijn en met de hand vrijwel onmogelijk. De vijf seconden die je bespaart door de dump over te slaan is niet de ruil die je om 07:30 op een dinsdag wilt maken.</aside>
+
+<h2>De fix: bouw de asset opnieuw op, laat Joomla de rest doen</h2>
+
+<p>Er is een verleiding om met de hand een <code>INSERT</code> in <code>#__assets</code> in elkaar te zetten met zelf uitgerekende <code>lft</code>- en <code>rgt</code>-waarden. Doe dat niet. De veiligere route is een placeholder-rij invoegen, de categorie daaraan koppelen, en daarna Joomla vanuit de admin de boom laten herbouwen, wat een gedocumenteerde operatie is in <a href="https://docs.joomla.org/J3.x:How_to_rebuild_the_assets_table">de Joomla-docs</a>.</p>
+
+<pre><code class="lang-sql">-- Insert a minimal asset row owned by com_content (parent id 8)
+INSERT INTO jos_assets
+  (parent_id, lft, rgt, level, name, title, rules)
+VALUES
+  (8, 0, 0, 1, 'com_content.category.47', 'Evenementen', '{}');
+
+-- Re-point the category at the new asset row
+UPDATE jos_categories
+SET    asset_id = LAST_INSERT_ID()
+WHERE  id = 47;</code></pre>
+
+<p>Daarna, vanuit de Joomla-admin, <em>System &rarr; Global Configuration &rarr; Permissions</em>, één keer op Save drukken. Joomla detecteert de dirty <code>lft</code>/<code>rgt</code>-waarden en herbouwt de nested set voor de hele <code>#__assets</code>-tabel. Na die ene save ging de redacteur er weer in, probeerde het eerdere artikel, en dat sloeg in één keer schoon op. Van het binnenkomen van de Loom tot de groene save-banner was veertig minuten, waarvan het grootste deel ging zitten in logs lezen en de dump draaien.</p>
+
+<h2>Onderhoudsgewoontes voor Joomla 3-sites</h2>
+
+<p>Drie dingen om mee te nemen, want dit is geen eenmalig patroon.</p>
+
+<p>Ten eerste: draai op elke <a href="/">legacy site</a> die nog op Joomla 3 staat de dangling-<code>asset_id</code>-query van hierboven als routinematige health check. Het kost milliseconden en het vangt problemen voordat een redacteur het doet. Een wekelijkse cron die de bureau-eigenaar mailt als de resultaatset niet leeg is, is een kwartier werk en bespaart je meerdere dinsdagochtenden.</p>
+
+<p>Ten tweede: <code>JTableNested</code>-fouten zijn vrijwel altijd terug te leiden naar <code>#__assets</code>, <code>#__categories</code> of <code>#__menu</code>. Als je "Left-Right data inconsistency" in een log ziet, kijk je ergens naar een nested-set-tabel, en het fix-patroon is steeds hetzelfde: vind de kapotte rij, beslis of je hem verwijdert of opnieuw inhangt, en laat de admin daarna herbouwen.</p>
+
+<p>Ten derde: elke wijziging die je in deze tabellen maakt zou omkeerbaar moeten zijn. Wij konden snel handelen omdat de pre-fix <code>mysqldump</code> op de machine stond en we hem binnen een minuut terug hadden kunnen rollen als de rebuild zich misdragen had.</p>
+
+<p>Toen we <a href="/">Pier</a> bouwden, was dit type incident een van de patronen waar we steeds tegenaan liepen bij klanten. Onze oplossing was om elke database-write via de <a href="/#database">MySQL editor</a> eerst een snapshot van de geraakte rijen te laten maken en die naar <a href="/#features">version history</a> te schrijven, op dezelfde manier waarop bestandswijzigingen versioned zijn. De fix hierboven blijft de fix; het verschil is dat de rollback één klik is in plaats van een <code>mysql &lt; dump.sql</code>.</p>
+
+<p>Beheer je vandaag een Joomla 3-site, open dan vóór de lunch een database-client en draai de dangling-<code>asset_id</code>-query erop. Komt er een rij terug, dan heb je zojuist een toekomstige Loom van 07:14 gevonden.</p>
+    </div>
+
+    <aside class="pullquote">Op Joomla 3 is een 500 bij elke article-save vrijwel altijd terug te voeren op een dangling asset_id; vind hem met een LEFT JOIN en herbouw vanuit Global Configuration.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat betekent de Joomla-fout &#39;Left-Right data inconsistency&#39; eigenlijk?</p>
+      <p class="faq-a">Het betekent dat een nested-set-tabel (meestal #__assets, #__categories of #__menu) een rij heeft waarvan de parent niet meer te vinden is, waardoor JTableNested de lft- en rgt-waarden tijdens het opslaan niet kan herberekenen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om #__assets direct in MySQL aan te passen?</p>
+      <p class="faq-a">Alleen met een volledige database-dump vooraf, en alleen door placeholder-rijen toe te voegen en Joomla daarna de boom vanuit de admin te laten herbouwen. lft en rgt met de hand uitrekenen is de manier waarop mensen de hele tabel om zeep helpen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Gebeurt dit ook op Joomla 4 en Joomla 5?</p>
+      <p class="faq-a">Het onderliggende nested-set-model is vergelijkbaar, maar de asset-rebuild is defensiever in nieuwere versies. Het dangling-asset_id-patroon is grotendeels een Joomla 3-probleem dat ontstaat door oude extension-uninstalls.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>WordPress-audit in SQL: acht snippets uit ons spiekbriefje</h3>
+      <span class="pc-lede">De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/splitting-wp-options-autoload/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/splitting-wp-options-autoload/hero.webp" type="image/webp">
+        <img src="/nl/blog/splitting-wp-options-autoload/hero.jpg" alt="Bovenaanzicht op linnen: SQL-werkblad, wp_options-blauwdruk, manila kaarten, messing plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>wp_options van 7GB splitsen: een autoload-veldgids</h3>
+      <span class="pc-lede">Je wp_options-tabel is 7GB en wordt bij elke request geladen. Hier de SQL om de autoload-rijen te vinden die stilletjes 800ms kosten.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/joomla-3-missing-assets-row/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
