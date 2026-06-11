@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet · Pier — Blog</title>
+<meta name="description" content="De .my.cnf en mysqldump-flags die we op elke legacy MySQL-server zetten voor een export, plus de drie die om twee uur &#39;s nachts een restore hebben gered.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, magento, migration, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/mysqldump-flags-legacy-mysql/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/mysqldump-flags-legacy-mysql/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet">
+<meta property="og:description" content="De .my.cnf en mysqldump-flags die we op elke legacy MySQL-server zetten voor een export, plus de drie die om twee uur &#39;s nachts een restore hebben gered.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht: my.cnf-spiekbriefje, mysqldump-vel met LEGACY-stempel, map wp_db.sql, koperen DUMP-plaatje, rood lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T12:36:41.758Z">
+<meta property="article:modified_time" content="2026-06-11T12:36:41.758Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet">
+<meta name="twitter:description" content="De .my.cnf en mysqldump-flags die we op elke legacy MySQL-server zetten voor een export, plus de drie die om twee uur &#39;s nachts een restore hebben gered.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht: my.cnf-spiekbriefje, mysqldump-vel met LEGACY-stempel, map wp_db.sql, koperen DUMP-plaatje, rood lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/mysqldump-flags-legacy-mysql/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/"},
+  "url":"https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/",
+  "headline":"mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet",
+  "description":"De .my.cnf en mysqldump-flags die we op elke legacy MySQL-server zetten voor een export, plus de drie die om twee uur 's nachts een restore hebben gered.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht: my.cnf-spiekbriefje, mysqldump-vel met LEGACY-stempel, map wp_db.sql, koperen DUMP-plaatje, rood lakzegel."
+  },
+  "datePublished":"2026-06-11T12:36:41.758Z",
+  "dateModified":"2026-06-11T12:36:41.758Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, databases, wordpress, magento, migration, tooling",
+  "wordCount":1018,
+  "articleSection":"Databases",
+  "articleBody":"Het is vrijdag 19:40 en we staan op het punt een dump van 14 GB te maken van een Magento 1.9-winkel, voordat de hosting maandag een geforceerde PHP-upgrade doorvoert. De database heeft BLOBs in core_config_data , utf8mb4-klantnotities met af en toe een 4-byte karakter, en binlogs ingesteld voor GTID. Als één van die drie dingen voor jouw dump geldt, laat de standaard mysqldump-aanroep je stilletjes vallen bij de restore. De cheatsheet hieronder is de .my.cnf en het mysqldump -commando dat we op de server zetten voor elke legacy MySQL-export. Daarna de drie flags die we hebben toegevoegd na restores die om 02:00 misliepen. Kopieer het bestand, pas het credentials-blok aan en draai het. De .my.cnf die we voor elke dump neerzetten We bewaren dit bestand op ~/.my.cnf met chmod 600 . Het scopet de credentials per tool, zodat mysql , mysqldump en mysqladmin allemaal het juiste lezen zonder dat het wachtwoord lekt in de shell-history of in ps -output. [client] host = 127.0.0.1 port = 3306 user = backup password = \"long-random-string-here\" default-character-set = utf8mb4 [mysql] prompt = \"\\\\u@\\\\h [\\\\d]> \" no-auto-rehash [mysqldump] single-transaction quick skip-lock-tables routines events triggers hex-blob default-character-set = utf8mb4 max-allowed-packet = 512M net-buffer-length = 16384 column-statistics = 0 set-gtid-purged = OFF order-by-primary Twee dingen om te verifiëren voordat je iets draait. Ten eerste: chmod 600 ~/.my.cnf zodat het bestand niet wereld-leesbaar is. Zonder dat waarschuwt MySQL je wel, maar leest het bestand alsnog, en op een shared server heb je dan net je credentials gelekt. Ten tweede die backup -user. Wij geven die SELECT , LOCK TABLES , SHOW VIEW , EVENT , TRIGGER en PROCESS en verder niets. De officiële mysqldump-referentie documenteert de minimale grants als je nog verder wil snijden. Het mysqldump-commando dat erbij hoort Met het option file op zijn plek krimpt het commando tot de stukken die per dump daadwerkelijk veranderen: welke database, waar het bestand heen gaat, en of je een gzip-pipe wilt. mysqldump \\ --databases magento_prod \\ | gzip --rsyncable \\ > /backups/magento_prod-$(date +%Y%m%d-%H%M).sql.gz Een paar opmerkingen over de vorm van die regel: --databases (meervoud) zet bovenaan de dump een CREATE DATABASE en USE , waardoor het restore-script de naam van de doel-database niet hoeft te kennen. De moeite waard. gzip --rsyncable maakt het gzipped bestand diffbaar voor back-uptools zoals rsnapshot. De compressieratio is fractioneel slechter en de wall-clock is gelijk. De single-transaction -flag uit het option file geeft InnoDB een consistente snapshot zonder schrijfacties te locken. Op een drukke WooCommerce-winkel is dat het verschil tussen een hapering van vier seconden en een storing van negentig seconden. De handleiding over consistent reads legt het mechanisme uit. Pipe een legacy dump niet rechtstreeks over SSH. De dump duurt lang genoeg dat een wankele sessie het bestand stil afkapt, en de volgende ochtend kom je erachter dat wp_options ontbreekt. Land eerst op disk, verplaats het bestand daarna. Drie flags die een restore hebben gered De defaults zijn prima voor een dump die je maakt en herstelt op dezelfde server, zelfde versie, zelfde character set, zelfde dag. Ze zijn niet prima als je een verouderde site verhuist tussen hosts, en dat is het meeste werk. Deze drie hebben ons betrapt. hex-blob Zonder --hex-blob worden BLOBs en BINARY-kolommen weggeschreven als escaped strings. De dump opent in je editor, ziet er aannemelijk uit, en bij de restore zijn de bytes stilletjes opnieuw gecodeerd via de connection-charset. We liepen hier tegenaan op een WordPress-site waar wp_options een serialized PHP-object bevatte met image-bytes erin. De restore las schoon, maar elke option die binary data raakte unserialiseerde naar false . Met --hex-blob wordt elke binaire waarde geschreven als 0xDEADBEEF… en overleeft die ongeacht welke character set de restorende client besluit te gebruiken. set-gtid-purged=OFF Managed MySQL (RDS, Aurora, Cloud SQL) levert standaard met GTIDs aan. Standaard zet mysqldump bovenaan het bestand een SET @@GLOBAL.GTID_PURGED='...' . Restore dat op een verse dev-machine en je krijgt: ERROR 1840 (HY000) at line 24: @@GLOBAL.GTID_PURGED can only be set when @@GLOBAL.GTID_EXECUTED is empty. --set-gtid-purged=OFF haalt het statement weg. De dump herstelt nog steeds correct; je krijgt alleen geen replicatie-coördinaten die je op de dev-machine toch niet ging gebruiken. column-statistics=0 Een MySQL 8-client die een 5.7-server dumpt, probeert te lezen uit information_schema.COLUMN_STATISTICS , wat niet bestaat op 5.7. Je krijgt: mysqldump: Couldn't execute 'SELECT COLUMN_NAME, JSON_EXTRACT(HISTOGRAM, ...) FROM information_schema.COLUMN_STATISTICS ...': Unknown table 'COLUMN_STATISTICS' in information_schema (1109) Halverwege een halve terabyte, na middernacht. --column-statistics=0 slaat de lookup over. Wij zetten het op elke legacy dump, want de kosten van h",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet","item":"https://pier.abn.company/nl/blog/mysqldump-flags-legacy-mysql/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Heb ik --skip-lock-tables nog nodig als --single-transaction al gezet is?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, als er MyISAM-tabellen tussen zitten, want --single-transaction beschermt alleen InnoDB. Beide zetten is onschadelijk op een pure InnoDB-schema en correct op een gemengd schema."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is --hex-blob veilig voor niet-binaire tekstkolommen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Alleen BLOB, BINARY, VARBINARY en BIT-kolommen worden als hex-literals weggeschreven; elke andere kolomtype komt gewoon als quoted string in de dump."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom niet gewoon op mysqldump --opt vertrouwen voor verstandige defaults?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Die staat standaard aan en dekt het merendeel van deze flags, maar niet --hex-blob, --set-gtid-purged=OFF of --column-statistics=0, en dat zijn juist de drie die de restore daadwerkelijk redden."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/mysqldump-flags-legacy-mysql/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 118</span>
+      </div>
+      <p class="eyebrow"><span class="n">118 —</span>Databases</p>
+      <h1 class="display-l post-title">mysqldump-flags voor legacy MySQL: de .my.cnf cheatsheet</h1>
+      <p class="lede post-lede">De .my.cnf en mysqldump-flags die we op elke legacy MySQL-server zetten voor een export, plus de drie die om twee uur &#39;s nachts een restore hebben gered.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T12:36:41.758Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/mysqldump-flags-legacy-mysql/hero.webp" type="image/webp">
+      <img src="/blog/mysqldump-flags-legacy-mysql/hero.jpg" alt="Bovenaanzicht: my.cnf-spiekbriefje, mysqldump-vel met LEGACY-stempel, map wp_db.sql, koperen DUMP-plaatje, rood lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 118</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is vrijdag 19:40 en we staan op het punt een dump van 14 GB te maken van een Magento 1.9-winkel, voordat de hosting maandag een geforceerde PHP-upgrade doorvoert. De database heeft BLOBs in <code>core_config_data</code>, utf8mb4-klantnotities met af en toe een 4-byte karakter, en binlogs ingesteld voor GTID. Als één van die drie dingen voor jouw dump geldt, laat de standaard mysqldump-aanroep je stilletjes vallen bij de restore.</p><p>De cheatsheet hieronder is de <code>.my.cnf</code> en het <code>mysqldump</code>-commando dat we op de server zetten voor elke legacy MySQL-export. Daarna de drie flags die we hebben toegevoegd na restores die om 02:00 misliepen. Kopieer het bestand, pas het credentials-blok aan en draai het.</p><h2>De .my.cnf die we voor elke dump neerzetten</h2><p>We bewaren dit bestand op <code>~/.my.cnf</code> met <code>chmod 600</code>. Het scopet de credentials per tool, zodat <code>mysql</code>, <code>mysqldump</code> en <code>mysqladmin</code> allemaal het juiste lezen zonder dat het wachtwoord lekt in de shell-history of in <code>ps</code>-output.</p><pre><code class="lang-ini">[client]
+host                     = 127.0.0.1
+port                     = 3306
+user                     = backup
+password                 = "long-random-string-here"
+default-character-set    = utf8mb4
+
+[mysql]
+prompt                   = "\\u@\\h [\\d]&gt; "
+no-auto-rehash
+
+[mysqldump]
+single-transaction
+quick
+skip-lock-tables
+routines
+events
+triggers
+hex-blob
+default-character-set    = utf8mb4
+max-allowed-packet       = 512M
+net-buffer-length        = 16384
+column-statistics        = 0
+set-gtid-purged          = OFF
+order-by-primary
+</code></pre><p>Twee dingen om te verifiëren voordat je iets draait. Ten eerste: <code>chmod 600 ~/.my.cnf</code> zodat het bestand niet wereld-leesbaar is. Zonder dat waarschuwt MySQL je wel, maar leest het bestand alsnog, en op een shared server heb je dan net je credentials gelekt. Ten tweede die <code>backup</code>-user. Wij geven die <code>SELECT</code>, <code>LOCK TABLES</code>, <code>SHOW VIEW</code>, <code>EVENT</code>, <code>TRIGGER</code> en <code>PROCESS</code> en verder niets. De officiële <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqldump.html">mysqldump-referentie</a> documenteert de minimale grants als je nog verder wil snijden.</p><h2>Het mysqldump-commando dat erbij hoort</h2><p>Met het option file op zijn plek krimpt het commando tot de stukken die per dump daadwerkelijk veranderen: welke database, waar het bestand heen gaat, en of je een gzip-pipe wilt.</p><pre><code class="lang-bash">mysqldump \
+  --databases magento_prod \
+  | gzip --rsyncable \
+  &gt; /backups/magento_prod-$(date +%Y%m%d-%H%M).sql.gz
+</code></pre><p>Een paar opmerkingen over de vorm van die regel:</p><ul><li><code>--databases</code> (meervoud) zet bovenaan de dump een <code>CREATE DATABASE</code> en <code>USE</code>, waardoor het restore-script de naam van de doel-database niet hoeft te kennen. De moeite waard.</li><li><code>gzip --rsyncable</code> maakt het gzipped bestand diffbaar voor back-uptools zoals rsnapshot. De compressieratio is fractioneel slechter en de wall-clock is gelijk.</li><li>De <code>single-transaction</code>-flag uit het option file geeft InnoDB een consistente snapshot zonder schrijfacties te locken. Op een drukke WooCommerce-winkel is dat het verschil tussen een hapering van vier seconden en een storing van negentig seconden. De handleiding over <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-consistent-read.html">consistent reads</a> legt het mechanisme uit.</li></ul><aside class="callout"><p><strong>Pipe een legacy dump niet rechtstreeks over SSH.</strong> De dump duurt lang genoeg dat een wankele sessie het bestand stil afkapt, en de volgende ochtend kom je erachter dat <code>wp_options</code> ontbreekt. Land eerst op disk, verplaats het bestand daarna.</p></aside><h2>Drie flags die een restore hebben gered</h2><p>De defaults zijn prima voor een dump die je maakt en herstelt op dezelfde server, zelfde versie, zelfde character set, zelfde dag. Ze zijn niet prima als je een verouderde site verhuist tussen hosts, en dat is het meeste werk. Deze drie hebben ons betrapt.</p><h3>hex-blob</h3><p>Zonder <code>--hex-blob</code> worden BLOBs en BINARY-kolommen weggeschreven als escaped strings. De dump opent in je editor, ziet er aannemelijk uit, en bij de restore zijn de bytes stilletjes opnieuw gecodeerd via de connection-charset. We liepen hier tegenaan op een WordPress-site waar <code>wp_options</code> een serialized PHP-object bevatte met image-bytes erin. De restore las schoon, maar elke option die binary data raakte unserialiseerde naar <code>false</code>. Met <code>--hex-blob</code> wordt elke binaire waarde geschreven als <code>0xDEADBEEF…</code> en overleeft die ongeacht welke character set de restorende client besluit te gebruiken.</p><h3>set-gtid-purged=OFF</h3><p>Managed MySQL (RDS, Aurora, Cloud SQL) levert standaard met GTIDs aan. Standaard zet <code>mysqldump</code> bovenaan het bestand een <code>SET @@GLOBAL.GTID_PURGED='...'</code>. Restore dat op een verse dev-machine en je krijgt:</p><pre><code class="lang-bash">ERROR 1840 (HY000) at line 24: @@GLOBAL.GTID_PURGED can only
+be set when @@GLOBAL.GTID_EXECUTED is empty.
+</code></pre><p><code>--set-gtid-purged=OFF</code> haalt het statement weg. De dump herstelt nog steeds correct; je krijgt alleen geen replicatie-coördinaten die je op de dev-machine toch niet ging gebruiken.</p><h3>column-statistics=0</h3><p>Een MySQL 8-client die een 5.7-server dumpt, probeert te lezen uit <code>information_schema.COLUMN_STATISTICS</code>, wat niet bestaat op 5.7. Je krijgt:</p><pre><code class="lang-bash">mysqldump: Couldn't execute 'SELECT COLUMN_NAME, JSON_EXTRACT(HISTOGRAM, ...)
+FROM information_schema.COLUMN_STATISTICS ...': Unknown table
+'COLUMN_STATISTICS' in information_schema (1109)
+</code></pre><p>Halverwege een halve terabyte, na middernacht. <code>--column-statistics=0</code> slaat de lookup over. Wij zetten het op elke legacy dump, want de kosten van het aan hebben terwijl je het niet nodig hebt zijn nul, en de kosten van het missen op het moment dat je het wel nodig hebt zijn de dump zelf.</p><h2>Wat je controleert nadat de dump klaar is</h2><p>Drie snelle checks. Als één ervan faalt, is de dump verdacht en draai je opnieuw voordat je afmeldt.</p><pre><code class="lang-bash"># 1. Bestand eindigt met de verwachte sentinel
+zcat backup.sql.gz | tail -1
+# -- Dump completed on 2026-06-11  ...
+
+# 2. Rij-aantal ziet er logisch uit voor een bekende tabel
+zcat backup.sql.gz | grep -c "^INSERT INTO \`wp_posts\`"
+
+# 3. Character set overleefde de round-trip
+zcat backup.sql.gz | grep -m1 "DEFAULT CHARSET"
+# DEFAULT CHARSET=utf8mb4
+</code></pre><p>De voettekst 'Dump completed' is de enige ingebouwde integriteits-check die <code>mysqldump</code> biedt. Het is geen hash, maar de afwezigheid ervan is een betrouwbaar signaal dat het proces overleed voordat de staart werd weggeschreven.</p><h2>Hoe dit past in een werksessie</h2><p>Toen we Pier bouwden kwamen we op elke <a href="/">legacy site</a> die we aanraakten precies deze volgorde tegen: <code>.my.cnf</code> neerzetten, dump draaien, voettekst checken, restoren op staging, die ene flag vinden die we vergeten waren. De manier waarop we het binnen de <a href="/#database">MySQL editor</a> hebben opgelost, was om het option file in de docking-flow te bakken, zodat de flags hierboven altijd staan en de resulterende <code>.sql.gz</code> in de <a href="/#features">version history</a> belandt naast de bestandswijzigingen van dezelfde sessie.</p><p>Als je vandaag verder niets doet, zet dan het <code>.my.cnf</code>-blok hierboven in <code>~/.my.cnf</code> op de server vanwaar je dumps draait, doe er <code>chmod 600</code> op, en draai een dump die je al vertrouwt opnieuw. Je ziet het commando korter worden en groeien in wat het overleeft.</p>
+    </div>
+
+    <aside class="pullquote">Zet bij elke legacy MySQL-dump --hex-blob, --set-gtid-purged=OFF en --column-statistics=0; de rest hoort thuis in een chmod 600 .my.cnf option file.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Heb ik --skip-lock-tables nog nodig als --single-transaction al gezet is?</p>
+      <p class="faq-a">Ja, als er MyISAM-tabellen tussen zitten, want --single-transaction beschermt alleen InnoDB. Beide zetten is onschadelijk op een pure InnoDB-schema en correct op een gemengd schema.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is --hex-blob veilig voor niet-binaire tekstkolommen?</p>
+      <p class="faq-a">Ja. Alleen BLOB, BINARY, VARBINARY en BIT-kolommen worden als hex-literals weggeschreven; elke andere kolomtype komt gewoon als quoted string in de dump.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom niet gewoon op mysqldump --opt vertrouwen voor verstandige defaults?</p>
+      <p class="faq-a">Die staat standaard aan en dekt het merendeel van deze flags, maar niet --hex-blob, --set-gtid-purged=OFF of --column-statistics=0, en dat zijn juist de drie die de restore daadwerkelijk redden.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-sales-order-grid-shrink/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-sales-order-grid-shrink/hero.jpg" alt="Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Magento sales_order_grid: zo krimpten we &#39;m met 4GB</h3>
+      <span class="pc-lede">Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>WordPress-audit in SQL: acht snippets uit ons spiekbriefje</h3>
+      <span class="pc-lede">De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/mysqldump-flags-legacy-mysql/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
