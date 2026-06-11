@@ -1,0 +1,447 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken · Pier — Blog</title>
+<meta name="description" content="Een WooCommerce shop crasht om lunchtijd. PHP-FPM zit op 100% poolcapaciteit en je host wil je VPS opschalen. Voor je klikt: hier is de rekensom.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-fpm-pool-sizing-vps/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-fpm-pool-sizing-vps/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken">
+<meta property="og:description" content="Een WooCommerce shop crasht om lunchtijd. PHP-FPM zit op 100% poolcapaciteit en je host wil je VPS opschalen. Voor je klikt: hier is de rekensom.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op linnen: PHP-FPM-werkblad, manilamap, messing sleutel, vulpen, rode lakzegel op stof.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T16:49:40.465Z">
+<meta property="article:modified_time" content="2026-06-11T16:49:40.465Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken">
+<meta name="twitter:description" content="Een WooCommerce shop crasht om lunchtijd. PHP-FPM zit op 100% poolcapaciteit en je host wil je VPS opschalen. Voor je klikt: hier is de rekensom.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op linnen: PHP-FPM-werkblad, manilamap, messing sleutel, vulpen, rode lakzegel op stof.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-fpm-pool-sizing-vps/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/"},
+  "url":"https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/",
+  "headline":"PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken",
+  "description":"Een WooCommerce shop crasht om lunchtijd. PHP-FPM zit op 100% poolcapaciteit en je host wil je VPS opschalen. Voor je klikt: hier is de rekensom.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op linnen: PHP-FPM-werkblad, manilamap, messing sleutel, vulpen, rode lakzegel op stof."
+  },
+  "datePublished":"2026-06-11T16:49:40.465Z",
+  "dateModified":"2026-06-11T16:49:40.465Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, mysql, operations, tooling",
+  "wordCount":1168,
+  "articleSection":"Operations",
+  "articleBody":"Een Nederlands bureau waar we mee samenwerken stuurde ons vorige week dinsdag om 13:42 een Loom. De WooCommerce shop van hun klant, draaiend op een 4GB DigitalOcean droplet, gooide elke lunchpauze 502's. In het nginx error log stond de regel die iedereen die dit leest weleens heeft gezien: 2026-06-09 12:47:14 [error] 1142#1142: *4319 connect() to unix:/run/php/php8.2-fpm.sock failed (11: Resource temporarily unavailable) while connecting to upstream De hostingmaatschappij wilde dat ze gingen upgraden naar een 8GB box. De echte fix was één regel aanpassen in /etc/php/8.2/fpm/pool.d/www.conf en een php-fpm reload. PHP-FPM pool sizing is zo'n tuningklus waarbij de defaults zijn ingesteld op een hypothetische kleine site en daar blijven staan tot het lunchverkeer het probleem aan het licht brengt. Deze post loopt door de pm.max_children rekensom voor de drie VPS-formaten die we het vaakst zien onder een afgemat WordPress-shop: 2GB, 4GB en 8GB. De getallen achterin zijn echt, afkomstig van productiemachines die we de afgelopen twaalf maanden in de gaten houden. De enige formule die telt Al het andere is een voetnoot bij dit: pm.max_children = (Total RAM - reserved) / average PHP-FPM worker RSS Reserved is het geheugen dat je verschuldigd bent aan de kernel, MySQL, nginx, Redis als je dat draait, en alle cron jobs die op dezelfde box lopen. Worker RSS is wat één php-fpm proces resident vasthoudt onder je echte workload, niet onder een synthetische benchmark. Je kunt het op een live box aflezen met: ps -ylC php-fpm8.2 --sort:rss | awk '{sum+=$8; n++} END {print \"avg KB:\", sum/n}' Op een standaard WordPress 6 installatie met één page builder en twintig plugins ligt dat getal meestal tussen de 40 en 80 MB. WooCommerce met een zwaar thema en boekhoudplugins duwt het over de 100 MB. Heb je dit getal verkeerd, dan is de rest van de rekensom decoratie. De 2GB box Goedkoopste VPS in de catalogus, vaak één vCPU. Dit formaat zien we onder brochuresites, kleine tandartspraktijken, en het soort WordPress-shop dat 60 bestellingen per week doet. Na Ubuntu, MySQL (met innodb_buffer_pool_size op 256M), nginx, fail2ban en een kleine Redis-instantie, heb je ruwweg 900 MB over voor PHP. Ga uit van 60 MB per worker. 900 / 60 = 15. Naar beneden afronden om ruimte te laten voor OPcache-groei en de incidentele zware request: ; /etc/php/8.2/fpm/pool.d/www.conf pm = dynamic pm.max_children = 14 pm.start_servers = 4 pm.min_spare_servers = 2 pm.max_spare_servers = 6 pm.max_requests = 500 Veertien workers verzadigen een enkele vCPU voordat ze het RAM uitputten, en dat is de juiste failure mode. Zie je 502's op deze box, dan is het antwoord bijna nooit 'meer children toevoegen'. Het is caching: page cache, object cache, en een CDN voor de statische assets. De 4GB box De shop uit de Loom zat hier. Na MySQL met een 1 GB buffer pool, Redis, nginx en de OS is ongeveer 2,4 GB van jou. Bij 65 MB per worker komt dat neer op 36. Ze hadden pm.max_children op 5 staan, de default in sommige controlpanel-installaties. Vijf workers lopen tijdens de lunch tegen een muur bij elke shop met meer dan tien gelijktijdige checkouts. pm = dynamic pm.max_children = 35 pm.start_servers = 8 pm.min_spare_servers = 4 pm.max_spare_servers = 12 pm.max_requests = 500 Na de reload waren de 502's voorbij. De box zit nu rond de 60% poolgebruik tijdens de lunchpiek en 12% de rest van de dag. Geen upgrade nodig. De 8GB box Het formaat dat we eigenlijk aanraden voor een serieuze WooCommerce shop met 500+ bestellingen per week. Na een royale 2 GB MySQL buffer pool, 256 MB voor Redis, de OS, nginx en een back-up-agent blijft er ongeveer 5,4 GB over. Bij 80 MB per worker is dat 67. We ronden af op 70 en accepteren dat we op een vier vCPU droplet eerder CPU-bound dan memory-bound zullen zijn: pm = dynamic pm.max_children = 70 pm.start_servers = 12 pm.min_spare_servers = 6 pm.max_spare_servers = 18 pm.max_requests = 500 Op een box van deze grootte begint pm.max_requests ertoe te doen. Wij zetten hem op 500 om workers te recyclen die plugin memory leaks oppikken. De FPM-handleiding op php.net beschrijft dit nog steeds als de standaardverdediging tegen onbegrensde groei, en we hebben nog geen WordPress-installatie gezien waar de leak rate geen recycle om de paar honderd requests rechtvaardigt. Drie dingen die de rekensom stilletjes om zeep helpen De formule gaat ervan uit dat je rekening hebt gehouden met de rest die op de box draait. De drie valkuilen die we steeds vinden bij een verouderde site die op een enkele VPS draait: De buffer pool van MySQL De default innodb_buffer_pool_size op een verse Ubuntu-installatie is 128 MB, maar veel ops engineers zetten hem uit gewoonte op 50 tot 70% van het totale RAM. Op een 4GB box is dat 2 GB weg voor je überhaupt PHP gaat tellen. Draai mysql -e \"SHOW VARIABLES LIKE 'innodb_buffer_pool_size'\" op de box van de klant voor je een poolconfig opstelt. OPcache is gedeeld Genoeg capaciteitsrekensommen tellen opcache.memory_consumption per worker. He",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken","item":"https://pier.abn.company/nl/blog/php-fpm-pool-sizing-vps/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat is een veilige pm.max_children voor een 4GB VPS met WooCommerce?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Rond de 30 tot 35 als de buffer pool van MySQL 1 GB is en Redis draait. Meet je daadwerkelijke worker RSS met ps voor je je vastlegt op een getal."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik pm = dynamic, static of ondemand draaien?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dynamic voor de meeste WordPress-shops. Static als het verkeer stabiel is en je voorspelbaar geheugengebruik wilt. Ondemand alleen op dev boxes of zelden bezochte sites."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom zie ik 502's terwijl de pool maar op 50% capaciteit zit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Meestal is dat listen.backlog (default 511) of net.core.somaxconn, niet pm.max_children. Verhoog die twee voor je meer children aan de pool toevoegt."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/php-fpm-pool-sizing-vps/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 123</span>
+      </div>
+      <p class="eyebrow"><span class="n">123 —</span>Operations</p>
+      <h1 class="display-l post-title">PHP-FPM pools afstemmen: 2GB, 4GB en 8GB VPS vergeleken</h1>
+      <p class="lede post-lede">Een WooCommerce shop crasht om lunchtijd. PHP-FPM zit op 100% poolcapaciteit en je host wil je VPS opschalen. Voor je klikt: hier is de rekensom.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T16:49:40.465Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-fpm-pool-sizing-vps/hero.webp" type="image/webp">
+      <img src="/blog/php-fpm-pool-sizing-vps/hero.jpg" alt="Bovenaanzicht op linnen: PHP-FPM-werkblad, manilamap, messing sleutel, vulpen, rode lakzegel op stof." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 123</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Een Nederlands bureau waar we mee samenwerken stuurde ons vorige week dinsdag om 13:42 een Loom. De WooCommerce shop van hun klant, draaiend op een 4GB DigitalOcean droplet, gooide elke lunchpauze 502's. In het nginx error log stond de regel die iedereen die dit leest weleens heeft gezien:</p>
+<pre><code class="lang-text">2026-06-09 12:47:14 [error] 1142#1142: *4319 connect() to unix:/run/php/php8.2-fpm.sock failed (11: Resource temporarily unavailable) while connecting to upstream</code></pre>
+<p>De hostingmaatschappij wilde dat ze gingen upgraden naar een 8GB box. De echte fix was één regel aanpassen in <code>/etc/php/8.2/fpm/pool.d/www.conf</code> en een php-fpm reload. PHP-FPM pool sizing is zo'n tuningklus waarbij de defaults zijn ingesteld op een hypothetische kleine site en daar blijven staan tot het lunchverkeer het probleem aan het licht brengt.</p>
+<p>Deze post loopt door de pm.max_children rekensom voor de drie VPS-formaten die we het vaakst zien onder een afgemat WordPress-shop: 2GB, 4GB en 8GB. De getallen achterin zijn echt, afkomstig van productiemachines die we de afgelopen twaalf maanden in de gaten houden.</p>
+<h2>De enige formule die telt</h2>
+<p>Al het andere is een voetnoot bij dit:</p>
+<pre><code class="lang-text">pm.max_children = (Total RAM - reserved) / average PHP-FPM worker RSS</code></pre>
+<p>Reserved is het geheugen dat je verschuldigd bent aan de kernel, MySQL, nginx, Redis als je dat draait, en alle cron jobs die op dezelfde box lopen. Worker RSS is wat één php-fpm proces resident vasthoudt onder je echte workload, niet onder een synthetische benchmark.</p>
+<p>Je kunt het op een live box aflezen met:</p>
+<pre><code class="lang-bash">ps -ylC php-fpm8.2 --sort:rss | awk '{sum+=$8; n++} END {print "avg KB:", sum/n}'</code></pre>
+<p>Op een standaard WordPress 6 installatie met één page builder en twintig plugins ligt dat getal meestal tussen de 40 en 80 MB. WooCommerce met een zwaar thema en boekhoudplugins duwt het over de 100 MB. Heb je dit getal verkeerd, dan is de rest van de rekensom decoratie.</p>
+<h2>De 2GB box</h2>
+<p>Goedkoopste VPS in de catalogus, vaak één vCPU. Dit formaat zien we onder brochuresites, kleine tandartspraktijken, en het soort WordPress-shop dat 60 bestellingen per week doet. Na Ubuntu, MySQL (met innodb_buffer_pool_size op 256M), nginx, fail2ban en een kleine Redis-instantie, heb je ruwweg 900 MB over voor PHP.</p>
+<p>Ga uit van 60 MB per worker. 900 / 60 = 15. Naar beneden afronden om ruimte te laten voor OPcache-groei en de incidentele zware request:</p>
+<pre><code class="lang-ini">; /etc/php/8.2/fpm/pool.d/www.conf
+pm = dynamic
+pm.max_children = 14
+pm.start_servers = 4
+pm.min_spare_servers = 2
+pm.max_spare_servers = 6
+pm.max_requests = 500</code></pre>
+<p>Veertien workers verzadigen een enkele vCPU voordat ze het RAM uitputten, en dat is de juiste failure mode. Zie je 502's op deze box, dan is het antwoord bijna nooit 'meer children toevoegen'. Het is caching: page cache, object cache, en een CDN voor de statische assets.</p>
+<h2>De 4GB box</h2>
+<p>De shop uit de Loom zat hier. Na MySQL met een 1 GB buffer pool, Redis, nginx en de OS is ongeveer 2,4 GB van jou. Bij 65 MB per worker komt dat neer op 36. Ze hadden pm.max_children op 5 staan, de default in sommige controlpanel-installaties. Vijf workers lopen tijdens de lunch tegen een muur bij elke shop met meer dan tien gelijktijdige checkouts.</p>
+<pre><code class="lang-ini">pm = dynamic
+pm.max_children = 35
+pm.start_servers = 8
+pm.min_spare_servers = 4
+pm.max_spare_servers = 12
+pm.max_requests = 500</code></pre>
+<p>Na de reload waren de 502's voorbij. De box zit nu rond de 60% poolgebruik tijdens de lunchpiek en 12% de rest van de dag. Geen upgrade nodig.</p>
+<h2>De 8GB box</h2>
+<p>Het formaat dat we eigenlijk aanraden voor een serieuze WooCommerce shop met 500+ bestellingen per week. Na een royale 2 GB MySQL buffer pool, 256 MB voor Redis, de OS, nginx en een back-up-agent blijft er ongeveer 5,4 GB over. Bij 80 MB per worker is dat 67. We ronden af op 70 en accepteren dat we op een vier vCPU droplet eerder CPU-bound dan memory-bound zullen zijn:</p>
+<pre><code class="lang-ini">pm = dynamic
+pm.max_children = 70
+pm.start_servers = 12
+pm.min_spare_servers = 6
+pm.max_spare_servers = 18
+pm.max_requests = 500</code></pre>
+<p>Op een box van deze grootte begint pm.max_requests ertoe te doen. Wij zetten hem op 500 om workers te recyclen die plugin memory leaks oppikken. <a href="https://www.php.net/manual/en/install.fpm.configuration.php">De FPM-handleiding op php.net</a> beschrijft dit nog steeds als de standaardverdediging tegen onbegrensde groei, en we hebben nog geen WordPress-installatie gezien waar de leak rate geen recycle om de paar honderd requests rechtvaardigt.</p>
+<h2>Drie dingen die de rekensom stilletjes om zeep helpen</h2>
+<p>De formule gaat ervan uit dat je rekening hebt gehouden met de rest die op de box draait. De drie valkuilen die we steeds vinden bij een <a href="/">verouderde site</a> die op een enkele VPS draait:</p>
+<h3>De buffer pool van MySQL</h3>
+<p>De default <code>innodb_buffer_pool_size</code> op een verse Ubuntu-installatie is 128 MB, maar veel ops engineers zetten hem uit gewoonte op 50 tot 70% van het totale RAM. Op een 4GB box is dat 2 GB weg voor je überhaupt PHP gaat tellen. Draai <code>mysql -e "SHOW VARIABLES LIKE 'innodb_buffer_pool_size'"</code> op de box van de klant voor je een poolconfig opstelt.</p>
+<h3>OPcache is gedeeld</h3>
+<p>Genoeg capaciteitsrekensommen tellen <code>opcache.memory_consumption</code> per worker. Het is shared memory, één keer gealloceerd. Heb je hem op 256 MB gezet, dan is dat 256 MB totaal, niet 256 MB maal pm.max_children. Dit staat in de <a href="https://www.php.net/manual/en/opcache.configuration.php">OPcache configuration docs</a>, maar het verkeerd lezen ervan komt irritant vaak voor.</p>
+<h3>Object cache RSS leeft binnen de worker</h3>
+<p>Redis staat los. Maar de Redis client library, de WordPress object cache drop-in, en de geserialiseerde cache entries die de worker tijdens een request in zijn eigen geheugen vasthoudt, tellen allemaal mee voor de worker RSS. Op WooCommerce-shops met de officiële Redis Object Cache plugin zien we de gemiddelde worker hierdoor van 60 MB naar 90 MB gaan bij een lange productlijst-request.</p>
+<aside class="callout"><p><strong>Let op de unix socket backlog.</strong> Als je op een unix socket zit (de default in Ubuntu) en je ziet <code>connect() failed (11: Resource temporarily unavailable)</code> terwijl de pool op 50% gebruik staat, dan is de bottleneck niet pm.max_children. Het is <code>listen.backlog</code>, default 511, beperkt door <code>net.core.somaxconn</code>. Verhoog die twee voor je children verhoogt.</p></aside>
+<h2>De kleinste verandering die je vandaag kunt doorvoeren</h2>
+<p>Open een shell op de box. Draai de ps-oneliner hierboven om de daadwerkelijke gemiddelde RSS van je PHP-FPM workers te zien. Open <code>/etc/php/8.2/fpm/pool.d/www.conf</code> en check pm.max_children tegen de formule. Zit hij er ver naast (je merkt het, de afwijking is meestal 3x of meer), fix het, reload php-fpm, en kijk hoe de volgende verkeerspiek verloopt.</p>
+<p>Toen we Pier bouwden, liepen we hier bij klant na klant tegenaan, en hoe we het uiteindelijk hebben opgelost is door de live PHP-FPM poolconfig, MySQL buffer pool size en gemiddelde worker RSS samen op één pagina te tonen die je kunt openen voor je de site aanraakt. Hij gebruikt dezelfde <a href="/#database">MySQL editor</a> en <a href="/#features">version history</a> als de rest van de app, dus de config-aanpassing en de reload zijn één rollback verwijderd.</p>
+<p>Het kleinste wat je vandaag kunt doen: SSH naar de box van je drukste shop, draai de ps-oneliner, en zet de echte gemiddelde worker RSS in een comment bovenaan <code>www.conf</code>. De volgende keer dat iemand de pool gaat tunen, ligt de rekensom voor hem.</p>
+    </div>
+
+    <aside class="pullquote">pm.max_children is (totaal RAM minus reserved) gedeeld door de gemiddelde worker RSS; op een 4GB WordPress-box is dat meestal 30 tot 35, niet de default 5.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat is een veilige pm.max_children voor een 4GB VPS met WooCommerce?</p>
+      <p class="faq-a">Rond de 30 tot 35 als de buffer pool van MySQL 1 GB is en Redis draait. Meet je daadwerkelijke worker RSS met ps voor je je vastlegt op een getal.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik pm = dynamic, static of ondemand draaien?</p>
+      <p class="faq-a">Dynamic voor de meeste WordPress-shops. Static als het verkeer stabiel is en je voorspelbaar geheugengebruik wilt. Ondemand alleen op dev boxes of zelden bezochte sites.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom zie ik 502&#39;s terwijl de pool maar op 50% capaciteit zit?</p>
+      <p class="faq-a">Meestal is dat listen.backlog (default 511) of net.core.somaxconn, niet pm.max_children. Verhoog die twee voor je meer children aan de pool toevoegt.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-monitoring-stack/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-monitoring-stack/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-monitoring-stack/hero.jpg" alt="Bovenaanzicht van inkt-uptimegrafiek, manila tabbladen, werkblad, indexkaarten, lakzegel en vulpen op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Legacy-sites bewaken: vier signalen voor solo-shops</h3>
+      <span class="pc-lede">Dertig legacy sites, één persoon, en een zondagochtend die begon met een Slack: &#39;checkout kapot sinds vrijdag&#39;. Vier signalen hadden het donderdag al gevangen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/php-fpm-slowlog-stack-trace-shapes/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-fpm-slowlog-stack-trace-shapes/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-fpm-slowlog-stack-trace-shapes/hero.jpg" alt="Geprinte php-fpm slowlog op linnen met inkt-gemarkeerde stack traces, manilamap, vulpen, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>php-fpm slowlog lezen: drie stack-trace patronen herkennen</h3>
+      <span class="pc-lede">Veldgids voor php-fpm slowlogs op shared hosting: de drie stack-trace vormen die je tegenkomt, wat ze betekenen en waar je het volgende uur moet zoeken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/php-fpm-pool-sizing-vps/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
