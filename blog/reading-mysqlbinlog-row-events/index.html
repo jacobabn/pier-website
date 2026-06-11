@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Reading mysqlbinlog: a field guide to row-format events · Pier — Blog</title>
+<meta name="description" content="An agency lead pings at 23:41: someone swapped wp_options.siteurl, the web logs are clean. Here is how to read mysqlbinlog row events and find them.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, operations, security">
+
+<link rel="canonical" href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Reading mysqlbinlog: a field guide to row-format events">
+<meta property="og:description" content="An agency lead pings at 23:41: someone swapped wp_options.siteurl, the web logs are clean. Here is how to read mysqlbinlog row events and find them.">
+<meta property="og:url" content="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<meta property="og:image" content="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: mysqlbinlog run-sheet, wp_options folder tab, index card, brass ROW plate, fountain pen, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T02:12:44.738Z">
+<meta property="article:modified_time" content="2026-06-11T02:12:44.738Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Reading mysqlbinlog: a field guide to row-format events">
+<meta name="twitter:description" content="An agency lead pings at 23:41: someone swapped wp_options.siteurl, the web logs are clean. Here is how to read mysqlbinlog row events and find them.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: mysqlbinlog run-sheet, wp_options folder tab, index card, brass ROW plate, fountain pen, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-mysqlbinlog-row-events/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/reading-mysqlbinlog-row-events/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/reading-mysqlbinlog-row-events/"},
+  "url":"https://pier.abn.company/blog/reading-mysqlbinlog-row-events/",
+  "headline":"Reading mysqlbinlog: a field guide to row-format events",
+  "description":"An agency lead pings at 23:41: someone swapped wp_options.siteurl, the web logs are clean. Here is how to read mysqlbinlog row events and find them.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/reading-mysqlbinlog-row-events/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: mysqlbinlog run-sheet, wp_options folder tab, index card, brass ROW plate, fountain pen, red wax seal."
+  },
+  "datePublished":"2026-06-11T02:12:44.738Z",
+  "dateModified":"2026-06-11T02:12:44.738Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"mysql, databases, wordpress, operations, security",
+  "wordCount":1260,
+  "articleSection":"Databases",
+  "articleBody":"At 23:41 an agency lead drops a Loom into our shared channel. Two minutes of someone scrolling through a Dutch retailer's WordPress admin. The site is loading assets from the wrong domain. wp_options.siteurl has been swapped for an attacker-controlled URL, and the question on the line is simple: which process did it, when, and what mysqlbinlog can tell us about it. The site has been running for nine years. Six admin users, three deploy keys, a Jenkins box, a cron worker, and one developer who left in March and may or may not still have a key. None of the application logs show the change. The web access log is clean. The only place the change definitely exists is the MySQL binary log. This is the post I keep meaning to write for that exact moment. A field guide to the row-format events mysqlbinlog writes out, so you can find the row, the time, the connection, and ideally the human behind it without spending three hours learning the format from scratch. The four events that carry the change If your server runs with binlog_format=ROW (the default since MySQL 5.7), every data change is written as a small sequence of event types. They arrive in pairs: one descriptor, one payload. TABLE_MAP_EVENT : names the table and the column types of the rows about to follow. Without it, the payload events are anonymous bytes. WRITE_ROWS_EVENT : the row image of one or more INSERT s. UPDATE_ROWS_EVENT : both the BEFORE and AFTER image of one or more UPDATE s. DELETE_ROWS_EVENT : the row image of one or more DELETE s. Each pair sits inside a transaction wrapper. A GTID event (or an ANONYMOUS_GTID event), then a QUERY event with BEGIN , then the rows, then an XID event committing it. The wrapper is where the timestamps, server id, and thread id live. The payload is where the data lives. You need both halves to make sense of a single write. The command you actually want The mysqlbinlog reference lists a dozen flag variations. In practice you want one base recipe and adjust the window. Assume the binlog files live in /var/log/mysql/ and rotate as mysql-bin.000142 : mysqlbinlog \\ --base64-output=DECODE-ROWS \\ --verbose \\ --start-datetime=\"2026-06-10 23:30:00\" \\ --stop-datetime=\"2026-06-10 23:45:00\" \\ /var/log/mysql/mysql-bin.000142 \\ > /tmp/window.sql Two flags do most of the work. --base64-output=DECODE-ROWS tells mysqlbinlog not to print the raw base64 blobs that ROW events are stored as; without it the file is unreadable. --verbose tells it to emit pseudo-SQL comments alongside each event, so you can see which row changed and what the before and after values were. Skip --start-datetime at your peril on a busy server. A single binlog can be a gigabyte, and the pseudo-SQL it expands to is much larger. If you do not know the window, run SHOW BINARY LOGS first and narrow by file before you narrow by time. Reading the pseudo-SQL Inside the window file you will see blocks like this: #260610 23:41:18 server id 1 end_log_pos 38421 CRC32 0x9af13c20 # Update_rows: table id 142 flags: STMT_END_F ### UPDATE `wp_db`.`wp_options` ### WHERE ### @1=1 /* INT meta=0 nullable=0 is_null=0 */ ### @2='siteurl' /* VARSTRING(192) meta=192 nullable=0 is_null=0 */ ### @3='https://klant.example/' /* VARSTRING(255) meta=255 ... */ ### @4='yes' /* ENUM(1 byte) meta=63233 ... */ ### SET ### @1=1 ### @2='siteurl' ### @3='https://wp-content-cdn.click/' ### @4='yes' A few things to notice. The column names are @1, @2, @3, @4 . mysqlbinlog does not know your schema. The TABLE_MAP_EVENT only gives it ordinal positions and types, so you map them back yourself with a quick DESCRIBE wp_options; . Here, @1 is option_id , @2 is option_name , @3 is option_value , @4 is autoload . The WHERE block is the BEFORE image. By default MySQL writes the full row image, which is what you want during forensics. If you ever see only the primary key in WHERE , your server is running with binlog_row_image=MINIMAL and most of your evidence is gone. Check it with SHOW VARIABLES LIKE 'binlog_row_image'; and set it to FULL on anything customer-facing. The timestamp on the header is the commit time, in the server's local timezone. The server id is the MySQL replication id, which matters when chasing a write that landed via a replica rather than from your application server. Narrowing down the suspect The row event tells you what changed. To tell you who, you look at the transaction wrapper a few lines above: #260610 23:41:18 server id 1 end_log_pos 38302 # GTID last_committed=812 sequence_number=813 ... SET @@SESSION.GTID_NEXT= 'a3f1c2d4-...:1042'/*!*/; #260610 23:41:18 server id 1 end_log_pos 38380 # Query thread_id=4471 exec_time=0 error_code=0 SET TIMESTAMP=1812844878/*!*/; BEGIN /*!*/; That thread_id=4471 is the gold. If your MySQL is running with performance_schema on (the default), and you caught the incident inside the connection's lifetime, you can correlate it with performance_schema.threads and see the connecting user, host, and program name. In practice the connection is usual",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/reading-mysqlbinlog-row-events/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Reading mysqlbinlog: a field guide to row-format events","item":"https://pier.abn.company/blog/reading-mysqlbinlog-row-events/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What does --base64-output=DECODE-ROWS actually do?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It tells mysqlbinlog to print row events as readable pseudo-SQL comments instead of the raw base64-encoded payload. Without it the dump file is unreadable."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why are the columns called @1, @2 in the output?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "mysqlbinlog only sees ordinal positions and types from the TABLE_MAP_EVENT, not the schema. Run DESCRIBE on the table to map @1, @2, @3 back to real column names."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I identify the user who ran an UPDATE from the binlog alone?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You get thread_id, server_id, GTID, and timestamp. The connecting user and host live in performance_schema or the general log, so you usually need both sources to name a human."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if binlog_row_image is set to MINIMAL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "You lose the BEFORE image of every row. Set it to FULL on any database you might need to audit. You can change it dynamically with SET GLOBAL binlog_row_image='FULL'."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 106</span>
+      </div>
+      <p class="eyebrow"><span class="n">106 —</span>Databases</p>
+      <h1 class="display-l post-title">Reading mysqlbinlog: a field guide to row-format events</h1>
+      <p class="lede post-lede">An agency lead pings at 23:41: someone swapped wp_options.siteurl, the web logs are clean. Here is how to read mysqlbinlog row events and find them.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T02:12:44.738Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-mysqlbinlog-row-events/hero.webp" type="image/webp">
+      <img src="/blog/reading-mysqlbinlog-row-events/hero.jpg" alt="Overhead photo on bone linen: mysqlbinlog run-sheet, wp_options folder tab, index card, brass ROW plate, fountain pen, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 106</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>At 23:41 an agency lead drops a Loom into our shared channel. Two minutes of someone scrolling through a Dutch retailer's WordPress admin. The site is loading assets from the wrong domain. <a href="https://codex.wordpress.org/Database_Description"><code>wp_options.siteurl</code></a> has been swapped for an attacker-controlled URL, and the question on the line is simple: which process did it, when, and what mysqlbinlog can tell us about it.</p>
+
+<p>The site has been running for nine years. Six admin users, three deploy keys, a Jenkins box, a cron worker, and one developer who left in March and may or may not still have a key. None of the application logs show the change. The web access log is clean. The only place the change definitely exists is the MySQL binary log.</p>
+
+<p>This is the post I keep meaning to write for that exact moment. A field guide to the row-format events <code>mysqlbinlog</code> writes out, so you can find the row, the time, the connection, and ideally the human behind it without spending three hours learning the format from scratch.</p>
+
+<h2>The four events that carry the change</h2>
+
+<p>If your server runs with <code>binlog_format=ROW</code> (the default since MySQL 5.7), every data change is written as a small sequence of event types. They arrive in pairs: one descriptor, one payload.</p>
+
+<ul>
+  <li><strong>TABLE_MAP_EVENT</strong>: names the table and the column types of the rows about to follow. Without it, the payload events are anonymous bytes.</li>
+  <li><strong>WRITE_ROWS_EVENT</strong>: the row image of one or more <code>INSERT</code>s.</li>
+  <li><strong>UPDATE_ROWS_EVENT</strong>: both the BEFORE and AFTER image of one or more <code>UPDATE</code>s.</li>
+  <li><strong>DELETE_ROWS_EVENT</strong>: the row image of one or more <code>DELETE</code>s.</li>
+</ul>
+
+<p>Each pair sits inside a transaction wrapper. A <code>GTID</code> event (or an <code>ANONYMOUS_GTID</code> event), then a <code>QUERY</code> event with <code>BEGIN</code>, then the rows, then an <code>XID</code> event committing it. The wrapper is where the timestamps, server id, and thread id live. The payload is where the data lives. You need both halves to make sense of a single write.</p>
+
+<h2>The command you actually want</h2>
+
+<p>The <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html">mysqlbinlog reference</a> lists a dozen flag variations. In practice you want one base recipe and adjust the window. Assume the binlog files live in <code>/var/log/mysql/</code> and rotate as <code>mysql-bin.000142</code>:</p>
+
+<pre><code class="lang-bash">mysqlbinlog \
+  --base64-output=DECODE-ROWS \
+  --verbose \
+  --start-datetime="2026-06-10 23:30:00" \
+  --stop-datetime="2026-06-10 23:45:00" \
+  /var/log/mysql/mysql-bin.000142 \
+  &gt; /tmp/window.sql</code></pre>
+
+<p>Two flags do most of the work. <code>--base64-output=DECODE-ROWS</code> tells mysqlbinlog not to print the raw base64 blobs that ROW events are stored as; without it the file is unreadable. <code>--verbose</code> tells it to emit pseudo-SQL comments alongside each event, so you can see which row changed and what the before and after values were.</p>
+
+<p>Skip <code>--start-datetime</code> at your peril on a busy server. A single binlog can be a gigabyte, and the pseudo-SQL it expands to is much larger. If you do not know the window, run <code>SHOW BINARY LOGS</code> first and narrow by file before you narrow by time.</p>
+
+<h2>Reading the pseudo-SQL</h2>
+
+<p>Inside the window file you will see blocks like this:</p>
+
+<pre><code class="lang-sql">#260610 23:41:18 server id 1  end_log_pos 38421 CRC32 0x9af13c20
+#       Update_rows: table id 142 flags: STMT_END_F
+### UPDATE `wp_db`.`wp_options`
+### WHERE
+###   @1=1 /* INT meta=0 nullable=0 is_null=0 */
+###   @2='siteurl' /* VARSTRING(192) meta=192 nullable=0 is_null=0 */
+###   @3='https://klant.example/' /* VARSTRING(255) meta=255 ... */
+###   @4='yes' /* ENUM(1 byte) meta=63233 ... */
+### SET
+###   @1=1
+###   @2='siteurl'
+###   @3='https://wp-content-cdn.click/'
+###   @4='yes'</code></pre>
+
+<p>A few things to notice.</p>
+
+<p>The column names are <code>@1, @2, @3, @4</code>. mysqlbinlog does not know your schema. The TABLE_MAP_EVENT only gives it ordinal positions and types, so you map them back yourself with a quick <code>DESCRIBE wp_options;</code>. Here, <code>@1</code> is <code>option_id</code>, <code>@2</code> is <code>option_name</code>, <code>@3</code> is <code>option_value</code>, <code>@4</code> is <code>autoload</code>.</p>
+
+<p>The <code>WHERE</code> block is the BEFORE image. By default MySQL writes the full row image, which is what you want during forensics. If you ever see only the primary key in <code>WHERE</code>, your server is running with <a href="https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_row_image"><code>binlog_row_image=MINIMAL</code></a> and most of your evidence is gone. Check it with <code>SHOW VARIABLES LIKE 'binlog_row_image';</code> and set it to <code>FULL</code> on anything customer-facing.</p>
+
+<p>The timestamp on the header is the commit time, in the server's local timezone. The <code>server id</code> is the MySQL replication id, which matters when chasing a write that landed via a replica rather than from your application server.</p>
+
+<h2>Narrowing down the suspect</h2>
+
+<p>The row event tells you what changed. To tell you who, you look at the transaction wrapper a few lines above:</p>
+
+<pre><code class="lang-sql">#260610 23:41:18 server id 1  end_log_pos 38302
+#       GTID last_committed=812 sequence_number=813 ...
+SET @@SESSION.GTID_NEXT= 'a3f1c2d4-...:1042'/*!*/;
+#260610 23:41:18 server id 1  end_log_pos 38380
+#       Query   thread_id=4471  exec_time=0   error_code=0
+SET TIMESTAMP=1812844878/*!*/;
+BEGIN
+/*!*/;</code></pre>
+
+<p>That <code>thread_id=4471</code> is the gold. If your MySQL is running with <a href="https://dev.mysql.com/doc/refman/8.0/en/performance-schema-threads-table.html"><code>performance_schema</code></a> on (the default), and you caught the incident inside the connection's lifetime, you can correlate it with <code>performance_schema.threads</code> and see the connecting user, host, and program name. In practice the connection is usually long gone by the time anyone is reading binlogs, so you fall back to the slow query log or the general log if either was running.</p>
+
+<p>The <code>exec_time</code> is wall time of the statement on the source. A single-row <code>UPDATE</code> with <code>exec_time=0</code> from a thread that only ever ran that one statement is the signature of a script, not an admin clicking around in phpMyAdmin. That detail alone narrowed our 23:41 incident from six admins to one deploy key, which had been copy-pasted into an unrelated GitHub Action eighteen months earlier and forgotten.</p>
+
+<aside class="callout"><strong>Watch for replicated writes.</strong> If your stack has a read replica that someone has accidentally enabled writes on, the binlog on the source will show the change came in via the replication channel with a different <code>server_id</code> than your application traffic. People miss this and chase ghosts in the app logs for hours.</aside>
+
+<h2>When ROW format isn't enough</h2>
+
+<p>Two situations where the row events leave you short.</p>
+
+<p>First, <code>binlog_row_image=MINIMAL</code>. Some hosting providers ship MySQL configs tuned for replication throughput rather than auditability. The <code>WHERE</code> block on every update is just the primary key and the <code>SET</code> block is just the changed columns. You can see what the new value is, but you cannot see what it replaced. If you run a <a href="/">legacy site</a> for someone else's money, flip this to <code>FULL</code>.</p>
+
+<p>Second, <code>DELETE_ROWS_EVENT</code> on a soft-deleted table. The row image is in the binlog, so you can recover the data, but you have to reconstruct the <code>INSERT</code> statement by hand from the <code>@1, @2, @3</code> assignments. Worth practising once on a staging dump before you need it at 02:00.</p>
+
+<p>For schema changes, ROW events are silent. Those go through as <code>QUERY</code> events containing the literal DDL string, so <code>grep -E 'ALTER|DROP|CREATE' window.sql</code> still works as a first pass when someone says "the table just disappeared".</p>
+
+<h2>What this looks like in our own work</h2>
+
+<p>When we built Pier, this exact scene was the reason the <a href="/#database">MySQL editor</a> ships with a row-level <a href="/#features">version history</a>. We wanted the agency lead at 23:41 to be able to scroll back through a single row's writes without a terminal and without an SSH hop. The binlog is still the canonical source of truth; Pier just makes the common case (one row, last thirty days) one click instead of three commands.</p>
+
+<p>Today's small thing: run <code>SHOW VARIABLES LIKE 'binlog_row_image';</code> on the production database of your busiest <a href="/">legacy site</a>. If it returns <code>MINIMAL</code>, change it to <code>FULL</code> in <code>my.cnf</code> tonight and bounce the server during your next maintenance window. The next time someone asks who changed what, you will have an answer instead of a shrug.</p>
+    </div>
+
+    <aside class="pullquote">Row-format binlog events tell you what changed and when; pairing them with thread_id, performance_schema, and the slow log tells you who.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What does --base64-output=DECODE-ROWS actually do?</p>
+      <p class="faq-a">It tells mysqlbinlog to print row events as readable pseudo-SQL comments instead of the raw base64-encoded payload. Without it the dump file is unreadable.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why are the columns called @1, @2 in the output?</p>
+      <p class="faq-a">mysqlbinlog only sees ordinal positions and types from the TABLE_MAP_EVENT, not the schema. Run DESCRIBE on the table to map @1, @2, @3 back to real column names.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I identify the user who ran an UPDATE from the binlog alone?</p>
+      <p class="faq-a">You get thread_id, server_id, GTID, and timestamp. The connecting user and host live in performance_schema or the general log, so you usually need both sources to name a human.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if binlog_row_image is set to MINIMAL?</p>
+      <p class="faq-a">You lose the BEFORE image of every row. Set it to FULL on any database you might need to audit. You can change it dynamically with SET GLOBAL binlog_row_image=&#39;FULL&#39;.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wp-users-sql-real-logins/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wp-users-sql-real-logins/hero.webp" type="image/webp">
+        <img src="/blog/wp-users-sql-real-logins/hero.jpg" alt="Overhead photo on bone linen: SQL run-sheet, wp_users table dump, manila tab, index cards, brass plate, pen, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>11 June 2026</span></span>
+      <h3>wp_users SQL: three queries that show who actually logs in</h3>
+      <span class="pc-lede">412 rows in wp_users does not mean 412 people log in. Three SQL queries against wp_usermeta turn the dump into a real picture of active, stale, and dangerous accounts.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Overhead photo on bone linen: handwritten SQL cheatsheet, wp_options schematic, manila folder, brass AUDIT plate, stopwatch, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 June 2026</span></span>
+      <h3>SQL audit snippets for legacy WordPress: a cheatsheet</h3>
+      <span class="pc-lede">The wp_options table is 480MB. wp-admin takes nine seconds. You inherited the project last Tuesday. The eight queries we run before anything else.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

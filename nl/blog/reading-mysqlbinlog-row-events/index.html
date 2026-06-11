@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>mysqlbinlog row events lezen: een praktische veldgids · Pier — Blog</title>
+<meta name="description" content="Om 23:41 pingt een agency-lead: iemand swapte wp_options.siteurl, de weblogs zijn schoon. Zo lees je mysqlbinlog row events en vind je ze terug.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="mysql, databases, wordpress, operations, security">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="mysqlbinlog row events lezen: een praktische veldgids">
+<meta property="og:description" content="Om 23:41 pingt een agency-lead: iemand swapte wp_options.siteurl, de weblogs zijn schoon. Zo lees je mysqlbinlog row events en vind je ze terug.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht op beige linnen: mysqlbinlog-vel, wp_options-mapje, indexkaart, messing ROW-plaatje, vulpen, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T02:12:44.738Z">
+<meta property="article:modified_time" content="2026-06-11T02:12:44.738Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Databases">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="security">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="mysqlbinlog row events lezen: een praktische veldgids">
+<meta name="twitter:description" content="Om 23:41 pingt een agency-lead: iemand swapte wp_options.siteurl, de weblogs zijn schoon. Zo lees je mysqlbinlog row events en vind je ze terug.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht op beige linnen: mysqlbinlog-vel, wp_options-mapje, indexkaart, messing ROW-plaatje, vulpen, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Databases">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/reading-mysqlbinlog-row-events/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/"},
+  "url":"https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/",
+  "headline":"mysqlbinlog row events lezen: een praktische veldgids",
+  "description":"Om 23:41 pingt een agency-lead: iemand swapte wp_options.siteurl, de weblogs zijn schoon. Zo lees je mysqlbinlog row events en vind je ze terug.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht op beige linnen: mysqlbinlog-vel, wp_options-mapje, indexkaart, messing ROW-plaatje, vulpen, rode lakzegel."
+  },
+  "datePublished":"2026-06-11T02:12:44.738Z",
+  "dateModified":"2026-06-11T02:12:44.738Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"mysql, databases, wordpress, operations, security",
+  "wordCount":1257,
+  "articleSection":"Databases",
+  "articleBody":"Om 23:41 dropt een agency-lead een Loom in ons gedeelde kanaal. Twee minuten van iemand die door de WordPress-admin van een Nederlandse retailer scrollt. De site laadt assets vanaf het verkeerde domein. wp_options.siteurl is omgezet naar een door de aanvaller gecontroleerde URL, en de vraag aan de lijn is simpel: welk proces heeft het gedaan, wanneer, en wat kan mysqlbinlog ons erover vertellen. De site draait al negen jaar. Zes admin-users, drie deploy keys, een Jenkins-bak, een cron worker, en één ontwikkelaar die in maart vertrok en misschien nog een sleutel heeft. Geen van de applicatielogs toont de wijziging. De web access log is schoon. De enige plek waar de wijziging met zekerheid bestaat, is de MySQL binary log. Dit is de post die ik al lang van plan was te schrijven voor precies dat moment. Een veldgids voor de row-format events die mysqlbinlog wegschrijft, zodat je de rij, het tijdstip, de connectie en idealiter de mens erachter kunt vinden zonder drie uur kwijt te zijn aan het format vanaf nul leren. De vier events die de wijziging dragen Als je server draait met binlog_format=ROW (de standaard sinds MySQL 5.7), wordt elke datawijziging weggeschreven als een kleine reeks event-types. Ze komen in paren: één descriptor, één payload. TABLE_MAP_EVENT : benoemt de tabel en de kolomtypes van de rijen die zo gaan komen. Zonder dit zijn de payload-events anonieme bytes. WRITE_ROWS_EVENT : de rij-image van één of meer INSERT s. UPDATE_ROWS_EVENT : zowel de BEFORE- als AFTER-image van één of meer UPDATE s. DELETE_ROWS_EVENT : de rij-image van één of meer DELETE s. Elk paar zit in een transactie-wrapper. Een GTID -event (of een ANONYMOUS_GTID -event), dan een QUERY -event met BEGIN , dan de rijen, dan een XID -event dat het commit. In de wrapper zitten de timestamps, het server id en het thread id. In de payload zit de data. Je hebt beide helften nodig om één write te begrijpen. Het commando dat je echt wilt De mysqlbinlog reference noemt een dozijn flag-varianten. In de praktijk wil je één basisrecept en pas je het venster aan. Ga ervan uit dat de binlog-bestanden in /var/log/mysql/ staan en roteren als mysql-bin.000142 : mysqlbinlog \\ --base64-output=DECODE-ROWS \\ --verbose \\ --start-datetime=\"2026-06-10 23:30:00\" \\ --stop-datetime=\"2026-06-10 23:45:00\" \\ /var/log/mysql/mysql-bin.000142 \\ > /tmp/window.sql Twee flags doen het meeste werk. --base64-output=DECODE-ROWS zegt tegen mysqlbinlog dat het de ruwe base64-blobs waarin ROW-events zijn opgeslagen niet moet printen; zonder die flag is het bestand onleesbaar. --verbose zorgt dat het naast elk event pseudo-SQL als commentaar uitspuugt, zodat je kunt zien welke rij is gewijzigd en wat de waarden ervoor en erna waren. Sla --start-datetime niet over op een drukke server. Eén binlog kan een gigabyte zijn, en de pseudo-SQL waarnaar het uitvouwt is veel groter. Als je het venster niet weet, draai dan eerst SHOW BINARY LOGS en versmal per bestand vóór je per tijd versmalt. De pseudo-SQL lezen In het venster-bestand zie je blokken zoals dit: #260610 23:41:18 server id 1 end_log_pos 38421 CRC32 0x9af13c20 # Update_rows: table id 142 flags: STMT_END_F ### UPDATE `wp_db`.`wp_options` ### WHERE ### @1=1 /* INT meta=0 nullable=0 is_null=0 */ ### @2='siteurl' /* VARSTRING(192) meta=192 nullable=0 is_null=0 */ ### @3='https://klant.example/' /* VARSTRING(255) meta=255 ... */ ### @4='yes' /* ENUM(1 byte) meta=63233 ... */ ### SET ### @1=1 ### @2='siteurl' ### @3='https://wp-content-cdn.click/' ### @4='yes' Een paar dingen om op te merken. De kolomnamen zijn @1, @2, @3, @4 . mysqlbinlog kent je schema niet. Het TABLE_MAP_EVENT geeft alleen ordinale posities en types, dus die map je zelf terug met een snelle DESCRIBE wp_options; . Hier is @1 dus option_id , @2 is option_name , @3 is option_value en @4 is autoload . Het WHERE -blok is de BEFORE-image. Standaard schrijft MySQL de volledige rij-image weg, en dat is precies wat je wilt tijdens forensisch werk. Zie je ooit alleen de primary key in WHERE , dan draait je server met binlog_row_image=MINIMAL en is het meeste bewijs verdampt. Check het met SHOW VARIABLES LIKE 'binlog_row_image'; en zet het op FULL voor alles dat klantgericht is. De timestamp in de header is de commit-tijd, in de lokale tijdzone van de server. Het server id is het MySQL-replicatie-id, wat ertoe doet wanneer je een write achternazit die via een replica binnenkwam in plaats van vanaf je applicatieserver. De verdachte versmallen Het row-event vertelt je wat er is veranderd. Om te weten wie, kijk je naar de transactie-wrapper een paar regels hoger: #260610 23:41:18 server id 1 end_log_pos 38302 # GTID last_committed=812 sequence_number=813 ... SET @@SESSION.GTID_NEXT= 'a3f1c2d4-...:1042'/*!*/; #260610 23:41:18 server id 1 end_log_pos 38380 # Query thread_id=4471 exec_time=0 error_code=0 SET TIMESTAMP=1812844878/*!*/; BEGIN /*!*/; Die thread_id=4471 is goud waard. Als je MySQL draait met performance_schema aan (de standaard), en je hebt het incident betr",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"mysqlbinlog row events lezen: een praktische veldgids","item":"https://pier.abn.company/nl/blog/reading-mysqlbinlog-row-events/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat doet --base64-output=DECODE-ROWS precies?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Het zegt tegen mysqlbinlog dat het row-events moet uitspugen als leesbare pseudo-SQL-commentaren in plaats van de ruwe base64-encoded payload. Zonder die flag is het dump-bestand onleesbaar."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom heten de kolommen @1, @2 in de output?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "mysqlbinlog ziet alleen ordinale posities en types uit het TABLE_MAP_EVENT, niet het schema. Draai DESCRIBE op de tabel om @1, @2, @3 terug te koppelen aan echte kolomnamen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik de gebruiker die een UPDATE draaide identificeren uit alleen de binlog?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Je krijgt thread_id, server_id, GTID en timestamp. De aansluitende user en host leven in performance_schema of de general log, dus je hebt meestal beide bronnen nodig om een mens te benoemen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 106</span>
+      </div>
+      <p class="eyebrow"><span class="n">106 —</span>Databases</p>
+      <h1 class="display-l post-title">mysqlbinlog row events lezen: een praktische veldgids</h1>
+      <p class="lede post-lede">Om 23:41 pingt een agency-lead: iemand swapte wp_options.siteurl, de weblogs zijn schoon. Zo lees je mysqlbinlog row events en vind je ze terug.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T02:12:44.738Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/reading-mysqlbinlog-row-events/hero.webp" type="image/webp">
+      <img src="/blog/reading-mysqlbinlog-row-events/hero.jpg" alt="Bovenaanzicht op beige linnen: mysqlbinlog-vel, wp_options-mapje, indexkaart, messing ROW-plaatje, vulpen, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 106</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 dropt een agency-lead een Loom in ons gedeelde kanaal. Twee minuten van iemand die door de WordPress-admin van een Nederlandse retailer scrollt. De site laadt assets vanaf het verkeerde domein. <a href="https://codex.wordpress.org/Database_Description"><code>wp_options.siteurl</code></a> is omgezet naar een door de aanvaller gecontroleerde URL, en de vraag aan de lijn is simpel: welk proces heeft het gedaan, wanneer, en wat kan mysqlbinlog ons erover vertellen.</p>
+
+<p>De site draait al negen jaar. Zes admin-users, drie deploy keys, een Jenkins-bak, een cron worker, en één ontwikkelaar die in maart vertrok en misschien nog een sleutel heeft. Geen van de applicatielogs toont de wijziging. De web access log is schoon. De enige plek waar de wijziging met zekerheid bestaat, is de MySQL binary log.</p>
+
+<p>Dit is de post die ik al lang van plan was te schrijven voor precies dat moment. Een veldgids voor de row-format events die <code>mysqlbinlog</code> wegschrijft, zodat je de rij, het tijdstip, de connectie en idealiter de mens erachter kunt vinden zonder drie uur kwijt te zijn aan het format vanaf nul leren.</p>
+
+<h2>De vier events die de wijziging dragen</h2>
+
+<p>Als je server draait met <code>binlog_format=ROW</code> (de standaard sinds MySQL 5.7), wordt elke datawijziging weggeschreven als een kleine reeks event-types. Ze komen in paren: één descriptor, één payload.</p>
+
+<ul>
+  <li><strong>TABLE_MAP_EVENT</strong>: benoemt de tabel en de kolomtypes van de rijen die zo gaan komen. Zonder dit zijn de payload-events anonieme bytes.</li>
+  <li><strong>WRITE_ROWS_EVENT</strong>: de rij-image van één of meer <code>INSERT</code>s.</li>
+  <li><strong>UPDATE_ROWS_EVENT</strong>: zowel de BEFORE- als AFTER-image van één of meer <code>UPDATE</code>s.</li>
+  <li><strong>DELETE_ROWS_EVENT</strong>: de rij-image van één of meer <code>DELETE</code>s.</li>
+</ul>
+
+<p>Elk paar zit in een transactie-wrapper. Een <code>GTID</code>-event (of een <code>ANONYMOUS_GTID</code>-event), dan een <code>QUERY</code>-event met <code>BEGIN</code>, dan de rijen, dan een <code>XID</code>-event dat het commit. In de wrapper zitten de timestamps, het server id en het thread id. In de payload zit de data. Je hebt beide helften nodig om één write te begrijpen.</p>
+
+<h2>Het commando dat je echt wilt</h2>
+
+<p>De <a href="https://dev.mysql.com/doc/refman/8.0/en/mysqlbinlog.html">mysqlbinlog reference</a> noemt een dozijn flag-varianten. In de praktijk wil je één basisrecept en pas je het venster aan. Ga ervan uit dat de binlog-bestanden in <code>/var/log/mysql/</code> staan en roteren als <code>mysql-bin.000142</code>:</p>
+
+<pre><code class="lang-bash">mysqlbinlog \
+  --base64-output=DECODE-ROWS \
+  --verbose \
+  --start-datetime="2026-06-10 23:30:00" \
+  --stop-datetime="2026-06-10 23:45:00" \
+  /var/log/mysql/mysql-bin.000142 \
+  &gt; /tmp/window.sql</code></pre>
+
+<p>Twee flags doen het meeste werk. <code>--base64-output=DECODE-ROWS</code> zegt tegen mysqlbinlog dat het de ruwe base64-blobs waarin ROW-events zijn opgeslagen niet moet printen; zonder die flag is het bestand onleesbaar. <code>--verbose</code> zorgt dat het naast elk event pseudo-SQL als commentaar uitspuugt, zodat je kunt zien welke rij is gewijzigd en wat de waarden ervoor en erna waren.</p>
+
+<p>Sla <code>--start-datetime</code> niet over op een drukke server. Eén binlog kan een gigabyte zijn, en de pseudo-SQL waarnaar het uitvouwt is veel groter. Als je het venster niet weet, draai dan eerst <code>SHOW BINARY LOGS</code> en versmal per bestand vóór je per tijd versmalt.</p>
+
+<h2>De pseudo-SQL lezen</h2>
+
+<p>In het venster-bestand zie je blokken zoals dit:</p>
+
+<pre><code class="lang-sql">#260610 23:41:18 server id 1  end_log_pos 38421 CRC32 0x9af13c20
+#       Update_rows: table id 142 flags: STMT_END_F
+### UPDATE `wp_db`.`wp_options`
+### WHERE
+###   @1=1 /* INT meta=0 nullable=0 is_null=0 */
+###   @2='siteurl' /* VARSTRING(192) meta=192 nullable=0 is_null=0 */
+###   @3='https://klant.example/' /* VARSTRING(255) meta=255 ... */
+###   @4='yes' /* ENUM(1 byte) meta=63233 ... */
+### SET
+###   @1=1
+###   @2='siteurl'
+###   @3='https://wp-content-cdn.click/'
+###   @4='yes'</code></pre>
+
+<p>Een paar dingen om op te merken.</p>
+
+<p>De kolomnamen zijn <code>@1, @2, @3, @4</code>. mysqlbinlog kent je schema niet. Het TABLE_MAP_EVENT geeft alleen ordinale posities en types, dus die map je zelf terug met een snelle <code>DESCRIBE wp_options;</code>. Hier is <code>@1</code> dus <code>option_id</code>, <code>@2</code> is <code>option_name</code>, <code>@3</code> is <code>option_value</code> en <code>@4</code> is <code>autoload</code>.</p>
+
+<p>Het <code>WHERE</code>-blok is de BEFORE-image. Standaard schrijft MySQL de volledige rij-image weg, en dat is precies wat je wilt tijdens forensisch werk. Zie je ooit alleen de primary key in <code>WHERE</code>, dan draait je server met <a href="https://dev.mysql.com/doc/refman/8.0/en/replication-options-binary-log.html#sysvar_binlog_row_image"><code>binlog_row_image=MINIMAL</code></a> en is het meeste bewijs verdampt. Check het met <code>SHOW VARIABLES LIKE 'binlog_row_image';</code> en zet het op <code>FULL</code> voor alles dat klantgericht is.</p>
+
+<p>De timestamp in de header is de commit-tijd, in de lokale tijdzone van de server. Het <code>server id</code> is het MySQL-replicatie-id, wat ertoe doet wanneer je een write achternazit die via een replica binnenkwam in plaats van vanaf je applicatieserver.</p>
+
+<h2>De verdachte versmallen</h2>
+
+<p>Het row-event vertelt je wat er is veranderd. Om te weten wie, kijk je naar de transactie-wrapper een paar regels hoger:</p>
+
+<pre><code class="lang-sql">#260610 23:41:18 server id 1  end_log_pos 38302
+#       GTID last_committed=812 sequence_number=813 ...
+SET @@SESSION.GTID_NEXT= 'a3f1c2d4-...:1042'/*!*/;
+#260610 23:41:18 server id 1  end_log_pos 38380
+#       Query   thread_id=4471  exec_time=0   error_code=0
+SET TIMESTAMP=1812844878/*!*/;
+BEGIN
+/*!*/;</code></pre>
+
+<p>Die <code>thread_id=4471</code> is goud waard. Als je MySQL draait met <a href="https://dev.mysql.com/doc/refman/8.0/en/performance-schema-threads-table.html"><code>performance_schema</code></a> aan (de standaard), en je hebt het incident betrapt binnen de levensduur van de connectie, kun je het correleren met <code>performance_schema.threads</code> en zo de aansluitende user, host en programmanaam zien. In de praktijk is de connectie meestal allang weg tegen de tijd dat iemand de binlogs leest, dus val je terug op de slow query log of de general log, als die liepen.</p>
+
+<p>De <code>exec_time</code> is de wall time van het statement op de bron. Een single-row <code>UPDATE</code> met <code>exec_time=0</code> vanaf een thread die alleen dat ene statement uitvoerde, is de handtekening van een script, niet van een admin die in phpMyAdmin rondklikt. Dat detail alleen al versmalde ons 23:41-incident van zes admins naar één deploy key, die achttien maanden eerder gekopieerd was naar een ongerelateerde GitHub Action en daarna vergeten.</p>
+
+<aside class="callout"><strong>Let op gerepliceerde writes.</strong> Als er in je stack een read replica zit waarop iemand per ongeluk writes heeft aangezet, laat de binlog op de bron zien dat de wijziging via het replicatiekanaal binnenkwam, met een ander <code>server_id</code> dan je applicatie-traffic. Mensen missen dit en jagen urenlang op spoken in de app-logs.</aside>
+
+<h2>Wanneer ROW-format niet genoeg is</h2>
+
+<p>Twee situaties waarin de row-events je tekort doen.</p>
+
+<p>Ten eerste: <code>binlog_row_image=MINIMAL</code>. Sommige hostingmaatschappijen leveren MySQL-configs die op replicatie-throughput zijn afgestemd in plaats van op auditbaarheid. Het <code>WHERE</code>-blok bij elke update is dan alleen de primary key en het <code>SET</code>-blok alleen de gewijzigde kolommen. Je ziet wel wat de nieuwe waarde is, maar niet wat het verving. Draai je een <a href="/">legacy site</a> voor andermans geld, zet dit dan op <code>FULL</code>.</p>
+
+<p>Ten tweede: <code>DELETE_ROWS_EVENT</code> op een soft-deleted tabel. De rij-image staat in de binlog, dus je kunt de data herstellen, maar je moet de <code>INSERT</code>-statement met de hand reconstrueren uit de <code>@1, @2, @3</code>-toewijzingen. Eén keer oefenen op een staging-dump voordat je het om 02:00 nodig hebt, is de moeite waard.</p>
+
+<p>Voor schemawijzigingen zijn ROW-events stil. Die gaan door als <code>QUERY</code>-events met de letterlijke DDL-string, dus <code>grep -E 'ALTER|DROP|CREATE' window.sql</code> werkt nog steeds als eerste pass wanneer iemand zegt: "de tabel is gewoon verdwenen".</p>
+
+<h2>Hoe dit eruitziet in ons eigen werk</h2>
+
+<p>Toen we Pier bouwden, was precies dit scenario de reden dat de <a href="/#database">MySQL editor</a> standaard met een <a href="/#features">version history</a> op rij-niveau wordt geleverd. We wilden dat de agency-lead om 23:41 door de writes van een enkele rij kon scrollen zonder terminal en zonder SSH-hop. De binlog blijft de canonieke bron van waarheid; Pier maakt het gangbare geval (één rij, laatste dertig dagen) één klik in plaats van drie commando's.</p>
+
+<p>Het kleinste ding voor vandaag: draai <code>SHOW VARIABLES LIKE 'binlog_row_image';</code> op de productie-database van je drukste <a href="/">legacy site</a>. Geeft het <code>MINIMAL</code> terug, zet het dan vanavond op <code>FULL</code> in <code>my.cnf</code> en herstart de server tijdens je volgende onderhoudsvenster. De volgende keer dat iemand vraagt wie wat heeft veranderd, heb je een antwoord in plaats van een schouderophalen.</p>
+    </div>
+
+    <aside class="pullquote">Row-format binlog-events vertellen je wat er is veranderd en wanneer; ze koppelen aan thread_id, performance_schema en de slow log vertelt je wie.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat doet --base64-output=DECODE-ROWS precies?</p>
+      <p class="faq-a">Het zegt tegen mysqlbinlog dat het row-events moet uitspugen als leesbare pseudo-SQL-commentaren in plaats van de ruwe base64-encoded payload. Zonder die flag is het dump-bestand onleesbaar.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom heten de kolommen @1, @2 in de output?</p>
+      <p class="faq-a">mysqlbinlog ziet alleen ordinale posities en types uit het TABLE_MAP_EVENT, niet het schema. Draai DESCRIBE op de tabel om @1, @2, @3 terug te koppelen aan echte kolomnamen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik de gebruiker die een UPDATE draaide identificeren uit alleen de binlog?</p>
+      <p class="faq-a">Je krijgt thread_id, server_id, GTID en timestamp. De aansluitende user en host leven in performance_schema of de general log, dus je hebt meestal beide bronnen nodig om een mens te benoemen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-users-sql-real-logins/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-users-sql-real-logins/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-users-sql-real-logins/hero.jpg" alt="Bovenaanzicht op linnen: SQL-werkblad, wp_users-tabeluitdraai, manilamap, indexkaarten, messing plaatje, pen, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>wp_users SQL: drie queries die tonen wie echt inlogt</h3>
+      <span class="pc-lede">412 rijen in wp_users betekent niet 412 inloggers. Drie SQL-queries op wp_usermeta tonen wie er echt komt, wie sluimert en wie risico vormt.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>WordPress-audit in SQL: acht snippets uit ons spiekbriefje</h3>
+      <span class="pc-lede">De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/reading-mysqlbinlog-row-events/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
