@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Inheriting a legacy site: the one-page handover audit · Pier — Blog</title>
+<meta name="description" content="You inherited a WordPress site from another agency. The code looks fine. Then the SSL silently fails on a server nobody mentioned. Here is the audit we run.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, operations, migration, security, tooling, wordpress">
+
+<link rel="canonical" href="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Inheriting a legacy site: the one-page handover audit">
+<meta property="og:description" content="You inherited a WordPress site from another agency. The code looks fine. Then the SSL silently fails on a server nobody mentioned. Here is the audit we run.">
+<meta property="og:url" content="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<meta property="og:image" content="https://pier.abn.company/blog/legacy-site-handover-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/legacy-site-handover-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead shot of inked handover audit checklist, manila folder, WHOIS slip, brass plate, tagged keys, wax-sealed inventory on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T15:07:35.786Z">
+<meta property="article:modified_time" content="2026-06-11T15:07:35.786Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="wordpress">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Inheriting a legacy site: the one-page handover audit">
+<meta name="twitter:description" content="You inherited a WordPress site from another agency. The code looks fine. Then the SSL silently fails on a server nobody mentioned. Here is the audit we run.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/legacy-site-handover-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead shot of inked handover audit checklist, manila folder, WHOIS slip, brass plate, tagged keys, wax-sealed inventory on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/legacy-site-handover-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/legacy-site-handover-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/legacy-site-handover-audit/"},
+  "url":"https://pier.abn.company/blog/legacy-site-handover-audit/",
+  "headline":"Inheriting a legacy site: the one-page handover audit",
+  "description":"You inherited a WordPress site from another agency. The code looks fine. Then the SSL silently fails on a server nobody mentioned. Here is the audit we run.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/legacy-site-handover-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead shot of inked handover audit checklist, manila folder, WHOIS slip, brass plate, tagged keys, wax-sealed inventory on linen."
+  },
+  "datePublished":"2026-06-11T15:07:35.786Z",
+  "dateModified":"2026-06-11T15:07:35.786Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"workflow, operations, migration, security, tooling, wordpress",
+  "wordCount":1314,
+  "articleSection":"Workflow",
+  "articleBody":"It is Wednesday morning. A founder forwards you a Notion doc titled \"Handover: WordPress site.\" Inside is an admin password, an SFTP login, and a Stripe support email that bounces. You accept the engagement. Six weeks later the TLS certificate silently fails because the certbot cron sits on a staging server nobody told you existed. Inheriting a legacy site from another agency almost never goes wrong on the code. It goes wrong on the periphery: the registrar account whose 2FA is bound to a phone number that is now disconnected, the webhook URL still pointing at the previous agency's relay, the premium plugin whose annual key expires in eleven days. This post is the one-page audit checklist we run on every handover. Print it, fill it in before you touch a single file. The five domains that always go missing Every handover has the same hollow centre. The repo is on the desk; the rest is a treasure hunt. The five categories below cover roughly 90% of what we see lost during transitions: repos, DNS, mail, payments, and licenses. Treat the audit as a single sitting (60 to 90 minutes, ideally with the outgoing party on a call) rather than a slow drip over weeks. People forget; calendars vanish; outgoing contacts leave their jobs and stop replying within ten days. Repos and the deploy chain Start with the code, because it is the easiest thing to verify. Ask for the URL, then ask which branch is actually deployed. They are not always the same. Git host and organisation (GitHub, GitLab, Bitbucket, self-hosted Gitea) Ownership transferred, or at minimum a permanent admin seat on the org Branch protection rules currently in force on main or production Deploy keys still listed in ~/.ssh/authorized_keys on the production box CI secrets (Actions secrets, GitLab CI variables) and what each one actually unlocks Container registry credentials if there are images involved Run this on the server before you trust the README: grep -rE \"ssh-(rsa|ed25519)\" ~/.ssh/authorized_keys ls -la /etc/cron.d /etc/cron.daily /etc/cron.hourly crontab -l sudo crontab -l Anything you do not recognise gets logged, not deleted, until you understand it. A cron job you killed in week one is often the nightly database dump. DNS, mail, and the registrar The registrar is the single most common point of failure. It is frequently a different vendor from the host (the host is GoDaddy, the DNS is on Cloudflare, the mail is on Microsoft 365), and the account is bound to whoever first registered the domain in 2014. Half the time, that person has left the client's company. Registrar login, with 2FA migrated to a device the client owns Authoritative nameservers (run dig NS and confirm against documentation) Every published record: A, AAAA, CNAME, MX, TXT, CAA SPF, DKIM, and DMARC alignment all valid Transactional mail provider (Postmark, Mailgun, SendGrid) and the API keys Mailbox passwords or app passwords for any address the site sends from A quick set of dig probes will tell you whether the published DNS matches the documented intent: dig +short MX example.com dig +short TXT example.com | grep -i spf dig +short TXT _dmarc.example.com dig +short TXT default._domainkey.example.com If v=spf1 includes a relay you have never heard of, ask who sends mail on behalf of the domain before you remove it. Calendar invites, password resets, and Stripe receipts often go through forwarders the outgoing team forgot to mention. The SPF RFC is the reference text if you need to defend a change against a confused client. Payments and the webhook graveyard This is the section where the previous agency's leftover infrastructure quietly bills the new client. Webhook endpoints persist. Connected Stripe accounts persist. Sometimes a refund flow still routes through an AWS Lambda the outgoing team's CTO wrote on a Saturday in 2021. Stripe, PayPal, Mollie, or Adyen account ownership transferred to the client's legal entity Live and test API keys rotated on handover day, not the next morning Every webhook endpoint URL audited, and the host confirmed Stripe Connect connected accounts reviewed, if it is a marketplace Tax IDs, VAT registrations, and KYB documents on file under the right entity Webhook URLs are the silent killer. Open the Stripe dashboard's Developers, Webhooks tab and confirm every endpoint resolves to a host the client controls. We have seen handovers where the previous agency's staging URL was still receiving live charge.succeeded events for eighteen months after the agency was fired. License keys and silent expirations Every legacy CMS site is wearing a coat of premium plugins, and most of those plugins phone home to a license server. When the license lapses, updates stop. When updates stop, security patches stop. Six months later you are sitting on a CVE you cannot patch because the agency that bought the seat has disappeared and the renewal card belongs to a former employee. WordPress: ACF Pro, Gravity Forms, WP Rocket, Yoast Premium, WPML Drupal: Acquia subscriptio",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/legacy-site-handover-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Inheriting a legacy site: the one-page handover audit","item":"https://pier.abn.company/blog/legacy-site-handover-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What if the previous agency refuses to hand over the registrar account?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Document the refusal in writing, then initiate an ICANN transfer-out using the client's authority as the registrant of record. Expect 5 to 7 days and a brief outage window on email."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I rotate Stripe webhooks without breaking live payments?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add the new endpoint alongside the old one, confirm it receives a test event, watch live traffic on both for 24 hours, then disable the old endpoint. Never delete; disable, so you can roll back."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which premium plugin licenses are highest priority on a WordPress inheritance?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Anything that ships authentication, payments, or forms: WPML, Gravity Forms, WooCommerce extensions, and ACF Pro. These break the site loudly when updates stall."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I run the audit before or after the contract is signed?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Before. The audit findings are the scope. Signing first means inheriting unknown remediation work at a fixed fee. Quote the audit itself as a paid discovery engagement."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/legacy-site-handover-audit/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 121</span>
+      </div>
+      <p class="eyebrow"><span class="n">121 —</span>Workflow</p>
+      <h1 class="display-l post-title">Inheriting a legacy site: the one-page handover audit</h1>
+      <p class="lede post-lede">You inherited a WordPress site from another agency. The code looks fine. Then the SSL silently fails on a server nobody mentioned. Here is the audit we run.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T15:07:35.786Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/legacy-site-handover-audit/hero.webp" type="image/webp">
+      <img src="/blog/legacy-site-handover-audit/hero.jpg" alt="Overhead shot of inked handover audit checklist, manila folder, WHOIS slip, brass plate, tagged keys, wax-sealed inventory on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 121</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>It is Wednesday morning. A founder forwards you a Notion doc titled "Handover: WordPress site." Inside is an admin password, an SFTP login, and a Stripe support email that bounces. You accept the engagement. Six weeks later the TLS certificate silently fails because the certbot cron sits on a staging server nobody told you existed.</p>
+
+<p>Inheriting a <a href="/">legacy site</a> from another agency almost never goes wrong on the code. It goes wrong on the periphery: the registrar account whose 2FA is bound to a phone number that is now disconnected, the webhook URL still pointing at the previous agency's relay, the premium plugin whose annual key expires in eleven days. This post is the one-page audit checklist we run on every handover. Print it, fill it in before you touch a single file.</p>
+
+<h2>The five domains that always go missing</h2>
+
+<p>Every handover has the same hollow centre. The repo is on the desk; the rest is a treasure hunt. The five categories below cover roughly 90% of what we see lost during transitions: repos, DNS, mail, payments, and licenses. Treat the audit as a single sitting (60 to 90 minutes, ideally with the outgoing party on a call) rather than a slow drip over weeks. People forget; calendars vanish; outgoing contacts leave their jobs and stop replying within ten days.</p>
+
+<h2>Repos and the deploy chain</h2>
+
+<p>Start with the code, because it is the easiest thing to verify. Ask for the URL, then ask which branch is actually deployed. They are not always the same.</p>
+
+<ul>
+  <li>Git host and organisation (GitHub, GitLab, Bitbucket, self-hosted Gitea)</li>
+  <li>Ownership transferred, or at minimum a permanent admin seat on the org</li>
+  <li>Branch protection rules currently in force on <code>main</code> or <code>production</code></li>
+  <li>Deploy keys still listed in <code>~/.ssh/authorized_keys</code> on the production box</li>
+  <li>CI secrets (Actions secrets, GitLab CI variables) and what each one actually unlocks</li>
+  <li>Container registry credentials if there are images involved</li>
+</ul>
+
+<p>Run this on the server before you trust the README:</p>
+
+<pre><code class="lang-bash">grep -rE "ssh-(rsa|ed25519)" ~/.ssh/authorized_keys
+ls -la /etc/cron.d /etc/cron.daily /etc/cron.hourly
+crontab -l
+sudo crontab -l
+</code></pre>
+
+<p>Anything you do not recognise gets logged, not deleted, until you understand it. A cron job you killed in week one is often the nightly database dump.</p>
+
+<h2>DNS, mail, and the registrar</h2>
+
+<p>The registrar is the single most common point of failure. It is frequently a different vendor from the host (the host is GoDaddy, the DNS is on Cloudflare, the mail is on Microsoft 365), and the account is bound to whoever first registered the domain in 2014. Half the time, that person has left the client's company.</p>
+
+<ul>
+  <li>Registrar login, with 2FA migrated to a device the client owns</li>
+  <li>Authoritative nameservers (run <code>dig NS</code> and confirm against documentation)</li>
+  <li>Every published record: A, AAAA, CNAME, MX, TXT, CAA</li>
+  <li>SPF, DKIM, and DMARC alignment all valid</li>
+  <li>Transactional mail provider (Postmark, Mailgun, SendGrid) and the API keys</li>
+  <li>Mailbox passwords or app passwords for any address the site sends from</li>
+</ul>
+
+<p>A quick set of dig probes will tell you whether the published DNS matches the documented intent:</p>
+
+<pre><code class="lang-bash">dig +short MX example.com
+dig +short TXT example.com | grep -i spf
+dig +short TXT _dmarc.example.com
+dig +short TXT default._domainkey.example.com
+</code></pre>
+
+<p>If <code>v=spf1</code> includes a relay you have never heard of, ask who sends mail on behalf of the domain before you remove it. Calendar invites, password resets, and Stripe receipts often go through forwarders the outgoing team forgot to mention. The <a href="https://datatracker.ietf.org/doc/html/rfc7208">SPF RFC</a> is the reference text if you need to defend a change against a confused client.</p>
+
+<h2>Payments and the webhook graveyard</h2>
+
+<p>This is the section where the previous agency's leftover infrastructure quietly bills the new client. Webhook endpoints persist. Connected Stripe accounts persist. Sometimes a refund flow still routes through an AWS Lambda the outgoing team's CTO wrote on a Saturday in 2021.</p>
+
+<ul>
+  <li>Stripe, PayPal, Mollie, or Adyen account ownership transferred to the client's legal entity</li>
+  <li>Live and test API keys rotated on handover day, not the next morning</li>
+  <li>Every webhook endpoint URL audited, and the host confirmed</li>
+  <li>Stripe Connect connected accounts reviewed, if it is a marketplace</li>
+  <li>Tax IDs, VAT registrations, and KYB documents on file under the right entity</li>
+</ul>
+
+<aside class="callout">Webhook URLs are the silent killer. Open the Stripe dashboard's <a href="https://docs.stripe.com/webhooks">Developers, Webhooks</a> tab and confirm every endpoint resolves to a host the client controls. We have seen handovers where the previous agency's staging URL was still receiving live <code>charge.succeeded</code> events for eighteen months after the agency was fired.</aside>
+
+<h2>License keys and silent expirations</h2>
+
+<p>Every legacy CMS site is wearing a coat of premium plugins, and most of those plugins phone home to a license server. When the license lapses, updates stop. When updates stop, security patches stop. Six months later you are sitting on a CVE you cannot patch because the agency that bought the seat has disappeared and the renewal card belongs to a former employee.</p>
+
+<ul>
+  <li>WordPress: ACF Pro, Gravity Forms, WP Rocket, Yoast Premium, WPML</li>
+  <li>Drupal: Acquia subscriptions, paid distributions, commercial modules</li>
+  <li>Magento / Adobe Commerce: marketplace extensions, the Adobe ID, the MAGE keys</li>
+  <li>CDN: Cloudflare paid features, Bunny, Fastly</li>
+  <li>Monitoring: Sentry, Datadog, Better Stack</li>
+  <li>Backups: BlogVault, ManageWP, Jetpack VaultPress</li>
+</ul>
+
+<p>For each one, four columns: who owns the seat, what email it is registered to, when it renews, and how the renewal is paid. Cards stored on file are often the agency's, not the client's. Plan the swap before the auto-renew fires.</p>
+
+<h2>The one-page sheet</h2>
+
+<p>The whole point of the audit is that it fits on a single page. Anything longer gets skimmed; anything shorter misses a column. The format we use looks roughly like this:</p>
+
+<pre><code class="lang-yaml">repos:
+  host: github.com/clientorg
+  admin_transferred: yes
+  ci_secrets_rotated: 2026-06-11
+dns:
+  registrar: gandi.net
+  registrar_2fa: yubikey-A
+  nameservers: cloudflare
+mail:
+  mx: google workspace
+  spf: ok
+  dkim: rotated 2026-06-11
+  transactional: postmark (key rotated)
+payments:
+  processor: stripe
+  webhooks_audited: yes
+  account_owner: client
+licenses:
+  acf_pro: client@example.com, renews 2027-02
+  gravity_forms: client@example.com, renews 2027-04
+  wp_rocket: client@example.com, renews 2026-09
+</code></pre>
+
+<p>Three columns per row: what it is, who owns it now, when it next needs attention. Anything that fails the audit goes into a remediation list with a deadline. Anything green is dated.</p>
+
+<h2>When the audit fails</h2>
+
+<p>You will find gaps. The previous agency will not return your emails about a Cloudflare account. The Stripe webhook will still point at <code>old-agency.com/relay</code>. The MX record will list a mail provider nobody at the client recognises. Treat these as bugs with severity tags:</p>
+
+<ul>
+  <li>P0 (do today): production payment flows touching an unknown endpoint</li>
+  <li>P1 (this week): expiring TLS certificates, mail authentication failing</li>
+  <li>P2 (this month): unowned premium plugin licenses</li>
+  <li>P3 (next quarter): tidying up unused CI secrets and dormant cron jobs</li>
+</ul>
+
+<p>The point of severity tags is not to look organised in a Linear board. It is so the client sees the cost of inheritance clearly: this is what happens when a site moves agencies without a checklist. The work has a name and a price.</p>
+
+<h2>Editing live while you audit</h2>
+
+<p>The audit creates a paradox. You are not yet sure what the deploy chain is, but the client wants a copy update on the homepage by Friday. Pushing to a repo you have not fully mapped is the fastest way to break something subtle: a cache key, a feature flag, a CDN purge hook.</p>
+
+<p>When we built Pier we ran into this exact thing on nearly every customer dock. The way we ended up handling it was to make every save versioned by default, so the worst case during a half-mapped handover is one click of <a href="/#features">version history</a> back to a known-good state. The <a href="/#database">MySQL editor</a> behaves the same way: every UPDATE is a row in a journal, not a destructive action.</p>
+
+<p>The smallest thing you can do today: open a blank text file, write the five headings (repos, dns, mail, payments, licenses), and send it to your client as the handover template you will be filling in together. The rest of the audit follows from getting that page on the table.</p>
+    </div>
+
+    <aside class="pullquote">Handovers fail on the periphery, not the code: audit repos, DNS, mail, payments, and licenses on one page before you touch a single file.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">What if the previous agency refuses to hand over the registrar account?</p>
+      <p class="faq-a">Document the refusal in writing, then initiate an ICANN transfer-out using the client&#39;s authority as the registrant of record. Expect 5 to 7 days and a brief outage window on email.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I rotate Stripe webhooks without breaking live payments?</p>
+      <p class="faq-a">Add the new endpoint alongside the old one, confirm it receives a test event, watch live traffic on both for 24 hours, then disable the old endpoint. Never delete; disable, so you can roll back.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Which premium plugin licenses are highest priority on a WordPress inheritance?</p>
+      <p class="faq-a">Anything that ships authentication, payments, or forms: WPML, Gravity Forms, WooCommerce extensions, and ACF Pro. These break the site loudly when updates stall.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I run the audit before or after the contract is signed?</p>
+      <p class="faq-a">Before. The audit findings are the scope. Signing first means inheriting unknown remediation work at a fixed fee. Quote the audit itself as a paid discovery engagement.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp">
+        <img src="/blog/statamic-migration-freeze-playbook/hero.jpg" alt="Overhead photo on bone linen: freeze calendar, three stamped diff papers, .htaccess sheet, graph-paper tree, brass tag, wax seal, pen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Statamic migration freeze: a five-day editorial playbook</h3>
+      <span class="pc-lede">The staged content-freeze playbook for a five-day legacy-to-Statamic cutover: editorial lock, three diff checkpoints, the .htaccess that ships.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/transactional-email-migration-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+        <img src="/blog/transactional-email-migration-playbook/hero.jpg" alt="Overhead desk scene: SMTP run-sheet, envelope routing diagram, three manila folders, brass key, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Transactional email migration: keep the from-address</h3>
+      <span class="pc-lede">Your host is retiring shared SMTP in eighteen days and the from-address on three legacy sites cannot change. The playbook we ran on a Dutch agency&#39;s stack.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/legacy-site-handover-audit/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

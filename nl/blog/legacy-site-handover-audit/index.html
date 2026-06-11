@@ -1,0 +1,528 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Een verouderde site overnemen: de overdracht-audit op één pagina · Pier — Blog</title>
+<meta name="description" content="Je neemt een WordPress-site over van een ander bureau. De code oogt prima. Dan faalt het SSL stilletjes op een server die niemand noemde. Dit is de audit die wij draaien.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, operations, migration, security, tooling, wordpress">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-site-handover-audit/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-site-handover-audit/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Een verouderde site overnemen: de overdracht-audit op één pagina">
+<meta property="og:description" content="Je neemt een WordPress-site over van een ander bureau. De code oogt prima. Dan faalt het SSL stilletjes op een server die niemand noemde. Dit is de audit die wij draaien.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/legacy-site-handover-audit/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/legacy-site-handover-audit/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/legacy-site-handover-audit/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van geïnkte overdrachtschecklist, manilamap, WHOIS-strookje, messing plaatje, sleutelring en gezegelde inventaris op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T15:07:35.786Z">
+<meta property="article:modified_time" content="2026-06-11T15:07:35.786Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="wordpress">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Een verouderde site overnemen: de overdracht-audit op één pagina">
+<meta name="twitter:description" content="Je neemt een WordPress-site over van een ander bureau. De code oogt prima. Dan faalt het SSL stilletjes op een server die niemand noemde. Dit is de audit die wij draaien.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/legacy-site-handover-audit/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van geïnkte overdrachtschecklist, manilamap, WHOIS-strookje, messing plaatje, sleutelring en gezegelde inventaris op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/legacy-site-handover-audit/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/legacy-site-handover-audit/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/legacy-site-handover-audit/"},
+  "url":"https://pier.abn.company/nl/blog/legacy-site-handover-audit/",
+  "headline":"Een verouderde site overnemen: de overdracht-audit op één pagina",
+  "description":"Je neemt een WordPress-site over van een ander bureau. De code oogt prima. Dan faalt het SSL stilletjes op een server die niemand noemde. Dit is de audit die wij draaien.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/legacy-site-handover-audit/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van geïnkte overdrachtschecklist, manilamap, WHOIS-strookje, messing plaatje, sleutelring en gezegelde inventaris op linnen."
+  },
+  "datePublished":"2026-06-11T15:07:35.786Z",
+  "dateModified":"2026-06-11T15:07:35.786Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, operations, migration, security, tooling, wordpress",
+  "wordCount":1338,
+  "articleSection":"Workflow",
+  "articleBody":"Het is woensdagochtend. Een founder stuurt je een Notion-document door met de titel \"Overdracht: WordPress-site\". Erin: een admin-wachtwoord, een SFTP-login en een Stripe-support-adres dat bounced. Je neemt de opdracht aan. Zes weken later faalt het TLS-certificaat stilletjes omdat de certbot-cron draait op een staging-server waar niemand je over heeft verteld. Het overnemen van een legacy site van een ander bureau gaat bijna nooit mis op de code. Het gaat mis aan de randen: het registrar-account waarvan de 2FA gekoppeld is aan een telefoonnummer dat inmiddels is afgesloten, de webhook-URL die nog steeds wijst naar de relay van het vorige bureau, de premium plugin waarvan de jaarlijkse key over elf dagen verloopt. Deze post is de audit-checklist van één pagina die wij bij elke overdracht doorlopen. Print hem uit en vul hem in voordat je ook maar één bestand aanraakt. De vijf domeinen die altijd zoek raken Elke overdracht heeft hetzelfde holle midden. De repo ligt op tafel; de rest is een schattenjacht. De vijf categorieën hieronder dekken ruwweg 90% van wat er bij overdrachten kwijtraakt: repo's, DNS, mail, betalingen en licenties. Behandel de audit als één zitting (60 tot 90 minuten, idealiter met de vertrekkende partij aan de lijn) in plaats van een traag druppeltje over weken. Mensen vergeten dingen; agenda's verdwijnen; vertrekkende contactpersonen verlaten hun baan en reageren binnen tien dagen al niet meer. Repo's en de deploy-chain Begin bij de code, want dat is het makkelijkst te verifiëren. Vraag om de URL, vraag dan welke branch er daadwerkelijk wordt gedeployed. Dat is niet altijd dezelfde. Git-host en organisatie (GitHub, GitLab, Bitbucket, self-hosted Gitea) Eigendom overgedragen, of op z'n minst een permanente admin-seat op de org Branch-protection-rules die momenteel van kracht zijn op main of production Deploy keys die nog vermeld staan in ~/.ssh/authorized_keys op de productiemachine CI-secrets (Actions secrets, GitLab CI-variabelen) en wat elk daarvan precies ontsluit Container registry-credentials als er images in het spel zijn Draai dit op de server voordat je de README vertrouwt: grep -rE \"ssh-(rsa|ed25519)\" ~/.ssh/authorized_keys ls -la /etc/cron.d /etc/cron.daily /etc/cron.hourly crontab -l sudo crontab -l Alles wat je niet herkent log je, je verwijdert het niet, totdat je begrijpt wat het doet. Een cron-job die je in week één hebt afgeschoten, blijkt vaak de nachtelijke database-dump. DNS, mail en de registrar De registrar is veruit het meest voorkomende single point of failure. Vaak is dat een andere leverancier dan de hosting (de hosting draait bij GoDaddy, de DNS bij Cloudflare, de mail bij Microsoft 365), en het account is gekoppeld aan degene die het domein in 2014 als eerste registreerde. De helft van de tijd werkt die persoon allang niet meer bij de klant. Registrar-login, met 2FA gemigreerd naar een apparaat dat de klant bezit Autoritatieve nameservers (draai dig NS en check tegen de documentatie) Elke gepubliceerde record: A, AAAA, CNAME, MX, TXT, CAA SPF, DKIM en DMARC, alle drie correct uitgelijnd Transactionele mailprovider (Postmark, Mailgun, SendGrid) en de API-keys Mailbox-wachtwoorden of app-wachtwoorden voor elk adres waar de site vanaf verstuurt Een vlugge reeks dig-probes vertelt je of de gepubliceerde DNS overeenkomt met de gedocumenteerde intentie: dig +short MX example.com dig +short TXT example.com | grep -i spf dig +short TXT _dmarc.example.com dig +short TXT default._domainkey.example.com Als v=spf1 een relay bevat waar je nog nooit van hebt gehoord, vraag dan wie er namens het domein mail verstuurt voordat je het eruit haalt. Agenda-uitnodigingen, password resets en Stripe-bonnetjes lopen vaak via forwarders die het vertrekkende team is vergeten te noemen. De SPF RFC is de referentietekst als je een wijziging moet verdedigen tegenover een verwarde klant. Betalingen en het webhook-kerkhof Dit is de sectie waarin de achtergebleven infrastructuur van het vorige bureau de nieuwe klant stilletjes blijft factureren. Webhook-endpoints blijven actief. Connected Stripe-accounts blijven actief. Soms loopt een refund-flow nog steeds via een AWS Lambda die de CTO van het vertrekkende team op een zaterdag in 2021 schreef. Eigendom van Stripe, PayPal, Mollie of Adyen overgezet op de juridische entiteit van de klant Live en test API-keys geroteerd op de dag van overdracht, niet de ochtend erna Elke webhook-endpoint-URL nagelopen, en de host bevestigd Stripe Connect connected accounts gereviewd, als het een marktplaats is BTW-nummers, fiscale registraties en KYB-documenten op naam van de juiste entiteit Webhook-URL's zijn de stille moordenaar. Open in het Stripe-dashboard het tabblad Developers, Webhooks en controleer dat elk endpoint resolved naar een host die de klant beheert. We hebben overdrachten meegemaakt waarbij de staging-URL van het vorige bureau achttien maanden na het ontslag van dat bureau nog steeds live charge.succeeded -events ontving. Licentiesleutels en st",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/legacy-site-handover-audit/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Een verouderde site overnemen: de overdracht-audit op één pagina","item":"https://pier.abn.company/nl/blog/legacy-site-handover-audit/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Wat als het vorige bureau weigert het registrar-account over te dragen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Documenteer de weigering schriftelijk en start dan een ICANN transfer-out op basis van de autoriteit van de klant als geregistreerde houder. Reken op 5 tot 7 dagen en een korte downtime op e-mail."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe roteer ik Stripe-webhooks zonder live betalingen te breken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voeg het nieuwe endpoint toe naast het oude, controleer dat het een test-event ontvangt, kijk 24 uur lang naar live verkeer op beide, en zet daarna pas het oude endpoint uit. Nooit verwijderen; uitschakelen, zodat je kunt terugrollen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Welke premium plugin-licenties hebben de hoogste prioriteit bij een WordPress-overname?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alles dat authenticatie, betalingen of formulieren raakt: WPML, Gravity Forms, WooCommerce-extensies en ACF Pro. Die breken de site luid en duidelijk zodra updates stilvallen."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/legacy-site-handover-audit/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 121</span>
+      </div>
+      <p class="eyebrow"><span class="n">121 —</span>Workflow</p>
+      <h1 class="display-l post-title">Een verouderde site overnemen: de overdracht-audit op één pagina</h1>
+      <p class="lede post-lede">Je neemt een WordPress-site over van een ander bureau. De code oogt prima. Dan faalt het SSL stilletjes op een server die niemand noemde. Dit is de audit die wij draaien.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T15:07:35.786Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/legacy-site-handover-audit/hero.webp" type="image/webp">
+      <img src="/blog/legacy-site-handover-audit/hero.jpg" alt="Bovenaanzicht van geïnkte overdrachtschecklist, manilamap, WHOIS-strookje, messing plaatje, sleutelring en gezegelde inventaris op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 121</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het is woensdagochtend. Een founder stuurt je een Notion-document door met de titel "Overdracht: WordPress-site". Erin: een admin-wachtwoord, een SFTP-login en een Stripe-support-adres dat bounced. Je neemt de opdracht aan. Zes weken later faalt het TLS-certificaat stilletjes omdat de certbot-cron draait op een staging-server waar niemand je over heeft verteld.</p>
+
+<p>Het overnemen van een <a href="/">legacy site</a> van een ander bureau gaat bijna nooit mis op de code. Het gaat mis aan de randen: het registrar-account waarvan de 2FA gekoppeld is aan een telefoonnummer dat inmiddels is afgesloten, de webhook-URL die nog steeds wijst naar de relay van het vorige bureau, de premium plugin waarvan de jaarlijkse key over elf dagen verloopt. Deze post is de audit-checklist van één pagina die wij bij elke overdracht doorlopen. Print hem uit en vul hem in voordat je ook maar één bestand aanraakt.</p>
+
+<h2>De vijf domeinen die altijd zoek raken</h2>
+
+<p>Elke overdracht heeft hetzelfde holle midden. De repo ligt op tafel; de rest is een schattenjacht. De vijf categorieën hieronder dekken ruwweg 90% van wat er bij overdrachten kwijtraakt: repo's, DNS, mail, betalingen en licenties. Behandel de audit als één zitting (60 tot 90 minuten, idealiter met de vertrekkende partij aan de lijn) in plaats van een traag druppeltje over weken. Mensen vergeten dingen; agenda's verdwijnen; vertrekkende contactpersonen verlaten hun baan en reageren binnen tien dagen al niet meer.</p>
+
+<h2>Repo's en de deploy-chain</h2>
+
+<p>Begin bij de code, want dat is het makkelijkst te verifiëren. Vraag om de URL, vraag dan welke branch er daadwerkelijk wordt gedeployed. Dat is niet altijd dezelfde.</p>
+
+<ul>
+  <li>Git-host en organisatie (GitHub, GitLab, Bitbucket, self-hosted Gitea)</li>
+  <li>Eigendom overgedragen, of op z'n minst een permanente admin-seat op de org</li>
+  <li>Branch-protection-rules die momenteel van kracht zijn op <code>main</code> of <code>production</code></li>
+  <li>Deploy keys die nog vermeld staan in <code>~/.ssh/authorized_keys</code> op de productiemachine</li>
+  <li>CI-secrets (Actions secrets, GitLab CI-variabelen) en wat elk daarvan precies ontsluit</li>
+  <li>Container registry-credentials als er images in het spel zijn</li>
+</ul>
+
+<p>Draai dit op de server voordat je de README vertrouwt:</p>
+
+<pre><code class="lang-bash">grep -rE "ssh-(rsa|ed25519)" ~/.ssh/authorized_keys
+ls -la /etc/cron.d /etc/cron.daily /etc/cron.hourly
+crontab -l
+sudo crontab -l
+</code></pre>
+
+<p>Alles wat je niet herkent log je, je verwijdert het niet, totdat je begrijpt wat het doet. Een cron-job die je in week één hebt afgeschoten, blijkt vaak de nachtelijke database-dump.</p>
+
+<h2>DNS, mail en de registrar</h2>
+
+<p>De registrar is veruit het meest voorkomende single point of failure. Vaak is dat een andere leverancier dan de hosting (de hosting draait bij GoDaddy, de DNS bij Cloudflare, de mail bij Microsoft 365), en het account is gekoppeld aan degene die het domein in 2014 als eerste registreerde. De helft van de tijd werkt die persoon allang niet meer bij de klant.</p>
+
+<ul>
+  <li>Registrar-login, met 2FA gemigreerd naar een apparaat dat de klant bezit</li>
+  <li>Autoritatieve nameservers (draai <code>dig NS</code> en check tegen de documentatie)</li>
+  <li>Elke gepubliceerde record: A, AAAA, CNAME, MX, TXT, CAA</li>
+  <li>SPF, DKIM en DMARC, alle drie correct uitgelijnd</li>
+  <li>Transactionele mailprovider (Postmark, Mailgun, SendGrid) en de API-keys</li>
+  <li>Mailbox-wachtwoorden of app-wachtwoorden voor elk adres waar de site vanaf verstuurt</li>
+</ul>
+
+<p>Een vlugge reeks dig-probes vertelt je of de gepubliceerde DNS overeenkomt met de gedocumenteerde intentie:</p>
+
+<pre><code class="lang-bash">dig +short MX example.com
+dig +short TXT example.com | grep -i spf
+dig +short TXT _dmarc.example.com
+dig +short TXT default._domainkey.example.com
+</code></pre>
+
+<p>Als <code>v=spf1</code> een relay bevat waar je nog nooit van hebt gehoord, vraag dan wie er namens het domein mail verstuurt voordat je het eruit haalt. Agenda-uitnodigingen, password resets en Stripe-bonnetjes lopen vaak via forwarders die het vertrekkende team is vergeten te noemen. De <a href="https://datatracker.ietf.org/doc/html/rfc7208">SPF RFC</a> is de referentietekst als je een wijziging moet verdedigen tegenover een verwarde klant.</p>
+
+<h2>Betalingen en het webhook-kerkhof</h2>
+
+<p>Dit is de sectie waarin de achtergebleven infrastructuur van het vorige bureau de nieuwe klant stilletjes blijft factureren. Webhook-endpoints blijven actief. Connected Stripe-accounts blijven actief. Soms loopt een refund-flow nog steeds via een AWS Lambda die de CTO van het vertrekkende team op een zaterdag in 2021 schreef.</p>
+
+<ul>
+  <li>Eigendom van Stripe, PayPal, Mollie of Adyen overgezet op de juridische entiteit van de klant</li>
+  <li>Live en test API-keys geroteerd op de dag van overdracht, niet de ochtend erna</li>
+  <li>Elke webhook-endpoint-URL nagelopen, en de host bevestigd</li>
+  <li>Stripe Connect connected accounts gereviewd, als het een marktplaats is</li>
+  <li>BTW-nummers, fiscale registraties en KYB-documenten op naam van de juiste entiteit</li>
+</ul>
+
+<aside class="callout">Webhook-URL's zijn de stille moordenaar. Open in het Stripe-dashboard het tabblad <a href="https://docs.stripe.com/webhooks">Developers, Webhooks</a> en controleer dat elk endpoint resolved naar een host die de klant beheert. We hebben overdrachten meegemaakt waarbij de staging-URL van het vorige bureau achttien maanden na het ontslag van dat bureau nog steeds live <code>charge.succeeded</code>-events ontving.</aside>
+
+<h2>Licentiesleutels en stille verloopdata</h2>
+
+<p>Elke verouderde CMS-site draagt een jas van premium plugins, en de meeste van die plugins bellen thuis naar een licentieserver. Verloopt de licentie, dan stoppen de updates. Stoppen de updates, dan stoppen de security-patches. Zes maanden later zit je op een CVE die je niet kunt patchen omdat het bureau dat de seat heeft gekocht is verdwenen en de verleng-pas op naam staat van een ex-medewerker.</p>
+
+<ul>
+  <li>WordPress: ACF Pro, Gravity Forms, WP Rocket, Yoast Premium, WPML</li>
+  <li>Drupal: Acquia-abonnementen, betaalde distributies, commerciële modules</li>
+  <li>Magento / Adobe Commerce: marketplace-extensions, het Adobe ID, de MAGE keys</li>
+  <li>CDN: betaalde Cloudflare-features, Bunny, Fastly</li>
+  <li>Monitoring: Sentry, Datadog, Better Stack</li>
+  <li>Back-ups: BlogVault, ManageWP, Jetpack VaultPress</li>
+</ul>
+
+<p>Voor elk: vier kolommen. Wie is eigenaar van de seat, op welk e-mailadres staat hij geregistreerd, wanneer wordt hij verlengd, en hoe wordt de verlenging betaald. Opgeslagen creditcards horen vaak bij het bureau, niet bij de klant. Plan de omschakeling vóór de auto-renew afgaat.</p>
+
+<h2>Het overzicht op één pagina</h2>
+
+<p>Het hele punt van de audit is dat hij op één pagina past. Alles wat langer is wordt gescand; alles wat korter is mist een kolom. Het formaat dat wij gebruiken ziet er ongeveer zo uit:</p>
+
+<pre><code class="lang-yaml">repos:
+  host: github.com/clientorg
+  admin_transferred: yes
+  ci_secrets_rotated: 2026-06-11
+dns:
+  registrar: gandi.net
+  registrar_2fa: yubikey-A
+  nameservers: cloudflare
+mail:
+  mx: google workspace
+  spf: ok
+  dkim: rotated 2026-06-11
+  transactional: postmark (key rotated)
+payments:
+  processor: stripe
+  webhooks_audited: yes
+  account_owner: client
+licenses:
+  acf_pro: client@example.com, renews 2027-02
+  gravity_forms: client@example.com, renews 2027-04
+  wp_rocket: client@example.com, renews 2026-09
+</code></pre>
+
+<p>Drie kolommen per regel: wat het is, wie er nu eigenaar van is, wanneer er weer aandacht naartoe moet. Alles wat de audit niet doorstaat gaat op een remediation-lijst met een deadline. Alles wat groen is krijgt een datum.</p>
+
+<h2>Wanneer de audit faalt</h2>
+
+<p>Je zult gaten vinden. Het vorige bureau beantwoordt je mails over een Cloudflare-account niet. De Stripe-webhook wijst nog steeds naar <code>old-agency.com/relay</code>. De MX-record vermeldt een mailprovider die niemand bij de klant herkent. Behandel deze als bugs met severity-labels:</p>
+
+<ul>
+  <li>P0 (vandaag doen): live betalingsstromen die langs een onbekend endpoint lopen</li>
+  <li>P1 (deze week): verlopende TLS-certificaten, mail-authenticatie die faalt</li>
+  <li>P2 (deze maand): premium plugin-licenties zonder eigenaar</li>
+  <li>P3 (volgend kwartaal): opruimen van ongebruikte CI-secrets en slapende cron-jobs</li>
+</ul>
+
+<p>Het doel van severity-labels is niet om er georganiseerd uit te zien op een Linear-board. Het is om de klant de prijs van een overname helder voor ogen te krijgen: dit is wat er gebeurt als een site zonder checklist van bureau wisselt. Het werk heeft een naam en een prijs.</p>
+
+<h2>Live wijzigen terwijl je audit draait</h2>
+
+<p>De audit creëert een paradox. Je weet nog niet helemaal hoe de deploy-chain eruitziet, maar de klant wil tegen vrijdag een tekstwijziging op de homepage. Pushen naar een repo die je nog niet volledig in kaart hebt is de snelste manier om iets subtiels te slopen: een cache key, een feature flag, een CDN-purge-hook.</p>
+
+<p>Toen we Pier bouwden liepen we tegen precies dit ding aan bij vrijwel elke klant die we aansloten. Wat er uitkwam was dat elke save standaard versioned is, zodat het ergste scenario tijdens een half-in-kaart-gebrachte overdracht één klik op <a href="/#features">version history</a> terug naar een werkende staat is. De <a href="/#database">MySQL editor</a> gedraagt zich net zo: elke UPDATE is een regel in een journaal, geen destructieve actie.</p>
+
+<p>Het kleinste wat je vandaag kunt doen: open een leeg tekstbestand, schrijf de vijf kopjes op (repos, dns, mail, payments, licenses), en stuur het naar je klant als het overdracht-sjabloon dat jullie samen gaan invullen. De rest van de audit volgt vanzelf zodra die pagina op tafel ligt.</p>
+    </div>
+
+    <aside class="pullquote">Overdrachten falen aan de randen, niet op de code: loop repo&#39;s, DNS, mail, betalingen en licenties op één pagina na voordat je ook maar één bestand aanraakt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Wat als het vorige bureau weigert het registrar-account over te dragen?</p>
+      <p class="faq-a">Documenteer de weigering schriftelijk en start dan een ICANN transfer-out op basis van de autoriteit van de klant als geregistreerde houder. Reken op 5 tot 7 dagen en een korte downtime op e-mail.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe roteer ik Stripe-webhooks zonder live betalingen te breken?</p>
+      <p class="faq-a">Voeg het nieuwe endpoint toe naast het oude, controleer dat het een test-event ontvangt, kijk 24 uur lang naar live verkeer op beide, en zet daarna pas het oude endpoint uit. Nooit verwijderen; uitschakelen, zodat je kunt terugrollen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Welke premium plugin-licenties hebben de hoogste prioriteit bij een WordPress-overname?</p>
+      <p class="faq-a">Alles dat authenticatie, betalingen of formulieren raakt: WPML, Gravity Forms, WooCommerce-extensies en ACF Pro. Die breken de site luid en duidelijk zodra updates stilvallen.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/statamic-migration-freeze-playbook/hero.jpg" alt="Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Statamic-migratie: het vijfdaagse content-freeze draaiboek</h3>
+      <span class="pc-lede">Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/transactional-email-migration-playbook/hero.jpg" alt="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Transactionele e-mail migreren zonder verzendadres te wijzigen</h3>
+      <span class="pc-lede">Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/legacy-site-handover-audit/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
