@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Contact form spam: a 30-minute incident walkthrough · Pier — Blog</title>
+<meta name="description" content="23:41 on a Tuesday. A legacy WordPress contact form just became an open relay and the host has fifteen minutes of patience. Here is the thirty-minute IR.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, php, wordpress, operations, htaccess">
+
+<link rel="canonical" href="https://pier.abn.company/blog/contact-form-spam-incident-response/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/contact-form-spam-incident-response/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/contact-form-spam-incident-response/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/contact-form-spam-incident-response/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Contact form spam: a 30-minute incident walkthrough">
+<meta property="og:description" content="23:41 on a Tuesday. A legacy WordPress contact form just became an open relay and the host has fifteen minutes of patience. Here is the thirty-minute IR.">
+<meta property="og:url" content="https://pier.abn.company/blog/contact-form-spam-incident-response/">
+<meta property="og:image" content="https://pier.abn.company/blog/contact-form-spam-incident-response/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/contact-form-spam-incident-response/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: paper run-sheet, SMTP log, manila folder, brass Postfix plate, red wax tag.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T19:20:22.937Z">
+<meta property="article:modified_time" content="2026-06-11T19:20:22.937Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="htaccess">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Contact form spam: a 30-minute incident walkthrough">
+<meta name="twitter:description" content="23:41 on a Tuesday. A legacy WordPress contact form just became an open relay and the host has fifteen minutes of patience. Here is the thirty-minute IR.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/contact-form-spam-incident-response/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: paper run-sheet, SMTP log, manila folder, brass Postfix plate, red wax tag.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/contact-form-spam-incident-response/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/contact-form-spam-incident-response/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/contact-form-spam-incident-response/"},
+  "url":"https://pier.abn.company/blog/contact-form-spam-incident-response/",
+  "headline":"Contact form spam: a 30-minute incident walkthrough",
+  "description":"23:41 on a Tuesday. A legacy WordPress contact form just became an open relay and the host has fifteen minutes of patience. Here is the thirty-minute IR.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/contact-form-spam-incident-response/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: paper run-sheet, SMTP log, manila folder, brass Postfix plate, red wax tag."
+  },
+  "datePublished":"2026-06-11T19:20:22.937Z",
+  "dateModified":"2026-06-11T19:20:22.937Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"security, php, wordpress, operations, htaccess",
+  "wordCount":1857,
+  "articleSection":"Security",
+  "articleBody":"23:41 on a Tuesday. A Loom comes in from an agency partner: their client, a Dutch staffing firm running WordPress 4.9 with a custom theme from 2017, is being threatened with suspension by their hosting provider. Outbound mail queue: 11,000 messages in twenty minutes, all addressed to obvious throwaway domains. The contact form on /contact/ is still happily accepting input. The agency lead has a release going out at 09:00 and asks if we can keep the box alive until morning. This is the most common contact form spam pattern on a legacy site that has not been touched in three years: a header injection vulnerability in a hand-rolled mail handler, or a deprecated PHPMailer version inside a theme, or both. The mechanics have not changed since 2009. The fix takes about half an hour if you grep in the right order. The first ninety seconds Before touching anything, you want three facts: how much mail is queued, how fast it is going out, and what user the PHP process runs as. SSH in and run: mailq | tail -1 postqueue -p | grep -c \"^[0-9A-F]\" ps aux | grep -E \"php|www-data|apache\" | head -5 On Postfix the first line gives you the queue summary. On a hosting panel the second is more reliable. The third tells you which user owns the spamming process, which matters when you go to revoke its outbound SMTP credentials. You also want the attacker's source IP. Pull it from the access log so you know what is hitting /contact/ and at what rate: tail -2000 /var/log/apache2/access.log | grep -E \"POST.*contact\" \\ | awk '{print $1}' | sort | uniq -c | sort -rn | head -10 If the top result is a single IP at 400 requests, an IP block at the WAF or in .htaccess is your second tourniquet. If it is fifty IPs at twenty submissions each, you have a botnet and the form-level block is the only thing that holds. Either way the timestamps tell you when the bleeding started, which you will want for the abuse-desk mail in the morning. Now stop new submissions. The fastest tourniquet is a one-line block at the web server, not at WordPress, because the form handler may live outside the WP rewrite stack: # .htaccess, top of file <FilesMatch \"(contact|sendmail|mailer|formhandler)\\.php\"> Require all denied </FilesMatch> This returns 403 before PHP runs. The queue stops growing while you investigate. If the form is a WP admin-ajax endpoint, deny the action instead: RewriteCond %{QUERY_STRING} action=(send_contact|cf7_submit) [NC] RewriteRule ^wp-admin/admin-ajax\\.php$ - [F,L] Reading the mail log On Debian and Ubuntu hosts the mail log is at /var/log/mail.log. On RHEL family it is /var/log/maillog. The last hundred lines tell you whether mail is going via a local sendmail, a relay, or a smarthost like SendGrid: tail -200 /var/log/mail.log | grep -E \"from=|to=\" | head -50 You want to see two things. First, the envelope sender. A legitimate site shows from=www-data@yourdomain.com or from=<wordpress@yourdomain.com>. A compromised form often shows the user-submitted address, because the handler is using it as the Sender: Jun 10 23:42:11 sv1 postfix/cleanup[28394]: 5B7K0w0g028392: message-id=<a8f...@yourdomain.com> Jun 10 23:42:11 sv1 postfix/qmgr[1102]: 5B7K0w0g028392: from=<attacker@throwaway.ml>, size=4128, nrcpts=87 nrcpts=87 is the giveaway. PHP's mail() function should produce nrcpts=1 on a normal contact form submission. Anything above three is suspicious. Above ten is mail header injection, full stop. The taxonomy lives in OWASP CRLF Injection . The Subject line is the other tell. A normal staffing-firm form submission looks like 'New application from Jan'. A compromised one looks like a base64 hash, a pharmacy keyword stack, or a Cyrillic header that did not survive the queue's encoding. Pipe a few queued messages through postcat and read the headers before you delete: mailq | awk 'NR > 1 {print $1}' | grep -E '^[A-F0-9]' | head -5 \\ | xargs -I{} postcat -q {} | grep -E \"^(Subject|From|To):\" | head -30 Two minutes of reading saves you from deleting a real customer's mail in the panic that follows. Second, the X-PHP-Originating-Script header. Postfix logs it in the queue file but you can read it cleanly from a sample message: postcat -q 5B7K0w0g028392 | head -30 The header that names the file When PHP submits via the sendmail binary, the runtime injects an X-PHP-Originating-Script header that names the exact script file. It looks like this: X-PHP-Originating-Script: 33:contact-handler.php The leading 33 is the UID of the process. The path is relative to the docroot or to the include path. If your docroot is /var/www/wp and the header says wp-content/themes/old-theme/inc/mailer.php, that is the file calling mail(). No more guessing. If the header is missing it usually means the script is using a custom SMTP path (PHPMailer with isSMTP() set), not the local sendmail wrapper. In that case grep is your friend. More on that in a moment. Heads up. The X-PHP-Originating-Script header is only emitted when the PHP ini directive mail.add_x_header is On. On",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/contact-form-spam-incident-response/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Contact form spam: a 30-minute incident walkthrough","item":"https://pier.abn.company/blog/contact-form-spam-incident-response/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why does the mail log show nrcpts above 1 for a single form submission?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Because the handler is interpolating user input into the headers and the user input contains CRLF plus Bcc:. Every Bcc: address in the injected header counts as a recipient on the same envelope."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will deleting the Postfix queue lose legitimate mail?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, anything queued at that moment is gone. Filter by sender domain with postsuper -d if you can identify the bad batch cleanly; otherwise accept the loss. The alternative is sending the spam yourself."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I tell whether PHPMailer or a hand-rolled mail() call is the source?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Read X-PHP-Originating-Script in a queued message with postcat -q. If it points at class.phpmailer.php you have a library issue. If it points at theme code, the theme handler is the issue."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long until the host suspends the account during the incident?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most European providers suspend somewhere between 200 and 1,000 messages per minute. You have ten to fifteen minutes once the spike starts. The .htaccess block at the top buys you the rest of the half hour."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/contact-form-spam-incident-response/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 126</span>
+      </div>
+      <p class="eyebrow"><span class="n">126 —</span>Security</p>
+      <h1 class="display-l post-title">Contact form spam: a 30-minute incident walkthrough</h1>
+      <p class="lede post-lede">23:41 on a Tuesday. A legacy WordPress contact form just became an open relay and the host has fifteen minutes of patience. Here is the thirty-minute IR.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T19:20:22.937Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/contact-form-spam-incident-response/hero.webp" type="image/webp">
+      <img src="/blog/contact-form-spam-incident-response/hero.jpg" alt="Overhead photo on bone linen: paper run-sheet, SMTP log, manila folder, brass Postfix plate, red wax tag." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 126</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>23:41 on a Tuesday. A Loom comes in from an agency partner: their client, a Dutch staffing firm running WordPress 4.9 with a custom theme from 2017, is being threatened with suspension by their hosting provider. Outbound mail queue: 11,000 messages in twenty minutes, all addressed to obvious throwaway domains. The contact form on /contact/ is still happily accepting input. The agency lead has a release going out at 09:00 and asks if we can keep the box alive until morning.</p>
+<p>This is the most common contact form spam pattern on a <a href="/">legacy site</a> that has not been touched in three years: a header injection vulnerability in a hand-rolled mail handler, or a deprecated PHPMailer version inside a theme, or both. The mechanics have not changed since 2009. The fix takes about half an hour if you grep in the right order.</p>
+<h2>The first ninety seconds</h2>
+<p>Before touching anything, you want three facts: how much mail is queued, how fast it is going out, and what user the PHP process runs as. SSH in and run:</p>
+<pre><code class="lang-bash">mailq | tail -1
+postqueue -p | grep -c "^[0-9A-F]"
+ps aux | grep -E "php|www-data|apache" | head -5</code></pre>
+<p>On Postfix the first line gives you the queue summary. On a hosting panel the second is more reliable. The third tells you which user owns the spamming process, which matters when you go to revoke its outbound SMTP credentials.</p>
+<p>You also want the attacker's source IP. Pull it from the access log so you know what is hitting /contact/ and at what rate:</p>
+<pre><code class="lang-bash">tail -2000 /var/log/apache2/access.log | grep -E "POST.*contact" \
+  | awk '{print $1}' | sort | uniq -c | sort -rn | head -10</code></pre>
+<p>If the top result is a single IP at 400 requests, an IP block at the WAF or in .htaccess is your second tourniquet. If it is fifty IPs at twenty submissions each, you have a botnet and the form-level block is the only thing that holds. Either way the timestamps tell you when the bleeding started, which you will want for the abuse-desk mail in the morning.</p>
+<p>Now stop new submissions. The fastest tourniquet is a one-line block at the web server, not at WordPress, because the form handler may live outside the WP rewrite stack:</p>
+<pre><code class="lang-apacheconf"># .htaccess, top of file
+&lt;FilesMatch "(contact|sendmail|mailer|formhandler)\.php"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+<p>This returns 403 before PHP runs. The queue stops growing while you investigate. If the form is a WP admin-ajax endpoint, deny the action instead:</p>
+<pre><code class="lang-apacheconf">RewriteCond %{QUERY_STRING} action=(send_contact|cf7_submit) [NC]
+RewriteRule ^wp-admin/admin-ajax\.php$ - [F,L]</code></pre>
+<h2>Reading the mail log</h2>
+<p>On Debian and Ubuntu hosts the mail log is at /var/log/mail.log. On RHEL family it is /var/log/maillog. The last hundred lines tell you whether mail is going via a local sendmail, a relay, or a smarthost like SendGrid:</p>
+<pre><code class="lang-bash">tail -200 /var/log/mail.log | grep -E "from=|to=" | head -50</code></pre>
+<p>You want to see two things. First, the envelope sender. A legitimate site shows from=www-data@yourdomain.com or from=&lt;wordpress@yourdomain.com&gt;. A compromised form often shows the user-submitted address, because the handler is using it as the Sender:</p>
+<pre><code>Jun 10 23:42:11 sv1 postfix/cleanup[28394]: 5B7K0w0g028392:
+  message-id=&lt;a8f...@yourdomain.com&gt;
+Jun 10 23:42:11 sv1 postfix/qmgr[1102]: 5B7K0w0g028392:
+  from=&lt;attacker@throwaway.ml&gt;, size=4128, nrcpts=87</code></pre>
+<p>nrcpts=87 is the giveaway. PHP's mail() function should produce nrcpts=1 on a normal contact form submission. Anything above three is suspicious. Above ten is mail header injection, full stop. The taxonomy lives in <a href="https://owasp.org/www-community/vulnerabilities/CRLF_Injection">OWASP CRLF Injection</a>.</p>
+<p>The Subject line is the other tell. A normal staffing-firm form submission looks like 'New application from Jan'. A compromised one looks like a base64 hash, a pharmacy keyword stack, or a Cyrillic header that did not survive the queue's encoding. Pipe a few queued messages through postcat and read the headers before you delete:</p>
+<pre><code class="lang-bash">mailq | awk 'NR &gt; 1 {print $1}' | grep -E '^[A-F0-9]' | head -5 \
+  | xargs -I{} postcat -q {} | grep -E "^(Subject|From|To):" | head -30</code></pre>
+<p>Two minutes of reading saves you from deleting a real customer's mail in the panic that follows.</p>
+<p>Second, the X-PHP-Originating-Script header. Postfix logs it in the queue file but you can read it cleanly from a sample message:</p>
+<pre><code class="lang-bash">postcat -q 5B7K0w0g028392 | head -30</code></pre>
+<h2>The header that names the file</h2>
+<p>When PHP submits via the sendmail binary, the runtime injects an X-PHP-Originating-Script header that names the exact script file. It looks like this:</p>
+<pre><code>X-PHP-Originating-Script: 33:contact-handler.php</code></pre>
+<p>The leading 33 is the UID of the process. The path is relative to the docroot or to the include path. If your docroot is /var/www/wp and the header says wp-content/themes/old-theme/inc/mailer.php, that is the file calling mail(). No more guessing.</p>
+<p>If the header is missing it usually means the script is using a custom SMTP path (PHPMailer with isSMTP() set), not the local sendmail wrapper. In that case grep is your friend. More on that in a moment.</p>
+<aside class="callout"><p><strong>Heads up.</strong> The X-PHP-Originating-Script header is only emitted when the PHP ini directive mail.add_x_header is On. On most distros it is on by default but some hardened images ship with it off. If you do not see it in your queue files, check <code>php -i | grep add_x_header</code> before assuming SMTP.</p></aside>
+<h2>The PHPMailer line to grep</h2>
+<p>You now have two angles: the file from the header, and the broader codebase. The grep that finds 90% of legacy contact form vulnerabilities is this one:</p>
+<pre><code class="lang-bash">cd /var/www/wp
+grep -rEn "mail\s*\(.*\\\$_(POST|GET|REQUEST)" \
+  wp-content/themes wp-content/plugins 2&gt;/dev/null
+
+grep -rEn "(setFrom|addAddress|addBCC)\s*\(.*\\\$_(POST|GET|REQUEST)" \
+  wp-content/ 2&gt;/dev/null</code></pre>
+<p>You are looking for the pattern where unsanitized request data flows into a header argument or into PHPMailer's addAddress. The classic vulnerable line is:</p>
+<pre><code class="lang-php">// wp-content/themes/old-theme/inc/contact.php
+$headers  = "From: " . $_POST['email'] . "\r\n";
+$headers .= "Reply-To: " . $_POST['email'] . "\r\n";
+mail($to, $subject, $body, $headers);</code></pre>
+<p>If the attacker can submit an email field that contains a literal CRLF followed by <code>Bcc: list@...</code>, PHP happily appends it to the header block. The form is now an open relay.</p>
+<p>The PHPMailer angle is older but still alive on themes that bundled their own copy. <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10033">CVE-2016-10033</a> (Sender argument injection, fixed in 5.2.18 and properly closed in 5.2.22) lets an attacker pass shell metacharacters into the Sender field, which sendmail interprets as command-line flags. If you grep and find class.phpmailer.php with VERSION below 5.2.22, replace the whole library before doing anything else:</p>
+<pre><code class="lang-bash">grep -r "VERSION\s*=\s*['\"]5\." wp-content/ \
+  --include="class.phpmailer.php"</code></pre>
+<p>Two other patterns are worth knowing. wp_mail() can be hooked through the phpmailer_init action, and a malicious must-use plugin can rewrite the Sender there without ever touching the theme. Check wp-content/mu-plugins/ and any plugin under wp-content/plugins/ for files containing add_action('phpmailer_init'). The second pattern is Contact Form 7 with an additional-headers field that reads from-tag-value [your-email]. CF7 sanitises by default since 5.0.4 but plenty of legacy sites froze on 4.x; check the wpcf7_mail_components filter for any custom override that re-introduces the unsafe pattern.</p>
+<h3>Patching the handler</h3>
+<p>The minimal correct fix on a hand-rolled handler is to validate the address with filter_var and to never put user input into a header verbatim:</p>
+<pre><code class="lang-php">$email = filter_var($_POST['email'] ?? '', FILTER_VALIDATE_EMAIL);
+if (!$email) {
+    http_response_code(422);
+    exit('invalid sender');
+}
+
+$headers  = "From: noreply@yourdomain.com\r\n";
+$headers .= "Reply-To: " . $email . "\r\n";
+$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+
+// FILTER_VALIDATE_EMAIL rejects CR/LF, so Reply-To is safe.
+mail($to, '[contact] ' . substr($subject, 0, 80), $body, $headers);</code></pre>
+<p>This is not a hardening exercise, it is the floor. Real hardening means swapping the form to a managed handler with an SPF-aligned envelope sender and a CAPTCHA at the door. The floor stops the bleeding so you can sleep.</p>
+<h2>Sealing the queue</h2>
+<p>The vulnerable script is patched. The queue still has 9,000 messages in it. Flushing them sends them. You almost never want to flush. You want to delete:</p>
+<pre><code class="lang-bash"># Postfix: delete all queued mail
+postsuper -d ALL
+
+# Or, more carefully, only the bad sender's mail
+mailq | awk '/throwaway\.ml/ {print $1}' | tr -d '*!' \
+  | xargs -n1 postsuper -d</code></pre>
+<p>Then rotate the outbound SMTP credentials if the site relays through SendGrid, Mailgun, or Postmark. The attacker has them in process memory; they should be treated as public. The same goes for any SMTP password stored in wp_options under wp_mail_smtp or a similar key. Update the option row, do not just change the panel.</p>
+<p>Restart the web server and unblock the form path in .htaccess once you are confident the patch holds. Submit a test message from your phone on cellular, watch the mail log show nrcpts=1, and breathe out.</p>
+<h2>What to leave running overnight</h2>
+<p>The release goes out at 09:00. You have six hours. Three things are worth leaving in place.</p>
+<p>First, a queue size watch. A one-line cron that pages you if the queue grows fast:</p>
+<pre><code class="lang-bash"># /etc/cron.d/queue-watch, runs every 2 minutes
+*/2 * * * * root [ $(postqueue -p | grep -c "^[0-9A-F]") -gt 200 ] \
+  &amp;&amp; curl -fsS https://ntfy.sh/your-private-topic -d "queue spike"</code></pre>
+<p>Second, an outbound rate limit at Postfix. Add to /etc/postfix/main.cf:</p>
+<pre><code class="lang-conf">smtp_destination_rate_delay = 2s
+smtp_destination_concurrency_limit = 2
+default_destination_recipient_limit = 5</code></pre>
+<p>This will not stop a determined attacker, but it caps the blast radius at a few hundred messages per hour, comfortably below the threshold where most European hosts (TransIP, Hetzner, Strato) auto-suspend the account. <a href="https://httpd.apache.org/docs/2.4/mod/mod_ratelimit.html">Apache's mod_ratelimit</a> can do the inbound side if the form itself is being hammered.</p>
+<p>Third, a snapshot of the mail log and queue state at the moment of the patch. If the host bills by bandwidth or per outbound message, or if a customer asks tomorrow whether their legitimate submission got through, you want a paper trail you can read instead of guess at:</p>
+<pre><code class="lang-bash">cp /var/log/mail.log /root/incident-$(date +%F)-mail.log
+postqueue -p &gt; /root/incident-$(date +%F)-queue.txt</code></pre>
+<h2>The morning after</h2>
+<p>Send the agency lead three artifacts: the patched file (diff, not whole file), the postcat output that names the X-PHP-Originating-Script path, and the queue-watch cron. Recommend they replace the form entirely on the next maintenance window. Hand-rolled mail handlers from 2017 are a category, not a bug.</p>
+<p>Email the abuse desk at the host before they email you. A short note with the queue size at the spike, the patched file path, the CVE if PHPMailer was involved, and the timestamp the bleeding stopped is the difference between 'we noted your incident' and 'your account is on a watch list for thirty days'. TransIP, Hetzner, and Strato all have abuse@ addresses that read during business hours; a 09:00 mail beats a 23:00 panic ticket every time.</p>
+<p>When we built Pier, the macOS app we use for editing this kind of legacy site, the incident loop above was one of the recurring shapes we kept hitting at 23:00. The way we ended up handling it: every file edit lands in <a href="/#features">version history</a> by default, so the patched contact-handler.php sits next to the pre-incident copy one click away, and the wp_options row you touched in the <a href="/#database">MySQL editor</a> when rotating the SMTP password is there too. If the morning shows that the patch broke a legitimate submission path, you revert without rummaging through backups.</p>
+<p>The smallest thing to do today, before the next incident: open your three oldest client sites and run the two greps above against wp-content. If either returns a hit, you have an evening's work scheduled for you. Better that than a Loom at 23:41.</p>
+    </div>
+
+    <aside class="pullquote">Header injection on a hand-rolled contact form is a 30-minute fix if you grep for mail() with $_POST and read the X-PHP-Originating-Script header.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why does the mail log show nrcpts above 1 for a single form submission?</p>
+      <p class="faq-a">Because the handler is interpolating user input into the headers and the user input contains CRLF plus Bcc:. Every Bcc: address in the injected header counts as a recipient on the same envelope.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Will deleting the Postfix queue lose legitimate mail?</p>
+      <p class="faq-a">Yes, anything queued at that moment is gone. Filter by sender domain with postsuper -d if you can identify the bad batch cleanly; otherwise accept the loss. The alternative is sending the spam yourself.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I tell whether PHPMailer or a hand-rolled mail() call is the source?</p>
+      <p class="faq-a">Read X-PHP-Originating-Script in a queued message with postcat -q. If it points at class.phpmailer.php you have a library issue. If it points at theme code, the theme handler is the issue.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long until the host suspends the account during the incident?</p>
+      <p class="faq-a">Most European providers suspend somewhere between 200 and 1,000 messages per minute. You have ten to fifteen minutes once the spike starts. The .htaccess block at the top buys you the rest of the half hour.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/curl-recon-legacy-hardening/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/curl-recon-legacy-hardening/hero.webp" type="image/webp">
+        <img src="/blog/curl-recon-legacy-hardening/hero.jpg" alt="Overhead photo of a CURL RECON worksheet on linen with header printouts, brass stopwatch, manila folder, fountain pen, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Curl recon for legacy sites: seven one-liners before quoting</h3>
+      <span class="pc-lede">An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/htaccess-hardening-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/htaccess-hardening-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/htaccess-hardening-cheatsheet/hero.jpg" alt="Overhead photo of inked .htaccess cheatsheet on graph paper, brass HTACCESS plate, steel ruler, red pencil, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Eleven .htaccess directives worth keeping, three to drop</h3>
+      <span class="pc-lede">A cheatsheet for the .htaccess file you inherited on that legacy WordPress or Magento site: eleven directives worth keeping, and three that quietly hurt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/contact-form-spam-incident-response/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
