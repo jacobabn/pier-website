@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento sales_order_grid: zo krimpten we &#39;m met 4GB · Pier — Blog</title>
+<meta name="description" content="Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, databases, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-sales-order-grid-shrink/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-sales-order-grid-shrink/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento sales_order_grid: zo krimpten we &#39;m met 4GB">
+<meta property="og:description" content="Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T10:57:12.324Z">
+<meta property="article:modified_time" content="2026-06-11T10:57:12.324Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento sales_order_grid: zo krimpten we &#39;m met 4GB">
+<meta name="twitter:description" content="Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-sales-order-grid-shrink/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/"},
+  "url":"https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/",
+  "headline":"Magento sales_order_grid: zo krimpten we 'm met 4GB",
+  "description":"Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die 'm terugbracht, met elke order intact.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen."
+  },
+  "datePublished":"2026-06-11T10:57:12.324Z",
+  "dateModified":"2026-06-11T10:57:12.324Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, mysql, databases, php, operations, tooling",
+  "wordCount":1713,
+  "articleSection":"Magento",
+  "articleBody":"De Loom van 23:41, vlak na Black Friday Een Nederlands bureau waarmee we werken stuurde op een dinsdag om 23:41 een Loom. Hun Magento 2.4.6-shop was in de admin tot stilstand gekomen. De orderlijst deed er 14 seconden over om te renderen. Hun hosting-dashboard meldde de database op 11GB totaal, en één tabel vrat in z'n eentje 4GB: sales_order_grid . De shop draaide sinds 2020. Zo'n 380.000 orders over zes jaar handel. Black Friday voegde er in 72 uur 9.200 aan toe. Er was nooit iets opgeschoond, gearchiveerd of geroteerd. De sales_order_grid-index was simpelweg meegegroeid, en het mview-gestuurde update-patroon had genoeg fragmentatie opgestapeld dat de tabel op disk bijna twee keer zo groot was als de logische rijgrootte. De opdracht was helder. Krimp de tabel. Houd elke gearchiveerde order zichtbaar in de admin. Verlies geen enkele rij. Doe het binnen een onderhoudsvenster van 02:00 tot 04:00 Amsterdamse tijd. Wat er in sales_order_grid zit De tabel sales_order_grid is niet de bron van waarheid voor orders. De canonieke data staat in sales_order , sales_order_item en de rest van de sales_* -familie. sales_order_grid is een gedenormaliseerde projectie, gebouwd zodat de admin-orderlijst snel kan renderen zonder tien tabellen tegelijk te joinen. Hij draagt een platgeslagen kopie van de orderheader (nummer, status, klantnaam, factuur- en verzendnaam, totalen) en wordt opnieuw gevuld door Magento's materialised view indexer-laag . Dat laatste detail telt. Je kunt sales_order_grid truncaten en Magento bouwt 'm opnieuw op vanuit sales_order. Je verliest geen enkele gearchiveerde order, want de orders staan daar niet. De grid is een cache. Een cache van 4GB, maar een cache. De voetangel is de mview-staat. Truncate je zonder mview in te lichten, dan probeert het volgende changelog-event een tabel incrementeel bij te werken die niet meer matcht met de verwachte staat, en eindig je met een halve rebuild die meer tijd kost om te diagnosticeren dan de truncate zelf duurde. De audit, vóór elke DDL Het eerste wat we draaien op elke overmaatse Magento-database is een sizing-pass tegen information_schema . Die vertelt je of het probleem in data, indexes of fragmentatie zit, en dat bepaalt de procedure. SELECT table_name, ROUND(data_length / 1024 / 1024) AS data_mb, ROUND(index_length / 1024 / 1024) AS index_mb, ROUND(data_free / 1024 / 1024) AS free_mb, table_rows FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE 'sales_order_grid%' ORDER BY data_length DESC; De output op de database van deze klant las ongeveer zo: table_name data_mb index_mb free_mb table_rows sales_order_grid 2840 980 310 389214 sales_order_grid_arch 0 0 0 0 Twee conclusies. Eén: het aantal rijen (389k) liep keurig in de pas met het aantal orders, dus geen verweesde rijen die de tabel opbliezen. Twee: data_free op 310MB betekende dat InnoDB ongebruikte pages vasthield, en fragmentatie stapelt zich daar over jaren UPDATE-verkeer bovenop. De bulk van de overmaat (2,8GB aan data, bijna 1GB aan indexes) kwam uit jaren opgehoopte rijen op een gedenormaliseerde tabel die nooit was herbouwd. Daarna de mview-staat. Magento stelt die bloot via één tabel: SELECT view_id, status, updated, version_id FROM mview_state WHERE view_id LIKE 'sales_order%'; We wilden elke sales_order_*-view op idle voordat we ook maar iets aanraakten. Staat een view op working , dan zit een indexer-cron midden in een run, en elke DDL op zijn doeltabel zal óf deadlocken óf de changelog-pointer corrumperen. De MySQL-docs over online DDL-operations zijn er expliciet over: TRUNCATE op een InnoDB-tabel vereist een exclusieve metadata-lock, en die wil je niet uitvechten met een draaiende indexer. De gefaseerde krimp Met een tabel van 4GB en een venster van twee uur wilden we niet OPTIMIZE TABLE in place draaien. Op InnoDB herschrijft die de hele tabel terwijl 'ie metadata-locks vasthoudt, en op deze workload werd de admin-grid elke 90 seconden geraakt door een Klaviyo-sync en elke minuut door een Mirakl-marketplace-poller. We hadden iets nodig dat afbreekbaar, auditbaar en hervatbaar was. Het plan, op volgorde: Zet Magento alleen voor de order-admin in onderhoudsmodus. Stop de indexer cron-groep netjes. Pauzeer de Klaviyo- en Mirakl-integraties vanuit hun eigen dashboards. Snapshot sales_order_grid naar een backuptabel op dezelfde server. Truncate de live tabel. Reset de mview-changelog zodat de volgende reindex een volledige rebuild is, geen incrementele. Draai bin/magento indexer:reindex sales_order_grid . Verifieer rij-aantallen en inhoud tegen sales_order. De maintenance-vlag is per area, niet de globale bin/magento maintenance:enable . We hebben een eenregelige guard in app/etc/config.php gezet die alleen op /admin/sales_order-routes een 503 teruggaf. De storefront bleef gewoon orders in sales_order schrijven. Nieuwe orders verschenen simpelweg niet in de grid totdat we klaar waren. Dat was acceptabel omdat de admin van de shop om 02:00 leeg was. De indexe",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento sales_order_grid: zo krimpten we 'm met 4GB","item":"https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is het veilig om sales_order_grid te truncaten?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, mits je daarna ook mview_state reset en sales_order_grid_cl truncaat. De canonieke orderdata staat in sales_order. De grid is een gedenormaliseerde cache die Magento via indexer:reindex herbouwt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt de reindex?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ruwweg 30 tot 60 seconden per 10.000 orders op warme hardware. 389k orders deden er in deze opdracht 11 minuten en 40 seconden over. Trage disks en gelijktijdige writes maken het allebei langer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Verliezen klanten toegang tot hun oude orders?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. De tabellen sales_order, sales_order_item en de gerelateerde tabellen blijven onaangeraakt. De My Orders-view op de storefront leest daaruit, niet uit sales_order_grid."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-sales-order-grid-shrink/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 116</span>
+      </div>
+      <p class="eyebrow"><span class="n">116 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento sales_order_grid: zo krimpten we &#39;m met 4GB</h1>
+      <p class="lede post-lede">Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T10:57:12.324Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-sales-order-grid-shrink/hero.webp" type="image/webp">
+      <img src="/blog/magento-sales-order-grid-shrink/hero.jpg" alt="Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 116</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>De Loom van 23:41, vlak na Black Friday</h2>
+<p>Een Nederlands bureau waarmee we werken stuurde op een dinsdag om 23:41 een Loom. Hun Magento 2.4.6-shop was in de admin tot stilstand gekomen. De orderlijst deed er 14 seconden over om te renderen. Hun hosting-dashboard meldde de database op 11GB totaal, en één tabel vrat in z'n eentje 4GB: <code>sales_order_grid</code>.</p>
+<p>De shop draaide sinds 2020. Zo'n 380.000 orders over zes jaar handel. Black Friday voegde er in 72 uur 9.200 aan toe. Er was nooit iets opgeschoond, gearchiveerd of geroteerd. De sales_order_grid-index was simpelweg meegegroeid, en het mview-gestuurde update-patroon had genoeg fragmentatie opgestapeld dat de tabel op disk bijna twee keer zo groot was als de logische rijgrootte.</p>
+<p>De opdracht was helder. Krimp de tabel. Houd elke gearchiveerde order zichtbaar in de admin. Verlies geen enkele rij. Doe het binnen een onderhoudsvenster van 02:00 tot 04:00 Amsterdamse tijd.</p>
+
+<h2>Wat er in sales_order_grid zit</h2>
+<p>De tabel sales_order_grid is niet de bron van waarheid voor orders. De canonieke data staat in <code>sales_order</code>, <code>sales_order_item</code> en de rest van de <code>sales_*</code>-familie. sales_order_grid is een gedenormaliseerde projectie, gebouwd zodat de admin-orderlijst snel kan renderen zonder tien tabellen tegelijk te joinen. Hij draagt een platgeslagen kopie van de orderheader (nummer, status, klantnaam, factuur- en verzendnaam, totalen) en wordt opnieuw gevuld door Magento's <a href="https://developer.adobe.com/commerce/php/development/components/indexing/">materialised view indexer-laag</a>.</p>
+<p>Dat laatste detail telt. Je kunt sales_order_grid truncaten en Magento bouwt 'm opnieuw op vanuit sales_order. Je verliest geen enkele gearchiveerde order, want de orders staan daar niet. De grid is een cache. Een cache van 4GB, maar een cache.</p>
+<p>De voetangel is de mview-staat. Truncate je zonder mview in te lichten, dan probeert het volgende changelog-event een tabel incrementeel bij te werken die niet meer matcht met de verwachte staat, en eindig je met een halve rebuild die meer tijd kost om te diagnosticeren dan de truncate zelf duurde.</p>
+
+<h2>De audit, vóór elke DDL</h2>
+<p>Het eerste wat we draaien op elke overmaatse Magento-database is een sizing-pass tegen <code>information_schema</code>. Die vertelt je of het probleem in data, indexes of fragmentatie zit, en dat bepaalt de procedure.</p>
+<pre><code class="lang-sql">SELECT
+  table_name,
+  ROUND(data_length / 1024 / 1024)  AS data_mb,
+  ROUND(index_length / 1024 / 1024) AS index_mb,
+  ROUND(data_free   / 1024 / 1024)  AS free_mb,
+  table_rows
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+  AND table_name LIKE 'sales_order_grid%'
+ORDER BY data_length DESC;</code></pre>
+<p>De output op de database van deze klant las ongeveer zo:</p>
+<pre><code class="lang-text">table_name              data_mb  index_mb  free_mb  table_rows
+sales_order_grid        2840     980       310      389214
+sales_order_grid_arch   0        0         0        0</code></pre>
+<p>Twee conclusies. Eén: het aantal rijen (389k) liep keurig in de pas met het aantal orders, dus geen verweesde rijen die de tabel opbliezen. Twee: <code>data_free</code> op 310MB betekende dat InnoDB ongebruikte pages vasthield, en fragmentatie stapelt zich daar over jaren UPDATE-verkeer bovenop. De bulk van de overmaat (2,8GB aan data, bijna 1GB aan indexes) kwam uit jaren opgehoopte rijen op een gedenormaliseerde tabel die nooit was herbouwd.</p>
+<p>Daarna de mview-staat. Magento stelt die bloot via één tabel:</p>
+<pre><code class="lang-sql">SELECT view_id, status, updated, version_id
+FROM mview_state
+WHERE view_id LIKE 'sales_order%';</code></pre>
+<p>We wilden elke sales_order_*-view op <code>idle</code> voordat we ook maar iets aanraakten. Staat een view op <code>working</code>, dan zit een indexer-cron midden in een run, en elke DDL op zijn doeltabel zal óf deadlocken óf de changelog-pointer corrumperen. De MySQL-docs over <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-online-ddl-operations.html">online DDL-operations</a> zijn er expliciet over: TRUNCATE op een InnoDB-tabel vereist een exclusieve metadata-lock, en die wil je niet uitvechten met een draaiende indexer.</p>
+
+<h2>De gefaseerde krimp</h2>
+<p>Met een tabel van 4GB en een venster van twee uur wilden we niet <code>OPTIMIZE TABLE</code> in place draaien. Op InnoDB herschrijft die de hele tabel terwijl 'ie metadata-locks vasthoudt, en op deze workload werd de admin-grid elke 90 seconden geraakt door een Klaviyo-sync en elke minuut door een Mirakl-marketplace-poller. We hadden iets nodig dat afbreekbaar, auditbaar en hervatbaar was.</p>
+<p>Het plan, op volgorde:</p>
+<ol>
+  <li>Zet Magento alleen voor de order-admin in onderhoudsmodus.</li>
+  <li>Stop de indexer cron-groep netjes.</li>
+  <li>Pauzeer de Klaviyo- en Mirakl-integraties vanuit hun eigen dashboards.</li>
+  <li>Snapshot sales_order_grid naar een backuptabel op dezelfde server.</li>
+  <li>Truncate de live tabel.</li>
+  <li>Reset de mview-changelog zodat de volgende reindex een volledige rebuild is, geen incrementele.</li>
+  <li>Draai <code>bin/magento indexer:reindex sales_order_grid</code>.</li>
+  <li>Verifieer rij-aantallen en inhoud tegen sales_order.</li>
+</ol>
+<p>De maintenance-vlag is per area, niet de globale <code>bin/magento maintenance:enable</code>. We hebben een eenregelige guard in <code>app/etc/config.php</code> gezet die alleen op /admin/sales_order-routes een 503 teruggaf. De storefront bleef gewoon orders in sales_order schrijven. Nieuwe orders verschenen simpelweg niet in de grid totdat we klaar waren. Dat was acceptabel omdat de admin van de shop om 02:00 leeg was.</p>
+<p>De indexer cron-groep stoppen is rechttoe rechtaan:</p>
+<pre><code class="lang-bash">php bin/magento cron:remove --group=index
+ps -ef | grep "cron:run" | grep -v grep</code></pre>
+<p>Leeft er na de remove nog een <code>cron:run --group=index</code>-process, kill 'm op PID. Sla deze stap niet over. Een halverwege draaiende indexer die rij-locks vasthoudt op sales_order_grid terwijl jij 'm probeert te truncaten is de slechtste afloop die er is.</p>
+<p>De snapshot is één statement:</p>
+<pre><code class="lang-sql">CREATE TABLE sales_order_grid_bk_20260603 LIKE sales_order_grid;
+INSERT INTO sales_order_grid_bk_20260603 SELECT * FROM sales_order_grid;</code></pre>
+<p>Dat verdubbelde de disk kort naar ~5GB, wat we hadden ingecalculeerd. Het punt van de snapshot is niet de data zelf (we kunnen elk moment vanuit sales_order rebuilden) maar het audit-spoor. Als een klantenservice-medewerker de ochtend erna een ontbrekende rij meldt, wilden we kunnen vergelijken met een bevroren kopie, niet met een bewegend doel.</p>
+<p>Dan de truncate:</p>
+<pre><code class="lang-sql">SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE sales_order_grid;
+SET FOREIGN_KEY_CHECKS = 1;</code></pre>
+<p>En de mview-reset, de stap die de meeste teardown-guides overslaan:</p>
+<pre><code class="lang-sql">UPDATE mview_state
+SET status = 'idle', version_id = NULL
+WHERE view_id IN (
+  'sales_order_grid',
+  'sales_order_invoice_grid',
+  'sales_order_shipment_grid',
+  'sales_order_creditmemo_grid'
+);
+TRUNCATE TABLE sales_order_grid_cl;</code></pre>
+<p><code>version_id = NULL</code> zetten vertelt Magento de volgende indexer-run te behandelen als een volledige rebuild in plaats van een incrementele pickup. De changelog-tabel (<code>sales_order_grid_cl</code>) truncaten verwijdert verouderde wijzigingsrecords die anders tegen een nu lege doeltabel zouden ophopen.</p>
+<aside class="callout"><p>De naam van de changelog-tabel volgt het patroon <code>{view_id}_cl</code>. Als je de indexer hebt aangepast of Magento_Inventory draait, check dan de exacte suffix voor je truncate. De verkeerde _cl-tabel truncaten is wel te herstellen, maar het is traag en je logs lopen er dagen daarna nog luidruchtig van vol.</p></aside>
+
+<h2>Reindex en verificatie</h2>
+<p>Met de tabel leeg en mview gereset is de reindex één commando:</p>
+<pre><code class="lang-bash">php bin/magento indexer:reindex sales_order_grid</code></pre>
+<p>Op deze database deed 'ie er 11 minuten en 40 seconden over om 389.214 rijen te herbouwen. We keken mee vanuit een tweede SSH-sessie met:</p>
+<pre><code class="lang-sql">SELECT COUNT(*) FROM sales_order_grid;</code></pre>
+<p>elke 30 seconden, gewoon om de teller te zien klimmen. Toen 'ie stopte op exact het rij-aantal van sales_order, draaiden we de audit-query opnieuw.</p>
+<pre><code class="lang-text">table_name              data_mb  index_mb  free_mb  table_rows
+sales_order_grid        612      188       0        389214</code></pre>
+<p>Van 3,8GB samen naar 800MB. De rest van de winst kwam uit een vers gebouwde clustered index zonder opgehoopte fragmentatie, plus de JSON-kolom <code>items</code> die compact opnieuw was geëncodeerd in plaats van jaren UPDATE-delta's mee te slepen.</p>
+<p>De verificatiestap is niet onderhandelbaar. Alleen een matchend rij-aantal is niet genoeg, want een halve rebuild kan ook precies op het juiste totaal uitkomen als de indexer in de verkeerde volgorde liep. We draaiden ook een expliciete anti-join:</p>
+<pre><code class="lang-sql">SELECT
+  (SELECT COUNT(*) FROM sales_order)      AS orders,
+  (SELECT COUNT(*) FROM sales_order_grid) AS grid,
+  (SELECT COUNT(*) FROM sales_order o
+   WHERE NOT EXISTS (
+     SELECT 1 FROM sales_order_grid g
+     WHERE g.entity_id = o.entity_id
+   ))                                     AS missing_from_grid;</code></pre>
+<p>De waarde <code>missing_from_grid</code> kwam terug op nul. Elke gearchiveerde order vanaf 2020 verscheen nog steeds in de admin-grid. De lijstweergave van 14 seconden zakte naar onder de 800ms doordat de InnoDB buffer pool niet meer hoefde te thrashen op een gefragmenteerde index. We lieten de snapshot-tabel twee weken staan en dropten 'm toen het CS-team een rustige maandag had.</p>
+<p>Laatste stap: de cron-groep weer aanzetten, caches flushen en de integraties unpauzen.</p>
+<pre><code class="lang-bash">php bin/magento cron:install
+php bin/magento cache:flush</code></pre>
+<h3>Wat we bewust hebben laten staan</h3>
+<p>Drie dingen die we bewust niet hebben aangepast.</p>
+<p>We hebben geen extra InnoDB-compressie aangezet. Op deze database stond die al aan. Meer compressie had nog wat afgeschaafd, ten koste van CPU bij elke order-write, en de hoofdklacht van het bureau was admin-latency, niet opslagkosten.</p>
+<p>We hebben orders niet naar de archive-module gemigreerd. Magento heeft een ingebouwde <a href="https://experienceleague.adobe.com/en/docs/commerce-admin/stores-sales/order-management/orders/order-archive">order archive</a>-feature die afgesloten orders uit de hoofdtabellen verplaatst. Een prima beleid voor shops met miljoenen orders, maar het verandert de admin-UX en de klant wilde pariteit met wat hun CS-team al kende.</p>
+<p>We hebben de storefront niet aangeraakt. De krimp speelde zich volledig af op de grid-laag. Storefront-performance was een aparte opdracht.</p>
+
+<h2>Wat te volgen in de week erna</h2>
+<p>Zeven dagen na de krimp hielden we drie signalen laagfrequent in de gaten. Tabelgrootte, mview-lag en admin-latency. De delta van de tabelgrootte is dezelfde information_schema-query op een cron, weggeschreven naar een CSV in /var/log/. Hem een week terug zien klimmen geeft je een echte groei per order, en dat is het getal dat je nodig hebt als je het volgende onderhoudsvenster plant.</p>
+<p>Mview-lag is het rij-aantal van <code>sales_order_grid_cl</code> op enig moment. Op een gezonde shop zit dat in de lage honderden, elke minuut leeggetrokken door de indexer-cron. Klimt 'ie de tienduizenden in, dan draait je indexer niet, of draait wel maar maakt niets af, en wordt de volgende krimp lelijker dan deze.</p>
+<p>Admin-latency hebben we gemeten met dezelfde Lighthouse-run die het bureau al op de storefront gebruikte, nu gericht op /admin/sales_order. Ze hebben 'm aan hun interne dashboard toegevoegd. De grens ligt onder 1,5 seconde voor de eerste paint van de orderlijst. De dag dat 'ie weer boven de drie seconden klimt, grijpen ze naar de audit-query, niet naar het onderhoudsvenster.</p>
+
+<h2>Het kleinste wat je vandaag kunt doen</h2>
+<p>Draai de audit-query bovenaan deze post op je eigen database. Vijf seconden SQL vertelt je of sales_order_grid op jouw shop een probleem is of een non-issue. De meeste Magento-shops die we auditen zitten op 500MB tot 2GB op deze tabel. Een grid van 4GB is het soort ding dat zich niet aankondigt totdat de admin vastloopt, en dan is je onderhoudsvenster korter dan je het wilt hebben.</p>
+<p>Toen we Pier bouwden liepen we op genoeg <a href="/">verouderde sites</a> tegen exact dit patroon aan dat de <a href="/#database">MySQL editor</a> standaard een table-sizes-weergave met één klik bevat die dezelfde query draait tegen elke aangesloten database. Elke destructieve stap zit verpakt in <a href="/#features">version history</a>, dus de snapshot-tabel en de truncate staan in hetzelfde audit-spoor als de rest van het werk.</p>
+    </div>
+
+    <aside class="pullquote">sales_order_grid is een cache, niet je orderdata. Truncate, reset mview, reindex, verifieer tegen sales_order. Draai geen OPTIMIZE TABLE in place onder load.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om sales_order_grid te truncaten?</p>
+      <p class="faq-a">Ja, mits je daarna ook mview_state reset en sales_order_grid_cl truncaat. De canonieke orderdata staat in sales_order. De grid is een gedenormaliseerde cache die Magento via indexer:reindex herbouwt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt de reindex?</p>
+      <p class="faq-a">Ruwweg 30 tot 60 seconden per 10.000 orders op warme hardware. 389k orders deden er in deze opdracht 11 minuten en 40 seconden over. Trage disks en gelijktijdige writes maken het allebei langer.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Verliezen klanten toegang tot hun oude orders?</p>
+      <p class="faq-a">Nee. De tabellen sales_order, sales_order_item en de gerelateerde tabellen blijven onaangeraakt. De My Orders-view op de storefront leest daaruit, niet uit sales_order_grid.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Magento bestelmails stoppen: één rij in queue_message_status</h3>
+      <span class="pc-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-2-indexer-stuck-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-2-indexer-stuck-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-2-indexer-stuck-recovery/hero.jpg" alt="Bovenaanzicht van papieren Magento indexer-lijst, orderbonnen, messing M2-plaat en rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Magento 2 indexer vastgelopen: herstel zonder orderverlies</h3>
+      <span class="pc-lede">Een vastgelopen Magento 2 indexer geeft foute prijzen, ontbrekende producten en spookvoorraad. Dit is de herstelvolgorde die lopende orders beschermt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-sales-order-grid-shrink/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
