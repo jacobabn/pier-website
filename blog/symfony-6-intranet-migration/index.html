@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Symfony 6 intranet migration: eleven weekends, zero downtime · Pier — Blog</title>
+<meta name="description" content="Eleven weekends, one strangler proxy, and a timesheet form that never went dark. How an in-house team moved a 2011 custom-PHP intranet onto Symfony 6 without anyone noticing.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, mysql, migration, architecture, workflow, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/symfony-6-intranet-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/symfony-6-intranet-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/symfony-6-intranet-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/symfony-6-intranet-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Symfony 6 intranet migration: eleven weekends, zero downtime">
+<meta property="og:description" content="Eleven weekends, one strangler proxy, and a timesheet form that never went dark. How an in-house team moved a 2011 custom-PHP intranet onto Symfony 6 without anyone noticing.">
+<meta property="og:url" content="https://pier.abn.company/blog/symfony-6-intranet-migration/">
+<meta property="og:image" content="https://pier.abn.company/blog/symfony-6-intranet-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/symfony-6-intranet-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead desk with hand-inked migration diagram, manila folder, wall calendar, stamped timesheet, brass plate, fountain pen, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T21:05:12.970Z">
+<meta property="article:modified_time" content="2026-06-11T21:05:12.970Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Symfony 6 intranet migration: eleven weekends, zero downtime">
+<meta name="twitter:description" content="Eleven weekends, one strangler proxy, and a timesheet form that never went dark. How an in-house team moved a 2011 custom-PHP intranet onto Symfony 6 without anyone noticing.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/symfony-6-intranet-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead desk with hand-inked migration diagram, manila folder, wall calendar, stamped timesheet, brass plate, fountain pen, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/symfony-6-intranet-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/symfony-6-intranet-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/symfony-6-intranet-migration/"},
+  "url":"https://pier.abn.company/blog/symfony-6-intranet-migration/",
+  "headline":"Symfony 6 intranet migration: eleven weekends, zero downtime",
+  "description":"Eleven weekends, one strangler proxy, and a timesheet form that never went dark. How an in-house team moved a 2011 custom-PHP intranet onto Symfony 6 without anyone noticing.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/symfony-6-intranet-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead desk with hand-inked migration diagram, manila folder, wall calendar, stamped timesheet, brass plate, fountain pen, wax seal."
+  },
+  "datePublished":"2026-06-11T21:05:12.970Z",
+  "dateModified":"2026-06-11T21:05:12.970Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, mysql, migration, architecture, workflow, operations",
+  "wordCount":1636,
+  "articleSection":"Migration",
+  "articleBody":"The intranet was built in 2011. A single index.php at the root, a config.inc.php with hardcoded DB credentials, and a folder called /lib/ that everyone had been told never to touch. The brief, eleven weekends before we started, was clean: move it onto Symfony 6, do it in your own time, and the timesheet form has to keep working because the field engineers fill it in on Sunday evenings. The Dutch operations team that ran it (22 people, mostly schedulers and field engineers) used the system for three things: the timesheet form, an internal directory, and a project tracker that had grown to about 9,400 rows. None of that was going to be rewritten over a long weekend. The lead engineer messaged us in February. PHP 8.2 EOL was on the horizon, the original developer had retired in 2018, and a recent security audit had flagged 41 instances of unescaped $_GET values being interpolated straight into SQL. Eleven weekends later, the Symfony 6 cutover was done. This is what we did and what we wouldn't do again. The shape of the 2011 codebase Before any planning, we spent the first Saturday morning just reading. The intranet was 38,000 lines of PHP across 217 files. There was no router; index.php dispatched on $_GET['page'] through a 600-line switch statement. Authentication was a session variable called $_SESSION['logged_in'] set to the string 'yes' . The MySQL driver was mysql_query() , removed from PHP since the 7.0 release. The database was healthier than the code. 31 tables, mostly third-normal-form, and the timesheet table ( tijdregistratie ) had a composite index on (medewerker_id, week_nummer, jaar) that someone had clearly thought about. That was the wedge: rebuild the application layer, leave the schema alone for now. Strangler, not rewrite A from-scratch rewrite was the obvious wrong move. The company had tried it twice between 2017 and 2021 and abandoned both attempts. The second one died when nobody could agree on whether medewerker_id should map to a Doctrine entity called Employee or Staff . We weren't going to repeat that. Instead we used the strangler fig pattern : a thin reverse proxy in front of the old app, with new Symfony 6 routes mounted alongside. Every request hits the proxy first. If a route exists in Symfony, it serves. Otherwise it falls through to the legacy site . Over eleven weekends, we moved routes one at a time from legacy to Symfony, and the proxy quietly shifted with them. The Apache config that did this was almost embarrassing in how small it was: RewriteEngine On # New Symfony routes win RewriteCond %{REQUEST_URI} ^/(api|directory|admin|reports) RewriteRule ^(.*)$ /symfony/public/index.php [L] # Everything else falls through to legacy RewriteRule ^(.*)$ /legacy/index.php [L] That was it. No Nginx, no Traefik, no service mesh. Apache 2.4 with mod_rewrite , the same setup the intranet had run on since 2014. Weekend one: the proxy and the canary We didn't migrate any real functionality on the first weekend. The whole Saturday and Sunday went to standing up the proxy and proving that fall-through worked under load. The canary route was deliberately silly: a Symfony controller at /api/healthcheck that returned a JSON object containing the legacy session ID. That single endpoint forced us to solve three things at once. Symfony reading the legacy PHP session, which meant matching session.save_path and session.name in php.ini . The proxy's routing decision being fast enough that nobody noticed. Doctrine connecting to the same MySQL instance with a read-only user, so we couldn't accidentally write through the new code yet. By Sunday evening we had a Symfony 6.4 app sitting next to the legacy intranet, sharing sessions, sharing the database, and serving exactly one endpoint. The field engineers filed their Sunday timesheets and saw nothing different. That was the whole point. The eleven-weekend plan The migration order was decided by two things: how independent each module was, and how badly it would hurt if we broke it. Weekend 1. Strangler proxy and healthcheck canary. Weekend 2. Internal directory (read-only, no auth changes). Easiest route in the codebase. We built it twice to prove the pattern. Weekend 3. Authentication. Replaced the $_SESSION['logged_in'] = 'yes' check with a Symfony firewall that read the same cookie. Both apps now trusted the same login. Weekend 4. The project tracker list view. First route to write to the database from Symfony. Tightened the read-only DB user constraints during the week. Weekends 5 and 6. Project tracker detail and edit. The first pages where Symfony forms replaced legacy ones. Weekend 7. Reports. Pure read, but heavy SQL. Moved everything onto Doctrine DBAL with prepared statements, killed the audit findings on that surface. Weekends 8 and 9. Admin pages. Touchy because they wrote across multiple tables. We added a write-through audit trail here that the legacy code never had. Weekend 10. Timesheet form. The one route nobody could see go down. Detai",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/symfony-6-intranet-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Symfony 6 intranet migration: eleven weekends, zero downtime","item":"https://pier.abn.company/blog/symfony-6-intranet-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why strangler instead of a full rewrite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two earlier rewrites at this company had failed. The strangler pattern let us ship value every weekend instead of building toward one high-risk cutover nobody trusted."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do you keep a form online while migrating it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Shadow routing. The old endpoint stays authoritative, but every POST is also forwarded to the new endpoint and written to a parallel table. Diff the two tables until they agree."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the old and new database writes disagree?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "That's the point of running them side by side. Mismatches surface real bugs, sometimes in the old code, sometimes in the new. Decide case by case which behaviour is correct before flipping."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should each migration weekend be?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Small enough that you can roll back by 22:00 on Sunday. We aimed for one logical module per weekend and tracked Monday's first hour of traffic as the success metric."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/symfony-6-intranet-migration/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 128</span>
+      </div>
+      <p class="eyebrow"><span class="n">128 —</span>Migration</p>
+      <h1 class="display-l post-title">Symfony 6 intranet migration: eleven weekends, zero downtime</h1>
+      <p class="lede post-lede">Eleven weekends, one strangler proxy, and a timesheet form that never went dark. How an in-house team moved a 2011 custom-PHP intranet onto Symfony 6 without anyone noticing.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T21:05:12.970Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/symfony-6-intranet-migration/hero.webp" type="image/webp">
+      <img src="/blog/symfony-6-intranet-migration/hero.jpg" alt="Overhead desk with hand-inked migration diagram, manila folder, wall calendar, stamped timesheet, brass plate, fountain pen, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 128</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The intranet was built in 2011. A single <code>index.php</code> at the root, a <code>config.inc.php</code> with hardcoded DB credentials, and a folder called <code>/lib/</code> that everyone had been told never to touch. The brief, eleven weekends before we started, was clean: move it onto Symfony 6, do it in your own time, and the timesheet form has to keep working because the field engineers fill it in on Sunday evenings.</p><p>The Dutch operations team that ran it (22 people, mostly schedulers and field engineers) used the system for three things: the timesheet form, an internal directory, and a project tracker that had grown to about 9,400 rows. None of that was going to be rewritten over a long weekend.</p><p>The lead engineer messaged us in February. <a href="https://www.php.net/supported-versions.php">PHP 8.2 EOL</a> was on the horizon, the original developer had retired in 2018, and a recent security audit had flagged 41 instances of unescaped <code>$_GET</code> values being interpolated straight into SQL. Eleven weekends later, the Symfony 6 cutover was done. This is what we did and what we wouldn't do again.</p><h2>The shape of the 2011 codebase</h2><p>Before any planning, we spent the first Saturday morning just reading. The intranet was 38,000 lines of PHP across 217 files. There was no router; <code>index.php</code> dispatched on <code>$_GET['page']</code> through a 600-line switch statement. Authentication was a session variable called <code>$_SESSION['logged_in']</code> set to the string <code>'yes'</code>. The MySQL driver was <code>mysql_query()</code>, removed from PHP since the 7.0 release.</p><p>The database was healthier than the code. 31 tables, mostly third-normal-form, and the timesheet table (<code>tijdregistratie</code>) had a composite index on <code>(medewerker_id, week_nummer, jaar)</code> that someone had clearly thought about. That was the wedge: rebuild the application layer, leave the schema alone for now.</p><h2>Strangler, not rewrite</h2><p>A from-scratch rewrite was the obvious wrong move. The company had tried it twice between 2017 and 2021 and abandoned both attempts. The second one died when nobody could agree on whether <code>medewerker_id</code> should map to a Doctrine entity called <code>Employee</code> or <code>Staff</code>. We weren't going to repeat that.</p><p>Instead we used the <a href="https://martinfowler.com/bliki/StranglerFigApplication.html">strangler fig pattern</a>: a thin reverse proxy in front of the old app, with new Symfony 6 routes mounted alongside. Every request hits the proxy first. If a route exists in Symfony, it serves. Otherwise it falls through to the <a href="/">legacy site</a>. Over eleven weekends, we moved routes one at a time from legacy to Symfony, and the proxy quietly shifted with them.</p><p>The Apache config that did this was almost embarrassing in how small it was:</p><pre><code class="lang-apache">RewriteEngine On
+
+# New Symfony routes win
+RewriteCond %{REQUEST_URI} ^/(api|directory|admin|reports)
+RewriteRule ^(.*)$ /symfony/public/index.php [L]
+
+# Everything else falls through to legacy
+RewriteRule ^(.*)$ /legacy/index.php [L]
+</code></pre><p>That was it. No Nginx, no Traefik, no service mesh. Apache 2.4 with <code>mod_rewrite</code>, the same setup the intranet had run on since 2014.</p><h2>Weekend one: the proxy and the canary</h2><p>We didn't migrate any real functionality on the first weekend. The whole Saturday and Sunday went to standing up the proxy and proving that fall-through worked under load. The canary route was deliberately silly: a Symfony controller at <code>/api/healthcheck</code> that returned a JSON object containing the legacy session ID. That single endpoint forced us to solve three things at once.</p><ul><li>Symfony reading the legacy PHP session, which meant matching <code>session.save_path</code> and <code>session.name</code> in <code>php.ini</code>.</li><li>The proxy's routing decision being fast enough that nobody noticed.</li><li>Doctrine connecting to the same MySQL instance with a read-only user, so we couldn't accidentally write through the new code yet.</li></ul><p>By Sunday evening we had a Symfony 6.4 app sitting next to the legacy intranet, sharing sessions, sharing the database, and serving exactly one endpoint. The field engineers filed their Sunday timesheets and saw nothing different. That was the whole point.</p><h2>The eleven-weekend plan</h2><p>The migration order was decided by two things: how independent each module was, and how badly it would hurt if we broke it.</p><ol><li><strong>Weekend 1.</strong> Strangler proxy and healthcheck canary.</li><li><strong>Weekend 2.</strong> Internal directory (read-only, no auth changes). Easiest route in the codebase. We built it twice to prove the pattern.</li><li><strong>Weekend 3.</strong> Authentication. Replaced the <code>$_SESSION['logged_in'] = 'yes'</code> check with a Symfony firewall that read the same cookie. Both apps now trusted the same login.</li><li><strong>Weekend 4.</strong> The project tracker list view. First route to write to the database from Symfony. Tightened the read-only DB user constraints during the week.</li><li><strong>Weekends 5 and 6.</strong> Project tracker detail and edit. The first pages where Symfony forms replaced legacy ones.</li><li><strong>Weekend 7.</strong> Reports. Pure read, but heavy SQL. Moved everything onto Doctrine DBAL with prepared statements, killed the audit findings on that surface.</li><li><strong>Weekends 8 and 9.</strong> Admin pages. Touchy because they wrote across multiple tables. We added a write-through audit trail here that the legacy code never had.</li><li><strong>Weekend 10.</strong> Timesheet form. The one route nobody could see go down. Detailed below.</li><li><strong>Weekend 11.</strong> Decommission the legacy <code>/legacy/index.php</code> fall-through, archive the source, run the final security pass.</li></ol><h2>Cutting over the timesheet form</h2><p>The timesheet form was the route the whole project pivoted around. Field engineers filed roughly 180 timesheets between 18:00 and 22:00 on Sundays. We had a four-hour window of zero traffic between 03:00 and 07:00 every weekday, but we couldn't use any of them as a hard cutover because the form occasionally got filled in late, and the engineers got grumpy when it lost their input.</p><p>So we shadow-routed. For two weeks before weekend 10, every <code>POST</code> to <code>/timesheet/save</code> went to the legacy handler as normal, but a copy of the request body was also forwarded to a new Symfony endpoint at <code>/api/timesheet/save-shadow</code>. The new endpoint validated, ran the same business logic, and wrote to a parallel table called <code>tijdregistratie_shadow</code>. Nobody saw the shadow path. The legacy path stayed authoritative.</p><p>Every Monday morning we diffed the two tables.</p><pre><code class="lang-sql">SELECT t.id, t.uren, s.uren, t.medewerker_id
+FROM tijdregistratie t
+JOIN tijdregistratie_shadow s
+  ON s.legacy_id = t.id
+WHERE t.uren != s.uren
+   OR t.project_id != s.project_id
+LIMIT 50;
+</code></pre><p>The first Monday we found 14 mismatches. All of them traced to a single bug in the legacy code where weekend hours were silently rounded down to the quarter hour. The new code wasn't doing that. We decided not to "fix" the new code to match the bug; instead we flagged the diff, told the team, and they were quietly delighted that the new form was going to give them back about 11 minutes a week each.</p><p>By weekend 10 the shadow path had matched the legacy path for nine consecutive days. We flipped the proxy rule, and the legacy <code>POST</code> handler started returning a redirect to the Symfony route. No engineer noticed.</p><aside class="callout"><p><strong>Shadow paths only work when reads stay read-only.</strong> Twice during weekend 8 we found that a Symfony handler we thought was idempotent was actually updating a <code>last_seen_at</code> timestamp on the user row. That broke the diff because the legacy code didn't update it. If you're shadowing, audit every query for hidden writes, including ORM lifecycle callbacks. Doctrine's <code>postLoad</code> is famous for this.</p></aside><h2>What the cutover actually cost</h2><p>The eleven weekends were not heroic. Most were two engineers, four to six hours each on Saturday, and a shorter Sunday morning session to verify Monday wouldn't burn. The longest single weekend was weekend 6, which ran to about 22 working hours combined because Doctrine kept timing out on the project tracker's heaviest query (a left join across five tables that resolved to a <code>NOT IN</code> subquery against 9,400 rows). The fix in the end was a covering index on three columns, not anything clever about the ORM.</p><p>Total billable engineering: roughly 88 hours across two people. Compared with either rewrite attempt the company had abandoned (each quoted around 600 hours, neither shipped), the strangler approach paid for itself before weekend 4.</p><h2>What we'd do differently</h2><p>Three things stand out.</p><p>First, we should have stood the shadow path up earlier. We did it for the timesheet form because the stakes were obvious, but the project tracker would have benefited from the same approach in weekend 5. We took one short outage on a Sunday afternoon because the new edit form was 200ms slower than the old one and somebody's browser timed out mid-save. A shadow week would have caught it.</p><p>Second, we should have wired up a <a href="/#features">version history</a> earlier. We didn't have one until weekend 7. Before that, every code change on a Saturday afternoon was an exercise in remembering what we'd touched. A per-file snapshot in Git would have been enough; we eventually wired up an SFTP-aware tool that made the snapshots automatic.</p><p>Third, we should have written the diff query first, not last. The <code>tijdregistratie</code> versus <code>tijdregistratie_shadow</code> diff caught the rounding bug, but it would also have caught two earlier issues in the directory and the reports if we'd had the discipline to write it for every migrated table from weekend 2 onwards.</p><h2>The work, and the tool that lived alongside it</h2><p>Migrations like this one are mostly mechanical: read a route, port it, point the proxy. The hard parts are the bits where you have to edit a live codebase while it's still serving real users, and where you need a one-keystroke way back when a Sunday change breaks Monday morning. When we built Pier we ran into this exact thing on three client migrations in a row, so we put the FTP server, a per-file version history, a one-click undo, and a <a href="/#database">MySQL editor</a> behind a single workspace, which meant the shadow-diff queries lived next to the code that produced them.</p><p>If you're staring at a 2011 codebase right now and the EOL clock is ticking, the smallest useful thing you can do today is grep for <code>mysql_query</code> across the project and count the hits. That number is your first weekend's scope.</p>
+    </div>
+
+    <aside class="pullquote">A strangler proxy plus a shadow-routed form let us move a 2011 PHP intranet onto Symfony 6 across eleven weekends with no downtime and no surprises.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why strangler instead of a full rewrite?</p>
+      <p class="faq-a">Two earlier rewrites at this company had failed. The strangler pattern let us ship value every weekend instead of building toward one high-risk cutover nobody trusted.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do you keep a form online while migrating it?</p>
+      <p class="faq-a">Shadow routing. The old endpoint stays authoritative, but every POST is also forwarded to the new endpoint and written to a parallel table. Diff the two tables until they agree.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if the old and new database writes disagree?</p>
+      <p class="faq-a">That&#39;s the point of running them side by side. Mismatches surface real bugs, sometimes in the old code, sometimes in the new. Decide case by case which behaviour is correct before flipping.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should each migration weekend be?</p>
+      <p class="faq-a">Small enough that you can roll back by 22:00 on Sunday. We aimed for one logical module per weekend and tracked Monday&#39;s first hour of traffic as the success metric.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/drupal-7-static-cloudflare-pages-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-static-cloudflare-pages-playbook/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-static-cloudflare-pages-playbook/hero.jpg" alt="Overhead photo of linen desk with inked Drupal-to-static migration plan, blueprint, index cards, stopwatch, brass plate, pen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Drupal 7 to static on Cloudflare Pages: a 2-hour playbook</h3>
+      <span class="pc-lede">Drupal 7 reached end of life. You inherited one. Here&#39;s a two-hour route to a static export on Cloudflare Pages with the contact form still working.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/laravel-migration-booking-engine/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/laravel-migration-booking-engine/hero.webp" type="image/webp">
+        <img src="/blog/laravel-migration-booking-engine/hero.jpg" alt="Overhead still life of inked migration plan, Gantt strip, manila folder, brass plate, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Laravel migration without downtime: booking engine rebuild</h3>
+      <span class="pc-lede">A 14-year-old custom PHP booking engine, a calendar that processed a reservation every 90 seconds, and a Laravel rebuild that had to land without a single missed booking.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/symfony-6-intranet-migration/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
