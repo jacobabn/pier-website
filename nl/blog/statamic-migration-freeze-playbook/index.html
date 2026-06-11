@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Statamic-migratie: het vijfdaagse content-freeze draaiboek · Pier — Blog</title>
+<meta name="description" content="Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="workflow, migration, wordpress, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Statamic-migratie: het vijfdaagse content-freeze draaiboek">
+<meta property="og:description" content="Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T08:18:43.429Z">
+<meta property="article:modified_time" content="2026-06-11T08:18:43.429Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Workflow">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Statamic-migratie: het vijfdaagse content-freeze draaiboek">
+<meta name="twitter:description" content="Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Workflow">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/"},
+  "url":"https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/",
+  "headline":"Statamic-migratie: het vijfdaagse content-freeze draaiboek",
+  "description":"Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen."
+  },
+  "datePublished":"2026-06-11T08:18:43.429Z",
+  "dateModified":"2026-06-11T08:18:43.429Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"workflow, migration, wordpress, php, operations, tooling",
+  "wordCount":1838,
+  "articleSection":"Workflow",
+  "articleBody":"Zondagavond, 23:41. Een bureau-eigenaar uit Eindhoven stuurde een Loom. Haar vijfdaagse Statamic-migratie zou de volgende ochtend cutover gaan, en een redacteur had haar net in paniek een bericht gestuurd. Drie posts die de redacteur op vrijdagmiddag had gepubliceerd, nadat het bureau de baseline-export had genomen, stonden nergens in de staging-build. De 301-map was al dichtgetimmerd. De DNS-TTL stond al op 60 seconden. En de content freeze hield op papier al sinds woensdag stand. Dit is het faalpatroon waar elke Statamic-migratie vroeg of laat tegenaan loopt. Eén harde freeze behandelt een redactieteam als een database, en redactieteams zijn geen databases. Ze hebben dinsdag een vergadering, donderdag een campagne, en een persbericht dat de deur uit moet voordat het embargo opheft. Een gefaseerde freeze, met diff-checkpoints en één smalle publicatiewindow, laat de migratie afronden zonder stilletjes het werk te slopen dat in de gaten valt. Hieronder staat het draaiboek dat we gebruiken voor een vijfdaagse cutover van een verouderde site (meestal WordPress, soms Drupal) naar Statamic. Echte commando's, echte bestandspaden, en echte concessies aan het feit dat het redactieteam zijn eigen deadlines heeft. Waarom één harde freeze niet werkt De boekenwijsheid: bevries het bron-CMS op dag één, migreer de content, cutover op dag vijf. Het faalt om drie redenen die je pas op dag zes merkt. Eén: in redactionele workflows zitten beloftes ingebakken. Een post die voor woensdag staat ingepland, kun je niet verplaatsen zonder uitleg aan degene die hem heeft ingepland. Tegen donderdag heeft iemand stiekem unpublished en gerepubliceerd om de freeze te omzeilen, en zit de post in je baseline-export met een ander ID dan de live versie. Twee: het technische team behandelt de freeze als een checkpoint en het redactieteam behandelt het als een verzoek. Tegen dag drie heeft iemand een concept gepubliceerd, een gepubliceerde post bewerkt, of een hero-image van 47 MB geüpload naar wp-content/uploads/2026/06/ die niet in je laatste rsync zit. Drie: de diff tussen wat je hebt geëxporteerd en wat live staat, groeit lineair met de duur van de freeze. Na 24 uur is het met de hand te verzoenen. Na vijf dagen niet meer. De gefaseerde freeze keert dit om. In plaats van één blackout neem je drie snapshots en één korte publicatiewindow, en de diff zelf wordt het artefact dat je migreert. Dag min één: aankondigen, dan snapshotten De aankondiging is belangrijker dan de snapshot, omdat de snapshot mechanisch is en de aankondiging politiek. Stuur hem 48 uur voordat de freeze begint, naar een benoemde lijst, met drie dingen erin: het exacte tijdvenster waarin publiceren is geblokkeerd, de naam van de persoon die een uitzondering kan toestaan, en de URL van een gedeeld formulier voor posts die tijdens de window absoluut live moeten. Stuur geen Slack-bericht. Mensen scrollen door Slack heen. Zodra de mail is verstuurd, neem je de baseline. Voor een WordPress-bron zijn dat drie artefacten: wp export --dir=/tmp/baseline --skip_comments mysqldump --single-transaction --quick \\ --databases wp_prod \\ -u root -p > /tmp/baseline/wp_prod.sql rsync -av --delete \\ /var/www/html/wp-content/uploads/ \\ ./baseline/uploads/ Commit de baseline-directory in een private git-repo. Git is de diff-tool die je op dag drie nodig gaat hebben. Tag de commit baseline-day-0 . Sla deze stap niet over. De verleiding om snapshots als gedateerde mappen te bewaren is groot, en gedateerde mappen maken een three-way diff lastiger dan nodig. Voor Drupal-bronnen vervang je dit door drush ard of een node-export module plus een files/ rsync. Voor Joomla dump je de database en rsync je images/ . De vorm blijft hetzelfde: een database-dump, een content-export en de geüploade assets, allemaal in één gecommit boom. Dag één en twee: bouw eerst de doelstructuur, daarna pas content De fout op dag één is direct beginnen met posts overzetten. De juiste stap is eerst de Statamic-structuur opzetten: blueprints , collections, taxonomies, asset containers. Het transform-script dat een WordPress-post inleest en een Statamic-entry wegschrijft, heeft het doelschema nodig, en in dat doelschema zitten de meeste redactionele beslissingen verstopt. Een minimale blueprint voor een blogpost op Statamic 5 ziet er zo uit: title: Post tabs: main: sections: - fields: - handle: title field: { type: text, required: true } - handle: hero field: { type: assets, container: hero, max_files: 1 } - handle: body field: { type: bard, save_html: false } - handle: legacy_id field: { type: integer, listable: hidden } Het legacy_id -veld is degene die de meeste teams in de eerste ronde vergeten en bij de derde betreuren. Het is de enige betrouwbare join key tussen de WordPress-post die vandaag bestaat en de Statamic-entry die morgen bestaat. Zonder dat veld is de diff op dag drie onmogelijk. Het transform-script leest dan de WXR-export, loopt elk item langs, en schrijft een Markdown-bestand met YAML front matter weg in c",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Statamic-migratie: het vijfdaagse content-freeze draaiboek","item":"https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe kort kan de redactionele freeze realistisch zijn?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "24 uur, van donderdag 09:00 tot vrijdag 09:00, met daarbinnen een publicatiewindow van één uur. Korter en de cutover-diff valt niet meer te verzoenen."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als het redactieteam helemaal niet wil bevriezen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Draai de diff-scripts van dag drie en dag vier elk uur door tot aan de ochtend van de cutover en voer de wijzigingen direct in de transform. Langzamer en luidruchtiger, maar het werkt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Moet ik WordPress-reacties meenemen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Meestal niet. Op de meeste sites krijgt minder dan 1% van de posts in het laatste jaar reacties. Exporteer ze naar een statisch archief en link ernaar vanuit de post-footer in plaats van ze in Statamic over te zetten."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 113</span>
+      </div>
+      <p class="eyebrow"><span class="n">113 —</span>Workflow</p>
+      <h1 class="display-l post-title">Statamic-migratie: het vijfdaagse content-freeze draaiboek</h1>
+      <p class="lede post-lede">Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T08:18:43.429Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp">
+      <img src="/blog/statamic-migration-freeze-playbook/hero.jpg" alt="Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 113</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Zondagavond, 23:41. Een bureau-eigenaar uit Eindhoven stuurde een Loom. Haar vijfdaagse Statamic-migratie zou de volgende ochtend cutover gaan, en een redacteur had haar net in paniek een bericht gestuurd. Drie posts die de redacteur op vrijdagmiddag had gepubliceerd, nadat het bureau de baseline-export had genomen, stonden nergens in de staging-build. De 301-map was al dichtgetimmerd. De DNS-TTL stond al op 60 seconden. En de content freeze hield op papier al sinds woensdag stand.</p><p>Dit is het faalpatroon waar elke Statamic-migratie vroeg of laat tegenaan loopt. Eén harde freeze behandelt een redactieteam als een database, en redactieteams zijn geen databases. Ze hebben dinsdag een vergadering, donderdag een campagne, en een persbericht dat de deur uit moet voordat het embargo opheft. Een gefaseerde freeze, met diff-checkpoints en één smalle publicatiewindow, laat de migratie afronden zonder stilletjes het werk te slopen dat in de gaten valt.</p><p>Hieronder staat het draaiboek dat we gebruiken voor een vijfdaagse cutover van een <a href="/">verouderde site</a> (meestal WordPress, soms Drupal) naar Statamic. Echte commando's, echte bestandspaden, en echte concessies aan het feit dat het redactieteam zijn eigen deadlines heeft.</p><h2>Waarom één harde freeze niet werkt</h2><p>De boekenwijsheid: bevries het bron-CMS op dag één, migreer de content, cutover op dag vijf. Het faalt om drie redenen die je pas op dag zes merkt.</p><p>Eén: in redactionele workflows zitten beloftes ingebakken. Een post die voor woensdag staat ingepland, kun je niet verplaatsen zonder uitleg aan degene die hem heeft ingepland. Tegen donderdag heeft iemand stiekem unpublished en gerepubliceerd om de freeze te omzeilen, en zit de post in je baseline-export met een ander ID dan de live versie.</p><p>Twee: het technische team behandelt de freeze als een checkpoint en het redactieteam behandelt het als een verzoek. Tegen dag drie heeft iemand een concept gepubliceerd, een gepubliceerde post bewerkt, of een hero-image van 47 MB geüpload naar <code>wp-content/uploads/2026/06/</code> die niet in je laatste rsync zit.</p><p>Drie: de diff tussen wat je hebt geëxporteerd en wat live staat, groeit lineair met de duur van de freeze. Na 24 uur is het met de hand te verzoenen. Na vijf dagen niet meer.</p><p>De gefaseerde freeze keert dit om. In plaats van één blackout neem je drie snapshots en één korte publicatiewindow, en de diff zelf wordt het artefact dat je migreert.</p><h2>Dag min één: aankondigen, dan snapshotten</h2><p>De aankondiging is belangrijker dan de snapshot, omdat de snapshot mechanisch is en de aankondiging politiek. Stuur hem 48 uur voordat de freeze begint, naar een benoemde lijst, met drie dingen erin: het exacte tijdvenster waarin publiceren is geblokkeerd, de naam van de persoon die een uitzondering kan toestaan, en de URL van een gedeeld formulier voor posts die tijdens de window absoluut live moeten. Stuur geen Slack-bericht. Mensen scrollen door Slack heen.</p><p>Zodra de mail is verstuurd, neem je de baseline. Voor een WordPress-bron zijn dat drie artefacten:</p><pre><code class="lang-bash">wp export --dir=/tmp/baseline --skip_comments
+mysqldump --single-transaction --quick \
+  --databases wp_prod \
+  -u root -p &gt; /tmp/baseline/wp_prod.sql
+rsync -av --delete \
+  /var/www/html/wp-content/uploads/ \
+  ./baseline/uploads/</code></pre><p>Commit de baseline-directory in een private git-repo. Git is de diff-tool die je op dag drie nodig gaat hebben. Tag de commit <code>baseline-day-0</code>. Sla deze stap niet over. De verleiding om snapshots als gedateerde mappen te bewaren is groot, en gedateerde mappen maken een three-way diff lastiger dan nodig.</p><p>Voor Drupal-bronnen vervang je dit door <code>drush ard</code> of een node-export module plus een <code>files/</code> rsync. Voor Joomla dump je de database en rsync je <code>images/</code>. De vorm blijft hetzelfde: een database-dump, een content-export en de geüploade assets, allemaal in één gecommit boom.</p><h2>Dag één en twee: bouw eerst de doelstructuur, daarna pas content</h2><p>De fout op dag één is direct beginnen met posts overzetten. De juiste stap is eerst de Statamic-structuur opzetten: <a href="https://statamic.dev/blueprints">blueprints</a>, collections, taxonomies, asset containers. Het transform-script dat een WordPress-post inleest en een Statamic-entry wegschrijft, heeft het doelschema nodig, en in dat doelschema zitten de meeste redactionele beslissingen verstopt.</p><p>Een minimale blueprint voor een blogpost op Statamic 5 ziet er zo uit:</p><pre><code class="lang-yaml">title: Post
+tabs:
+  main:
+    sections:
+      - fields:
+          - handle: title
+            field: { type: text, required: true }
+          - handle: hero
+            field: { type: assets, container: hero, max_files: 1 }
+          - handle: body
+            field: { type: bard, save_html: false }
+          - handle: legacy_id
+            field: { type: integer, listable: hidden }</code></pre><p>Het <code>legacy_id</code>-veld is degene die de meeste teams in de eerste ronde vergeten en bij de derde betreuren. Het is de enige betrouwbare join key tussen de WordPress-post die vandaag bestaat en de Statamic-entry die morgen bestaat. Zonder dat veld is de diff op dag drie onmogelijk.</p><p>Het transform-script leest dan de WXR-export, loopt elk item langs, en schrijft een Markdown-bestand met YAML front matter weg in <code>content/collections/posts/</code>. Houd het idempotent. Bij opnieuw uitvoeren moet het overschrijven, niet aanvullen, want je gaat het drie keer draaien voor vrijdag.</p><h3>De asset-rewrite is waar het misgaat</h3><p>Inline-afbeeldingen in WordPress-posts verwijzen naar <code>/wp-content/uploads/2024/03/hero.jpg</code>. Die URL's geven een 404 op de nieuwe site, tenzij je een van twee dingen doet. De nettere optie: schrijf elke inline-verwijzing tijdens de transform om naar het <code>/assets/</code>-pad van Statamic en kopieer de bestanden naar de nieuwe asset container. De snellere optie, prima voor kleinere sites: houd <code>/wp-content/uploads/</code> live op de nieuwe server als statische directory en voeg een Apache-regel toe die hem ongemoeid serveert:</p><pre><code class="lang-apache">&lt;Directory /var/www/statamic/public/wp-content&gt;
+    Options -Indexes
+    Require all granted
+&lt;/Directory&gt;</code></pre><p>De nettere optie is wat je op de lange termijn wilt. De snellere optie is wat je dinsdag uitrolt, zodat de diff van woensdag iets betekent.</p><h2>Dag drie: de diff bepaalt wat live gaat</h2><p>Woensdagochtend voer je de baseline-capture opnieuw uit in een tweede directory en tag je hem <code>baseline-day-3</code>. Daarna draai je git diff tussen de twee tags, maar alleen tegen de database-dump en de content-export. De diff op uploads is ruis: redacteuren voegen continu featured images toe en bijna niets ervan doet ertoe.</p><pre><code class="lang-bash">git diff baseline-day-0 baseline-day-3 -- '*.sql' '*.xml' \
+  | grep -E '^(\+|-)' \
+  | grep -v '^(---|\+\+\+)'</code></pre><p>Je krijgt drie categorieën wijzigingen terug. Nieuwe posts die sinds maandag zijn gepubliceerd. Bewerkingen op posts die al in de baseline zaten. Metadata-updates: gewijzigde slugs, nieuwe categorieën, aanpassingen aan de homepage-layout. Pak ze in die volgorde aan.</p><p>Voor nieuwe posts draai je het transform-script opnieuw tegen de day-3-export. Het <code>legacy_id</code>-veld zorgt dat de nieuwe entries op de juiste plek in <code>content/collections/posts/</code> landen, zonder iets te dupliceren dat al gemigreerd is.</p><p>Voor bewerkingen heb je een keuze. Of je transformeert de bewerkte posts opnieuw en overschrijft hun Statamic-entries, of je accepteert dat die bewerkingen verloren gaan en meldt het aan de redacteur. Wij transformeren bijna altijd opnieuw. Het script staat er al, het op een subset draaien is goedkoop.</p><p>Voor metadata: met de hand. Slug-wijzigingen krijgen een regel in je redirect-map. Hernoemde categorieën vragen om een blueprint-update. Homepage-layout-wijzigingen vragen om een redactioneel gesprek, want Statamic en WordPress modelleren homepages niet hetzelfde, en doen alsof het wel zo is, is precies hoe je een launch met een kapotte hero uitrolt.</p><h2>Dag vier: de zachte freeze met één publicatiewindow</h2><p>Donderdag is de zwaarste dag voor het redactieteam. De harde freeze begint om 09:00 en duurt 24 uur. Maar omdat je hem 48 uur van tevoren hebt aangekondigd, en omdat er een benoemd uitzonderingsproces is, geef je één window terug: donderdag 16:00 tot 17:00, met de regel dat alles wat in die window wordt gepubliceerd in een ledger wordt opgenomen.</p><p>De ledger is letterlijk een Google Sheet met vier kolommen: URL, auteur, published_at, en een vinkje voor ported. Tijdens de window polt je transform-script elke vijf minuten de WordPress REST API:</p><pre><code class="lang-bash">curl -s "https://oldsite.example/wp-json/wp/v2/posts?after=2026-06-11T16:00:00&amp;per_page=20" \
+  | jq '.[] | {id, slug, title: .title.rendered}'</code></pre><p>Elke post die terugkomt, wordt getransformeerd en aan de Statamic-build toegevoegd. De auteur krijgt een Slack-bericht dat de post het heeft gehaald. Het vinkje gaat aan. Om 17:01 wordt de zachte freeze een harde freeze, en de diff van vrijdagochtend zou leeg moeten zijn.</p><aside class="callout">Is de day-4-diff vrijdagochtend om 09:00 niet leeg, voer dan geen cutover uit. Iemand heeft buiten de window gepubliceerd. Zoek de post, transformeer hem, en verplaats de cutover met twee uur. Een cutover met een niet-gemigreerde post is precies het faalpatroon dat de Loom van 23:41 oplevert.</aside><h2>Dag vijf: cutover, redirects en de 404-audit</h2><p>De DNS-TTL staat al op 60 seconden, dinsdag verlaagd. Vrijdagochtend is de volgorde: laatste transform, laatste build, upstream omzetten, 404's in de gaten houden.</p><p>De 301-map is het artefact dat het langst duurt om goed te krijgen en het kortst om uit te rollen. Voor de meeste WordPress-sites is de regelset klein genoeg om in <code>.htaccess</code> op de nieuwe server te passen:</p><pre><code class="lang-apache">RewriteEngine On
+
+# Old WordPress dated permalinks to Statamic flat slugs
+RewriteRule ^([0-9]{4})/([0-9]{2})/([0-9]{2})/([^/]+)/?$ \
+  /blog/$4 [R=301,L]
+
+# Author archives are gone, send them to /blog
+RewriteRule ^author/[^/]+/?$ /blog [R=301,L]
+
+# Old uploads stay where they are
+RewriteCond %{REQUEST_URI} ^/wp-content/uploads/
+RewriteRule ^ - [L]
+
+# Feed compatibility for subscribers
+RewriteRule ^feed/?$ /feed.xml [R=301,L]</code></pre><p>Test de redirect-regels tegen een lijst van de top 500 URL's uit Google Search Console voordat je de cutover doet, niet erna. De <a href="https://httpd.apache.org/docs/2.4/rewrite/intro.html">documentatie van Apache mod_rewrite</a> is de canonieke referentie en de moeite waard om opnieuw te lezen elke keer dat je een regel met een regex-backreference schrijft. Het eerste uur na cutover is wanneer crawlers elke redirect-regel testen die je hebt geschreven, en dat doen ze parallel.</p><p>Draai de eerste 48 uur elke twee uur een 404-audit. De snelste manier is het access-log tailen en de misses bucketen:</p><pre><code class="lang-bash">tail -F /var/log/apache2/access.log \
+  | awk '$9 == "404" {print $7}' \
+  | sort | uniq -c | sort -rn | head -20</code></pre><p>Alles in de top 20 met meer dan 50 hits in twee uur krijgt een redirect-regel. Alles daaronder kan tot maandag wachten.</p><h2>Version history als vangnet</h2><p>Het laatste stuk van het draaiboek is geen stap, maar een houding. Elke wijziging aan de nieuwe site tussen dag één en dag vijf moet herstelbaar zijn. De Statamic-content-tree zit al in git, dus dat deel is gratis. Het <code>.htaccess</code>-bestand hoort ook in git. De MySQL-database die het dynamische werk doet, krijgt een snapshot vlak voor de cutover en nog één om 17:00 op vrijdag.</p><p>Toen we Pier bouwden, liepen we bij Statamic-migraties zoals deze steeds tegen hetzelfde aan: het team moet snel kunnen zien wat er tussen twee tijdstippen op de live server is veranderd, en één specifieke wijziging kunnen terugdraaien zonder de hele site terug te rollen. Dat hebben we uiteindelijk opgelost met een ingebouwde <a href="/#features">version history</a> die elk opgeslagen bestand en elke database-write snapshot, met een one-click undo per regel, zodat de Loom van 23:41 een fix van vijf minuten wordt in plaats van een zaterdag in <code>mysql</code>.</p><h2>Eén ding dat je vandaag kunt doen</h2><p>Heb je een Statamic-migratie in de agenda staan? Schrijf vanmiddag de freeze-aankondiging en stuur hem 48 uur voor dag één. Al het andere in dit draaiboek hangt ervan af dat die mail vroeg genoeg bij de redacteuren in de inbox ligt om het uitzonderingsproces als een service te laten voelen, niet als een omweg.</p>
+    </div>
+
+    <aside class="pullquote">Een gefaseerde content freeze behandelt de redactie als medewerker met één publicatiewindow, niet als een database die je vijf dagen achter slot zet.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe kort kan de redactionele freeze realistisch zijn?</p>
+      <p class="faq-a">24 uur, van donderdag 09:00 tot vrijdag 09:00, met daarbinnen een publicatiewindow van één uur. Korter en de cutover-diff valt niet meer te verzoenen.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als het redactieteam helemaal niet wil bevriezen?</p>
+      <p class="faq-a">Draai de diff-scripts van dag drie en dag vier elk uur door tot aan de ochtend van de cutover en voer de wijzigingen direct in de transform. Langzamer en luidruchtiger, maar het werkt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Moet ik WordPress-reacties meenemen?</p>
+      <p class="faq-a">Meestal niet. Op de meeste sites krijgt minder dan 1% van de posts in het laatste jaar reacties. Exporteer ze naar een statisch archief en link ernaar vanuit de post-footer in plaats van ze in Statamic over te zetten.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/transactional-email-migration-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/transactional-email-migration-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/transactional-email-migration-playbook/hero.jpg" alt="Bureauopname: SMTP-werkblad, envelop-routeschema, drie manilla mappen, messing sleutel, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Transactionele e-mail migreren zonder verzendadres te wijzigen</h3>
+      <span class="pc-lede">Je hostingmaatschappij zet over achttien dagen de gedeelde SMTP uit en het verzendadres op drie verouderde sites mag geen byte verschuiven. Het draaiboek.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-debug-constants/hero.jpg" alt="Bovenaanzicht van verouderd wp-config.php spiekbriefje met PHP debug-constanten, koperen presse-papier, liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 juni 2026</span></span>
+      <h3>wp-config.php debug constants: een werkbare cheatsheet</h3>
+      <span class="pc-lede">WordPress kent veertig gedocumenteerde wp-config.php constants. De meeste sites gebruiken er drie. Hier zijn de rest, als cheatsheet om in te plakken.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
