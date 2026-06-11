@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Curl recon for legacy sites: seven one-liners before quoting · Pier — Blog</title>
+<meta name="description" content="An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, wordpress, php, htaccess, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/curl-recon-legacy-hardening/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/curl-recon-legacy-hardening/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/curl-recon-legacy-hardening/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/curl-recon-legacy-hardening/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Curl recon for legacy sites: seven one-liners before quoting">
+<meta property="og:description" content="An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.">
+<meta property="og:url" content="https://pier.abn.company/blog/curl-recon-legacy-hardening/">
+<meta property="og:image" content="https://pier.abn.company/blog/curl-recon-legacy-hardening/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/curl-recon-legacy-hardening/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of a CURL RECON worksheet on linen with header printouts, brass stopwatch, manila folder, fountain pen, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T04:51:26.326Z">
+<meta property="article:modified_time" content="2026-06-11T04:51:26.326Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Curl recon for legacy sites: seven one-liners before quoting">
+<meta name="twitter:description" content="An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/curl-recon-legacy-hardening/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of a CURL RECON worksheet on linen with header printouts, brass stopwatch, manila folder, fountain pen, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/curl-recon-legacy-hardening/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/curl-recon-legacy-hardening/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/curl-recon-legacy-hardening/"},
+  "url":"https://pier.abn.company/blog/curl-recon-legacy-hardening/",
+  "headline":"Curl recon for legacy sites: seven one-liners before quoting",
+  "description":"An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/curl-recon-legacy-hardening/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of a CURL RECON worksheet on linen with header printouts, brass stopwatch, manila folder, fountain pen, wax seal."
+  },
+  "datePublished":"2026-06-11T04:51:26.326Z",
+  "dateModified":"2026-06-11T04:51:26.326Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"security, wordpress, php, htaccess, operations, tooling",
+  "wordCount":1144,
+  "articleSection":"Security",
+  "articleBody":"An agency lead drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Before opening the proposal template we run seven curl commands. They take about five minutes, return enough signal to size the work honestly, and leave no trace in any vendor dashboard. The site is usually a legacy site on PHP 7.4 or 8.0, running WordPress, Drupal 7, Joomla 3 or a hand-rolled CMS that someone's brother wrote in 2014. The patterns repeat. So do the curl one-liners. The five-minute recon None of the commands below need authentication, a VPN, or a paid scanner. Every one of them runs against a public URL with the same kind of request the browser already makes. Read the output as a starting point, not a verdict. A missing header on the home page might be set on /wp-admin. An open .git/config might be a symlink to a sandbox. Treat the numbers as a triage list for a real audit, not as the audit itself. Set the target once so each command stays short: T=https://target.example Header posture The first command pulls the response headers and grep filters for the security-relevant ones. If the grep returns nothing, the site is shipping browser defaults, which on a legacy stack usually means no HSTS, no CSP, and no frame protection. curl -sI \"$T\" | grep -iE 'strict-transport|content-security|x-frame|x-content-type|referrer-policy|permissions-policy' Use this output to scope a header block in .htaccess or the nginx server block. The MDN reference for Strict-Transport-Security is the document we paste into the proposal when the client asks why the line item exists. The second command checks for fingerprinting headers that quietly tell every scanner which PHP version is in play: curl -sI \"$T\" | grep -iE '^(server|x-powered-by|x-generator|x-drupal-cache|x-aspnet-version):' A response that says Server: Apache/2.4.29 (Ubuntu) and X-Powered-By: PHP/7.2.34 is doing the attacker's homework. We quote a line to suppress these in the same hardening block and move on. On Apache 2.4 the lines are short: Header unset Server Header unset X-Powered-By ServerTokens Prod ServerSignature Off The first two need mod_headers enabled; the last two belong in the vhost or top-level config, not .htaccess . On nginx the equivalent is server_tokens off; in the http block, plus more_clear_headers 'Server' 'X-Powered-By'; if ngx_headers_more is compiled in. Exposed paths The third command walks a short list of paths that should never return a 200. Version control metadata is the canonical example: a deploy script that ran git pull in document root leaves .git/ on the wire, and the entire repo can be reassembled from .git/objects . for p in .git/config .git/HEAD .svn/entries .env .DS_Store backup.sql; do printf '%-18s %s\\n' \"$p\" \"$(curl -s -o /dev/null -w '%{http_code}' \"$T/$p\")\" done Anything that returns 200, 301 or 302 to a real file goes straight into the quote. The fix is two lines in .htaccess : RedirectMatch 404 /\\.git RedirectMatch 404 /\\.env$ The fourth command targets the most common operator mistake we see, which is leaving an editor swap file or a quick backup next to wp-config.php : for ext in .bak .old .orig .save .swp '~' .gz .txt; do printf 'wp-config.php%-5s %s\\n' \"$ext\" \"$(curl -s -o /dev/null -w '%{http_code}' \"$T/wp-config.php$ext\")\" done A 200 on wp-config.php.bak hands over the DB credentials in plain text. We have found this on a Magento 1 install we were hired to migrate, on a Drupal 7 site that had been audited the year before, and on more WordPress installs than is comfortable to write down. The fix is a single FilesMatch block dropped into .htaccess : <FilesMatch \"wp-config\\.php(\\.(bak|old|orig|save|swp|gz|txt))?$\"> Require all denied </FilesMatch> A 403 from this loop is not a green light. Many shared hosts return 403 for any file that does not exist, which means the request succeeded against the server but the file is absent. Cross-check with a path you know returns 404 elsewhere on the site before trusting the result. CMS endpoints and version leaks The fifth command probes the WordPress endpoints that get most of the abuse traffic in the access log. xmlrpc.php is the canonical brute-force amplifier and wp-login.php the canonical credential-stuffing target. curl -sI -X POST \"$T/xmlrpc.php\" | head -1 curl -s -o /dev/null -w '%{http_code} wp-login\\n' \"$T/wp-login.php\" curl -s \"$T/?rest_route=/wp/v2/users\" | head -c 400 The third line of that block enumerates users through the REST API if the site has not disabled it. A response that includes \"slug\":\"admin\" is the difference between a one-hour fix and an incident. The sixth command reads the generator meta from the home page, which on most CMS installs leaks an exact version number: curl -s \"$T\" | grep -iE 'meta name=.generator' | head -1 A response that reads content=\"WordPress 5.8.1\" tells us the site is roughly five years behind on point releases, that the OWASP entry for vulnerable and outdated components applies, and that the quote needs a core update line it",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/curl-recon-legacy-hardening/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Curl recon for legacy sites: seven one-liners before quoting","item":"https://pier.abn.company/blog/curl-recon-legacy-hardening/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will running these commands against a client site cause problems?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Every request is a single unauthenticated GET or POST against a public URL with browser-equivalent traffic. The access log will see it but no rate limiter trips on seven probes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about Drupal, Joomla and Magento?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The xmlrpc and wp-login probes do not apply, but the header, generator, .git, backup and TLS checks all do. Swap wp-config.php for sites/default/settings.php, configuration.php or app/etc/local.xml."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do these need to run from a specific IP?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Run them from a laptop on any network. If the result depends on the source IP, there is a WAF in front of the site and that warrants its own line item in the quote."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why curl and not a scanner like Nikto?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Scanners are useful for the long tail, but the first conversation with a client is short. Seven copy-pasteable commands fit on one screen, run in under a minute, and produce output the client can read."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/curl-recon-legacy-hardening/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 109</span>
+      </div>
+      <p class="eyebrow"><span class="n">109 —</span>Security</p>
+      <h1 class="display-l post-title">Curl recon for legacy sites: seven one-liners before quoting</h1>
+      <p class="lede post-lede">An agency drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Seven curl one-liners take five minutes and size the work honestly.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T04:51:26.326Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/curl-recon-legacy-hardening/hero.webp" type="image/webp">
+      <img src="/blog/curl-recon-legacy-hardening/hero.jpg" alt="Overhead photo of a CURL RECON worksheet on linen with header printouts, brass stopwatch, manila folder, fountain pen, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 109</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>An agency lead drops a URL into the brief at 23:41 and asks for a hardening quote by morning. Before opening the proposal template we run seven curl commands. They take about five minutes, return enough signal to size the work honestly, and leave no trace in any vendor dashboard.</p>
+
+<p>The site is usually a <a href="/">legacy site</a> on PHP 7.4 or 8.0, running WordPress, Drupal 7, Joomla 3 or a hand-rolled CMS that someone's brother wrote in 2014. The patterns repeat. So do the curl one-liners.</p>
+
+<h2>The five-minute recon</h2>
+
+<p>None of the commands below need authentication, a VPN, or a paid scanner. Every one of them runs against a public URL with the same kind of request the browser already makes. Read the output as a starting point, not a verdict. A missing header on the home page might be set on /wp-admin. An open <code>.git/config</code> might be a symlink to a sandbox. Treat the numbers as a triage list for a real audit, not as the audit itself.</p>
+
+<p>Set the target once so each command stays short:</p>
+
+<pre><code class="lang-bash">T=https://target.example</code></pre>
+
+<h2>Header posture</h2>
+
+<p>The first command pulls the response headers and grep filters for the security-relevant ones. If the grep returns nothing, the site is shipping browser defaults, which on a legacy stack usually means no HSTS, no CSP, and no frame protection.</p>
+
+<pre><code class="lang-bash">curl -sI "$T" | grep -iE 'strict-transport|content-security|x-frame|x-content-type|referrer-policy|permissions-policy'</code></pre>
+
+<p>Use this output to scope a header block in <code>.htaccess</code> or the nginx server block. The <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security">MDN reference for Strict-Transport-Security</a> is the document we paste into the proposal when the client asks why the line item exists.</p>
+
+<p>The second command checks for fingerprinting headers that quietly tell every scanner which PHP version is in play:</p>
+
+<pre><code class="lang-bash">curl -sI "$T" | grep -iE '^(server|x-powered-by|x-generator|x-drupal-cache|x-aspnet-version):'</code></pre>
+
+<p>A response that says <code>Server: Apache/2.4.29 (Ubuntu)</code> and <code>X-Powered-By: PHP/7.2.34</code> is doing the attacker's homework. We quote a line to suppress these in the same hardening block and move on. On Apache 2.4 the lines are short:</p>
+
+<pre><code class="lang-apache">Header unset Server
+Header unset X-Powered-By
+ServerTokens Prod
+ServerSignature Off</code></pre>
+
+<p>The first two need <code>mod_headers</code> enabled; the last two belong in the vhost or top-level config, not <code>.htaccess</code>. On nginx the equivalent is <code>server_tokens off;</code> in the <code>http</code> block, plus <code>more_clear_headers 'Server' 'X-Powered-By';</code> if <code>ngx_headers_more</code> is compiled in.</p>
+
+<h2>Exposed paths</h2>
+
+<p>The third command walks a short list of paths that should never return a 200. Version control metadata is the canonical example: a deploy script that ran <code>git pull</code> in document root leaves <code>.git/</code> on the wire, and the entire repo can be reassembled from <code>.git/objects</code>.</p>
+
+<pre><code class="lang-bash">for p in .git/config .git/HEAD .svn/entries .env .DS_Store backup.sql; do
+  printf '%-18s %s\n' "$p" "$(curl -s -o /dev/null -w '%{http_code}' "$T/$p")"
+done</code></pre>
+
+<p>Anything that returns 200, 301 or 302 to a real file goes straight into the quote. The fix is two lines in <code>.htaccess</code>:</p>
+
+<pre><code class="lang-apache">RedirectMatch 404 /\.git
+RedirectMatch 404 /\.env$</code></pre>
+
+<p>The fourth command targets the most common operator mistake we see, which is leaving an editor swap file or a quick backup next to <code>wp-config.php</code>:</p>
+
+<pre><code class="lang-bash">for ext in .bak .old .orig .save .swp '~' .gz .txt; do
+  printf 'wp-config.php%-5s %s\n' "$ext" "$(curl -s -o /dev/null -w '%{http_code}' "$T/wp-config.php$ext")"
+done</code></pre>
+
+<p>A 200 on <code>wp-config.php.bak</code> hands over the DB credentials in plain text. We have found this on a Magento 1 install we were hired to migrate, on a Drupal 7 site that had been audited the year before, and on more WordPress installs than is comfortable to write down. The fix is a single <code>FilesMatch</code> block dropped into <code>.htaccess</code>:</p>
+
+<pre><code class="lang-apache">&lt;FilesMatch "wp-config\.php(\.(bak|old|orig|save|swp|gz|txt))?$"&gt;
+  Require all denied
+&lt;/FilesMatch&gt;</code></pre>
+
+<aside class="callout">A 403 from this loop is not a green light. Many shared hosts return 403 for any file that does not exist, which means the request succeeded against the server but the file is absent. Cross-check with a path you know returns 404 elsewhere on the site before trusting the result.</aside>
+
+<h2>CMS endpoints and version leaks</h2>
+
+<p>The fifth command probes the WordPress endpoints that get most of the abuse traffic in the access log. <code>xmlrpc.php</code> is the canonical brute-force amplifier and <code>wp-login.php</code> the canonical credential-stuffing target.</p>
+
+<pre><code class="lang-bash">curl -sI -X POST "$T/xmlrpc.php" | head -1
+curl -s -o /dev/null -w '%{http_code} wp-login\n' "$T/wp-login.php"
+curl -s "$T/?rest_route=/wp/v2/users" | head -c 400</code></pre>
+
+<p>The third line of that block enumerates users through the REST API if the site has not disabled it. A response that includes <code>"slug":"admin"</code> is the difference between a one-hour fix and an incident.</p>
+
+<p>The sixth command reads the generator meta from the home page, which on most CMS installs leaks an exact version number:</p>
+
+<pre><code class="lang-bash">curl -s "$T" | grep -iE 'meta name=.generator' | head -1</code></pre>
+
+<p>A response that reads <code>content="WordPress 5.8.1"</code> tells us the site is roughly five years behind on point releases, that the OWASP entry for <a href="https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/">vulnerable and outdated components</a> applies, and that the quote needs a core update line item before anything else. On WordPress, the meta tag is removed with <code>remove_action('wp_head', 'wp_generator');</code> in a small mu-plugin. Drupal 7 and Joomla expose the same string through the same meta tag and want the same treatment.</p>
+
+<h2>TLS posture</h2>
+
+<p>The seventh command does not check for vulnerabilities directly. It checks whether the server still negotiates protocol versions that browsers have long since dropped.</p>
+
+<pre><code class="lang-bash">for v in 1.0 1.1 1.2 1.3; do
+  printf 'TLS %s  %s\n' "$v" "$(curl -sI --tlsv$v --tls-max $v "$T" -o /dev/null -w '%{http_code}' 2>&amp;1)"
+done</code></pre>
+
+<p>A 200 on TLS 1.0 or 1.1 means the site still accepts connections that no current browser will make, which is usually the symptom of a missed nginx or Apache config update during a server move. The minimum we ship is:</p>
+
+<pre><code class="lang-apache">SSLProtocol all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1</code></pre>
+
+<p>or, on nginx, <code>ssl_protocols TLSv1.2 TLSv1.3;</code> inside the server block. Mozilla's server side TLS guide is the reference we paste into the proposal alongside it.</p>
+
+<h2>Turning the output into a quote</h2>
+
+<p>The seven commands above generate maybe forty lines of terminal output. We paste those into a scratch file, sort the findings into three buckets (one-line fixes in <code>.htaccess</code>, config changes that need a deploy, and structural work that needs scheduled downtime) and price each bucket separately. Clients tend to approve the first bucket on the same call.</p>
+
+<p>When we built Pier we ran into this exact loop on every quote, and the way we ended up handling it was to bake the recon into the app: the same seven probes run against the docked FTP target the moment you connect. The findings sit alongside the file tree and the <a href="/#database">MySQL editor</a> with one-click <a href="/#features">version history</a> on every change you make in response.</p>
+
+<p>If you ship one thing today, run the second command on a site you maintain. If the response includes a <code>Server:</code> header with a version number, open the vhost config and add <code>ServerTokens Prod</code> and <code>ServerSignature Off</code>. Five lines of work, one less free finding in the next attacker's recon.</p>
+    </div>
+
+    <aside class="pullquote">Five minutes of curl against a public URL is enough signal to size a hardening quote honestly. The same seven probes catch the same patterns on every legacy CMS.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Will running these commands against a client site cause problems?</p>
+      <p class="faq-a">No. Every request is a single unauthenticated GET or POST against a public URL with browser-equivalent traffic. The access log will see it but no rate limiter trips on seven probes.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about Drupal, Joomla and Magento?</p>
+      <p class="faq-a">The xmlrpc and wp-login probes do not apply, but the header, generator, .git, backup and TLS checks all do. Swap wp-config.php for sites/default/settings.php, configuration.php or app/etc/local.xml.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do these need to run from a specific IP?</p>
+      <p class="faq-a">No. Run them from a laptop on any network. If the result depends on the source IP, there is a WAF in front of the site and that warrants its own line item in the quote.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why curl and not a scanner like Nikto?</p>
+      <p class="faq-a">Scanners are useful for the long tail, but the first conversation with a client is short. Seven copy-pasteable commands fit on one screen, run in under a minute, and produce output the client can read.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/tls-handover-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/tls-handover-checklist/hero.webp" type="image/webp">
+        <img src="/blog/tls-handover-checklist/hero.jpg" alt="Overhead still life on bone linen: TLS handover checklist on graph paper, paper certificates, brass key, fountain pen, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>11 June 2026</span></span>
+      <h3>TLS handover checklist: cert, chain, cron, four hidden traps</h3>
+      <span class="pc-lede">A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/apache-nginx-headers-field-guide/hero.webp" type="image/webp">
+        <img src="/blog/apache-nginx-headers-field-guide/hero.jpg" alt="Overhead photo of HTTP header printouts, paper booklet labelled HEADERS, manila tag, brass VIA plate, red wax seal on 200 OK telegram." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Apache vs Nginx headers: a field guide for legacy hosting</h3>
+      <span class="pc-lede">The response headers on a legacy site tell you whether Apache or Nginx is running, who is caching the page, and what is silently rewriting your responses. Here is how to read them.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/curl-recon-legacy-hardening/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
