@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 2 cron_schedule at 14M rows: a Friday postmortem · Pier — Blog</title>
+<meta name="description" content="A Magento 2 shop&#39;s cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, mysql, databases, php, operations, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-2-cron-schedule-bloat/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 2 cron_schedule at 14M rows: a Friday postmortem">
+<meta property="og:description" content="A Magento 2 shop&#39;s cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.">
+<meta property="og:url" content="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/">
+<meta property="og:image" content="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead still life on bone linen: paper run-sheet, SQL prune sheet, manila folder, brass key, ER diagram, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T20:13:18.590Z">
+<meta property="article:modified_time" content="2026-06-11T20:13:18.590Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Magento">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 2 cron_schedule at 14M rows: a Friday postmortem">
+<meta name="twitter:description" content="A Magento 2 shop&#39;s cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead still life on bone linen: paper run-sheet, SQL prune sheet, manila folder, brass key, ER diagram, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Magento">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-2-cron-schedule-bloat/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/magento-2-cron-schedule-bloat/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/magento-2-cron-schedule-bloat/"},
+  "url":"https://pier.abn.company/blog/magento-2-cron-schedule-bloat/",
+  "headline":"Magento 2 cron_schedule at 14M rows: a Friday postmortem",
+  "description":"A Magento 2 shop's cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/magento-2-cron-schedule-bloat/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead still life on bone linen: paper run-sheet, SQL prune sheet, manila folder, brass key, ER diagram, wax seal."
+  },
+  "datePublished":"2026-06-11T20:13:18.590Z",
+  "dateModified":"2026-06-11T20:13:18.590Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"magento, mysql, databases, php, operations, workflow",
+  "wordCount":2062,
+  "articleSection":"Magento",
+  "articleBody":"The 16:42 ping Friday afternoon. A Dutch agency we work with pinged us at 16:42 because their Magento 2.4.6 shop had stopped accepting admin saves. The page would spin for thirty seconds and then return a generic 500. The frontend was technically up, but every category page took eight to twelve seconds to first byte. They have a 22-person ops team, but it was Friday, half the team was already heading home, and the store does a meaningful chunk of its weekend revenue between 18:00 and 22:00. Before assuming database, we ruled out the front of the stack in ninety seconds. PHP-FPM was at 71% utilisation across its 32 workers, not pinned. Redis answered PING in 0.4 ms and showed 18% memory headroom. Varnish was passing admin traffic through as configured, but its backend timing log showed 28-second waits on every admin route. opcache was warm and not thrashing. The slow lived downstream of PHP, which left one place to look. The first thing we asked the on-call developer to do was open the MySQL prompt and run a SHOW PROCESSLIST . The output had a tell. Three of the top rows were Sending data against the cron_schedule table, and the oldest one had been running for 412 seconds. The next thing we asked was the row count. SELECT COUNT(*) FROM cron_schedule; -- 14,217,883 For context, a healthy Magento 2 cron_schedule table sits between a few hundred and a few thousand rows. Fourteen million is what you get when the built-in cleanup has not run for months and the cron dispatcher has been firing every minute the whole time. What fourteen million rows in cron_schedule actually means The cron_schedule table is a queue. Every job declared in a crontab.xml across every installed module gets one row scheduled a few minutes into the future, then transitions through pending , running , and finally success or error . A job called system_cron_clean_history is supposed to delete rows older than the configured lifetime. The cleanup is itself a cron job. If something blocks the cleanup, the table grows. If the table grows past a certain size, the cleanup itself slows down. After that, every cron tick spends more time scanning cron_schedule than doing useful work. The diagnostic query we always run first on a sick Magento shop: SELECT status, COUNT(*) AS n FROM cron_schedule GROUP BY status ORDER BY n DESC; -- pending 11,402,118 -- success 2,701,455 -- missed 108,773 -- error 5,537 Eleven million pending rows is the killer. The Magento cron dispatcher loads pending rows on each tick to decide what to run. Without the right index hit pattern, the planner falls back to a full scan on something that should take five microseconds. Meanwhile a merchant save in admin triggers an indexer reschedule, which writes to cron_schedule, and that INSERT was now sitting behind seven readers. Hence the spinning admin page. To confirm, we asked the planner what it was actually doing with the dispatcher's read query: EXPLAIN SELECT * FROM cron_schedule WHERE status = 'pending' AND scheduled_at <= NOW() ORDER BY scheduled_at ASC; -- type: ALL -- possible_keys: IDX_STATUS, IDX_SCHEDULED_AT -- key: NULL -- rows: 14217883 -- Extra: Using where; Using filesort type: ALL with key: NULL means the planner looked at the indexes, weighed the selectivity, and chose a full table scan anyway. With eleven million of fourteen million rows in the pending state, the status index is useless — the planner correctly decided that scanning the whole table was cheaper than walking an index that returns 80% of rows. The fix is not a better index. The fix is fewer rows. The prune we ran and the lock we accepted There are two reasonable ways to delete from a huge InnoDB table. The first is a chunked DELETE in a shell loop. The second is a swap using CREATE TABLE LIKE and RENAME TABLE . The first is safer when many writers are active and you can tolerate hours of grinding. The second is faster but trades a short read-lock for the copy and an atomic flip at the end. We chose the swap because the cron dispatcher was about to back up the MySQL connection pool past the point where the frontend could open new sessions. The swap looks like this. CREATE TABLE cron_schedule_new LIKE cron_schedule; INSERT INTO cron_schedule_new SELECT * FROM cron_schedule WHERE scheduled_at > DATE_SUB(NOW(), INTERVAL 6 HOUR) AND status IN ('pending','running'); RENAME TABLE cron_schedule TO cron_schedule_old, cron_schedule_new TO cron_schedule; Three things matter about this sequence. CREATE LIKE copies the schema with every index, not just the columns. The INSERT SELECT held a read lock on cron_schedule for about 41 seconds on this host, during which the dispatcher's INSERTs queued behind it. The RENAME is atomic and finished in roughly 80 milliseconds. After the rename, the dispatcher's queued INSERTs landed on the new table and life resumed. The thing we did not do is run a single unbounded DELETE . On 14 million rows, a single DELETE generates an undo log that overruns the InnoDB buffer pool on a",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/magento-2-cron-schedule-bloat/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 2 cron_schedule at 14M rows: a Friday postmortem","item":"https://pier.abn.company/blog/magento-2-cron-schedule-bloat/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How big should the Magento 2 cron_schedule table get?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A healthy shop sits between a few hundred and a few thousand rows. Anything above 50,000 is worth an alert. Over a million is an incident waiting for a Friday."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I DELETE or swap on a huge cron_schedule table?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "For tables over a million rows, swap. CREATE TABLE LIKE plus INSERT SELECT plus RENAME finishes in under two minutes. A single DELETE can generate undo log that hangs MySQL for hours."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does setting indexers to schedule mode break anything?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Schedule mode writes change records to mview tables and reindexes out of band. Admin saves return faster, cron load drops, and the change is reversible per index."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does Magento ship with such generous cron history defaults?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The defaults are tuned for low-traffic dev installs where you want to see job history when debugging. Production shops should shorten history_success_lifetime to about 60 minutes."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/magento-2-cron-schedule-bloat/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 127</span>
+      </div>
+      <p class="eyebrow"><span class="n">127 —</span>Magento</p>
+      <h1 class="display-l post-title">Magento 2 cron_schedule at 14M rows: a Friday postmortem</h1>
+      <p class="lede post-lede">A Magento 2 shop&#39;s cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T20:13:18.590Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-2-cron-schedule-bloat/hero.webp" type="image/webp">
+      <img src="/blog/magento-2-cron-schedule-bloat/hero.jpg" alt="Overhead still life on bone linen: paper run-sheet, SQL prune sheet, manila folder, brass key, ER diagram, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 127</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>The 16:42 ping</h2>
+<p>Friday afternoon. A Dutch agency we work with pinged us at 16:42 because their Magento 2.4.6 shop had stopped accepting admin saves. The page would spin for thirty seconds and then return a generic 500. The frontend was technically up, but every category page took eight to twelve seconds to first byte. They have a 22-person ops team, but it was Friday, half the team was already heading home, and the store does a meaningful chunk of its weekend revenue between 18:00 and 22:00.</p>
+<p>Before assuming database, we ruled out the front of the stack in ninety seconds. PHP-FPM was at 71% utilisation across its 32 workers, not pinned. Redis answered PING in 0.4 ms and showed 18% memory headroom. Varnish was passing admin traffic through as configured, but its backend timing log showed 28-second waits on every admin route. opcache was warm and not thrashing. The slow lived downstream of PHP, which left one place to look.</p>
+<p>The first thing we asked the on-call developer to do was open the MySQL prompt and run a <code>SHOW PROCESSLIST</code>. The output had a tell. Three of the top rows were <code>Sending data</code> against the <code>cron_schedule</code> table, and the oldest one had been running for 412 seconds. The next thing we asked was the row count.</p>
+<pre><code class="lang-sql">SELECT COUNT(*) FROM cron_schedule;
+-- 14,217,883
+</code></pre>
+<p>For context, a healthy Magento 2 cron_schedule table sits between a few hundred and a few thousand rows. Fourteen million is what you get when the built-in cleanup has not run for months and the cron dispatcher has been firing every minute the whole time.</p>
+<h2>What fourteen million rows in cron_schedule actually means</h2>
+<p>The cron_schedule table is a queue. Every job declared in a <code>crontab.xml</code> across every installed module gets one row scheduled a few minutes into the future, then transitions through <code>pending</code>, <code>running</code>, and finally <code>success</code> or <code>error</code>. A job called <code>system_cron_clean_history</code> is supposed to delete rows older than the configured lifetime. The cleanup is itself a cron job. If something blocks the cleanup, the table grows. If the table grows past a certain size, the cleanup itself slows down. After that, every cron tick spends more time scanning cron_schedule than doing useful work.</p>
+<p>The diagnostic query we always run first on a sick Magento shop:</p>
+<pre><code class="lang-sql">SELECT status, COUNT(*) AS n
+FROM cron_schedule
+GROUP BY status
+ORDER BY n DESC;
+
+-- pending     11,402,118
+-- success      2,701,455
+-- missed         108,773
+-- error            5,537
+</code></pre>
+<p>Eleven million pending rows is the killer. The Magento cron dispatcher loads pending rows on each tick to decide what to run. Without the right index hit pattern, the planner falls back to a full scan on something that should take five microseconds. Meanwhile a merchant save in admin triggers an indexer reschedule, which writes to cron_schedule, and that INSERT was now sitting behind seven readers. Hence the spinning admin page.</p>
+<p>To confirm, we asked the planner what it was actually doing with the dispatcher's read query:</p>
+<pre><code class="lang-sql">EXPLAIN SELECT * FROM cron_schedule
+WHERE status = 'pending' AND scheduled_at &lt;= NOW()
+ORDER BY scheduled_at ASC;
+
+-- type:          ALL
+-- possible_keys: IDX_STATUS, IDX_SCHEDULED_AT
+-- key:           NULL
+-- rows:          14217883
+-- Extra:         Using where; Using filesort
+</code></pre>
+<p><code>type: ALL</code> with <code>key: NULL</code> means the planner looked at the indexes, weighed the selectivity, and chose a full table scan anyway. With eleven million of fourteen million rows in the <code>pending</code> state, the status index is useless — the planner correctly decided that scanning the whole table was cheaper than walking an index that returns 80% of rows. The fix is not a better index. The fix is fewer rows.</p>
+<h2>The prune we ran and the lock we accepted</h2>
+<p>There are two reasonable ways to delete from a huge InnoDB table. The first is a chunked <code>DELETE</code> in a shell loop. The second is a swap using <code>CREATE TABLE LIKE</code> and <code>RENAME TABLE</code>. The first is safer when many writers are active and you can tolerate hours of grinding. The second is faster but trades a short read-lock for the copy and an atomic flip at the end.</p>
+<p>We chose the swap because the cron dispatcher was about to back up the MySQL connection pool past the point where the frontend could open new sessions. The swap looks like this.</p>
+<pre><code class="lang-sql">CREATE TABLE cron_schedule_new LIKE cron_schedule;
+
+INSERT INTO cron_schedule_new
+SELECT * FROM cron_schedule
+WHERE scheduled_at &gt; DATE_SUB(NOW(), INTERVAL 6 HOUR)
+  AND status IN ('pending','running');
+
+RENAME TABLE
+  cron_schedule TO cron_schedule_old,
+  cron_schedule_new TO cron_schedule;
+</code></pre>
+<p>Three things matter about this sequence. <code>CREATE LIKE</code> copies the schema with every index, not just the columns. The <code>INSERT SELECT</code> held a read lock on cron_schedule for about 41 seconds on this host, during which the dispatcher's INSERTs queued behind it. The <code>RENAME</code> is atomic and finished in roughly 80 milliseconds. After the rename, the dispatcher's queued INSERTs landed on the new table and life resumed.</p>
+<p>The thing we did <em>not</em> do is run a single unbounded <code>DELETE</code>. On 14 million rows, a single DELETE generates an undo log that overruns the InnoDB buffer pool on a 16 GB host, and a kill signal is then itself slow because the undo has to roll back. The <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-locking.html">MySQL documentation on InnoDB locking</a> is the right reference if you want to understand why a long-running DELETE on a hot queue table is the worst of every world. We have watched that mistake take a Magento shop offline for two hours.</p>
+<aside class="callout">If you have to DELETE in place rather than swap, chunk it. <code>DELETE FROM cron_schedule WHERE scheduled_at &lt; DATE_SUB(NOW(), INTERVAL 1 DAY) LIMIT 50000;</code> in a shell loop with a one-second sleep between iterations will not block anyone for long, but it will take hours on 14 million rows. The swap finishes in under two minutes. Pick swap unless the table is being replicated and you cannot afford the binlog churn of a rename.</aside>
+<p>After the swap, admin saves returned in 600 milliseconds. Category page TTFB dropped to 1.2 seconds. We had bought ourselves time to actually fix the root cause.</p>
+<h2>Why the cleanup was not running</h2>
+<p>Magento ships built-in pruning. The settings live under Stores, Configuration, Advanced, System, Cron, then per cron group. The two that matter are <code>default</code> and <code>index</code>. Each group exposes the same handful of numbers.</p>
+<ul>
+<li><code>schedule_generate_every</code>, minutes between scheduling waves</li>
+<li><code>schedule_ahead_for</code>, minutes ahead to pre-schedule</li>
+<li><code>schedule_lifetime</code>, minutes a row can be late before it is marked missed</li>
+<li><code>history_cleanup_every</code>, minutes between cleanup runs</li>
+<li><code>history_success_lifetime</code> and <code>history_failure_lifetime</code></li>
+</ul>
+<p>In this incident, the cleanup was configured at sensible values. The actual problem was that <code>system_cron_clean_history</code> was itself a row in cron_schedule, and every time it tried to run, it loaded all pending rows to find itself in the queue. With 11 million pending rows, that load took longer than the cron tick interval, so the cleanup job got marked <code>missed</code> before it finished, and the next tick scheduled another one. We had thousands of stuck cleanup attempts queued behind each other, each one slower than the last. It is a fully self-reinforcing failure mode.</p>
+<p>The downstream effect was the connection pool. MySQL's <code>max_connections</code> on this host was 300. The dispatcher held one connection per stuck cleanup attempt; PHP-FPM workers were each opening one or two more for the admin saves they were trying to flush. The pool sat at 248 when we started looking and had climbed to 287 by the time the swap completed. Another ten or fifteen minutes and admin saves would have been the least of the problems — every new frontend visitor would have hit a <code>SQLSTATE[08004]</code> page because the pool had no slot left to hand them. Queue rot looks like a database problem until it starts eating the connection budget, at which point it looks like an outage.</p>
+<p>The config-level fix lives in <code>app/etc/env.php</code> rather than admin, because the agency uses config:dump and ships their env.php under version control.</p>
+<pre><code class="lang-php">'system' =&gt; [
+    'default' =&gt; [
+        'system' =&gt; [
+            'cron' =&gt; [
+                'default' =&gt; [
+                    'schedule_lifetime'         =&gt; '15',
+                    'history_cleanup_every'     =&gt; '10',
+                    'history_success_lifetime'  =&gt; '60',
+                    'history_failure_lifetime'  =&gt; '600',
+                ],
+                'index' =&gt; [
+                    'schedule_lifetime'         =&gt; '15',
+                    'history_cleanup_every'     =&gt; '10',
+                    'history_success_lifetime'  =&gt; '60',
+                    'history_failure_lifetime'  =&gt; '600',
+                ],
+            ],
+        ],
+    ],
+],
+</code></pre>
+<p>Then <code>bin/magento app:config:import</code> followed by <code>bin/magento cache:clean config</code>. Sixty minutes of success history and ten hours of failure history is plenty for almost any shop. The defaults that ship with Magento are far more generous, which is part of why this table grows in the first place.</p>
+<h2>The indexer config that stopped the regrowth</h2>
+<p>The deeper cause was indexer mode. Magento has two modes per index. <code>realtime</code> reindexes synchronously on every save. <code>schedule</code> writes a change record to a materialized view (mview) table and reindexes out of band. On a shop with frequent product saves, realtime is brutal. Every save reindexes inline, blocks the admin save, and on this shop also queued one cron job per save per index. Twelve indexers multiplied by a few hundred catalog imports per hour was the volume that overran the cleanup.</p>
+<p>The right setting for any non-trivial Magento 2 shop is <code>schedule</code> for every index. The supported way to set it from the CLI:</p>
+<pre><code class="lang-bash">bin/magento indexer:set-mode schedule \
+  catalog_product_price \
+  catalog_product_attribute \
+  catalogrule_product \
+  catalogsearch_fulltext \
+  catalog_category_product \
+  catalog_product_category \
+  cataloginventory_stock \
+  inventory \
+  customer_grid \
+  design_config_grid
+
+bin/magento indexer:reindex
+</code></pre>
+<p>The Adobe Commerce documentation on <a href="https://experienceleague.adobe.com/docs/commerce-operations/configuration-guide/cli/manage-indexers.html">managing indexers</a> covers the per-index trade-offs. The short version: schedule mode writes change records to mview tables and runs the reindex out of band, which keeps cron_schedule from being hammered on every admin save.</p>
+<p>The mode flip is recoverable. If <code>indexer:reindex</code> itself errors out or exceeds your maintenance window — usually because an orphan row in a <code>_idx</code> or <code>_replica</code> table makes a JOIN explode — flip the affected index back to <code>realtime</code> with the same command, fix the orphan, and return it to <code>schedule</code>. The mode is one row per index in the <code>indexer_state</code> table; flipping it does not destroy data and does not require maintenance mode. We keep a one-liner in the runbook for exactly that recovery, because the temptation under pressure is to delete the mview tables, which is the one move that does lose data.</p>
+<h3>The monitoring line we added</h3>
+<p>The shop had no alerting on cron_schedule size. We added a one-line check to the existing Prometheus mysqld_exporter custom query file.</p>
+<pre><code class="lang-yaml">cron_schedule_rows:
+  query: "SELECT COUNT(*) AS rows_total FROM cron_schedule"
+  metrics:
+    - rows_total:
+        usage: GAUGE
+        description: "Total rows in Magento cron_schedule"
+</code></pre>
+<p>Alert threshold at 50,000 rows, page at 250,000. Those numbers are generous; the same shop in schedule mode now sits around 4,000 rows on a normal day and peaks near 12,000 during a flash sale.</p>
+<h2>What we changed in the runbook</h2>
+<p>Three lines added to the on-call runbook after this incident.</p>
+<ol>
+<li>If a Magento 2 admin save is slow or returning a 500, run <code>SELECT status, COUNT(*) FROM cron_schedule GROUP BY status</code> before anything else. The answer tells you whether you are looking at queue rot or something else.</li>
+<li>For any cron_schedule row count above one million, swap rather than delete. The undo log on a single DELETE will hurt more than the read lock on the copy.</li>
+<li>Every new Magento 2 install gets <code>indexer:set-mode schedule</code> on every index during go-live. Realtime is a development convenience, not a production setting.</li>
+</ol>
+<p>The agency now does the row-count query as part of their weekly Monday morning health pass, alongside the usual <code>bin/magento setup:db:status</code> and a tail of <code>var/log/exception.log</code>. It takes fifteen seconds.</p>
+<h2>The smallest thing to do today</h2>
+<p>When we built <a href="/">Pier</a> we ran into this exact recipe enough times on <a href="/">legacy site</a> work that we baked it in. The <a href="/#database">MySQL editor</a> ships with a saved query for the cron_schedule status breakdown and a one-click swap-and-rename for the queue tables Magento and WordPress shops accumulate. Every swap goes into the <a href="/#features">version history</a>, so if the new table has fewer rows than you meant, the previous one is one click back.</p>
+<p>If you are reading this because your own cron_schedule has gotten away from you, the single useful thing to do today is open MySQL on your Magento 2 shop and run the COUNT and the status breakdown. Under fifty thousand rows means you have nothing to do. Over a million means schedule a maintenance window before next Friday afternoon, and put every indexer in schedule mode while you are in there.</p>
+    </div>
+
+    <aside class="pullquote">When a Magento 2 cron_schedule table goes seven figures, swap the table; do not DELETE. Then put every indexer in schedule mode so it does not happen again.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How big should the Magento 2 cron_schedule table get?</p>
+      <p class="faq-a">A healthy shop sits between a few hundred and a few thousand rows. Anything above 50,000 is worth an alert. Over a million is an incident waiting for a Friday.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I DELETE or swap on a huge cron_schedule table?</p>
+      <p class="faq-a">For tables over a million rows, swap. CREATE TABLE LIKE plus INSERT SELECT plus RENAME finishes in under two minutes. A single DELETE can generate undo log that hangs MySQL for hours.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does setting indexers to schedule mode break anything?</p>
+      <p class="faq-a">No. Schedule mode writes change records to mview tables and reindexes out of band. Admin saves return faster, cron load drops, and the change is reversible per index.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does Magento ship with such generous cron history defaults?</p>
+      <p class="faq-a">The defaults are tuned for low-traffic dev installs where you want to see job history when debugging. Production shops should shorten history_success_lifetime to about 60 minutes.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=magento">#magento</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/magento-csv-import-without-downtime/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-csv-import-without-downtime/hero.webp" type="image/webp">
+        <img src="/blog/magento-csv-import-without-downtime/hero.jpg" alt="Overhead shot of printed CSV sheet, manila folder, brass key, ruler, red pencil, index cards, wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>27 May 2026</span></span>
+      <h3>Magento CSV import without downtime: a 9,000-row swap</h3>
+      <span class="pc-lede">A 23:41 Loom, a 9,043-row supplier CSV, and a storefront that could not go down. The post-mortem on how a Dutch agency staged the import without losing a minute of uptime.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-ai-copy-staging-shape/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-ai-copy-staging-shape/hero.webp" type="image/webp">
+        <img src="/blog/magento-ai-copy-staging-shape/hero.jpg" alt="Overhead linen desk with paper Magento staging plan, manila folder, SKU sheet, brass plate, wax seal, fountain pen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Magento 1 AI product copy: a staging shape that holds</h3>
+      <span class="pc-lede">A read-only staging mirror is the cheapest insurance against AI-generated product copy that overwrites the wrong SKU in a 2014-vintage Magento store.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/magento-2-cron-schedule-bloat/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
