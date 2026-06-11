@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal watchdog by hand: severity, type, four queries · Pier — Blog</title>
+<meta name="description" content="The dblog admin page caps at 50 rows and aggregates nothing. The watchdog table itself answers the questions the UI cannot. Three columns and four queries.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, mysql, php, databases, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/drupal-watchdog-severity-queries/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-watchdog-severity-queries/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-watchdog-severity-queries/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-watchdog-severity-queries/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal watchdog by hand: severity, type, four queries">
+<meta property="og:description" content="The dblog admin page caps at 50 rows and aggregates nothing. The watchdog table itself answers the questions the UI cannot. Three columns and four queries.">
+<meta property="og:url" content="https://pier.abn.company/blog/drupal-watchdog-severity-queries/">
+<meta property="og:image" content="https://pier.abn.company/blog/drupal-watchdog-severity-queries/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/drupal-watchdog-severity-queries/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of paper ER diagram, query sheet, severity index cards, manila tab, brass plate, fountain pen, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T23:37:44.463Z">
+<meta property="article:modified_time" content="2026-06-11T23:37:44.463Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal watchdog by hand: severity, type, four queries">
+<meta name="twitter:description" content="The dblog admin page caps at 50 rows and aggregates nothing. The watchdog table itself answers the questions the UI cannot. Three columns and four queries.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/drupal-watchdog-severity-queries/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of paper ER diagram, query sheet, severity index cards, manila tab, brass plate, fountain pen, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-watchdog-severity-queries/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/drupal-watchdog-severity-queries/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/drupal-watchdog-severity-queries/"},
+  "url":"https://pier.abn.company/blog/drupal-watchdog-severity-queries/",
+  "headline":"Drupal watchdog by hand: severity, type, four queries",
+  "description":"The dblog admin page caps at 50 rows and aggregates nothing. The watchdog table itself answers the questions the UI cannot. Three columns and four queries.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/drupal-watchdog-severity-queries/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of paper ER diagram, query sheet, severity index cards, manila tab, brass plate, fountain pen, red wax seal."
+  },
+  "datePublished":"2026-06-11T23:37:44.463Z",
+  "dateModified":"2026-06-11T23:37:44.463Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"drupal, mysql, php, databases, operations",
+  "wordCount":1196,
+  "articleSection":"Drupal",
+  "articleBody":"A Drupal 9 site for a Dutch publisher we work with had been throwing intermittent 500s for three weeks before anyone noticed. The dblog admin page at /admin/reports/dblog was useless: 50 rows per page, no aggregation, a wall of \"Notice\" entries from a module nobody had touched since 2019. The watchdog table itself had 1.4 million rows. Reading the dblog UI was hopeless. Reading the table by hand was a 20-minute job. The watchdog table at a glance The watchdog table is written by Drupal core's dblog module. Every variant from Drupal 6 through Drupal 10 carries the same backbone columns: wid , uid , type , message , variables , severity , link , location , referer , hostname , timestamp . The interesting work lives in three of them: type , severity , and message . Everything else is metadata you only need once you have spotted something worth chasing. On Drupal 8, 9, and 10 the schema is unchanged if dblog is enabled, so the queries below work without modification across every supported version. The message column stores a t() placeholder template, not the rendered text. The substituted values live in variables , serialized PHP. That is why SELECT message FROM watchdog returns cryptic strings like %type: !message in %function (line %line of %file) rather than the readable lines the admin UI shows. Treat message as a fingerprint, not a sentence. Two rows with the same message are the same kind of problem, even when the rendered output looks different to a human. Severity decoded Drupal's severity column maps cleanly to RFC 5424 syslog levels . Lower number, higher urgency: 0 Emergency 1 Alert 2 Critical 3 Error 4 Warning 5 Notice 6 Info 7 Debug Almost every Drupal site I have audited shows the same ratio: 95% of rows sit at severity 5 or 6, 4% at severity 4, and the remaining 1% is where the real problems live. The first thing to do is stop looking at anything above 4. That alone collapses a 1.4-million-row watchdog into something readable in a single screen. The ratio itself is a data point: a site where severity 4 sits at 10% has a different problem to one where severity 3 sits at 8%, and you want to know which you are dealing with before you write a fix. Four queries that surface real problems 1. Top types in the last 24 hours, bucketed by severity SELECT type, SUM(severity <= 3) AS errors, SUM(severity = 4) AS warnings, COUNT(*) AS total FROM watchdog WHERE timestamp > UNIX_TIMESTAMP() - 86400 GROUP BY type ORDER BY errors DESC, warnings DESC; This is the orientation query. Run it first. If cron produces 200 errors a day, that is where you go next. If php dominates, the site has a fatal somewhere. If access denied sits in the top three, someone is fingerprinting your admin URLs. The type column is whatever string the calling code passed to watchdog() on Drupal 7 or to the logger channel on Drupal 8 and later, so contrib modules sometimes invent their own type strings. Anything unfamiliar in the top of this list is a lead worth following. 2. Recurring PHP errors, collapsed by message fingerprint SELECT message, COUNT(*) AS hits, MAX(FROM_UNIXTIME(timestamp)) AS last_seen FROM watchdog WHERE type = 'php' AND severity <= 3 AND timestamp > UNIX_TIMESTAMP() - 7 * 86400 GROUP BY message ORDER BY hits DESC LIMIT 20; PHP errors fingerprint cleanly because Drupal stores the placeholder template, not the rendered string. A row of Trying to access array offset on value of type null in %function() (line %line of %file) repeating 8,400 times in a week is one bug, in one file, on one line. Pull one row, unserialize variables , and you have the file path and line number to fix. The hit count tells you how badly it is firing, and the last_seen timestamp tells you whether it started after a recent deploy. On the publisher site, the top row turned out to be a deprecated call in a custom block plugin that nobody had exercised under PHP 8.1. 3. The access-denied pattern check SELECT location, COUNT(*) AS hits, COUNT(DISTINCT hostname) AS unique_ips FROM watchdog WHERE type = 'access denied' AND timestamp > UNIX_TIMESTAMP() - 86400 GROUP BY location ORDER BY hits DESC LIMIT 20; This one earns its keep on any public Drupal site. If /user , /user/login , /?q=user , and /admin show up 4,000 times from one IP, that is a credential-stuffing run. If the same volume is spread across 800 hostnames, that is a botnet. Either pattern is grounds to add an .htaccess rule or a fail2ban filter before the next escalation. The page not found type works the same way: same query, different filter, and the result is usually a 404 sweep looking for wp-login.php on a Drupal site, which is its own kind of useful signal. 4. Cron health check SELECT type, severity, message, FROM_UNIXTIME(timestamp) AS at FROM watchdog WHERE type IN ('cron', 'system') AND severity <= 4 AND timestamp > UNIX_TIMESTAMP() - 7 * 86400 ORDER BY timestamp DESC; Silent cron failure is the most common Drupal problem nobody notices. Search indexes go stale, queues back up, the s",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/drupal-watchdog-severity-queries/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal watchdog by hand: severity, type, four queries","item":"https://pier.abn.company/blog/drupal-watchdog-severity-queries/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I delete old watchdog rows to speed up the admin UI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Set the dblog row cap at /admin/config/development/logging instead. Drupal's own cap-and-truncate runs as part of cron once it is enabled, and you keep recent context."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does watchdog.message look like a template instead of a sentence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It stores the t() placeholder string. The substituted values live in the variables column as serialized PHP. That is also what makes message a good fingerprint for grouping repeating errors."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between dblog and syslog in Drupal?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dblog writes to the watchdog table; the syslog module writes to the OS syslog instead. High-traffic sites often move logging to syslog to keep watchdog from ballooning."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are the severity numbers Drupal-specific?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. They map to RFC 5424 syslog levels, the same numbers PHP error_log and most Unix log tooling use. Lower number means higher urgency."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/drupal-watchdog-severity-queries/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 130</span>
+      </div>
+      <p class="eyebrow"><span class="n">130 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal watchdog by hand: severity, type, four queries</h1>
+      <p class="lede post-lede">The dblog admin page caps at 50 rows and aggregates nothing. The watchdog table itself answers the questions the UI cannot. Three columns and four queries.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T23:37:44.463Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-watchdog-severity-queries/hero.webp" type="image/webp">
+      <img src="/blog/drupal-watchdog-severity-queries/hero.jpg" alt="Overhead photo of paper ER diagram, query sheet, severity index cards, manila tab, brass plate, fountain pen, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 130</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Drupal 9 site for a Dutch publisher we work with had been throwing intermittent 500s for three weeks before anyone noticed. The dblog admin page at <code>/admin/reports/dblog</code> was useless: 50 rows per page, no aggregation, a wall of "Notice" entries from a module nobody had touched since 2019. The watchdog table itself had 1.4 million rows. Reading the dblog UI was hopeless. Reading the table by hand was a 20-minute job.</p>
+
+<h2>The watchdog table at a glance</h2>
+
+<p>The watchdog table is written by Drupal core's dblog module. Every variant from Drupal 6 through Drupal 10 carries the same backbone columns: <code>wid</code>, <code>uid</code>, <code>type</code>, <code>message</code>, <code>variables</code>, <code>severity</code>, <code>link</code>, <code>location</code>, <code>referer</code>, <code>hostname</code>, <code>timestamp</code>. The interesting work lives in three of them: <code>type</code>, <code>severity</code>, and <code>message</code>. Everything else is metadata you only need once you have spotted something worth chasing. On Drupal 8, 9, and 10 the schema is unchanged if dblog is enabled, so the queries below work without modification across every supported version.</p>
+
+<p>The <code>message</code> column stores a <code>t()</code> placeholder template, not the rendered text. The substituted values live in <code>variables</code>, serialized PHP. That is why <code>SELECT message FROM watchdog</code> returns cryptic strings like <code>%type: !message in %function (line %line of %file)</code> rather than the readable lines the admin UI shows. Treat <code>message</code> as a fingerprint, not a sentence. Two rows with the same <code>message</code> are the same kind of problem, even when the rendered output looks different to a human.</p>
+
+<h2>Severity decoded</h2>
+
+<p>Drupal's severity column maps cleanly to <a href="https://datatracker.ietf.org/doc/html/rfc5424#section-6.2.1">RFC 5424 syslog levels</a>. Lower number, higher urgency:</p>
+
+<pre><code class="lang-sql">0 Emergency
+1 Alert
+2 Critical
+3 Error
+4 Warning
+5 Notice
+6 Info
+7 Debug</code></pre>
+
+<p>Almost every Drupal site I have audited shows the same ratio: 95% of rows sit at severity 5 or 6, 4% at severity 4, and the remaining 1% is where the real problems live. The first thing to do is stop looking at anything above 4. That alone collapses a 1.4-million-row watchdog into something readable in a single screen. The ratio itself is a data point: a site where severity 4 sits at 10% has a different problem to one where severity 3 sits at 8%, and you want to know which you are dealing with before you write a fix.</p>
+
+<h2>Four queries that surface real problems</h2>
+
+<h3>1. Top types in the last 24 hours, bucketed by severity</h3>
+
+<pre><code class="lang-sql">SELECT type,
+       SUM(severity &lt;= 3) AS errors,
+       SUM(severity = 4)  AS warnings,
+       COUNT(*)            AS total
+FROM watchdog
+WHERE timestamp &gt; UNIX_TIMESTAMP() - 86400
+GROUP BY type
+ORDER BY errors DESC, warnings DESC;</code></pre>
+
+<p>This is the orientation query. Run it first. If <code>cron</code> produces 200 errors a day, that is where you go next. If <code>php</code> dominates, the site has a fatal somewhere. If <code>access denied</code> sits in the top three, someone is fingerprinting your admin URLs. The <code>type</code> column is whatever string the calling code passed to <a href="https://api.drupal.org/api/drupal/core%21includes%21bootstrap.inc/function/watchdog/7.x"><code>watchdog()</code></a> on Drupal 7 or to the logger channel on Drupal 8 and later, so contrib modules sometimes invent their own type strings. Anything unfamiliar in the top of this list is a lead worth following.</p>
+
+<h3>2. Recurring PHP errors, collapsed by message fingerprint</h3>
+
+<pre><code class="lang-sql">SELECT message,
+       COUNT(*) AS hits,
+       MAX(FROM_UNIXTIME(timestamp)) AS last_seen
+FROM watchdog
+WHERE type = 'php'
+  AND severity &lt;= 3
+  AND timestamp &gt; UNIX_TIMESTAMP() - 7 * 86400
+GROUP BY message
+ORDER BY hits DESC
+LIMIT 20;</code></pre>
+
+<p>PHP errors fingerprint cleanly because Drupal stores the placeholder template, not the rendered string. A row of <code>Trying to access array offset on value of type null in %function() (line %line of %file)</code> repeating 8,400 times in a week is one bug, in one file, on one line. Pull one row, unserialize <code>variables</code>, and you have the file path and line number to fix. The hit count tells you how badly it is firing, and the <code>last_seen</code> timestamp tells you whether it started after a recent deploy. On the publisher site, the top row turned out to be a deprecated call in a custom block plugin that nobody had exercised under PHP 8.1.</p>
+
+<h3>3. The access-denied pattern check</h3>
+
+<pre><code class="lang-sql">SELECT location,
+       COUNT(*) AS hits,
+       COUNT(DISTINCT hostname) AS unique_ips
+FROM watchdog
+WHERE type = 'access denied'
+  AND timestamp &gt; UNIX_TIMESTAMP() - 86400
+GROUP BY location
+ORDER BY hits DESC
+LIMIT 20;</code></pre>
+
+<p>This one earns its keep on any public Drupal site. If <code>/user</code>, <code>/user/login</code>, <code>/?q=user</code>, and <code>/admin</code> show up 4,000 times from one IP, that is a credential-stuffing run. If the same volume is spread across 800 hostnames, that is a botnet. Either pattern is grounds to add an <code>.htaccess</code> rule or a fail2ban filter before the next escalation. The <code>page not found</code> type works the same way: same query, different filter, and the result is usually a 404 sweep looking for <code>wp-login.php</code> on a Drupal site, which is its own kind of useful signal.</p>
+
+<h3>4. Cron health check</h3>
+
+<pre><code class="lang-sql">SELECT type, severity, message, FROM_UNIXTIME(timestamp) AS at
+FROM watchdog
+WHERE type IN ('cron', 'system')
+  AND severity &lt;= 4
+  AND timestamp &gt; UNIX_TIMESTAMP() - 7 * 86400
+ORDER BY timestamp DESC;</code></pre>
+
+<p>Silent cron failure is the most common Drupal problem nobody notices. Search indexes go stale, queues back up, the sitemap stops regenerating, and the status report at <code>/admin/reports/status</code> cheerfully announces "Last run 14 weeks ago." If this query returns warnings or errors, cron is firing but a <code>hook_cron</code> implementation is throwing partway through. If it returns nothing and the status page still says weeks ago, cron is not being triggered at all and the problem is on the server, not in the Drupal code.</p>
+
+<aside class="callout">Do not TRUNCATE the watchdog table to clean it up. The dblog module enforces a row cap at <code>/admin/config/development/logging</code> (default 1000). If your watchdog has 1.4M rows, the cap is disabled or something outside dblog is writing to the table. Find out which before deleting anything, or you erase the evidence you needed to diagnose the rest of the problem.</aside>
+
+<h2>Reading the results</h2>
+
+<p>Each of the four queries answers a different question, but the workflow is the same: run query 1, pick the loudest type, run the matching follow-up, then unserialize one <code>variables</code> blob to get a file path and a line number. Do not try to read the watchdog linearly. The dblog admin page does that for you, and that is precisely why nobody trusts it.</p>
+
+<p>When we built Pier we ran into this exact thing while helping clean up a <a href="/">legacy site</a> with around 900,000 watchdog rows and an admin UI that timed out before the first page rendered. The way we ended up handling it was to put a <a href="/#database">MySQL editor</a> in the same window as the file tree, so the query sits next to the <code>.module</code> file the errors are coming from, and every SQL edit lands in the <a href="/#features">version history</a> alongside the file changes.</p>
+
+<p>Today: open the watchdog on whichever Drupal site has been muttering at you longest, and run query 1. If the top type is anything other than <code>page not found</code> or <code>access denied</code>, you have an afternoon's work ahead, and probably a small win at the end of it.</p>
+    </div>
+
+    <aside class="pullquote">The watchdog table is readable by hand once you bucket by severity and group by message; the dblog admin UI hides the patterns the SQL surfaces.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Should I delete old watchdog rows to speed up the admin UI?</p>
+      <p class="faq-a">Set the dblog row cap at /admin/config/development/logging instead. Drupal&#39;s own cap-and-truncate runs as part of cron once it is enabled, and you keep recent context.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does watchdog.message look like a template instead of a sentence?</p>
+      <p class="faq-a">It stores the t() placeholder string. The substituted values live in the variables column as serialized PHP. That is also what makes message a good fingerprint for grouping repeating errors.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the difference between dblog and syslog in Drupal?</p>
+      <p class="faq-a">Dblog writes to the watchdog table; the syslog module writes to the OS syslog instead. High-traffic sites often move logging to syslog to keep watchdog from ballooning.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Are the severity numbers Drupal-specific?</p>
+      <p class="faq-a">No. They map to RFC 5424 syslog levels, the same numbers PHP error_log and most Unix log tooling use. Lower number means higher urgency.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=databases">#databases</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/drupal-9-session-table-outage/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-9-session-table-outage/hero.webp" type="image/webp">
+        <img src="/blog/drupal-9-session-table-outage/hero.jpg" alt="Overhead still life on bone linen: inked MySQL schema, 502 error printout, manila folder, index cards, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Drupal 9 502 for editors only: a session table outage</h3>
+      <span class="pc-lede">A Drupal 9 site started 502ing only for logged-in editors on a Thursday afternoon. Anonymous traffic was fine. The cause was a sessions table that had outgrown ibdata1.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/magento-2-cron-schedule-bloat/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/magento-2-cron-schedule-bloat/hero.webp" type="image/webp">
+        <img src="/blog/magento-2-cron-schedule-bloat/hero.jpg" alt="Overhead still life on bone linen: paper run-sheet, SQL prune sheet, manila folder, brass key, ER diagram, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>12 June 2026</span></span>
+      <h3>Magento 2 cron_schedule at 14M rows: a Friday postmortem</h3>
+      <span class="pc-lede">A Magento 2 shop&#39;s cron_schedule table hit 14 million rows on a Friday afternoon. Here is the prune, the lock duration we accepted, and the indexer config that stopped the regrowth.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/drupal-watchdog-severity-queries/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
