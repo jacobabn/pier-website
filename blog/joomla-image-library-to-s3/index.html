@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla 3 image library to S3: a 22GB migration log · Pier — Blog</title>
+<meta name="description" content="How we moved a 22GB Joomla 3 image library to S3 over one weekend, without breaking a single article reference or noticing a flicker in the access log.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, migration, mysql, htaccess, php, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/blog/joomla-image-library-to-s3/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-image-library-to-s3/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-image-library-to-s3/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-image-library-to-s3/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla 3 image library to S3: a 22GB migration log">
+<meta property="og:description" content="How we moved a 22GB Joomla 3 image library to S3 over one weekend, without breaking a single article reference or noticing a flicker in the access log.">
+<meta property="og:url" content="https://pier.abn.company/blog/joomla-image-library-to-s3/">
+<meta property="og:image" content="https://pier.abn.company/blog/joomla-image-library-to-s3/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/joomla-image-library-to-s3/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead desk: graph-paper migration log, manila folder, ink directory tree to S3 bucket, index cards, brass plate, pen, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T03:58:08.443Z">
+<meta property="article:modified_time" content="2026-06-11T03:58:08.443Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Migration">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla 3 image library to S3: a 22GB migration log">
+<meta name="twitter:description" content="How we moved a 22GB Joomla 3 image library to S3 over one weekend, without breaking a single article reference or noticing a flicker in the access log.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/joomla-image-library-to-s3/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead desk: graph-paper migration log, manila folder, ink directory tree to S3 bucket, index cards, brass plate, pen, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Migration">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-image-library-to-s3/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/joomla-image-library-to-s3/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/joomla-image-library-to-s3/"},
+  "url":"https://pier.abn.company/blog/joomla-image-library-to-s3/",
+  "headline":"Joomla 3 image library to S3: a 22GB migration log",
+  "description":"How we moved a 22GB Joomla 3 image library to S3 over one weekend, without breaking a single article reference or noticing a flicker in the access log.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/joomla-image-library-to-s3/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead desk: graph-paper migration log, manila folder, ink directory tree to S3 bucket, index cards, brass plate, pen, wax seal."
+  },
+  "datePublished":"2026-06-11T03:58:08.443Z",
+  "dateModified":"2026-06-11T03:58:08.443Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"joomla, migration, mysql, htaccess, php, architecture",
+  "wordCount":1899,
+  "articleSection":"Migration",
+  "articleBody":"The Loom arrived at 23:41 on a Tuesday. Twelve minutes of an agency lead screen-sharing a Joomla 3.10 admin in dim light. The site was a regional news publisher with about 14,000 articles, 22GB of images under /images/ , and a hosting bill that had quietly tripled over four years. Their last backup had failed for the eighth night in a row. The shared host gave up halfway through the tarball. The brief was straightforward: move the entire image library to S3, keep every article's <img> tag working, do it without taking the site down. The publisher had a developer relationship from 2014 they did not want to revive. This is the log of what we did, in the order we did it. Why /images/ broke at 22GB The site sat on a single Hetzner VPS with a 40GB SSD. PHP 7.4, MariaDB 10.3, Joomla 3.10.12. The image library lived at /var/www/html/images/ , the default Joomla location. Around 18GB of it was article hero photos at full DSLR resolution, never resized, going back to 2015. Another 3GB was inline images/stories/ content. The remainder was thumbnails, generated badly, in several competing folders. The breaking point was not disk. It was inode pressure and the backup window. find /var/www/html/images -type f | wc -l returned 487,213. The nightly tar was running into the next morning and locking files mid-stream. The customer's hosting provider had also started throttling outbound traffic above 200GB per month, which the image hot-set was now exceeding on its own. S3 plus a CDN solves all three problems. The hard part is that Joomla 3, like most legacy CMSes, treats image paths as opaque strings in article content. There is no attachments table. There is no canonical media ID. An <img src=\"images/2018/04/header.jpg\"> written in 2018 is, in 2026, a fragile literal that the editor never knew was fragile. Mapping every reference Before touching anything, we wanted a count. The audit queries are the same ones you would run from mysql -uroot . The reference surfaces in a Joomla 3 install live in four places: -- Articles SELECT id, title FROM jos_content WHERE introtext LIKE '%src=\"images/%' OR fulltext LIKE '%src=\"images/%' OR images LIKE '%images/%'; -- Custom HTML modules SELECT id, title FROM jos_modules WHERE content LIKE '%src=\"images/%'; -- Menu params (intro images on category menus) SELECT id, title FROM jos_menu WHERE params LIKE '%images/%'; -- K2 if installed SELECT id, title FROM jos_k2_items WHERE introtext LIKE '%images/%' OR fulltext LIKE '%images/%' OR image_caption LIKE '%images/%'; The publisher had no K2, but did have JCE editor custom fields and a sidebar of static modules with hand-pasted gallery markup. The audit returned 38,902 distinct references across four tables. Roughly 6 percent of articles used relative paths without the images/ prefix, like src=\"2017/05/photo.jpg\" , which Joomla resolved against a per-category base path set in a template override nobody had documented. We logged the path of every reference and the table it lived in. That CSV was the only artifact we trusted for the rest of the migration. The Apache proxy that bought us a weekend The next decision was the most useful one we made. Instead of rewriting the database first and then syncing to S3, we did it the other way around: we put Apache in front of S3 as a transparent proxy, so that https://site.example/images/whatever.jpg would silently read from the bucket regardless of what the database said. This decoupled the file move from the reference rewrite. We could sync first, verify the proxy worked, and only then go near the SQL. The .htaccess block we added at the document root: RewriteEngine On # Serve /images/ from S3 via CloudFront, transparently. RewriteCond %{REQUEST_URI} ^/images/ RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} !-f RewriteRule ^images/(.*)$ https://d2x9k1example.cloudfront.net/images/$1 [P,L] # Cache the proxied responses for a day at the edge. <IfModule mod_headers.c> Header set Cache-Control \"public, max-age=86400\" \"expr=%{REQUEST_URI} =~ m#^/images/#\" </IfModule> The !-f condition is the important one. It means: if the file still exists on disk, serve it from disk and skip the proxy. If it does not, proxy from CloudFront. That gave us a safe rollout. We could delete files from the VPS in batches and watch nothing break. mod_proxy and mod_proxy_http needed to be enabled, which on Apache 2.4 is one line in the host config. The Apache mod_rewrite documentation covers the [P] flag and its interaction with RewriteRule substitution, which is where most production mistakes happen. A proxy this casual is only acceptable because the bucket is public-read and the URLs were already cacheable. If your images carry signed URLs or per-user access control, you cannot proxy through Apache like this. Rewrite the references first and let the CDN handle authentication. Syncing 22GB without rsync drift With the proxy in place, the sync became boring, which is what you want. We used aws s3 sync rather than rclone because the sour",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/joomla-image-library-to-s3/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla 3 image library to S3: a 22GB migration log","item":"https://pier.abn.company/blog/joomla-image-library-to-s3/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Will the Apache proxy add measurable latency to image requests?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "On cache-miss requests, yes: Apache fetches from CloudFront and re-emits. We measured roughly 40ms added on cold paths, and single-digit milliseconds on warm paths once the edge cached the file."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why not rewrite the SQL first and skip the proxy entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "A bad UPDATE on 38,000 references can break every article at once. The proxy gave us a quiet rollback path: revert the SQL and the on-disk fallback still served the images."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the same approach work for Joomla 4 or 5?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The principle is identical. The jos_content.images column moved to a JSON type and the htaccess block is unchanged. K2 is unsupported on Joomla 4, so audit any K2 fork separately."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about images uploaded after the cutover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We patched the media manager to upload directly to S3 via a small plugin hooking the onAfterMediaUpload event. Articles authored after cutover never touched the host filesystem."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/joomla-image-library-to-s3/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 108</span>
+      </div>
+      <p class="eyebrow"><span class="n">108 —</span>Migration</p>
+      <h1 class="display-l post-title">Joomla 3 image library to S3: a 22GB migration log</h1>
+      <p class="lede post-lede">How we moved a 22GB Joomla 3 image library to S3 over one weekend, without breaking a single article reference or noticing a flicker in the access log.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T03:58:08.443Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-image-library-to-s3/hero.webp" type="image/webp">
+      <img src="/blog/joomla-image-library-to-s3/hero.jpg" alt="Overhead desk: graph-paper migration log, manila folder, ink directory tree to S3 bucket, index cards, brass plate, pen, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 108</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom arrived at 23:41 on a Tuesday. Twelve minutes of an agency lead screen-sharing a Joomla 3.10 admin in dim light. The site was a regional news publisher with about 14,000 articles, 22GB of images under <code>/images/</code>, and a hosting bill that had quietly tripled over four years. Their last backup had failed for the eighth night in a row. The shared host gave up halfway through the tarball.</p>
+
+<p>The brief was straightforward: move the entire image library to S3, keep every article's <code>&lt;img&gt;</code> tag working, do it without taking the site down. The publisher had a developer relationship from 2014 they did not want to revive.</p>
+
+<p>This is the log of what we did, in the order we did it.</p>
+
+<h2>Why /images/ broke at 22GB</h2>
+
+<p>The site sat on a single Hetzner VPS with a 40GB SSD. PHP 7.4, MariaDB 10.3, Joomla 3.10.12. The image library lived at <code>/var/www/html/images/</code>, the default Joomla location. Around 18GB of it was article hero photos at full DSLR resolution, never resized, going back to 2015. Another 3GB was inline <code>images/stories/</code> content. The remainder was thumbnails, generated badly, in several competing folders.</p>
+
+<p>The breaking point was not disk. It was inode pressure and the backup window. <code>find /var/www/html/images -type f | wc -l</code> returned 487,213. The nightly <code>tar</code> was running into the next morning and locking files mid-stream. The customer's hosting provider had also started throttling outbound traffic above 200GB per month, which the image hot-set was now exceeding on its own.</p>
+
+<p>S3 plus a CDN solves all three problems. The hard part is that Joomla 3, like most legacy CMSes, treats image paths as opaque strings in article content. There is no attachments table. There is no canonical media ID. An <code>&lt;img src="images/2018/04/header.jpg"&gt;</code> written in 2018 is, in 2026, a fragile literal that the editor never knew was fragile.</p>
+
+<h2>Mapping every reference</h2>
+
+<p>Before touching anything, we wanted a count. The audit queries are the same ones you would run from <code>mysql -uroot</code>. The reference surfaces in a Joomla 3 install live in four places:</p>
+
+<pre><code class="lang-sql">-- Articles
+SELECT id, title FROM jos_content
+WHERE introtext LIKE '%src="images/%'
+   OR fulltext  LIKE '%src="images/%'
+   OR images    LIKE '%images/%';
+
+-- Custom HTML modules
+SELECT id, title FROM jos_modules
+WHERE content LIKE '%src="images/%';
+
+-- Menu params (intro images on category menus)
+SELECT id, title FROM jos_menu
+WHERE params LIKE '%images/%';
+
+-- K2 if installed
+SELECT id, title FROM jos_k2_items
+WHERE introtext LIKE '%images/%'
+   OR fulltext  LIKE '%images/%'
+   OR image_caption LIKE '%images/%';</code></pre>
+
+<p>The publisher had no K2, but did have JCE editor custom fields and a sidebar of static modules with hand-pasted gallery markup. The audit returned 38,902 distinct references across four tables. Roughly 6 percent of articles used relative paths without the <code>images/</code> prefix, like <code>src="2017/05/photo.jpg"</code>, which Joomla resolved against a per-category base path set in a template override nobody had documented.</p>
+
+<p>We logged the path of every reference and the table it lived in. That CSV was the only artifact we trusted for the rest of the migration.</p>
+
+<h2>The Apache proxy that bought us a weekend</h2>
+
+<p>The next decision was the most useful one we made. Instead of rewriting the database first and then syncing to S3, we did it the other way around: we put Apache in front of S3 as a transparent proxy, so that <code>https://site.example/images/whatever.jpg</code> would silently read from the bucket regardless of what the database said. This decoupled the file move from the reference rewrite. We could sync first, verify the proxy worked, and only then go near the SQL.</p>
+
+<p>The <code>.htaccess</code> block we added at the document root:</p>
+
+<pre><code class="lang-apache">RewriteEngine On
+
+# Serve /images/ from S3 via CloudFront, transparently.
+RewriteCond %{REQUEST_URI} ^/images/
+RewriteCond %{DOCUMENT_ROOT}%{REQUEST_URI} !-f
+RewriteRule ^images/(.*)$ https://d2x9k1example.cloudfront.net/images/$1 [P,L]
+
+# Cache the proxied responses for a day at the edge.
+&lt;IfModule mod_headers.c&gt;
+  Header set Cache-Control "public, max-age=86400" "expr=%{REQUEST_URI} =~ m#^/images/#"
+&lt;/IfModule&gt;</code></pre>
+
+<p>The <code>!-f</code> condition is the important one. It means: if the file still exists on disk, serve it from disk and skip the proxy. If it does not, proxy from CloudFront. That gave us a safe rollout. We could delete files from the VPS in batches and watch nothing break.</p>
+
+<p><code>mod_proxy</code> and <code>mod_proxy_http</code> needed to be enabled, which on Apache 2.4 is one line in the host config. The <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">Apache mod_rewrite documentation</a> covers the <code>[P]</code> flag and its interaction with <code>RewriteRule</code> substitution, which is where most production mistakes happen.</p>
+
+<aside class="callout">A proxy this casual is only acceptable because the bucket is public-read and the URLs were already cacheable. If your images carry signed URLs or per-user access control, you cannot proxy through Apache like this. Rewrite the references first and let the CDN handle authentication.</aside>
+
+<h2>Syncing 22GB without rsync drift</h2>
+
+<p>With the proxy in place, the sync became boring, which is what you want. We used <code>aws s3 sync</code> rather than rclone because the source was a single mount with no exotic permissions. Two passes:</p>
+
+<pre><code class="lang-bash"># First pass: bulk copy, ignore modifications.
+aws s3 sync /var/www/html/images/ s3://example-cdn/images/ \
+  --size-only \
+  --storage-class STANDARD_IA \
+  --acl public-read \
+  --exclude "*.tmp" --exclude ".DS_Store"
+
+# Second pass, 36 hours later: catch the drift.
+aws s3 sync /var/www/html/images/ s3://example-cdn/images/ \
+  --size-only \
+  --acl public-read</code></pre>
+
+<p>The first pass took 11 hours over the publisher's 100Mbit uplink, which is what you would predict for 22GB given TLS overhead and the long tail of tiny thumbnails. We ran it under <code>tmux</code> and watched it from a phone. The second pass took eight minutes and moved 312 files, exactly the articles the editorial team had touched during the day.</p>
+
+<p>We verified the bucket count against the filesystem count with a single command per side:</p>
+
+<pre><code class="lang-bash">find /var/www/html/images -type f ! -name '.DS_Store' | wc -l
+aws s3 ls --recursive s3://example-cdn/images/ | wc -l</code></pre>
+
+<p>The numbers matched to within four files, which were <code>.tmp</code> upload remnants we had explicitly excluded. Good enough.</p>
+
+<h2>The cutover SQL</h2>
+
+<p>This is the part that scares people, and it should. You are going to run UPDATE statements against four tables on a live database. The publisher's editorial workflow was Monday through Friday, so we did the cutover at 02:00 on a Sunday with a full <code>mysqldump</code> taken at 01:55.</p>
+
+<p>The actual rewrites:</p>
+
+<pre><code class="lang-sql">-- Inline content in articles.
+UPDATE jos_content
+SET introtext = REPLACE(introtext,
+      'src="images/',
+      'src="https://cdn.example.com/images/'),
+    fulltext  = REPLACE(fulltext,
+      'src="images/',
+      'src="https://cdn.example.com/images/');
+
+-- The JSON field on jos_content.images (slashes are escaped in storage).
+UPDATE jos_content
+SET images = REPLACE(images,
+      'images\/',
+      'https:\/\/cdn.example.com\/images\/')
+WHERE images LIKE '%images\/%';
+
+-- Custom HTML modules.
+UPDATE jos_modules
+SET content = REPLACE(content,
+      'src="images/',
+      'src="https://cdn.example.com/images/')
+WHERE content LIKE '%src="images/%';</code></pre>
+
+<p>Two things to notice. The <code>jos_content.images</code> column is a JSON blob with escaped forward slashes, so the REPLACE has to match <code>images\/</code> not <code>images/</code>. Joomla's <code>JRegistry</code> serialiser emits double-escaped slashes on insert, but the actual stored value uses single backslashes. Run <code>SELECT images FROM jos_content WHERE id = X</code> against a known article first and copy the literal bytes.</p>
+
+<p>The second is the 6 percent of articles with bare relative paths. We handled those with a targeted query that matched the per-category base path the template override had been silently prepending, then rewrote those specific patterns. There were 47 distinct base paths. The CSV from the audit phase was what told us which 47.</p>
+
+<p>After the UPDATEs ran (12 seconds total against an indexed table), we ran a paranoid count:</p>
+
+<pre><code class="lang-sql">SELECT COUNT(*) FROM jos_content
+WHERE introtext LIKE '%src="images/%'
+   OR fulltext  LIKE '%src="images/%';
+-- Expected: 0</code></pre>
+
+<p>It returned 3. Three articles had image tags inside a <code>&lt;noscript&gt;</code> block that the editor had hand-written with a space before the <code>src</code> attribute (<code>src ="images/...</code>). We patched those manually and moved on.</p>
+
+<h2>Edge cases that bit us anyway</h2>
+
+<p>The Apache proxy had saved us from most disasters, but two edge cases still needed attention.</p>
+
+<h3>Custom field types</h3>
+
+<p>The publisher used a forked version of JCE's image field type for a related-photo sidebar. It stored its value as a serialised PHP array, not as raw HTML. That meant <code>REPLACE</code> was unsafe: changing the string length would invalidate the serialise prefix and PHP would refuse to unserialise the row. We wrote a one-off PHP script that read each row, unserialised, replaced the path, re-serialised, and wrote back. The script ran in 90 seconds against roughly 4,000 rows and produced a per-row diff log we kept for the receipt.</p>
+
+<h3>Template overrides</h3>
+
+<p>The override at <code>templates/publisher/html/com_content/article/default.php</code> had a hardcoded fallback that prepended <code>/images/articles/</code> to any image found in the article's <code>images</code> JSON. After the migration that fallback was producing <code>https://cdn.example.com/images/articles/https://cdn.example.com/...</code> for a handful of articles. We removed the fallback (it had been added in 2017 for a reason nobody remembered) and ran a 50-article spot check across category pages. The full list of override conventions is documented in the <a href="https://docs.joomla.org/J3.x:How_to_override_the_output_from_the_Joomla!_core">Joomla 3 layout overrides guide</a>, and template overrides are the most common place a migration like this falls over silently.</p>
+
+<h2>Watching the access log after cutover</h2>
+
+<p>The access log was the only telemetry we trusted to confirm the rewrite had landed. We added a small marker to the Apache rewrite, a response header <code>X-Image-Origin</code> set to <code>disk</code> when the on-disk file was served and <code>cdn</code> when the proxy fired. From Sunday morning we tailed the log with <code>grep ' disk '</code> and watched the rate fall.</p>
+
+<p>By Sunday afternoon the disk branch had dropped from a baseline of roughly 14 requests per second to a steady 0.3, almost all of them favicons and a forgotten <code>/images/logo.png</code> that a template fragment was loading as an absolute path. CloudFront's cache-hit ratio climbed from zero to 71 percent over the first day and settled at 94 percent by Wednesday.</p>
+
+<p>We had been ready to revert the SQL block if the disk rate stayed flat, the rollback being a single REPLACE in the opposite direction on the same four tables. We did not need it. The numbers told us the proxy was doing the work and the SQL had reached the rows it needed to reach.</p>
+
+<h2>What we kept on disk for six weeks</h2>
+
+<p>We did not delete <code>/var/www/html/images/</code> after the cutover. The proxy condition still served from disk if the file existed, so the on-disk copy remained the silent backstop. After six weeks of no <code>images/</code> requests appearing in the access log that hit the disk branch, we ran a final <code>aws s3 sync</code> and <code>rm -rf images/</code> in the same maintenance window.</p>
+
+<p>The site's monthly outbound bandwidth dropped from 240GB on the host to 18GB on the host plus 220GB on CloudFront, billed at roughly one-eighth the rate. The backup window dropped from six hours to nineteen minutes. The publisher noticed none of it, which was the goal.</p>
+
+<p>When we built Pier we ran into this exact shape of migration more than once, where the bulk copy was the easy part and the long tail of references inside serialised columns, custom fields, and template overrides ate the weekend. The way we ended up handling it was by running these audit queries inside the <a href="/#database">MySQL editor</a> against a snapshot, with the <a href="/#features">version history</a> of every rewrite so the operator sees the before-and-after of each UPDATE before it touches the live row.</p>
+
+<p>If you have a <a href="/">legacy site</a> groaning under its <code>/images/</code> directory, the smallest thing you could do today is run the audit query against <code>jos_content</code> and <code>jos_modules</code> and write the result to a CSV. Once you know the shape of the references, the migration becomes a sequence. Until then, it is a guess.</p>
+    </div>
+
+    <aside class="pullquote">The trick to a safe Joomla image migration is decoupling the file move from the database rewrite with an Apache proxy in front of S3.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Will the Apache proxy add measurable latency to image requests?</p>
+      <p class="faq-a">On cache-miss requests, yes: Apache fetches from CloudFront and re-emits. We measured roughly 40ms added on cold paths, and single-digit milliseconds on warm paths once the edge cached the file.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why not rewrite the SQL first and skip the proxy entirely?</p>
+      <p class="faq-a">A bad UPDATE on 38,000 references can break every article at once. The proxy gave us a quiet rollback path: revert the SQL and the on-disk fallback still served the images.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does the same approach work for Joomla 4 or 5?</p>
+      <p class="faq-a">The principle is identical. The jos_content.images column moved to a JSON type and the htaccess block is unchanged. K2 is unsupported on Joomla 4, so audit any K2 fork separately.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What about images uploaded after the cutover?</p>
+      <p class="faq-a">We patched the media manager to upload directly to S3 via a small plugin hooking the onAfterMediaUpload event. Articles authored after cutover never touched the host filesystem.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/custom-php-cms-wordpress-shell/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/custom-php-cms-wordpress-shell/hero.webp" type="image/webp">
+        <img src="/blog/custom-php-cms-wordpress-shell/hero.jpg" alt="Overhead still life on bone linen: hand-drawn URL redirect map on graph paper, manila folder, wax-sealed envelope." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Custom PHP CMS to WordPress shell: a four-week rebuild</h3>
+      <span class="pc-lede">A Dutch agency had four weeks to move a 2009 custom PHP CMS to WordPress, keep 14,000 URLs intact, and avoid touching the legacy database. Here&#39;s how.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/decoupling-joomla-template-staged-extraction/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/decoupling-joomla-template-staged-extraction/hero.webp" type="image/webp">
+        <img src="/blog/decoupling-joomla-template-staged-extraction/hero.jpg" alt="Overhead still life on bone linen: inked Joomla template blueprint, tracing overlay, manila tab, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Decoupling a Joomla template: a staged extraction playbook</h3>
+      <span class="pc-lede">A 12-year-old custom Joomla template had grown into a second CMS welded onto the first. Here is the staged extraction that pulled it back apart.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/joomla-image-library-to-s3/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
