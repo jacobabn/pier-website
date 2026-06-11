@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP session race: the case of the wrong invoice PDF · Pier — Blog</title>
+<meta name="description" content="A Dutch agency we work with rang at 23:41. Their custom-PHP billing portal had emailed the wrong invoice PDF to a customer. We blamed session_start for six hours.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, security, operations, architecture, workflow">
+
+<link rel="canonical" href="https://pier.abn.company/blog/php-session-race-invoice-pdf/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-session-race-invoice-pdf/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-session-race-invoice-pdf/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-session-race-invoice-pdf/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP session race: the case of the wrong invoice PDF">
+<meta property="og:description" content="A Dutch agency we work with rang at 23:41. Their custom-PHP billing portal had emailed the wrong invoice PDF to a customer. We blamed session_start for six hours.">
+<meta property="og:url" content="https://pier.abn.company/blog/php-session-race-invoice-pdf/">
+<meta property="og:image" content="https://pier.abn.company/blog/php-session-race-invoice-pdf/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/php-session-race-invoice-pdf/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: timing diagram, manila INVOICE.PDF tab, PHP run-sheet, carbon invoices, brass RACE plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T07:27:28.643Z">
+<meta property="article:modified_time" content="2026-06-11T07:27:28.643Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="workflow">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP session race: the case of the wrong invoice PDF">
+<meta name="twitter:description" content="A Dutch agency we work with rang at 23:41. Their custom-PHP billing portal had emailed the wrong invoice PDF to a customer. We blamed session_start for six hours.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/php-session-race-invoice-pdf/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: timing diagram, manila INVOICE.PDF tab, PHP run-sheet, carbon invoices, brass RACE plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-session-race-invoice-pdf/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/php-session-race-invoice-pdf/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/php-session-race-invoice-pdf/"},
+  "url":"https://pier.abn.company/blog/php-session-race-invoice-pdf/",
+  "headline":"PHP session race: the case of the wrong invoice PDF",
+  "description":"A Dutch agency we work with rang at 23:41. Their custom-PHP billing portal had emailed the wrong invoice PDF to a customer. We blamed session_start for six hours.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/php-session-race-invoice-pdf/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: timing diagram, manila INVOICE.PDF tab, PHP run-sheet, carbon invoices, brass RACE plate, wax seal."
+  },
+  "datePublished":"2026-06-11T07:27:28.643Z",
+  "dateModified":"2026-06-11T07:27:28.643Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, security, operations, architecture, workflow",
+  "wordCount":2006,
+  "articleSection":"PHP",
+  "articleBody":"The Loom came in at 23:41. A Dutch agency we work with had spent the evening trying to explain to their customer why their billing portal had emailed an invoice PDF addressed to a different company entirely. Same template, wrong logo, wrong VAT number, wrong line items. The customer had screenshotted the email and asked, politely, whether they should be worried about their data. They were running a custom-PHP billing portal that had been in production since 2014. PHP 7.4, plain MySQL, no framework, three include files at the top of every script. The kind of legacy site that runs perfectly for years and then, one Tuesday evening, does something that makes you re-read the OWASP top ten before bed. We spent the next six hours blaming session_start() . The bug was somewhere else. The three suspect includes Every page in the portal opened with the same boilerplate: <?php require __DIR__ . '/inc/config.php'; require __DIR__ . '/inc/session.php'; require __DIR__ . '/inc/auth.php'; config.php set up the PDO connection and a few constants. session.php called session_name('PORTAL') and then session_start() with session.use_strict_mode on. auth.php read $_SESSION['uid'] , looked up the user, and bailed to the login page if anything looked wrong. Nothing exotic. The same shape of bootstrap we have read in roughly two hundred legacy PHP projects. The download endpoint, /invoice.php?id=123 , then did this: $id = (int) $_GET['id']; $inv = $db->invoice($id, $_SESSION['uid']); if (!$inv) { http_response_code(404); exit; } header('Content-Type: application/pdf'); header('Content-Disposition: attachment; filename=\"' . $inv['number'] . '.pdf\"'); echo render_pdf($inv); That query was scoped to the session user. We re-ran it by hand against the database with the affected invoice ID and the affected user ID and it correctly returned NULL . So the PHP code refused to serve that invoice to that user. And yet the user had received it. Twice. Six hours inside session_start() The first hypothesis was the obvious one: a session_start() race. Someone had wired up a \"resend invoice\" cron job earlier in the year and we had a vague memory of CLI code touching $_SESSION in ways no one was proud of. We checked. The cron job did not touch sessions. It built its own auth context from a service-account token. The next hypothesis was session locking. PHP serialises requests on the same session file by default. Two AJAX calls fired from the same browser will queue, one behind the other, because session_start() takes an exclusive lock on the session file and holds it until session_write_close() or end-of-script. The php.net note on session_write_close spells out the lock semantics in three lines if you have not read it in a while. We checked the access logs for overlapping requests on the same session. Nothing within five seconds of the wrong PDF. We then turned over the custom session handler. The portal stored sessions in MySQL instead of on disk, which made us briefly hopeful that a bug in the read or write callback could explain the swap. We dumped the sessions table at the moment of an affected download and inspected the row by hand. The session_data blob deserialised cleanly. Every field matched the audit log of recent customer activity. The handler was not lying. Then we got serious. We added a logging line to session.php directly after session_start() : error_log(sprintf( '[sess] pid=%d sid=%s uid=%s uri=%s', getmypid(), session_id(), $_SESSION['uid'] ?? 'none', $_SERVER['REQUEST_URI'] )); The logs were boring. Every request had a session ID. Every session ID mapped to one and only one user. We tailed the log on the production box and asked the affected customer to redownload an invoice. The line we saw was correct. Their session ID. Their user ID. The right invoice number in the URL. And then the PDF that came back belonged to someone else. By hour four we reached the stage of debugging where everyone in the room agrees to try the thing they had been avoiding. We ran strace -f on the PHP-FPM worker pool during a reproduction attempt. The worker that handled the affected request never opened the invoice PDF file. It never touched the database. As far as the syscall log was concerned, that PHP process did no work at all for the request that returned a PDF. That was the moment the floor moved. Be careful with session_start() theories. They are seductive because session bugs feel plausible and there is always something to tighten. We spent five hours on it. If your in-PHP logs show the right user and the wrong content still ships, the swap is happening outside PHP. Look at your reverse proxy before you look at your includes. Where the swap actually happened The portal sat behind nginx. The agency's previous ops contractor had turned on fastcgi_cache sometime in 2022 to take load off PHP-FPM during end-of-month invoice runs. The config looked, to a tired eye, like this: fastcgi_cache_path /var/cache/nginx/portal levels=1:2 keys_zone=PORTAL:50m",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/php-session-race-invoice-pdf/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP session race: the case of the wrong invoice PDF","item":"https://pier.abn.company/blog/php-session-race-invoice-pdf/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is this really a session_start race or a caching bug?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It is a caching bug. The symptom mimicked a session race because the wrong user's data shipped, but PHP never executed for the cached responses. The swap was in nginx fastcgi_cache."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Cache-Control: private stop nginx fastcgi_cache?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not by default. fastcgi_cache ignores Cache-Control unless you set fastcgi_ignore_headers explicitly. You have to gate caching with fastcgi_no_cache and fastcgi_cache_bypass on the session cookie."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I tell if my nginx is caching authenticated PHP responses?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Add add_header X-Cache-Status $upstream_cache_status always; in your location block and watch the response header on a logged-in request. HIT on an authenticated page is the bug."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I add fastcgi_cache_bypass to every PHP site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If the site has any authenticated state, yes. The pattern is fastcgi_cache_bypass $cookie_YOURSESSION and fastcgi_no_cache $cookie_YOURSESSION on the same cookie name session_name() sets."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/php-session-race-invoice-pdf/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 112</span>
+      </div>
+      <p class="eyebrow"><span class="n">112 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP session race: the case of the wrong invoice PDF</h1>
+      <p class="lede post-lede">A Dutch agency we work with rang at 23:41. Their custom-PHP billing portal had emailed the wrong invoice PDF to a customer. We blamed session_start for six hours.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T07:27:28.643Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-session-race-invoice-pdf/hero.webp" type="image/webp">
+      <img src="/blog/php-session-race-invoice-pdf/hero.jpg" alt="Overhead photo on bone linen: timing diagram, manila INVOICE.PDF tab, PHP run-sheet, carbon invoices, brass RACE plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 112</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Loom came in at 23:41. A Dutch agency we work with had spent the evening trying to explain to their customer why their billing portal had emailed an invoice PDF addressed to a different company entirely. Same template, wrong logo, wrong VAT number, wrong line items. The customer had screenshotted the email and asked, politely, whether they should be worried about their data.</p>
+
+<p>They were running a custom-PHP billing portal that had been in production since 2014. PHP 7.4, plain MySQL, no framework, three include files at the top of every script. The kind of <a href="/">legacy site</a> that runs perfectly for years and then, one Tuesday evening, does something that makes you re-read the OWASP top ten before bed.</p>
+
+<p>We spent the next six hours blaming <code>session_start()</code>. The bug was somewhere else.</p>
+
+<h2>The three suspect includes</h2>
+
+<p>Every page in the portal opened with the same boilerplate:</p>
+
+<pre><code class="lang-php">&lt;?php
+require __DIR__ . '/inc/config.php';
+require __DIR__ . '/inc/session.php';
+require __DIR__ . '/inc/auth.php';
+</code></pre>
+
+<p><code>config.php</code> set up the PDO connection and a few constants. <code>session.php</code> called <code>session_name('PORTAL')</code> and then <code>session_start()</code> with <code>session.use_strict_mode</code> on. <code>auth.php</code> read <code>$_SESSION['uid']</code>, looked up the user, and bailed to the login page if anything looked wrong. Nothing exotic. The same shape of bootstrap we have read in roughly two hundred legacy PHP projects.</p>
+
+<p>The download endpoint, <code>/invoice.php?id=123</code>, then did this:</p>
+
+<pre><code class="lang-php">$id  = (int) $_GET['id'];
+$inv = $db-&gt;invoice($id, $_SESSION['uid']);
+if (!$inv) { http_response_code(404); exit; }
+
+header('Content-Type: application/pdf');
+header('Content-Disposition: attachment; filename="' . $inv['number'] . '.pdf"');
+echo render_pdf($inv);
+</code></pre>
+
+<p>That query was scoped to the session user. We re-ran it by hand against the database with the affected invoice ID and the affected user ID and it correctly returned <code>NULL</code>. So the PHP code refused to serve that invoice to that user. And yet the user had received it. Twice.</p>
+
+<h2>Six hours inside session_start()</h2>
+
+<p>The first hypothesis was the obvious one: a <code>session_start()</code> race. Someone had wired up a "resend invoice" cron job earlier in the year and we had a vague memory of CLI code touching <code>$_SESSION</code> in ways no one was proud of. We checked. The cron job did not touch sessions. It built its own auth context from a service-account token.</p>
+
+<p>The next hypothesis was session locking. PHP serialises requests on the same session file by default. Two AJAX calls fired from the same browser will queue, one behind the other, because <code>session_start()</code> takes an exclusive lock on the session file and holds it until <code>session_write_close()</code> or end-of-script. The <a href="https://www.php.net/manual/en/function.session-write-close.php">php.net note on session_write_close</a> spells out the lock semantics in three lines if you have not read it in a while. We checked the access logs for overlapping requests on the same session. Nothing within five seconds of the wrong PDF.</p>
+
+<p>We then turned over the custom session handler. The portal stored sessions in MySQL instead of on disk, which made us briefly hopeful that a bug in the read or write callback could explain the swap. We dumped the <code>sessions</code> table at the moment of an affected download and inspected the row by hand. The <code>session_data</code> blob deserialised cleanly. Every field matched the audit log of recent customer activity. The handler was not lying.</p>
+
+<p>Then we got serious. We added a logging line to <code>session.php</code> directly after <code>session_start()</code>:</p>
+
+<pre><code class="lang-php">error_log(sprintf(
+    '[sess] pid=%d sid=%s uid=%s uri=%s',
+    getmypid(),
+    session_id(),
+    $_SESSION['uid'] ?? 'none',
+    $_SERVER['REQUEST_URI']
+));
+</code></pre>
+
+<p>The logs were boring. Every request had a session ID. Every session ID mapped to one and only one user. We tailed the log on the production box and asked the affected customer to redownload an invoice. The line we saw was correct. Their session ID. Their user ID. The right invoice number in the URL. And then the PDF that came back belonged to someone else.</p>
+
+<p>By hour four we reached the stage of debugging where everyone in the room agrees to try the thing they had been avoiding. We ran <code>strace -f</code> on the PHP-FPM worker pool during a reproduction attempt. The worker that handled the affected request never opened the invoice PDF file. It never touched the database. As far as the syscall log was concerned, that PHP process did no work at all for the request that returned a PDF.</p>
+
+<p>That was the moment the floor moved.</p>
+
+<aside class="callout"><strong>Be careful with <code>session_start()</code> theories.</strong> They are seductive because session bugs feel plausible and there is always something to tighten. We spent five hours on it. If your in-PHP logs show the right user and the wrong content still ships, the swap is happening outside PHP. Look at your reverse proxy before you look at your includes.</aside>
+
+<h2>Where the swap actually happened</h2>
+
+<p>The portal sat behind nginx. The agency's previous ops contractor had turned on <code>fastcgi_cache</code> sometime in 2022 to take load off PHP-FPM during end-of-month invoice runs. The config looked, to a tired eye, like this:</p>
+
+<pre><code class="lang-nginx">fastcgi_cache_path /var/cache/nginx/portal levels=1:2
+    keys_zone=PORTAL:50m max_size=2g inactive=30m;
+
+location ~ \.php$ {
+    fastcgi_cache       PORTAL;
+    fastcgi_cache_key   "$scheme$request_method$host$request_uri";
+    fastcgi_cache_valid 200 10m;
+    fastcgi_pass        unix:/run/php/php7.4-fpm.sock;
+    include             fastcgi_params;
+}
+</code></pre>
+
+<p>Read the <code>fastcgi_cache_key</code> line slowly. It is composed of scheme, method, host and URI. It does not include the <code>PORTAL</code> session cookie. It does not include the <code>Authorization</code> header. It does not include anything at all that identifies the requesting user.</p>
+
+<p>The download endpoint was <code>/invoice.php?id=123</code>. The first user to hit that URL after the cache was cold had their PDF rendered, returned, and stored in <code>/var/cache/nginx/portal</code> under a key derived purely from the URI. Every other authenticated user who downloaded an invoice with the same numeric ID for the next ten minutes got that first user's PDF, byte for byte, with no PHP execution at all. The session log line we added never fired for those requests. nginx served the cached response and the request never reached PHP-FPM.</p>
+
+<p>The reason it took us six hours: invoice IDs are usually sequential and customer-scoped, so collisions on the same ID across customers are rare. The reason it broke this week: the agency had migrated three customers from a legacy table into the portal earlier that day, and the imported invoices kept their old IDs. Two of the imported IDs collided with existing IDs from a different customer. That was the trigger. Everything else was nginx doing exactly what we had told it to do.</p>
+
+<p>We confirmed it with one extra line in the nginx config. <code>add_header X-Cache-Status $upstream_cache_status always;</code>, reload, ask the customer to download an invoice again, watch the response. The header came back as <code>HIT</code>. That was the receipt we needed. The PHP code had not malfunctioned. It had simply not been asked. nginx had answered the question itself, from a stale entry, using a key that did not know who was asking.</p>
+
+<h2>The fix, and the things we found while fixing it</h2>
+
+<p>The minimum patch was three lines. Tell nginx not to cache anything from authenticated users, and tell PHP to send the headers that would make any future cache layer respect that.</p>
+
+<pre><code class="lang-nginx">location ~ \.php$ {
+    fastcgi_cache       PORTAL;
+    fastcgi_cache_key   "$scheme$request_method$host$request_uri$http_cookie";
+    fastcgi_cache_bypass $cookie_PORTAL;
+    fastcgi_no_cache    $cookie_PORTAL;
+    fastcgi_pass        unix:/run/php/php7.4-fpm.sock;
+    include             fastcgi_params;
+}
+</code></pre>
+
+<p>And in <code>invoice.php</code>, the headers we should have sent from day one:</p>
+
+<pre><code class="lang-php">header('Cache-Control: private, no-store, max-age=0');
+header('Pragma: no-cache');
+</code></pre>
+
+<p>The <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">MDN reference on Cache-Control</a> is worth re-reading every time you wire up a download endpoint. <code>private</code> alone is not enough if your reverse proxy is configured to ignore <code>Cache-Control</code> entirely, which fastcgi_cache is by default unless you opt in with <code>fastcgi_ignore_headers</code>. Both layers have to agree. The <a href="https://nginx.org/en/docs/http/ngx_http_fastcgi_module.html#fastcgi_cache">nginx fastcgi_cache documentation</a> says this in roughly seven scattered paragraphs.</p>
+
+<p>While we were in there, we also added a hard ownership check on the invoice query, not just a session-scoped fetch:</p>
+
+<pre><code class="lang-php">$inv = $db-&gt;invoice($id);
+if (!$inv || $inv['user_id'] !== $_SESSION['uid']) {
+    http_response_code(404);
+    exit;
+}
+</code></pre>
+
+<p>The original query had been "correct" in that it filtered by user in the WHERE clause, but defensive ownership checks at the application layer make the next bug like this one self-disclosing in code review. A query that fetches by ID and then asserts ownership is easier to audit than a query that smuggles ownership into a JOIN.</p>
+
+<p>Verification was straightforward and slow. We hit <code>/invoice.php</code> from two browsers logged in as two different users, ten seconds apart, with the same invoice ID in the URL. Both responses came back with <code>X-Cache-Status: BYPASS</code>. We logged out, hit a non-authenticated marketing page on the same vhost, and watched the cache work normally on a public asset. We left <code>X-Cache-Status</code> in the response headers permanently. It is a one-line addition and it answers a question we had spent five hours not being able to answer.</p>
+
+<h2>What we left running afterwards</h2>
+
+<p>Once the immediate fire was out, we added three small pieces of monitoring that the portal had been missing for six years.</p>
+
+<p>The first was a synthetic check. A dedicated test user logs in every fifteen minutes, downloads a known invoice, and the script verifies the SHA-256 of the response matches a recorded baseline. If a second test user under a different agency tenant ever receives the same SHA for a different invoice ID, the alert fires before a real customer notices.</p>
+
+<p>The second was a daily grep over the nginx access log for any <code>HIT</code> on a path that begins with <code>/invoice</code> or <code>/account</code>. There should never be a cache hit on those paths. If one shows up, something in the cache config has regressed and we want to know on Monday morning, not on a Friday evening when the customer is screenshotting.</p>
+
+<p>The third was a yearly diary entry on the agency's shared calendar to re-read the nginx config from top to bottom. Caching rules drift. Comments rot. The next contractor will not remember why <code>fastcgi_no_cache</code> is set on the session cookie, and they will be tempted to tidy it up.</p>
+
+<h2>The audit no one wanted to write</h2>
+
+<p>The hardest part of the incident was not the fix. The fix was three lines of nginx and two lines of PHP. The hard part was answering the question that came at 09:00 the next morning: which invoices, exactly, went to which customers? The agency had to tell three of its own customers whether their VAT numbers, bank details, and line items had been seen by another company.</p>
+
+<p>We had nginx access logs going back ninety days. We had the cache directory on disk. We did not have a record of which response body had been served from cache versus rendered live, and we did not have a record of which file in the cache directory had been keyed to which URI at the time of each hit. nginx does not write that down. You can reconstruct most of it from log timestamps and the cache file's stored <code>KEY:</code> header, but "most of it" is not the word a compliance officer wants to hear.</p>
+
+<p>We ended up writing the disclosure to the three affected customers on Wednesday afternoon. Two replied within an hour, asked one or two clarifying questions about which fields had been visible, accepted the explanation. The third wanted a written incident report on letterhead, which is the version of this conversation that takes a week to close. None of them left. The agency owner told us afterwards that the apology email took longer to draft than the patch took to write, and that felt about right.</p>
+
+<p>When we built Pier we ran into this exact shape of problem from the other side. Pier writes <a href="/#features">version history</a> for every file touched through the app and every row written through the <a href="/#database">MySQL editor</a>, so when the question is "what did this server actually serve, and who edited what before it did", the answer is in the log instead of in your memory.</p>
+
+<p>The single smallest thing worth doing today: open the nginx config for the oldest PHP site you maintain, grep it for <code>fastcgi_cache_key</code>, and check whether the key includes anything that identifies the requesting user. If it does not, and the site authenticates anyone, you have the same bug we did. You just have not been billed for it yet.</p>
+    </div>
+
+    <aside class="pullquote">If your in-PHP logs show the right user but the wrong content shipped, the swap happened outside PHP. Audit your reverse proxy cache key before your session code.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is this really a session_start race or a caching bug?</p>
+      <p class="faq-a">It is a caching bug. The symptom mimicked a session race because the wrong user&#39;s data shipped, but PHP never executed for the cached responses. The swap was in nginx fastcgi_cache.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does Cache-Control: private stop nginx fastcgi_cache?</p>
+      <p class="faq-a">Not by default. fastcgi_cache ignores Cache-Control unless you set fastcgi_ignore_headers explicitly. You have to gate caching with fastcgi_no_cache and fastcgi_cache_bypass on the session cookie.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How do I tell if my nginx is caching authenticated PHP responses?</p>
+      <p class="faq-a">Add add_header X-Cache-Status $upstream_cache_status always; in your location block and watch the response header on a logged-in request. HIT on an authenticated page is the bug.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Should I add fastcgi_cache_bypass to every PHP site?</p>
+      <p class="faq-a">If the site has any authenticated state, yes. The pattern is fastcgi_cache_bypass $cookie_YOURSESSION and fastcgi_no_cache $cookie_YOURSESSION on the same cookie name session_name() sets.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/drupal-7-behind-cloudflare-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/drupal-7-behind-cloudflare-playbook/hero.webp" type="image/webp">
+        <img src="/blog/drupal-7-behind-cloudflare-playbook/hero.jpg" alt="Overhead photo: handwritten Cloudflare cache-rule sheet, settings.php printout, Drupal 7 folder tab, wax seal on envelope." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Drupal</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Drupal 7 behind Cloudflare: don&#39;t break admin or images</h3>
+      <span class="pc-lede">Flip the orange cloud on a Drupal 7 site and two things break first: the editor login loops, and image styles 404. Here&#39;s the settings.php and cache-rule playbook that holds.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/scoping-ai-feature-old-wordpress/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/scoping-ai-feature-old-wordpress/hero.webp" type="image/webp">
+        <img src="/blog/scoping-ai-feature-old-wordpress/hero.jpg" alt="Overhead photo of paper AI scope worksheet, PHP 5.6 audit sheet, manila wp-content folder, brass plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Scoping AI features on a 2014 WordPress site: a sober method</h3>
+      <span class="pc-lede">A client asks for &#39;just a small AI feature&#39; on a 2014 WordPress site. Here is the scoping method that keeps you from quoting blind on a PHP 5.6 codebase.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/php-session-race-invoice-pdf/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
