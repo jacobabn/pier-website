@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress multisite migration: the one-Sunday playbook · Pier — Blog</title>
+<meta name="description" content="A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, mysql, migration, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-multisite-plesk-vps-migration/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress multisite migration: the one-Sunday playbook">
+<meta property="og:description" content="A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.">
+<meta property="og:url" content="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/">
+<meta property="og:image" content="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of inked WordPress multisite migration plan on graph paper with index cards, manila tab, brass plate, wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T22:01:03.821Z">
+<meta property="article:modified_time" content="2026-06-11T22:01:03.821Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress multisite migration: the one-Sunday playbook">
+<meta name="twitter:description" content="A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of inked WordPress multisite migration plan on graph paper with index cards, manila tab, brass plate, wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-multisite-plesk-vps-migration/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/"},
+  "url":"https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/",
+  "headline":"WordPress multisite migration: the one-Sunday playbook",
+  "description":"A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of inked WordPress multisite migration plan on graph paper with index cards, manila tab, brass plate, wax seal."
+  },
+  "datePublished":"2026-06-11T22:01:03.821Z",
+  "dateModified":"2026-06-11T22:01:03.821Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"wordpress, php, mysql, migration, operations, tooling",
+  "wordCount":1851,
+  "articleSection":"WordPress",
+  "articleBody":"The Plesk panel logged in on the third try. PHP 7.4 across the board, MariaDB 10.3, twelve subsites under a single WordPress multisite network, half of them mapped to vanity domains. The host had emailed three times in two months: the server was going off support and would be powered down at the end of the month. The agency owner had Sunday between 09:00 and 17:00 to land the whole thing on a fresh Hetzner CX22, then sleep before Monday's editorial schedule. This is the playbook we ran with them. Eight steps, one Sunday, no Monday-morning surprise. It assumes a standard WordPress multisite (subdomain or subdirectory), root SSH on the destination, and the Plesk source still alive enough to read from. If your source is partially dead, skip to step 5 and restore from your last good nightly backup. 1. Inventory the multisite before you touch anything Before anything moves, you need a written record of what the multisite actually contains. Plesk hides a lot of state in places WP-CLI does not see, and a multisite hides even more inside wp_blogs and wp_site . Open two terminals: one SSH'd into the Plesk box, one into the new VPS. wp site list --fields=blog_id,url,registered,last_updated wp option get siteurl --network wp db query \"SELECT domain, path FROM wp_blogs ORDER BY blog_id\" wp plugin list --status=active --network Dump that to a file you keep in your migration folder. Then list the vanity domains mapped via Plesk's web aliases or via the WP MU Domain Mapping plugin, because those mappings live in wp_domain_mapping and they do not move with a normal file copy. Note every cron schedule registered in Plesk's scheduled tasks (often a wp cron event run --due-now on a 5-minute timer), every mail account, every PHP open_basedir restriction, and every .htaccess override that lives outside the WordPress root. If you skip this step you will discover at 16:00 that subsite 7 was sending password resets through Plesk's local mailer, and now nothing leaves the box. 2. Stand up the VPS the way you actually want it Resist the urge to clone Plesk. You are migrating to escape it. A clean Ubuntu 24.04 LTS box with nginx, PHP-FPM 8.2, MariaDB 11, and certbot will outlive the next two Plesk renewals. Install only what you need. apt update && apt install -y nginx mariadb-server certbot \\ python3-certbot-nginx php8.2-fpm php8.2-mysql php8.2-curl \\ php8.2-gd php8.2-mbstring php8.2-xml php8.2-zip php8.2-intl curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar chmod +x wp-cli.phar && mv wp-cli.phar /usr/local/bin/wp For multisite on nginx you cannot rely on the .htaccess block from the Codex. You need an explicit server block. The nginx recipes in the WordPress documentation are the closest thing to canon. For subdirectory multisite the critical block is: map $http_host $blogid { default 0; include /etc/nginx/wp-multisite-map.conf; } server { listen 443 ssl http2; server_name example.com *.example.com; root /var/www/example.com; index index.php; location / { try_files $uri $uri/ /index.php?$args; } location ~ ^/files/(.*)$ { try_files /wp-content/blogs.dir/$blogid/$uri /wp-includes/ms-files.php?file=$1; access_log off; } location ~ \\.php$ { include snippets/fastcgi-php.conf; fastcgi_pass unix:/run/php/php8.2-fpm.sock; } } Configure MariaDB before you import anything. Set innodb_buffer_pool_size to roughly 60% of available RAM, switch the default character set to utf8mb4 , and create the database with the same name as the source. Mismatched collation between source and destination is the most common cause of WordPress database error entries that only show up after restore. 3. Lock writes and freeze the source You cannot rsync a moving target. At 09:00 you put the multisite into a controlled maintenance state. The cleanest way is a network-wide drop-in that returns a 503 with a Retry-After header. <?php // wp-content/mu-plugins/000-migration-freeze.php if ( ! is_admin() && ! defined( 'WP_CLI' ) ) { header( 'HTTP/1.1 503 Service Unavailable' ); header( 'Retry-After: 28800' ); header( 'Content-Type: text/html; charset=utf-8' ); echo '<h1>Brief maintenance window</h1>'; echo '<p>We are back online by 17:00 CET.</p>'; exit; } 503 with Retry-After is what Google's crawler expects during planned downtime. A naked 200 with a maintenance message can get pages reindexed as blank. The detail is documented in Google's guidance on pausing an online business , and it costs you nothing to do correctly. Disable all WP-Cron events and any Plesk scheduled tasks that touch the database. On the Plesk side, the fastest way is to add define('DISABLE_WP_CRON', true); to wp-config.php and comment out the cron line in Plesk's scheduled tasks panel. Confirm no WooCommerce, no Action Scheduler, and no backup plugin is still writing. 4. Move files with rsync, not zip-and-copy A WordPress multisite with twelve subsites and a few years of media will easily reach 40 to 80 GB. Zipping it on a constrained Plesk box, downloading, and re",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress multisite migration: the one-Sunday playbook","item":"https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Does this work for a destination on a different MariaDB major version?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, if you dump with --default-character-set=utf8mb4 and confirm collation matches on both sides. Cross-engine moves (MariaDB to MySQL 8) need a column check on default values for JSON and TIMESTAMP columns."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if Plesk's local mailer was handling password resets?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "That is why mail belongs in step 8. Until you point WordPress at a real SMTP relay, every wp_mail() call vanishes silently. Test with wp eval on every subsite before you pull the maintenance drop-in."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does the playbook hold for subdomain multisite?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Set SUBDOMAIN_INSTALL to true in wp-config.php and add a wildcard cert via certbot's DNS plugin. The nginx server_name line needs *.example.com plus every vanity domain listed individually."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long should I budget for a 40 GB site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two rsync passes take 60 to 90 minutes on a 1 Gbps link. Dumps depend on row count, not file size; eight million postmeta rows is roughly 25 minutes. Budget five hours of real work plus three hours of buffer."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/wordpress-multisite-plesk-vps-migration/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 129</span>
+      </div>
+      <p class="eyebrow"><span class="n">129 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress multisite migration: the one-Sunday playbook</h1>
+      <p class="lede post-lede">A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T22:01:03.821Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-multisite-plesk-vps-migration/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-multisite-plesk-vps-migration/hero.jpg" alt="Overhead photo of inked WordPress multisite migration plan on graph paper with index cards, manila tab, brass plate, wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 129</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The Plesk panel logged in on the third try. PHP 7.4 across the board, MariaDB 10.3, twelve subsites under a single WordPress multisite network, half of them mapped to vanity domains. The host had emailed three times in two months: the server was going off support and would be powered down at the end of the month. The agency owner had Sunday between 09:00 and 17:00 to land the whole thing on a fresh Hetzner CX22, then sleep before Monday's editorial schedule.</p>
+
+<p>This is the playbook we ran with them. Eight steps, one Sunday, no Monday-morning surprise. It assumes a standard WordPress multisite (subdomain or subdirectory), root SSH on the destination, and the Plesk source still alive enough to read from. If your source is partially dead, skip to step 5 and restore from your last good nightly backup.</p>
+
+<h2>1. Inventory the multisite before you touch anything</h2>
+
+<p>Before anything moves, you need a written record of what the multisite actually contains. Plesk hides a lot of state in places WP-CLI does not see, and a multisite hides even more inside <code>wp_blogs</code> and <code>wp_site</code>. Open two terminals: one SSH'd into the Plesk box, one into the new VPS.</p>
+
+<pre><code class="lang-bash">wp site list --fields=blog_id,url,registered,last_updated
+wp option get siteurl --network
+wp db query "SELECT domain, path FROM wp_blogs ORDER BY blog_id"
+wp plugin list --status=active --network</code></pre>
+
+<p>Dump that to a file you keep in your migration folder. Then list the vanity domains mapped via Plesk's web aliases or via the WP MU Domain Mapping plugin, because those mappings live in <code>wp_domain_mapping</code> and they do not move with a normal file copy. Note every cron schedule registered in Plesk's scheduled tasks (often a <code>wp cron event run --due-now</code> on a 5-minute timer), every mail account, every PHP <code>open_basedir</code> restriction, and every <code>.htaccess</code> override that lives outside the WordPress root.</p>
+
+<p>If you skip this step you will discover at 16:00 that subsite 7 was sending password resets through Plesk's local mailer, and now nothing leaves the box.</p>
+
+<h2>2. Stand up the VPS the way you actually want it</h2>
+
+<p>Resist the urge to clone Plesk. You are migrating to escape it. A clean Ubuntu 24.04 LTS box with nginx, PHP-FPM 8.2, MariaDB 11, and certbot will outlive the next two Plesk renewals. Install only what you need.</p>
+
+<pre><code class="lang-bash">apt update &amp;&amp; apt install -y nginx mariadb-server certbot \
+  python3-certbot-nginx php8.2-fpm php8.2-mysql php8.2-curl \
+  php8.2-gd php8.2-mbstring php8.2-xml php8.2-zip php8.2-intl
+curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+chmod +x wp-cli.phar &amp;&amp; mv wp-cli.phar /usr/local/bin/wp</code></pre>
+
+<p>For multisite on nginx you cannot rely on the <code>.htaccess</code> block from the Codex. You need an explicit server block. The <a href="https://wordpress.org/documentation/article/nginx/">nginx recipes in the WordPress documentation</a> are the closest thing to canon. For subdirectory multisite the critical block is:</p>
+
+<pre><code class="lang-nginx">map $http_host $blogid {
+    default 0;
+    include /etc/nginx/wp-multisite-map.conf;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name example.com *.example.com;
+    root /var/www/example.com;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ ^/files/(.*)$ {
+        try_files /wp-content/blogs.dir/$blogid/$uri /wp-includes/ms-files.php?file=$1;
+        access_log off;
+    }
+
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        fastcgi_pass unix:/run/php/php8.2-fpm.sock;
+    }
+}</code></pre>
+
+<p>Configure MariaDB before you import anything. Set <code>innodb_buffer_pool_size</code> to roughly 60% of available RAM, switch the default character set to <code>utf8mb4</code>, and create the database with the same name as the source. Mismatched collation between source and destination is the most common cause of <code>WordPress database error</code> entries that only show up after restore.</p>
+
+<h2>3. Lock writes and freeze the source</h2>
+
+<p>You cannot rsync a moving target. At 09:00 you put the multisite into a controlled maintenance state. The cleanest way is a network-wide drop-in that returns a 503 with a Retry-After header.</p>
+
+<pre><code class="lang-php">&lt;?php
+// wp-content/mu-plugins/000-migration-freeze.php
+if ( ! is_admin() &amp;&amp; ! defined( 'WP_CLI' ) ) {
+    header( 'HTTP/1.1 503 Service Unavailable' );
+    header( 'Retry-After: 28800' );
+    header( 'Content-Type: text/html; charset=utf-8' );
+    echo '&lt;h1&gt;Brief maintenance window&lt;/h1&gt;';
+    echo '&lt;p&gt;We are back online by 17:00 CET.&lt;/p&gt;';
+    exit;
+}</code></pre>
+
+<p>503 with Retry-After is what Google's crawler expects during planned downtime. A naked 200 with a maintenance message can get pages reindexed as blank. The detail is documented in <a href="https://developers.google.com/search/docs/crawling-indexing/pause-online-business">Google's guidance on pausing an online business</a>, and it costs you nothing to do correctly.</p>
+
+<p>Disable all WP-Cron events and any Plesk scheduled tasks that touch the database. On the Plesk side, the fastest way is to add <code>define('DISABLE_WP_CRON', true);</code> to <code>wp-config.php</code> and comment out the cron line in Plesk's scheduled tasks panel. Confirm no WooCommerce, no Action Scheduler, and no backup plugin is still writing.</p>
+
+<h2>4. Move files with rsync, not zip-and-copy</h2>
+
+<p>A WordPress multisite with twelve subsites and a few years of media will easily reach 40 to 80 GB. Zipping it on a constrained Plesk box, downloading, and re-uploading wastes the whole afternoon. Use rsync directly between hosts, run from the destination so you do not need outbound SSH from Plesk.</p>
+
+<pre><code class="lang-bash">rsync -aHAX --info=progress2 --partial \
+  -e "ssh -p 22 -i ~/.ssh/plesk_migration" \
+  plesk-user@old.example.com:/var/www/vhosts/example.com/httpdocs/ \
+  /var/www/example.com/</code></pre>
+
+<p>The <code>-aHAX</code> flags preserve hardlinks, ACLs, and extended attributes, which matter for uploads that were chmod'd by the panel. <code>--partial</code> lets you resume if the link drops. Run it twice: the first pass copies everything, the second catches the handful of files that changed during pass one. Once pass two finishes in under a minute you know you are sync-stable.</p>
+
+<p>Set ownership on the destination to the web user (<code>www-data</code> on Ubuntu) and reset permissions to 755 for directories, 644 for files, with <code>wp-config.php</code> at 640. The <a href="https://wordpress.org/documentation/article/changing-file-permissions/">WordPress file permissions guide</a> spells out why uploads need to be group-writable but nothing else does.</p>
+
+<h2>5. Dump the database with the flags that matter</h2>
+
+<p>The defaults of <code>mysqldump</code> will lock your tables, hold the box at 100% I/O, and produce a file that imports half-correctly into a different MariaDB version. Use the flags that actually matter:</p>
+
+<pre><code class="lang-bash">mysqldump \
+  --single-transaction \
+  --quick \
+  --routines \
+  --triggers \
+  --events \
+  --default-character-set=utf8mb4 \
+  --set-gtid-purged=OFF \
+  --no-tablespaces \
+  -u wpuser -p wpdb | gzip &gt; /tmp/wpdb-$(date +%Y%m%d).sql.gz</code></pre>
+
+<p><code>--single-transaction</code> is what keeps the source unlocked for an InnoDB-only schema. <code>--quick</code> streams rows instead of buffering them, which matters once any single table (usually <code>wp_options</code> or a postmeta table) goes past a few hundred MB. <code>--default-character-set=utf8mb4</code> stops the silent re-encoding that turns emoji and Polish diacritics into question marks on restore.</p>
+
+<p>Copy the dump to the destination, decompress, and import:</p>
+
+<pre><code class="lang-bash">scp /tmp/wpdb-*.sql.gz new.example.com:/tmp/
+ssh new.example.com
+gunzip /tmp/wpdb-*.sql.gz
+mysql -u root wpdb &lt; /tmp/wpdb-*.sql</code></pre>
+
+<h2>6. Restore, rewire, and search-replace with WP-CLI</h2>
+
+<p>The database is in. Now the multisite needs to know it lives at a new IP, possibly a new hostname during testing, and that the file paths under <code>wp-content/blogs.dir</code> still resolve. Edit <code>wp-config.php</code> with the new DB credentials, the new <code>DOMAIN_CURRENT_SITE</code>, and these constants:</p>
+
+<pre><code class="lang-php">define( 'WP_HOME', 'https://example.com' );
+define( 'WP_SITEURL', 'https://example.com' );
+define( 'MULTISITE', true );
+define( 'SUBDOMAIN_INSTALL', false );
+define( 'DOMAIN_CURRENT_SITE', 'example.com' );
+define( 'PATH_CURRENT_SITE', '/' );
+define( 'SITE_ID_CURRENT_SITE', 1 );
+define( 'BLOG_ID_CURRENT_SITE', 1 );</code></pre>
+
+<p>If you are staging on the VPS first (recommended: a <code>migrate.example.com</code> subdomain before DNS flips), run search-replace per subsite. Multisite has many serialized arrays, so use WP-CLI rather than raw SQL.</p>
+
+<pre><code class="lang-bash">wp search-replace 'old.example.com' 'example.com' \
+  --network --all-tables-with-prefix --precise --skip-columns=guid
+
+wp cache flush
+wp rewrite flush --hard</code></pre>
+
+<p><code>--precise</code> uses PHP's native serialization rather than a regex, which is the only thing that survives nested serialized arrays in <code>wp_options</code>. <code>--skip-columns=guid</code> is non-negotiable: the GUID is a permanent identifier and rewriting it will break feed subscribers and a handful of plugins that hash it.</p>
+
+<h3>Domain mappings</h3>
+
+<p>If the multisite used the old MU Domain Mapping plugin or the modern built-in mapping, the table <code>wp_domain_mapping</code> (or <code>wp_blogs.domain</code> for built-in) still references the old IP's DNS. You do not need to change those rows. What you do need is to confirm the destination's nginx <code>server_name</code> lists every mapped vanity domain. Forgetting one is the most common Monday-morning incident.</p>
+
+<h2>7. Cut DNS over with TTLs you set on Friday</h2>
+
+<p>This is why Friday matters. At least 48 hours before the Sunday window, drop the TTL on every A and AAAA record involved to 300 seconds. By the time you cut over, resolvers worldwide have caches that expire within five minutes, not the 24 hours your old NS records advertised by default.</p>
+
+<aside class="callout"><strong>Gotcha.</strong> Cloudflare orange-cloud records ignore the TTL you set in the panel, because Cloudflare proxies the lookup itself. If the source is behind Cloudflare, the TTL that matters is the one resolvers see from <code>1.1.1.1</code>, which is always 300. You can flip immediately. If the source is on raw DNS (Plesk's own resolver, often), the 300-second TTL must be in place 48 hours before the window or you will spend Monday explaining stale lookups.</aside>
+
+<p>At cutover time, update the A record, confirm with <code>dig +short example.com @1.1.1.1</code> from two different networks, then issue Let's Encrypt certificates on the new box. Use <code>certbot --nginx -d example.com -d www.example.com -d sub1.example.com</code> with every vanity domain on the command line. ACME's HTTP-01 challenge needs DNS to be pointing at the new box already, so the order is: DNS, then certbot, then remove the maintenance drop-in.</p>
+
+<h2>8. Verify the awkward stuff: mail, cron, SSL, subsite redirects</h2>
+
+<p>The site loads. That is not the same as the site working. Run through this list before you call the window closed.</p>
+
+<ul>
+<li><strong>Mail.</strong> WordPress's <code>wp_mail()</code> falls back to PHP's <code>mail()</code>, which on a clean VPS goes nowhere because there is no MTA. Install <code>msmtp</code> and a real SMTP relay (Postmark, Amazon SES, or your existing Google Workspace), then test with <code>wp eval 'wp_mail("you@you.com","test","ok");'</code> on every subsite.</li>
+<li><strong>Cron.</strong> Re-enable WP-Cron via system cron, not the pseudo-cron that fires on page loads: <code>* * * * * curl -s https://example.com/wp-cron.php?doing_wp_cron &gt;/dev/null 2&gt;&amp;1</code>.</li>
+<li><strong>SSL.</strong> Confirm every subsite domain returns a valid cert with <code>curl -vI https://sub.example.com 2&gt;&amp;1 | grep -E "subject|expire"</code>. Wildcard certs are tempting but they hide expiry per host.</li>
+<li><strong>Subsite redirects.</strong> Any custom <code>.htaccess</code> rewrites from the Plesk box did not come across in your nginx config. Audit them and translate the ones that matter into <code>location</code> blocks.</li>
+<li><strong>Search Console.</strong> Submit the property again and ask for a recrawl. The 503 you served correctly will have been respected, but new IP plus new SSL fingerprint plus new server header is enough for Google to want a fresh look.</li>
+</ul>
+
+<p>Pull the maintenance drop-in, tail the access log for two minutes, and watch for 500s. If none appear, the window is closed.</p>
+
+<h2>The smallest thing you can do today</h2>
+
+<p>When we built <a href="/">Pier</a> we ran into the part of this WordPress multisite migration playbook nobody writes down: the half-hour of staring at a <a href="/#database">database</a> in phpMyAdmin trying to figure out which serialized option row was about to break the search-replace. The MySQL editor and <a href="/#features">version history</a> exist because a botched search-replace at 16:30 on a Sunday is the worst kind of unrecoverable, and rolling forward beats rolling back.</p>
+
+<p>Today, before any of this is in motion: open the Plesk box, run <code>wp site list --fields=blog_id,url,registered,last_updated</code>, and save the output to a file. That single file is the artifact you will reference six times during the actual Sunday, and it is what tells you whether you have eight steps ahead of you or twenty.</p>
+    </div>
+
+    <aside class="pullquote">Cut DNS TTLs on Friday, freeze writes with a 503 plus Retry-After, rsync twice, dump with --single-transaction, and the Sunday window closes on schedule.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Does this work for a destination on a different MariaDB major version?</p>
+      <p class="faq-a">Yes, if you dump with --default-character-set=utf8mb4 and confirm collation matches on both sides. Cross-engine moves (MariaDB to MySQL 8) need a column check on default values for JSON and TIMESTAMP columns.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if Plesk&#39;s local mailer was handling password resets?</p>
+      <p class="faq-a">That is why mail belongs in step 8. Until you point WordPress at a real SMTP relay, every wp_mail() call vanishes silently. Test with wp eval on every subsite before you pull the maintenance drop-in.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does the playbook hold for subdomain multisite?</p>
+      <p class="faq-a">Yes. Set SUBDOMAIN_INSTALL to true in wp-config.php and add a wildcard cert via certbot&#39;s DNS plugin. The nginx server_name line needs *.example.com plus every vanity domain listed individually.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long should I budget for a 40 GB site?</p>
+      <p class="faq-a">Two rsync passes take 60 to 90 minutes on a 1 Gbps link. Dumps depend on row count, not file size; eight million postmeta rows is roughly 25 minutes. Budget five hours of real work plus three hours of buffer.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/php-fpm-pool-sizing-vps/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/php-fpm-pool-sizing-vps/hero.webp" type="image/webp">
+        <img src="/blog/php-fpm-pool-sizing-vps/hero.jpg" alt="Overhead still life on bone linen: PHP-FPM tuning worksheet, manila folder, brass key, fountain pen, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>11 June 2026</span></span>
+      <h3>PHP-FPM pool sizing: 2GB, 4GB and 8GB VPS, compared</h3>
+      <span class="pc-lede">A WooCommerce shop crashes at lunch. PHP-FPM is at 100% pool capacity and the host wants you to size up the VPS. Before you click, here&#39;s the math.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/legacy-site-monitoring-stack/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/legacy-site-monitoring-stack/hero.webp" type="image/webp">
+        <img src="/blog/legacy-site-monitoring-stack/hero.jpg" alt="Overhead photo of inked uptime chart, manila site tabs, run-sheet, index cards, wax seal, fountain pen on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Legacy site monitoring: the four-signal stack for solo shops</h3>
+      <span class="pc-lede">Thirty legacy sites, one person, and a Sunday morning that started with a &#39;checkout broken since Friday&#39; Slack. Four signals would have caught it on Thursday.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/wordpress-multisite-plesk-vps-migration/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
