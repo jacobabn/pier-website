@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WordPress nonces: wat wp_verify_nonce werkelijk doet · Pier — Blog</title>
+<meta name="description" content="Het formulier werkt &#39;s ochtends, breekt &#39;s middags, niemand kan het reproduceren. De bug zit in hoe je leest wat wp_verify_nonce teruggeeft.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, security, workflow, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/wordpress-nonces-fundamentals/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/wordpress-nonces-fundamentals/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WordPress nonces: wat wp_verify_nonce werkelijk doet">
+<meta property="og:description" content="Het formulier werkt &#39;s ochtends, breekt &#39;s middags, niemand kan het reproduceren. De bug zit in hoe je leest wat wp_verify_nonce teruggeeft.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van boven op linnen: WordPress beveiligingsblad, tijddiagram, map NONCES, indexkaarten, messing plaatje, vulpen, rood lakzegel met label STALE.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T18:25:54.399Z">
+<meta property="article:modified_time" content="2026-06-11T18:25:54.399Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WordPress nonces: wat wp_verify_nonce werkelijk doet">
+<meta name="twitter:description" content="Het formulier werkt &#39;s ochtends, breekt &#39;s middags, niemand kan het reproduceren. De bug zit in hoe je leest wat wp_verify_nonce teruggeeft.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van boven op linnen: WordPress beveiligingsblad, tijddiagram, map NONCES, indexkaarten, messing plaatje, vulpen, rood lakzegel met label STALE.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/wordpress-nonces-fundamentals/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/"},
+  "url":"https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/",
+  "headline":"WordPress nonces: wat wp_verify_nonce werkelijk doet",
+  "description":"Het formulier werkt 's ochtends, breekt 's middags, niemand kan het reproduceren. De bug zit in hoe je leest wat wp_verify_nonce teruggeeft.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van boven op linnen: WordPress beveiligingsblad, tijddiagram, map NONCES, indexkaarten, messing plaatje, vulpen, rood lakzegel met label STALE."
+  },
+  "datePublished":"2026-06-11T18:25:54.399Z",
+  "dateModified":"2026-06-11T18:25:54.399Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, security, workflow, tooling",
+  "wordCount":1325,
+  "articleSection":"WordPress",
+  "articleBody":"Het Slack-bericht komt binnen op woensdag, 14:02. \"Ons inzendformulier werkt 's ochtends en breekt na de lunch willekeurig. Niks in de error log.\" We openen het plugin-bestand en vinden dit: if (wp_verify_nonce($_POST['_wpnonce'], 'submit_form') === 1) { process_form(); } De plugin werkte 's ochtends omdat de WordPress nonce minder dan 12 uur oud was. Tegen 14:02 stuurden sommige gebruikers nonces in die nog van gistermiddag waren, en wp_verify_nonce gaf 2 terug in plaats van 1 . Met de strikte vergelijking === 1 komen alleen verse nonces door, en het formulier begint requests willekeurig te laten vallen. De auteur merkte het nooit, omdat zijn eigen browser-sessie altijd in de verse helft van het venster zat. Dit gebeurt als je wp_verify_nonce van Stack Overflow kopieert zonder te lezen wat de functie eigenlijk doet. Laten we dat dus lezen. Wat WordPress een nonce noemt Een nonce in de cryptografie is een getal dat één keer wordt gebruikt. Een WordPress nonce is dat niet. Het is een hash gekoppeld aan een user-sessie, een action-string en een venster van 12 of 24 uur. Dezelfde gebruiker krijgt voor dezelfde action twee keer dezelfde nonce als hij binnen het venster opnieuw laadt. Dat is geen bug, dat is het ontwerp. De hash wordt gegenereerd door wp_create_nonce() , dat onder de motorkap wp_hash() aanroept over $tick|$action|$uid|$token . $tick is ceil(time() / (nonce_life / 2)) . Standaard is nonce_life 86400 seconden, dus $tick rolt elke 12 uur door. Op elk moment zijn er twee geldige nonces: die van de huidige tick en die van de vorige. Daarom kan wp_verify_nonce drie verschillende dingen teruggeven: 1 als de nonce in de laatste 0 tot 12 uur is gegenereerd 2 als de nonce in de laatste 12 tot 24 uur is gegenereerd false als hij met geen van beide overeenkomt Als je code de return als boolean behandelt met een losse == of met if() , slagen zowel 1 als 2. Als je code === 1 doet, faalt de tweede helft van het venster geruisloos. Beide patronen komen veel voor in verouderde plugins. Geen van beide is op zichzelf een correcte security-check. De officiële referentie documenteert de drievoudige return, maar het staat verstopt onder het voorbeeld en de meeste lezers scrollen er overheen. Waartegen een nonce eigenlijk beschermt Een WordPress nonce is geen CSRF-token in de strikte OWASP-zin . Hij beschermt wel tegen CSRF, omdat de hash afhangt van het session-token van de gebruiker en een aanvaller op een andere origin dat niet kent. Maar hij fungeert ook als sessieslot: een nonce die voor user A is aangemaakt is niet geldig voor user B, en een nonce die ingelogd is aangemaakt overleeft geen logout. Dat laat twee dingen over die een nonce niet doet. Hij controleert geen capability. Een subscriber met een geldige nonce voor de action delete_post komt nog steeds door wp_verify_nonce heen. Je hebt daarna current_user_can('delete_post', $post_id) nodig. En hij autoriseert niet. Hij bevestigt dat de request kwam van een plek die het juiste session-token kende. Hij bevestigt niet dat de request mag doen wat hij vraagt. De action-string is het contract Hier is de tweede gekopieerde fout. De plugin genereert dit: $nonce = wp_create_nonce('update'); En verifieert dit: wp_verify_nonce($_REQUEST['_wpnonce'], 'update'); De action-string 'update' wordt gedeeld door elk formulier in de plugin. Elke geldige nonce voor elk update-formulier slaagt voor elke andere verificatie die dezelfde string gebruikt. Een nonce die is aangemaakt om user-metadata bij te werken slaagt op het formulier dat factuuradressen wijzigt. De bescherming klapt in elkaar tot \"kwam je ergens vandaan op deze site die kortgeleden iets heeft gedaan.\" De fix is om de action te namespacen met het object waarop hij werkt: $nonce = wp_create_nonce('update_invoice_' . $invoice_id); Nu is de nonce gekoppeld aan die specifieke factuur. Een nonce voor factuur 14 kan niet hergebruikt worden tegen factuur 15. Dit telt zwaarder dan mensen denken. Het is het verschil tussen het formulier beschermen en de rij beschermen. Een werkend patroon voor admin-post.php Dit is de vorm waar we voor bijna elk admin-formulier op uitkomen. Hij scheidt de vier controles die in deze volgorde moeten gebeuren: authenticatie, intentie, capability, payload. add_action('admin_post_save_invoice', function () { if (!is_user_logged_in()) { wp_die('Not signed in.', 403); } $nonce = $_POST['_wpnonce'] ?? ''; $invoice_id = absint($_POST['invoice_id'] ?? 0); if (!wp_verify_nonce($nonce, 'save_invoice_' . $invoice_id)) { wp_die('Nonce expired or invalid.', 403); } if (!current_user_can('edit_post', $invoice_id)) { wp_die('Not allowed.', 403); } // payload validation, then the actual write }); Drie dingen om op te merken. De nonce-check gebruikt if (!wp_verify_nonce(...)) , die 1, 2 en elke niet-false waarde als geslaagd behandelt. De capability-check staat apart en loopt erna. En de action-string draagt de invoice-id, dus de nonce kan niet van het ene formulier worden geplukt en op een ander herspeeld.",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"WordPress nonces: wat wp_verify_nonce werkelijk doet","item":"https://pier.abn.company/nl/blog/wordpress-nonces-fundamentals/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is een WordPress nonce hetzelfde als een CSRF-token?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Er is overlap, maar het is niet hetzelfde. Hij beschermt tegen CSRF omdat hij afhangt van het session-token van de gebruiker, en hij werkt ook als sessieslot dat de request koppelt aan één gebruiker en één action-venster."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom geeft wp_verify_nonce 1 of 2 terug in plaats van true?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "1 betekent dat de nonce in de laatste 12 uur is aangemaakt, 2 betekent in de 12 uur daarvoor. WordPress houdt twee geldige ticks aan, zodat een gebruiker die een lang openstaand formulier opnieuw laadt niet buitengesloten wordt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mag ik dezelfde action-string voor meerdere formulieren hergebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Mag wel, moet je niet doen. Een gedeelde action-string betekent dat elke geldige nonce voor het ene formulier door de verificatie van het andere komt. Namespace de action met de object-id, zoals save_invoice_14."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/wordpress-nonces-fundamentals/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 125</span>
+      </div>
+      <p class="eyebrow"><span class="n">125 —</span>WordPress</p>
+      <h1 class="display-l post-title">WordPress nonces: wat wp_verify_nonce werkelijk doet</h1>
+      <p class="lede post-lede">Het formulier werkt &#39;s ochtends, breekt &#39;s middags, niemand kan het reproduceren. De bug zit in hoe je leest wat wp_verify_nonce teruggeeft.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T18:25:54.399Z">12 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/wordpress-nonces-fundamentals/hero.webp" type="image/webp">
+      <img src="/blog/wordpress-nonces-fundamentals/hero.jpg" alt="Foto van boven op linnen: WordPress beveiligingsblad, tijddiagram, map NONCES, indexkaarten, messing plaatje, vulpen, rood lakzegel met label STALE." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 125</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Het Slack-bericht komt binnen op woensdag, 14:02. "Ons inzendformulier werkt 's ochtends en breekt na de lunch willekeurig. Niks in de error log." We openen het plugin-bestand en vinden dit:</p>
+<pre><code class="lang-php">if (wp_verify_nonce($_POST['_wpnonce'], 'submit_form') === 1) {
+    process_form();
+}</code></pre>
+<p>De plugin werkte 's ochtends omdat de WordPress nonce minder dan 12 uur oud was. Tegen 14:02 stuurden sommige gebruikers nonces in die nog van gistermiddag waren, en <code>wp_verify_nonce</code> gaf <code>2</code> terug in plaats van <code>1</code>. Met de strikte vergelijking <code>=== 1</code> komen alleen verse nonces door, en het formulier begint requests willekeurig te laten vallen. De auteur merkte het nooit, omdat zijn eigen browser-sessie altijd in de verse helft van het venster zat.</p>
+<p>Dit gebeurt als je <code>wp_verify_nonce</code> van Stack Overflow kopieert zonder te lezen wat de functie eigenlijk doet. Laten we dat dus lezen.</p>
+<h2>Wat WordPress een nonce noemt</h2>
+<p>Een nonce in de cryptografie is een getal dat één keer wordt gebruikt. Een WordPress nonce is dat niet. Het is een hash gekoppeld aan een user-sessie, een action-string en een venster van 12 of 24 uur. Dezelfde gebruiker krijgt voor dezelfde action twee keer dezelfde nonce als hij binnen het venster opnieuw laadt. Dat is geen bug, dat is het ontwerp.</p>
+<p>De hash wordt gegenereerd door <code>wp_create_nonce()</code>, dat onder de motorkap <code>wp_hash()</code> aanroept over <code>$tick|$action|$uid|$token</code>. <code>$tick</code> is <code>ceil(time() / (nonce_life / 2))</code>. Standaard is <code>nonce_life</code> 86400 seconden, dus <code>$tick</code> rolt elke 12 uur door. Op elk moment zijn er twee geldige nonces: die van de huidige tick en die van de vorige.</p>
+<p>Daarom kan <code>wp_verify_nonce</code> drie verschillende dingen teruggeven:</p>
+<ul>
+<li><code>1</code> als de nonce in de laatste 0 tot 12 uur is gegenereerd</li>
+<li><code>2</code> als de nonce in de laatste 12 tot 24 uur is gegenereerd</li>
+<li><code>false</code> als hij met geen van beide overeenkomt</li>
+</ul>
+<p>Als je code de return als boolean behandelt met een losse <code>==</code> of met <code>if()</code>, slagen zowel 1 als 2. Als je code <code>=== 1</code> doet, faalt de tweede helft van het venster geruisloos. Beide patronen komen veel voor in verouderde plugins. Geen van beide is op zichzelf een correcte security-check. De <a href="https://developer.wordpress.org/reference/functions/wp_verify_nonce/" rel="noopener">officiële referentie</a> documenteert de drievoudige return, maar het staat verstopt onder het voorbeeld en de meeste lezers scrollen er overheen.</p>
+<h2>Waartegen een nonce eigenlijk beschermt</h2>
+<p>Een WordPress nonce is geen CSRF-token in de strikte <a href="https://owasp.org/www-community/attacks/csrf" rel="noopener">OWASP-zin</a>. Hij beschermt wel tegen CSRF, omdat de hash afhangt van het session-token van de gebruiker en een aanvaller op een andere origin dat niet kent. Maar hij fungeert ook als sessieslot: een nonce die voor user A is aangemaakt is niet geldig voor user B, en een nonce die ingelogd is aangemaakt overleeft geen logout.</p>
+<p>Dat laat twee dingen over die een nonce niet doet.</p>
+<p>Hij controleert geen capability. Een subscriber met een geldige nonce voor de action <code>delete_post</code> komt nog steeds door <code>wp_verify_nonce</code> heen. Je hebt daarna <code>current_user_can('delete_post', $post_id)</code> nodig. En hij autoriseert niet. Hij bevestigt dat de request kwam van een plek die het juiste session-token kende. Hij bevestigt niet dat de request mag doen wat hij vraagt.</p>
+<h2>De action-string is het contract</h2>
+<p>Hier is de tweede gekopieerde fout. De plugin genereert dit:</p>
+<pre><code class="lang-php">$nonce = wp_create_nonce('update');</code></pre>
+<p>En verifieert dit:</p>
+<pre><code class="lang-php">wp_verify_nonce($_REQUEST['_wpnonce'], 'update');</code></pre>
+<p>De action-string <code>'update'</code> wordt gedeeld door elk formulier in de plugin. Elke geldige nonce voor elk update-formulier slaagt voor elke andere verificatie die dezelfde string gebruikt. Een nonce die is aangemaakt om user-metadata bij te werken slaagt op het formulier dat factuuradressen wijzigt. De bescherming klapt in elkaar tot "kwam je ergens vandaan op deze site die kortgeleden iets heeft gedaan."</p>
+<p>De fix is om de action te namespacen met het object waarop hij werkt:</p>
+<pre><code class="lang-php">$nonce = wp_create_nonce('update_invoice_' . $invoice_id);</code></pre>
+<p>Nu is de nonce gekoppeld aan die specifieke factuur. Een nonce voor factuur 14 kan niet hergebruikt worden tegen factuur 15. Dit telt zwaarder dan mensen denken. Het is het verschil tussen het formulier beschermen en de rij beschermen.</p>
+<h2>Een werkend patroon voor admin-post.php</h2>
+<p>Dit is de vorm waar we voor bijna elk admin-formulier op uitkomen. Hij scheidt de vier controles die in deze volgorde moeten gebeuren: authenticatie, intentie, capability, payload.</p>
+<pre><code class="lang-php">add_action('admin_post_save_invoice', function () {
+    if (!is_user_logged_in()) {
+        wp_die('Not signed in.', 403);
+    }
+
+    $nonce      = $_POST['_wpnonce']    ?? '';
+    $invoice_id = absint($_POST['invoice_id'] ?? 0);
+
+    if (!wp_verify_nonce($nonce, 'save_invoice_' . $invoice_id)) {
+        wp_die('Nonce expired or invalid.', 403);
+    }
+
+    if (!current_user_can('edit_post', $invoice_id)) {
+        wp_die('Not allowed.', 403);
+    }
+
+    // payload validation, then the actual write
+});</code></pre>
+<p>Drie dingen om op te merken. De nonce-check gebruikt <code>if (!wp_verify_nonce(...))</code>, die 1, 2 en elke niet-false waarde als geslaagd behandelt. De capability-check staat apart en loopt erna. En de action-string draagt de invoice-id, dus de nonce kan niet van het ene formulier worden geplukt en op een ander herspeeld.</p>
+<p>Aan de formulierkant doet <code>wp_nonce_field()</code> precies het juiste:</p>
+<pre><code class="lang-php">&lt;?php wp_nonce_field('save_invoice_' . $invoice-&gt;id); ?&gt;</code></pre>
+<p>Voor AJAX-endpoints geeft <code>check_ajax_referer()</code> dezelfde drievoudige waarde terug en exit met 403 bij false als je <code>true</code> als derde argument meegeeft. Zelfde regels, andere wrapper.</p>
+<aside class="callout">Full-page caches en WordPress nonces gaan niet samen. Als je formulier op een pagina staat die via een full-page cache wordt geserveerd (Varnish, Cloudflare HTML cache of WP Super Cache), is de nonce in het formulier aangemaakt op het moment dat de cache werd gevuld en kan hij dagen oud zijn tegen de tijd dat de gebruiker hem ziet. <code>wp_verify_nonce</code> geeft false terug en het formulier lijkt stuk. Sluit de formulierpagina uit van de cache, of render de nonce via een kleine admin-ajax call nadat de pagina is geladen.</aside>
+<h2>Lifetimes, salts en wat je veilig kunt bijstellen</h2>
+<p>Twee filters en twee constanten doen het meeste tuning-werk. Het filter <code>nonce_life</code> bepaalt het venster. Sommige plugins korten het in tot één uur voor flows met hoge security:</p>
+<pre><code class="lang-php">add_filter('nonce_life', function () {
+    return HOUR_IN_SECONDS;
+});</code></pre>
+<p>Houd er rekening mee dat dit het venster globaal verkort, ook voor elk tabblad dat de gebruiker open heeft laten staan. Heeft hij 90 minuten op een checkout-pagina gezeten, dan is de nonce op zijn submit-knop nu verlopen en weigert het formulier hem.</p>
+<p><code>NONCE_SALT</code> en <code>NONCE_KEY</code> in <code>wp-config.php</code> seeden de hash. Roteer je ze, dan wordt elke nonce die op dat moment in transit is direct ongeldig. Dat is de juiste zet na een credential-lek. Het is de verkeerde zet op een dinsdagochtend, want de volgende duizend formulier-inzendingen in het wild gaan allemaal stuk zonder bruikbare error.</p>
+<h2>Waar dit werk meestal misgaat</h2>
+<p>De meeste nonce-bugs die we zien in <a href="/">legacy WordPress-sites</a> zitten niet in de verify-aanroep zelf. Ze zitten in de code eromheen.</p>
+<ul>
+<li>Een nonce-check die na de database-write loopt, niet ervoor.</li>
+<li>Een nonce-check die wel draait, maar het resultaat weggooit met <code>@</code> of een ingeslikte exception.</li>
+<li>Een nonce-check gekoppeld aan een generieke action-string als <code>save</code> of <code>update</code>, hergebruikt door de hele plugin.</li>
+<li>Een nonce-check die is uitgecomment omdat "het formulier steeds brak", en niemand wist van het 12-uurs-venster.</li>
+</ul>
+<p>Dit zijn geen subtiele bugs. Ze zijn ook niet van buitenaf zichtbaar, en dat is waarom ze jarenlang in productie overleven.</p>
+<p>Toen we <a href="/">Pier</a> bouwden, een chat-gestuurde editor voor verouderde WordPress- en WooCommerce-sites, liepen we in de eerste week van elke audit tegen precies deze patronen aan. Wat we uiteindelijk deden is de audit-pass leren om elke <code>wp_verify_nonce</code>-aanroep te grep'pen en de vijf omliggende regels mee te lezen: de action-string, hoe de return wordt afgehandeld, en of er een <code>current_user_can</code> naast staat. Drie regels context pakt de meeste, en de <a href="/#features">version history</a> betekent dat een verkeerd uitgepakte fix één klik terug is.</p>
+<h2>Wat je vandaag kunt doen</h2>
+<p>Open één plugin in de site die je beheert. Zoek op <code>wp_verify_nonce</code>. Controleer bij elke hit drie dingen: de action-string draagt de id van het object waarop wordt gewerkt, het resultaat wordt niet strict vergeleken met <code>=== 1</code>, en een <code>current_user_can</code>-check staat binnen vijf regels ervan. Mist één van de drie, dan heb je een echte bug gevonden, en wel het soort dat pas in een log opduikt als iemand om 14:02 op een woensdag meldt dat hij een formulier niet kan insturen.</p>
+    </div>
+
+    <aside class="pullquote">wp_verify_nonce geeft 1, 2 of false terug, geen boolean, en een nonce beschermt alleen wat zijn action-string benoemt; de rest is jouw werk.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is een WordPress nonce hetzelfde als een CSRF-token?</p>
+      <p class="faq-a">Er is overlap, maar het is niet hetzelfde. Hij beschermt tegen CSRF omdat hij afhangt van het session-token van de gebruiker, en hij werkt ook als sessieslot dat de request koppelt aan één gebruiker en één action-venster.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom geeft wp_verify_nonce 1 of 2 terug in plaats van true?</p>
+      <p class="faq-a">1 betekent dat de nonce in de laatste 12 uur is aangemaakt, 2 betekent in de 12 uur daarvoor. WordPress houdt twee geldige ticks aan, zodat een gebruiker die een lang openstaand formulier opnieuw laadt niet buitengesloten wordt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Mag ik dezelfde action-string voor meerdere formulieren hergebruiken?</p>
+      <p class="faq-a">Mag wel, moet je niet doen. Een gedeelde action-string betekent dat elke geldige nonce voor het ene formulier door de verificatie van het andere komt. Namespace de action met de object-id, zoals save_invoice_14.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wp-config-debug-constants/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wp-config-debug-constants/hero.webp" type="image/webp">
+        <img src="/nl/blog/wp-config-debug-constants/hero.jpg" alt="Bovenaanzicht van verouderd wp-config.php spiekbriefje met PHP debug-constanten, koperen presse-papier, liniaal, potlood, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>4 juni 2026</span></span>
+      <h3>wp-config.php debug constants: een werkbare cheatsheet</h3>
+      <span class="pc-lede">WordPress kent veertig gedocumenteerde wp-config.php constants. De meeste sites gebruiken er drie. Hier zijn de rest, als cheatsheet om in te plakken.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/ai-code-review-legacy-php/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/ai-code-review-legacy-php/hero.webp" type="image/webp">
+        <img src="/nl/blog/ai-code-review-legacy-php/hero.jpg" alt="Vintage schuifmaat op een crème tekensjabloon met potloodlijnen, klei-rood papiertje, donkere eiken werkbank." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>15 mei 2026</span></span>
+      <h3>AI-codereview op legacy PHP: vangsten en blinde vlekken</h3>
+      <span class="pc-lede">Een eerlijke kijk op wat AI-codereview echt verandert bij het refactoren van 14 jaar oude PHP: de bugs die je in seconden vindt en de keuzes die het mist.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/wordpress-nonces-fundamentals/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
