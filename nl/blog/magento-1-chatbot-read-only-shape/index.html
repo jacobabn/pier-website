@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Magento 1 chatbot: de read-only vorm die blijft staan · Pier — Blog</title>
+<meta name="description" content="Een klant wil een chatbot op een Magento 1-shop uit 2017 schroeven. De kunst: read-only houden, weg van de checkout en uit de order-tabellen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="magento, php, mysql, ai, architecture, security">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/magento-1-chatbot-read-only-shape/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/magento-1-chatbot-read-only-shape/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Magento 1 chatbot: de read-only vorm die blijft staan">
+<meta property="og:description" content="Een klant wil een chatbot op een Magento 1-shop uit 2017 schroeven. De kunst: read-only houden, weg van de checkout en uit de order-tabellen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht beige linnen bureau met Magento-blauwdruk, manillamap, indexkaarten, messing plaatje, lakzegel, vulpen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T06:33:03.585Z">
+<meta property="article:modified_time" content="2026-06-11T06:33:03.585Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="AI">
+<meta property="article:tag" content="magento">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="ai">
+<meta property="article:tag" content="architecture">
+<meta property="article:tag" content="security">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Magento 1 chatbot: de read-only vorm die blijft staan">
+<meta name="twitter:description" content="Een klant wil een chatbot op een Magento 1-shop uit 2017 schroeven. De kunst: read-only houden, weg van de checkout en uit de order-tabellen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht beige linnen bureau met Magento-blauwdruk, manillamap, indexkaarten, messing plaatje, lakzegel, vulpen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="AI">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/magento-1-chatbot-read-only-shape/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/"},
+  "url":"https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/",
+  "headline":"Magento 1 chatbot: de read-only vorm die blijft staan",
+  "description":"Een klant wil een chatbot op een Magento 1-shop uit 2017 schroeven. De kunst: read-only houden, weg van de checkout en uit de order-tabellen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht beige linnen bureau met Magento-blauwdruk, manillamap, indexkaarten, messing plaatje, lakzegel, vulpen."
+  },
+  "datePublished":"2026-06-11T06:33:03.585Z",
+  "dateModified":"2026-06-11T06:33:03.585Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"magento, php, mysql, ai, architecture, security",
+  "wordCount":1093,
+  "articleSection":"AI",
+  "articleBody":"Waar de vraag meestal binnenkomt Het is een dinsdagmiddag-pingetje van een agency-eigenaar in Utrecht. Een klant van hem draait een Magento 1.9.4.5-shop die zo'n €40k per maand omzet in vloertegels en badkamerarmaturen. De briefing is twee zinnen lang: \"Klant wil een AI-chatbot op de productpagina's. Kun je een prijs scopen?\" Erbij zit een Loom, opgenomen om 23:41 de avond ervoor, waarin de agency-eigenaar met een trillende camera door de storefront loopt en wijst naar de \"Hulp nodig?\"-widgets die hij bij concurrenten heeft zien staan. De site draait op PHP 7.4. Op Mage_Core staan acht community-patches gestapeld bovenop de officiële SUPEE-11346. De checkout is een custom one-page-variant uit 2018 die niemand bij de agency nog heeft aangeraakt sinds de oorspronkelijke developer vertrok. De MySQL database is 18 GB, vooral EAV-bloat. De /checkout/onepage controller draait nog op de originele prototype.js-stack. Dit is het punt waarop het gesprek moet ophouden te gaan over \"een AI-chatbot\" en moet gaan over welke vorm die chatbot mag aannemen. Op een Magento 1-shop van deze leeftijd breekt de verkeerde vorm de checkout binnen een week. Waarom Magento 1 write-paths afstraft Magento 1 ging in juni 2020 end-of-life . De officiële support stopte, security patches stopten, en het hele EAV-model werd een museumstuk. In de praktijk opereert elke third-party code die naar de database schrijft nu zonder vangrails. Er komt geen community-patch meer voor het hoekgeval waarin jouw chatbot-widget een cart-update inhaalt en een verouderde quote_id_mask-rij achterlaat. De checkout-flow op een typische Magento 1.9-shop raakt minstens 14 tabellen aan bij een enkele order. sales_flat_quote, sales_flat_quote_item, sales_flat_quote_address, sales_flat_order, sales_flat_order_item, sales_flat_order_payment, plus hun _grid-tegenhangers. Het quote-subsysteem staat erom bekend dat het slecht reageert op writes vanuit code buiten de standaard checkout-controllers. We hebben agencies meegemaakt die shops erfden waarin een half-afgemaakte \"abandoned cart\"-extensie nog steeds schreef naar sales_flat_quote-rijen, die de standaard observer dan op het verkeerde moment opnieuw verwerkte, twee minuten nadat de klant al had afgerekend. Elke chatbot die ook maar iets naar die database schrijft, neemt verantwoordelijkheid op zich voor een schema uit 2017 zonder upstream patches. Dat is de verkeerde ruil. De read-only vorm De vorm die we elke keer aanraden is deze. De bot leest. Hij schrijft niet. Hij houdt geen session bij. Hij personaliseert niet. Hij beantwoordt productvragen vanuit de catalogus, verzendvragen vanuit een platte YAML en beleidsvragen vanuit de CMS-blocks. Hij kan niet zien wie de klant is, kan niet zien wat er in het mandje zit en kan niets in de order-pipeline triggeren. Concreet betekent dat: Het bot endpoint leest uit een kleine set catalogus-tabellen via een aparte MySQL-user met alleen SELECT-rechten. De widget laadt alleen op categorie- en productpagina's, nooit op /checkout, /customer, /onestepcheckout of een admin-route. De bot heeft zijn eigen path prefix (meestal /bot/) die volledig buiten Magento's index.php-routing gehouden wordt. De bot zet geen session-cookie, zodat hij de Magento-frontend session niet per ongeluk kan invalideren. Een werkend .htaccess-fragment in de document root: # Houd het bot-widget script volledig uit de checkout <LocationMatch \"^/(checkout|onestepcheckout|customer/account|admin)\"> Header always set Content-Security-Policy \"script-src 'self' 'unsafe-inline'; connect-src 'self'\" </LocationMatch> # Route /bot/ naar een losstaand PHP-bestand, niet Magento's index.php RewriteRule ^bot/api/(.*)$ /bot/api.php?path=$1 [L,QSA] Het CSP-block is de dragende regel. Komt het loader-script van de bot in een CMS-block terecht dat doorlekt naar de checkout, dan weigert de browser het op te halen. De checkout-JS blijft op zijn oude prototype.js-stack draaien, onaangetast. De CSP-referentie van MDN is de bron waar je naar terug kunt vallen voor de connect-src en script-src semantiek als je de regel in een code review moet verdedigen. De MySQL grant De bot draait als zijn eigen user, niet als de Magento-user. De grants zijn op tabel-niveau scoped: CREATE USER 'pier_bot'@'localhost' IDENTIFIED BY '...'; GRANT SELECT ON shop.catalog_product_entity TO 'pier_bot'@'localhost'; GRANT SELECT ON shop.catalog_product_entity_varchar TO 'pier_bot'@'localhost'; GRANT SELECT ON shop.catalog_product_entity_decimal TO 'pier_bot'@'localhost'; GRANT SELECT ON shop.catalog_product_entity_text TO 'pier_bot'@'localhost'; GRANT SELECT ON shop.eav_attribute TO 'pier_bot'@'localhost'; GRANT SELECT ON shop.cataloginventory_stock_item TO 'pier_bot'@'localhost'; FLUSH PRIVILEGES; Geen toegang tot sales_*, geen toegang tot customer_*, geen toegang tot core_session. Wordt de bot op enig niveau gecompromitteerd (prompt injection, library CVE, slechte deploy), dan is de blast radius de publieke catalogus. Die is sowieso al publiek. De view",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Magento 1 chatbot: de read-only vorm die blijft staan","item":"https://pier.abn.company/nl/blog/magento-1-chatbot-read-only-shape/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan de chatbot dan op zijn minst lezen wat er in het mandje van de klant zit?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet in de read-only vorm. Cart-context betekent lezen uit sales_flat_quote, en dat betekent dat je write-path-verantwoordelijkheid erft op een schema dat in 2020 EOL ging. Dat is precies de ruil die je probeert te vermijden."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom niet gewoon een hosted widget zoals Intercom of Tidio gebruiken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Die zijn prima voor algemene vragen. Ook die moeten via CSP uit /checkout gehouden worden, anders krijg je dezelfde prototype.js-race condities zodra het widget-script op de one-page checkout laadt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Heb ik echt een aparte MySQL-user nodig voor de bot?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja. Hergebruik je de Magento-credentials, dan erft de bot GRANT ALL op de order-tabellen, en daarmee verdwijnt elke vangrail die de read-only vorm je nu juist moet geven."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/magento-1-chatbot-read-only-shape/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 111</span>
+      </div>
+      <p class="eyebrow"><span class="n">111 —</span>AI</p>
+      <h1 class="display-l post-title">Magento 1 chatbot: de read-only vorm die blijft staan</h1>
+      <p class="lede post-lede">Een klant wil een chatbot op een Magento 1-shop uit 2017 schroeven. De kunst: read-only houden, weg van de checkout en uit de order-tabellen.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T06:33:03.585Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/magento-1-chatbot-read-only-shape/hero.webp" type="image/webp">
+      <img src="/blog/magento-1-chatbot-read-only-shape/hero.jpg" alt="Bovenaanzicht beige linnen bureau met Magento-blauwdruk, manillamap, indexkaarten, messing plaatje, lakzegel, vulpen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 111</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <h2>Waar de vraag meestal binnenkomt</h2>
+<p>Het is een dinsdagmiddag-pingetje van een agency-eigenaar in Utrecht. Een klant van hem draait een Magento 1.9.4.5-shop die zo'n €40k per maand omzet in vloertegels en badkamerarmaturen. De briefing is twee zinnen lang: "Klant wil een AI-chatbot op de productpagina's. Kun je een prijs scopen?" Erbij zit een Loom, opgenomen om 23:41 de avond ervoor, waarin de agency-eigenaar met een trillende camera door de storefront loopt en wijst naar de "Hulp nodig?"-widgets die hij bij concurrenten heeft zien staan.</p>
+<p>De site draait op PHP 7.4. Op Mage_Core staan acht community-patches gestapeld bovenop de officiële SUPEE-11346. De checkout is een custom one-page-variant uit 2018 die niemand bij de agency nog heeft aangeraakt sinds de oorspronkelijke developer vertrok. De MySQL database is 18 GB, vooral EAV-bloat. De /checkout/onepage controller draait nog op de originele prototype.js-stack.</p>
+<p>Dit is het punt waarop het gesprek moet ophouden te gaan over "een AI-chatbot" en moet gaan over welke vorm die chatbot mag aannemen. Op een Magento 1-shop van deze leeftijd breekt de verkeerde vorm de checkout binnen een week.</p>
+<h2>Waarom Magento 1 write-paths afstraft</h2>
+<p>Magento 1 ging <a href="https://magento.com/blog/important-update-magento-1-software-support">in juni 2020 end-of-life</a>. De officiële support stopte, security patches stopten, en het hele EAV-model werd een museumstuk. In de praktijk opereert elke third-party code die naar de database schrijft nu zonder vangrails. Er komt geen community-patch meer voor het hoekgeval waarin jouw chatbot-widget een cart-update inhaalt en een verouderde quote_id_mask-rij achterlaat.</p>
+<p>De checkout-flow op een typische Magento 1.9-shop raakt minstens 14 tabellen aan bij een enkele order. sales_flat_quote, sales_flat_quote_item, sales_flat_quote_address, sales_flat_order, sales_flat_order_item, sales_flat_order_payment, plus hun _grid-tegenhangers. Het quote-subsysteem staat erom bekend dat het slecht reageert op writes vanuit code buiten de standaard checkout-controllers. We hebben agencies meegemaakt die shops erfden waarin een half-afgemaakte "abandoned cart"-extensie nog steeds schreef naar sales_flat_quote-rijen, die de standaard observer dan op het verkeerde moment opnieuw verwerkte, twee minuten nadat de klant al had afgerekend.</p>
+<p>Elke chatbot die ook maar iets naar die database schrijft, neemt verantwoordelijkheid op zich voor een schema uit 2017 zonder upstream patches. Dat is de verkeerde ruil.</p>
+<h2>De read-only vorm</h2>
+<p>De vorm die we elke keer aanraden is deze. De bot leest. Hij schrijft niet. Hij houdt geen session bij. Hij personaliseert niet. Hij beantwoordt productvragen vanuit de catalogus, verzendvragen vanuit een platte YAML en beleidsvragen vanuit de CMS-blocks. Hij kan niet zien wie de klant is, kan niet zien wat er in het mandje zit en kan niets in de order-pipeline triggeren.</p>
+<p>Concreet betekent dat:</p>
+<ul>
+<li>Het bot endpoint leest uit een kleine set catalogus-tabellen via een aparte MySQL-user met alleen SELECT-rechten.</li>
+<li>De widget laadt alleen op categorie- en productpagina's, nooit op /checkout, /customer, /onestepcheckout of een admin-route.</li>
+<li>De bot heeft zijn eigen path prefix (meestal /bot/) die volledig buiten Magento's index.php-routing gehouden wordt.</li>
+<li>De bot zet geen session-cookie, zodat hij de Magento-frontend session niet per ongeluk kan invalideren.</li>
+</ul>
+<p>Een werkend .htaccess-fragment in de document root:</p>
+<pre><code class="lang-apache"># Houd het bot-widget script volledig uit de checkout
+&lt;LocationMatch "^/(checkout|onestepcheckout|customer/account|admin)"&gt;
+    Header always set Content-Security-Policy "script-src 'self' 'unsafe-inline'; connect-src 'self'"
+&lt;/LocationMatch&gt;
+
+# Route /bot/ naar een losstaand PHP-bestand, niet Magento's index.php
+RewriteRule ^bot/api/(.*)$ /bot/api.php?path=$1 [L,QSA]
+</code></pre>
+<p>Het CSP-block is de dragende regel. Komt het loader-script van de bot in een CMS-block terecht dat doorlekt naar de checkout, dan weigert de browser het op te halen. De checkout-JS blijft op zijn oude prototype.js-stack draaien, onaangetast. <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy">De CSP-referentie van MDN</a> is de bron waar je naar terug kunt vallen voor de connect-src en script-src semantiek als je de regel in een code review moet verdedigen.</p>
+<h3>De MySQL grant</h3>
+<p>De bot draait als zijn eigen user, niet als de Magento-user. De grants zijn op tabel-niveau scoped:</p>
+<pre><code class="lang-sql">CREATE USER 'pier_bot'@'localhost' IDENTIFIED BY '...';
+
+GRANT SELECT ON shop.catalog_product_entity TO 'pier_bot'@'localhost';
+GRANT SELECT ON shop.catalog_product_entity_varchar TO 'pier_bot'@'localhost';
+GRANT SELECT ON shop.catalog_product_entity_decimal TO 'pier_bot'@'localhost';
+GRANT SELECT ON shop.catalog_product_entity_text TO 'pier_bot'@'localhost';
+GRANT SELECT ON shop.eav_attribute TO 'pier_bot'@'localhost';
+GRANT SELECT ON shop.cataloginventory_stock_item TO 'pier_bot'@'localhost';
+
+FLUSH PRIVILEGES;
+</code></pre>
+<p>Geen toegang tot sales_*, geen toegang tot customer_*, geen toegang tot core_session. Wordt de bot op enig niveau gecompromitteerd (prompt injection, library CVE, slechte deploy), dan is de blast radius de publieke catalogus. Die is sowieso al publiek.</p>
+<h2>De view-laag die EAV uit de prompt houdt</h2>
+<p>De catalogus-tabellen zijn niet leesbaar als chat-context. Het is EAV. Een productnaam staat in catalog_product_entity_varchar met attribute_id 71 op de meeste installaties, gejoind terug aan catalog_product_entity via entity_id. Ruwe EAV in een language model gooien is een slecht idee, zowel vanwege de token-kosten als omdat het model joins gaat hallucineren.</p>
+<p>De vorm die werkt is een gedenormaliseerde view, die de bot bij het opstarten ververst:</p>
+<pre><code class="lang-sql">CREATE OR REPLACE VIEW bot_product_card AS
+SELECT
+    e.entity_id,
+    e.sku,
+    name.value      AS name,
+    descr.value     AS short_description,
+    price.value     AS price,
+    stock.qty       AS qty,
+    stock.is_in_stock
+FROM catalog_product_entity e
+LEFT JOIN catalog_product_entity_varchar name
+    ON name.entity_id = e.entity_id AND name.attribute_id = 71 AND name.store_id = 0
+LEFT JOIN catalog_product_entity_text descr
+    ON descr.entity_id = e.entity_id AND descr.attribute_id = 73 AND descr.store_id = 0
+LEFT JOIN catalog_product_entity_decimal price
+    ON price.entity_id = e.entity_id AND price.attribute_id = 75 AND price.store_id = 0
+LEFT JOIN cataloginventory_stock_item stock
+    ON stock.product_id = e.entity_id;
+</code></pre>
+<p>Attribute IDs verschillen per installatie. Bevestig die van jou met SELECT attribute_id, attribute_code FROM eav_attribute WHERE entity_type_id = 4 voor je de view live zet. De bot bevraagt bot_product_card, niet de EAV-tabellen rechtstreeks. De view is het contract. Wil je later veranderen wat de bot ziet, dan pas je de view aan, niet het code-pad.</p>
+<aside class="callout"><strong>Eentje die ons beet:</strong> een MariaDB 10.3-instantie gaf NULL terug voor de price-kolom op configurable products, omdat de prijs op de simples staat en niet op de parent. De bot quotete vervolgens "gratis" aan een klant die er een screenshot van maakte. De fix was een COALESCE naar de prijs van de goedkoopste child-SKU binnen de view zelf. De moeite waard om te checken voor je de widget op productie zet.</aside>
+<h2>Wat we uiteindelijk bij Pier geleverd hebben</h2>
+<p>Toen we Pier bouwden, kwamen we deze vorm zo vaak tegen dat we read-only mode er meteen in hebben ingebakken: wijs hem op de FTP- en MySQL-credentials van een <a href="/">verouderde site</a>, geef hem een SELECT-only user mee, en de <a href="/#database">MySQL editor</a> weigert te schrijven. De <a href="/#features">versiegeschiedenis</a> houdt nog steeds elk bestand bij dat de operator naast de bot aanraakt, dus een zaterdagavond-tweak rolt met één toetsaanslag terug.</p>
+<p>Het kleinste wat je vandaag kunt doen, voor je één regel bot-code schrijft: draai SHOW GRANTS FOR 'magento'@'localhost' op de shop waar je "even een chatbot" op moet zetten. Heeft de user die de connectie houdt GRANT ALL, dan weet je al welk gesprek je eerst met de klant moet voeren.</p>
+    </div>
+
+    <aside class="pullquote">Op Magento 1 erft een chatbot die ook maar iets naar de database schrijft een schema uit 2017 zonder upstream patches. Read-only, of niet uitrollen.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan de chatbot dan op zijn minst lezen wat er in het mandje van de klant zit?</p>
+      <p class="faq-a">Niet in de read-only vorm. Cart-context betekent lezen uit sales_flat_quote, en dat betekent dat je write-path-verantwoordelijkheid erft op een schema dat in 2020 EOL ging. Dat is precies de ruil die je probeert te vermijden.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom niet gewoon een hosted widget zoals Intercom of Tidio gebruiken?</p>
+      <p class="faq-a">Die zijn prima voor algemene vragen. Ook die moeten via CSP uit /checkout gehouden worden, anders krijg je dezelfde prototype.js-race condities zodra het widget-script op de one-page checkout laadt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Heb ik echt een aparte MySQL-user nodig voor de bot?</p>
+      <p class="faq-a">Ja. Hergebruik je de Magento-credentials, dan erft de bot GRANT ALL op de order-tabellen, en daarmee verdwijnt elke vangrail die de read-only vorm je nu juist moet geven.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=magento">#magento</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=ai">#ai</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/chatgpt-inside-old-joomla-admin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/chatgpt-inside-old-joomla-admin/hero.webp" type="image/webp">
+        <img src="/nl/blog/chatgpt-inside-old-joomla-admin/hero.jpg" alt="Bovenaanzicht van getekende Joomla-wireframe op ruitjespapier, manilla map, runsheet, messing plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">AI</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>ChatGPT in een Joomla-admin uit 2015: de kleinste veilige vorm</h3>
+      <span class="pc-lede">Een klant wil een AI-schrijfassistent in zijn Joomla 3-admin. Dit is de kleinste veilige vorm die wij kennen, en de onderdelen die we weigeren te leveren.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-audit-inherited-store/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-audit-inherited-store/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-audit-inherited-store/hero.jpg" alt="Bovenaanzicht op linnen: auditchecklist, CLI-werkblad, ER-blauwdruk, messing plaatje, stopwatch, liniaal, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>9 juni 2026</span></span>
+      <h3>Magento-audit: 40-minuten checklist voor overgenomen shop</h3>
+      <span class="pc-lede">Een bureau van 22 man neemt een Magento 2.3-shop over. De vorige dev is onbereikbaar. Dit is de audit van 40 minuten die we draaien voor je iets aanraakt.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/magento-1-chatbot-read-only-shape/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
