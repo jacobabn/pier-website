@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Drupal 9 502 alleen voor redacteuren: sessions-tabel vol · Pier — Blog</title>
+<meta name="description" content="Een Drupal 9-site gaf op een donderdagmiddag 502&#39;s, maar alleen voor ingelogde redacteuren. De oorzaak: een sessions-tabel die ibdata1 had volgegeten.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="drupal, mysql, databases, php, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/drupal-9-session-table-outage/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/drupal-9-session-table-outage/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Drupal 9 502 alleen voor redacteuren: sessions-tabel vol">
+<meta property="og:description" content="Een Drupal 9-site gaf op een donderdagmiddag 502&#39;s, maar alleen voor ingelogde redacteuren. De oorzaak: een sessions-tabel die ibdata1 had volgegeten.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Stilleven op linnen: MySQL-schema op papier, 502-foutuitdraai, manilamap, indexkaarten, messing plaatje, lakzegel, vulpen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T01:20:50.423Z">
+<meta property="article:modified_time" content="2026-06-11T01:20:50.423Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Drupal">
+<meta property="article:tag" content="drupal">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Drupal 9 502 alleen voor redacteuren: sessions-tabel vol">
+<meta name="twitter:description" content="Een Drupal 9-site gaf op een donderdagmiddag 502&#39;s, maar alleen voor ingelogde redacteuren. De oorzaak: een sessions-tabel die ibdata1 had volgegeten.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/drupal-9-session-table-outage/hero.jpg">
+<meta name="twitter:image:alt" content="Stilleven op linnen: MySQL-schema op papier, 502-foutuitdraai, manilamap, indexkaarten, messing plaatje, lakzegel, vulpen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="11 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Drupal">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/drupal-9-session-table-outage/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/drupal-9-session-table-outage/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/drupal-9-session-table-outage/"},
+  "url":"https://pier.abn.company/nl/blog/drupal-9-session-table-outage/",
+  "headline":"Drupal 9 502 alleen voor redacteuren: sessions-tabel vol",
+  "description":"Een Drupal 9-site gaf op een donderdagmiddag 502's, maar alleen voor ingelogde redacteuren. De oorzaak: een sessions-tabel die ibdata1 had volgegeten.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/drupal-9-session-table-outage/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Stilleven op linnen: MySQL-schema op papier, 502-foutuitdraai, manilamap, indexkaarten, messing plaatje, lakzegel, vulpen."
+  },
+  "datePublished":"2026-06-11T01:20:50.423Z",
+  "dateModified":"2026-06-11T01:20:50.423Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"drupal, mysql, databases, php, operations, tooling",
+  "wordCount":1762,
+  "articleSection":"Drupal",
+  "articleBody":"De Slack-melding kwam op een donderdag om 14:07. Een Nederlands bureau waar we mee samenwerken had een Drupal 9-site die al vier jaar rustig draaide. Plots kreeg het redactieteam, alle twaalf, een 502 Bad Gateway zodra ze een node probeerden op te slaan. Anoniem verkeer ging prima. De homepage rende. Het contactformulier verstuurde. Zoeken werkte. Zodra een redacteur inlogde en iets probeerde, smeet nginx een 502 in hun gezicht. De oorzaak bleek een sessions-tabel die stilletjes uit zijn tablespace was gegroeid, maar het kostte bijna een uur om dat te vinden. Hun lead developer had veertig minuten besteed aan PHP-FPM herstarten, het aantal workers opschroeven en nginx-errorlogs lezen. De errorlog zei upstream prematurely closed connection while reading response header from upstream . Dat is de meest niets-zeggende regel uit onze branche. Hij vertelt je dat PHP-FPM is gestorven, niet waarom. Hij had ook memory_limit in php.ini verdubbeld en de pool herladen; geen verschil. Hij had MySQL zelf herstart, wat de bureau-lead de stuipen op het lijf joeg en verder niks deed. Wij sloten om 14:48 aan op het gedeelde scherm. Een uur later draaide de site weer. De oorzaak was een sessions-tabel die rustig uit de InnoDB-systeem-tablespace was gegroeid op een server die sinds 2022 niemand had aangeraakt. Dit is hoe het ging. De asymmetrie die het probleem benoemt Het eerste wat we deden was niet naar logs kijken. We laadden de site in een incognitovenster. Homepage: prima. Artikelpagina: prima. Elk gecachet pad: prima. Daarna logden we in als testredacteur en klikten op Bewerken bij een node. 502. Die asymmetrie is het bruikbaarste signaal in het hele incident. Anonieme bezoekers werden bediend uit Drupals interne pagecache of, in dit geval, een Varnish-laag voor nginx. Hun requests raakten nooit een schrijfbare database-session. Ingelogde gebruikers gaan per design altijd langs de pagecache heen. Elk request van een geauthenticeerde gebruiker schrijft naar de sessions -tabel om sid , timestamp en soms de session -blob zelf te verversen. Dus de regel die we op het whiteboard schreven was: alles wat alleen kapot gaat voor ingelogde gebruikers is bijna altijd een schrijfpad. Database, bestandssysteem, of een cache die afhankelijk is van een schrijfactie. We hadden drie verdachten. Het bestandssysteem konden we uitsluiten omdat anonieme formulierposts (de contactpagina) wel werkten, dus PHP kon nog naar de tempdir schrijven. User-specifieke caches konden we uitsluiten omdat de fout direct en totaal was, niet de gebruikelijke verwarring van stale data. Bleef over: het schrijfpad naar de database. Wat de logs werkelijk zeiden Toen we wisten waar we moesten kijken, gaf de PHP-FPM-errorlog het echte signaal. De site draaide FPM onder een eigen pool waarvan de errorlog op /var/log/php8.1-fpm.log stond, niet op de distropad-default. De lead developer had php-fpm.log zitten tailen vanaf het pad van de package-install, dat al twee jaar leeg was. We tailden het juiste bestand tijdens een mislukte save: PHP Fatal error: Uncaught PDOException: SQLSTATE[HY000]: General error: 1114 The table 'sessions' is full in /var/www/drupal/web/core/lib/Drupal/ Core/Database/Statement.php:59 Error 1114 van MySQL betekent niet \"de tabel heeft te veel rijen\". Hij betekent \"de onderliggende opslag kan geen nieuwe schrijfactie meer aan\". Op InnoDB betekent dat bijna altijd dat het tablespace-bestand zijn ingestelde maximum heeft geraakt en niet meer kan autoextend'en. De MySQL-referentiehandleiding is hier ongebruikelijk duidelijk over: de systeem-tablespace krimpt niet, en als je hem afkapt, kun je de cap raken. De site draaide op MySQL 5.7 met innodb_file_per_table op OFF , wat vroeger op sommige oudere Debian-builds de default was. Dat betekent dat elke InnoDB-tabel, inclusief sessions , in één gedeeld bestand woonde: /var/lib/mysql/ibdata1 . We bekeken het: ls -lh /var/lib/mysql/ibdata1 # -rw-r----- 1 mysql mysql 12G Jun 11 14:09 ibdata1 Daarna keken we naar de my.cnf : innodb_data_file_path = ibdata1:10M:autoextend:max:12288M Daar zat het. De tablespace was afgekapt op 12 GB. Hij had de cap bereikt. Geen schrijfacties meer. De sessions-tabel was toevallig de meest schrijfintensieve tabel op deze site, dus die kwam als eerste boven, maar elke andere tabel was ook gestopt met inserts accepteren. Cron faalde geruisloos. Watchdog was zes dagen geleden gestopt. Niemand had het gemerkt omdat de publieke site prima las uit de InnoDB-bufferpool, en die heeft alleen leesrechten nodig. Waarom de sessions-tabel groeide De sessions-tabel zelf was 4,3 GB. Voor een site met twaalf redacteuren. Dat is absurd, en de uitleg is de moeite waard. SELECT table_name, ROUND(data_length / 1024 / 1024, 1) AS data_mb, ROUND(index_length / 1024 / 1024, 1) AS index_mb, table_rows FROM information_schema.tables WHERE table_schema = 'drupal' ORDER BY data_length DESC LIMIT 5; Output: +--------------------+---------+----------+------------+ | table_name | data_mb | index_mb | t",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/drupal-9-session-table-outage/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Drupal 9 502 alleen voor redacteuren: sessions-tabel vol","item":"https://pier.abn.company/nl/blog/drupal-9-session-table-outage/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom bleef anoniem verkeer tijdens de storing in de lucht?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Anonieme requests werden bediend uit Drupals pagecache en Varnish, dus die schreven nooit naar de database. Ingelogde redacteuren gaan langs de pagecache heen en schrijven bij elk request naar de sessions-tabel."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat betekent MySQL-fout 1114 op InnoDB?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dat de onderliggende opslag geen nieuwe schrijfactie meer aankan. Op een gedeelde InnoDB-tablespace betekent het bijna altijd dat ibdata1 zijn ingestelde autoextend-cap heeft geraakt en niet verder kan groeien."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Krimpt TRUNCATE TABLE het bestand ibdata1?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. TRUNCATE leegt de rijen, maar de gedeelde tablespace krimpt nooit in-place. Je moet overstappen op innodb_file_per_table en herbouwen, of de hele database dumpen en opnieuw importeren."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/drupal-9-session-table-outage/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 105</span>
+      </div>
+      <p class="eyebrow"><span class="n">105 —</span>Drupal</p>
+      <h1 class="display-l post-title">Drupal 9 502 alleen voor redacteuren: sessions-tabel vol</h1>
+      <p class="lede post-lede">Een Drupal 9-site gaf op een donderdagmiddag 502&#39;s, maar alleen voor ingelogde redacteuren. De oorzaak: een sessions-tabel die ibdata1 had volgegeten.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T01:20:50.423Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>11 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/drupal-9-session-table-outage/hero.webp" type="image/webp">
+      <img src="/blog/drupal-9-session-table-outage/hero.jpg" alt="Stilleven op linnen: MySQL-schema op papier, 502-foutuitdraai, manilamap, indexkaarten, messing plaatje, lakzegel, vulpen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 105</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>De Slack-melding kwam op een donderdag om 14:07. Een Nederlands bureau waar we mee samenwerken had een Drupal 9-site die al vier jaar rustig draaide. Plots kreeg het redactieteam, alle twaalf, een 502 Bad Gateway zodra ze een node probeerden op te slaan. Anoniem verkeer ging prima. De homepage rende. Het contactformulier verstuurde. Zoeken werkte. Zodra een redacteur inlogde en iets probeerde, smeet nginx een 502 in hun gezicht. De oorzaak bleek een sessions-tabel die stilletjes uit zijn tablespace was gegroeid, maar het kostte bijna een uur om dat te vinden.</p><p>Hun lead developer had veertig minuten besteed aan PHP-FPM herstarten, het aantal workers opschroeven en nginx-errorlogs lezen. De errorlog zei <code>upstream prematurely closed connection while reading response header from upstream</code>. Dat is de meest niets-zeggende regel uit onze branche. Hij vertelt je dat PHP-FPM is gestorven, niet waarom. Hij had ook <code>memory_limit</code> in <code>php.ini</code> verdubbeld en de pool herladen; geen verschil. Hij had MySQL zelf herstart, wat de bureau-lead de stuipen op het lijf joeg en verder niks deed.</p><p>Wij sloten om 14:48 aan op het gedeelde scherm. Een uur later draaide de site weer. De oorzaak was een sessions-tabel die rustig uit de InnoDB-systeem-tablespace was gegroeid op een server die sinds 2022 niemand had aangeraakt. Dit is hoe het ging.</p><h2>De asymmetrie die het probleem benoemt</h2><p>Het eerste wat we deden was niet naar logs kijken. We laadden de site in een incognitovenster. Homepage: prima. Artikelpagina: prima. Elk gecachet pad: prima. Daarna logden we in als testredacteur en klikten op Bewerken bij een node. 502.</p><p>Die asymmetrie is het bruikbaarste signaal in het hele incident. Anonieme bezoekers werden bediend uit Drupals interne pagecache of, in dit geval, een Varnish-laag voor nginx. Hun requests raakten nooit een schrijfbare database-session. Ingelogde gebruikers gaan per design altijd langs de pagecache heen. Elk request van een geauthenticeerde gebruiker schrijft naar de <code>sessions</code>-tabel om <code>sid</code>, <code>timestamp</code> en soms de <code>session</code>-blob zelf te verversen.</p><p>Dus de regel die we op het whiteboard schreven was: alles wat alleen kapot gaat voor ingelogde gebruikers is bijna altijd een schrijfpad. Database, bestandssysteem, of een cache die afhankelijk is van een schrijfactie. We hadden drie verdachten. Het bestandssysteem konden we uitsluiten omdat anonieme formulierposts (de contactpagina) wel werkten, dus PHP kon nog naar de tempdir schrijven. User-specifieke caches konden we uitsluiten omdat de fout direct en totaal was, niet de gebruikelijke verwarring van stale data. Bleef over: het schrijfpad naar de database.</p><h2>Wat de logs werkelijk zeiden</h2><p>Toen we wisten waar we moesten kijken, gaf de PHP-FPM-errorlog het echte signaal. De site draaide FPM onder een eigen pool waarvan de errorlog op <code>/var/log/php8.1-fpm.log</code> stond, niet op de distropad-default. De lead developer had <code>php-fpm.log</code> zitten tailen vanaf het pad van de package-install, dat al twee jaar leeg was. We tailden het juiste bestand tijdens een mislukte save:</p><pre><code class="lang-text">PHP Fatal error:  Uncaught PDOException: SQLSTATE[HY000]: General error:
+1114 The table 'sessions' is full in /var/www/drupal/web/core/lib/Drupal/
+Core/Database/Statement.php:59</code></pre><p>Error 1114 van MySQL betekent niet "de tabel heeft te veel rijen". Hij betekent "de onderliggende opslag kan geen nieuwe schrijfactie meer aan". Op InnoDB betekent dat bijna altijd dat het tablespace-bestand zijn ingestelde maximum heeft geraakt en niet meer kan autoextend'en. De <a href="https://dev.mysql.com/doc/refman/8.0/en/innodb-system-tablespace.html">MySQL-referentiehandleiding</a> is hier ongebruikelijk duidelijk over: de systeem-tablespace krimpt niet, en als je hem afkapt, kun je de cap raken.</p><p>De site draaide op MySQL 5.7 met <code>innodb_file_per_table</code> op <code>OFF</code>, wat vroeger op sommige oudere Debian-builds de default was. Dat betekent dat elke InnoDB-tabel, inclusief <code>sessions</code>, in één gedeeld bestand woonde: <code>/var/lib/mysql/ibdata1</code>. We bekeken het:</p><pre><code class="lang-bash">ls -lh /var/lib/mysql/ibdata1
+# -rw-r----- 1 mysql mysql 12G Jun 11 14:09 ibdata1</code></pre><p>Daarna keken we naar de <code>my.cnf</code>:</p><pre><code class="lang-ini">innodb_data_file_path = ibdata1:10M:autoextend:max:12288M</code></pre><p>Daar zat het. De tablespace was afgekapt op 12 GB. Hij had de cap bereikt. Geen schrijfacties meer. De sessions-tabel was toevallig de meest schrijfintensieve tabel op deze site, dus die kwam als eerste boven, maar elke andere tabel was ook gestopt met inserts accepteren. Cron faalde geruisloos. Watchdog was zes dagen geleden gestopt. Niemand had het gemerkt omdat de publieke site prima las uit de InnoDB-bufferpool, en die heeft alleen leesrechten nodig.</p><h2>Waarom de sessions-tabel groeide</h2><p>De sessions-tabel zelf was 4,3 GB. Voor een site met twaalf redacteuren. Dat is absurd, en de uitleg is de moeite waard.</p><pre><code class="lang-sql">SELECT
+  table_name,
+  ROUND(data_length / 1024 / 1024, 1) AS data_mb,
+  ROUND(index_length / 1024 / 1024, 1) AS index_mb,
+  table_rows
+FROM information_schema.tables
+WHERE table_schema = 'drupal'
+ORDER BY data_length DESC
+LIMIT 5;</code></pre><p>Output:</p><pre><code class="lang-text">+--------------------+---------+----------+------------+
+| table_name         | data_mb | index_mb | table_rows |
++--------------------+---------+----------+------------+
+| sessions           |  4312.0 |    180.4 |   18402231 |
+| cache_render       |   904.7 |     12.1 |      44211 |
+| watchdog           |   612.0 |     33.0 |    2104883 |
+| cachetags          |   188.2 |      9.4 |     412009 |
+| cache_dynamic_page |    91.4 |      4.0 |       9802 |
++--------------------+---------+----------+------------+</code></pre><p>Achttien miljoen sessierijen. Drupals standaard session garbage collection draait via cron in <code>system_cron()</code>, maar op deze server was cron al maanden stilletjes stuk. De oorzaak was bijna gênant alledaags: een OS-upgrade van een jaar eerder had <code>drush</code> verplaatst van <code>/usr/local/bin/drush</code> naar een Composer-pad onder <code>/var/www/drupal/vendor/bin/drush</code>, maar de root-crontab wees nog steeds naar de oude binary. Cron vuurde keurig op schema, de shell vond de executable niet, de fout ging naar <code>/dev/null</code>, en de regel erboven was een logrotate die altijd met exitcode nul afsluit. De cron-mail-alias stond uit. Niets kwam bovendrijven.</p><p>Dus GC had al heel lang niet gedraaid. Elke anonieme bot die een niet-gecachet pad raakte (admin-URL's, zoekopdrachten met querystrings, bepaalde JSON:API-endpoints) schreef een sessierij. Die rijen werden nooit opgeruimd. Ze stapelden zich met honderdduizenden per dag op.</p><p>Erger nog: het row format was DYNAMIC en de <code>session</code>-BLOB-kolom werd opgeblazen met extra state door een contrib-module die anonieme form-build-ID's in <code>$_SESSION</code> bewaarde. De gemiddelde rij was 230 bytes, niet de 80 bytes die het schema zou doen vermoeden. De site werd van onderaf vergiftigd, en het enige symptoom dat iemand kon zien, was een keiharde fout op het moment dat de cap werd geraakt. De <a href="https://www.drupal.org/docs/develop/standards/php/php-session-handling">Drupal session-handling docs</a> gaan ervan uit dat cron gezond is. Is dat niet zo, dan draai je een queue zonder limiet en zonder consumer.</p><h2>De fix, in twee fases</h2><p>We deden eerst het meest urgente. De site moest in de lucht.</p><h3>Fase één: legen en ruimte terugwinnen</h3><pre><code class="lang-sql">TRUNCATE TABLE sessions;</code></pre><p><code>TRUNCATE</code> op InnoDB dropt en herbouwt de tabel. Dat ruimde achttien miljoen rijen op in minder dan een seconde. Elke ingelogde gebruiker, inclusief de redacteuren die in Slack stonden te roepen, werd teruggeschopt naar het inlogscherm. Dat was acceptabel. De site kwam direct terug.</p><p>Maar de tablespace was nog steeds 12 GB. <code>TRUNCATE</code> geeft geen ruimte terug aan <code>ibdata1</code> als file-per-table uitstaat. Je kunt de gedeelde tablespace niet in-place laten krimpen. Je moet dumpen, droppen en importeren, of overstappen op <code>innodb_file_per_table</code>. We deden het laatste, maar later, in het weekend: een volledige <code>mysqldump --single-transaction --routines --triggers</code>, een verse data-directory met <code>innodb_file_per_table = ON</code>, een restore, en een swap. Ongeveer vier uur database-downtime, die het bureau om 06:00 op een zondag inplande. Voor die donderdagmiddag hadden we alleen lucht nodig.</p><p>Die lucht kochten we door de cap eraf te halen:</p><pre><code class="lang-ini">innodb_data_file_path = ibdata1:10M:autoextend</code></pre><p>MySQL herstarten. Nu kon het bestand voorbij 12 GB groeien. Geen lange-termijnoplossing, maar genoeg om zes maanden vooruit te kunnen terwijl we de file-per-table-migratie planden.</p><h3>Fase twee: het bloeden stoppen</h3><p>We zetten een cron-regel neer die werkte, gericht op de binary die er ook daadwerkelijk is:</p><pre><code class="lang-cron">*/15 * * * * www-data /var/www/drupal/vendor/bin/drush -r /var/www/drupal/web cron > /dev/null 2>&1</code></pre><p>We verlaagden de session-garbage-collection-drempel in <code>settings.php</code>, deels om op PHP's eigen GC te leunen en deels om de lifetime te verkorten zodat de tabel minder hard kon groeien:</p><pre><code class="lang-php">$settings['session_write_interval'] = 180;
+
+ini_set('session.gc_maxlifetime', 86400);
+ini_set('session.gc_probability', 1);
+ini_set('session.gc_divisor', 100);</code></pre><p>Dat zet session-GC op <a href="https://www.php.net/manual/en/session.configuration.php">PHP's eigen probabilistische schema</a> (1 op de 100 requests triggert een sweep) bovenop Drupals cron. Bretels én een riem.</p><p>We voegden ook een Telegraf-check op <code>information_schema.tables</code> toe, zodat we de volgende keer dat <code>sessions</code> de 500 MB passeerde gepiept zouden worden voordat hij voorbij de 4 GB zou gaan. De check is één regel SQL die een Grafana-paneel voedt. Niet glamoureus, en hij had het hele incident voorkomen.</p><aside class="callout">Draai je Drupal op MySQL met <code>innodb_file_per_table = OFF</code>, dan deelt elke tabel die je ooit hebt aangemaakt één bestand. Dat bestand groeit alleen maar. Het krimpt nooit. Een ontspoorde log- of sessietabel eet stilletjes de cap op en trekt de hele database eronderuit. Check <code>SHOW VARIABLES LIKE 'innodb_file_per_table';</code> op elke verouderde bak die je erft.</aside><h2>Het ingehouden-adem-moment</h2><p>Het lastigste deel van het incident was niet de diagnose. Het was het moment, om 14:55, dat we <code>TRUNCATE TABLE sessions</code> op een productiedatabase uitvoerden en onze adem inhielden. We hadden geen back-up van die tabel van eerder die dag. De nachtelijke mysqldump van het bureau was twintig uur oud. Als <code>TRUNCATE</code> iets had gelockt wat niet gelockt had mogen worden, of als een rij in <code>sessions</code> dragend was geweest voor een third-party module waar we niets van wisten (het komt voor; sommige contrib-modules gebruiken de sessions-tabel als kladblok), hadden we twintig uur CMS-werk teruggedraaid.</p><p>Dit is het deel van werken aan een <a href="/">legacy site</a> waar zelden over wordt geschreven. De diagnose is afgebakend. Je kunt de MySQL-handleiding lezen. Je kunt door de codebase grepen. De destructieve write is dat niet. Je opereert op een systeem dat je niet zelf hebt gebouwd, met impliciete afhankelijkheden die je niet kunt zien. Senior engineers leren tegelijkertijd heel rustig en heel paranoïde te zijn. De bureau-lead, die al sinds Drupal 6 met Drupal werkte, was zichtbaar opgelucht toen de redacteuren om 14:58 meldden dat saves weer werkten. Wij ook.</p><p>Toen we Pier bouwden liepen we hier op genoeg klantsites tegenaan om er een hoofdfunctie van te maken: elke database-write gaat in een <a href="/#features">version history</a> die je met één klik kunt terugdraaien, en de <a href="/#database">MySQL editor</a> bewaart een snapshot per tabel van alles wat je de afgelopen zeven dagen hebt aangepast. De middag had dezelfde diagnose gehad, maar de <code>TRUNCATE</code> zou een knop met een Undo ernaast zijn geweest in plaats van een ingehouden adem.</p><h2>Het kleinste wat je vandaag kunt doen</h2><p>Open een shell op je grootste verouderde Drupal-bak. Draai:</p><pre><code class="lang-sql">SELECT table_name, ROUND(data_length/1024/1024, 1) AS mb
+FROM information_schema.tables
+WHERE table_schema = DATABASE()
+ORDER BY data_length DESC LIMIT 10;</code></pre><p>Staat <code>sessions</code>, <code>watchdog</code>, <code>cache_render</code> of een <code>cache_*</code>-tabel in de honderden megabytes, dan heb je huiswerk. Zit <code>ibdata1</code> over de helft van zijn cap, dan zit er een Slack-ping van 14:07 in je toekomst. Zoek het uit voordat het jou vindt.</p>
+    </div>
+
+    <aside class="pullquote">Alles wat alleen kapot gaat voor ingelogde gebruikers is bijna altijd een schrijfpad; op verouderde Drupal-sites eindigt dat pad bijna altijd bij de sessions-tabel.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom bleef anoniem verkeer tijdens de storing in de lucht?</p>
+      <p class="faq-a">Anonieme requests werden bediend uit Drupals pagecache en Varnish, dus die schreven nooit naar de database. Ingelogde redacteuren gaan langs de pagecache heen en schrijven bij elk request naar de sessions-tabel.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat betekent MySQL-fout 1114 op InnoDB?</p>
+      <p class="faq-a">Dat de onderliggende opslag geen nieuwe schrijfactie meer aankan. Op een gedeelde InnoDB-tablespace betekent het bijna altijd dat ibdata1 zijn ingestelde autoextend-cap heeft geraakt en niet verder kan groeien.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Krimpt TRUNCATE TABLE het bestand ibdata1?</p>
+      <p class="faq-a">Nee. TRUNCATE leegt de rijen, maar de gedeelde tablespace krimpt nooit in-place. Je moet overstappen op innodb_file_per_table en herbouwen, of de hele database dumpen en opnieuw importeren.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=drupal">#drupal</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-audit-sql-snippets/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-audit-sql-snippets/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-audit-sql-snippets/hero.jpg" alt="Foto van bovenaf op linnen: handgeschreven SQL-spiekbrief, wp_options-schema, manilamap, koperen AUDIT-plaatje, stopwatch, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Databases</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>WordPress-audit in SQL: acht snippets uit ons spiekbriefje</h3>
+      <span class="pc-lede">De wp_options-tabel is 480MB. wp-admin laadt in negen seconden. Je nam het project vorige dinsdag over. Dit zijn de acht queries die we als eerste draaien.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-stuck-queue-message-status/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-stuck-queue-message-status/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-stuck-queue-message-status/hero.jpg" alt="Bovenaanzicht op linnen: Magento queue-debug vel, SQL-notities, UNDELIVERED e-mailprint, manilla map, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Magento bestelmails stoppen: één rij in queue_message_status</h3>
+      <span class="pc-lede">Een Nederlands bureau belt om 23:41: hun Magento-shop verstuurde drie dagen geen bevestiging. Het spoor leidt naar één rij in queue_message_status.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/drupal-9-session-table-outage/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
