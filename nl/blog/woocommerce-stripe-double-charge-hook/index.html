@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>WooCommerce schrijft twee keer af: dubbele Stripe-hook · Pier — Blog</title>
+<meta name="description" content="Twee payment intents, drie seconden uit elkaar, dezelfde order, dezelfde kaart. Een incident-walkthrough van een dubbele hook verstopt in mu-plugins.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="wordpress, php, tooling, workflow, operations">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/woocommerce-stripe-double-charge-hook/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/woocommerce-stripe-double-charge-hook/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="WooCommerce schrijft twee keer af: dubbele Stripe-hook">
+<meta property="og:description" content="Twee payment intents, drie seconden uit elkaar, dezelfde order, dezelfde kaart. Een incident-walkthrough van een dubbele hook verstopt in mu-plugins.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van boven op linnen: papieren Stripe webhook tijdlijn, manilla map, indexkaart, ruitjespapier, messing label, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T10:04:47.498Z">
+<meta property="article:modified_time" content="2026-06-11T10:04:47.498Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="WordPress">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="WooCommerce schrijft twee keer af: dubbele Stripe-hook">
+<meta name="twitter:description" content="Twee payment intents, drie seconden uit elkaar, dezelfde order, dezelfde kaart. Een incident-walkthrough van een dubbele hook verstopt in mu-plugins.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van boven op linnen: papieren Stripe webhook tijdlijn, manilla map, indexkaart, ruitjespapier, messing label, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="10 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="WordPress">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/woocommerce-stripe-double-charge-hook/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/"},
+  "url":"https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/",
+  "headline":"WooCommerce schrijft twee keer af: dubbele Stripe-hook",
+  "description":"Twee payment intents, drie seconden uit elkaar, dezelfde order, dezelfde kaart. Een incident-walkthrough van een dubbele hook verstopt in mu-plugins.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van boven op linnen: papieren Stripe webhook tijdlijn, manilla map, indexkaart, ruitjespapier, messing label, lakzegel."
+  },
+  "datePublished":"2026-06-11T10:04:47.498Z",
+  "dateModified":"2026-06-11T10:04:47.498Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"wordpress, php, tooling, workflow, operations",
+  "wordCount":1825,
+  "articleSection":"WordPress",
+  "articleBody":"Om 23:41 op een dinsdag kwam er een Loom binnen van een lead bij een agency in Utrecht. Onderwerp: 'Stripe heeft de klant twee keer afgeschreven en de klant ligt nog wakker.' De opname duurde twee minuten. Te zien waren een WooCommerce thank-you page (Order #48211, €148,50), een Stripe dashboard met twee succesvolle payment intents voor dezelfde order, en een Slack-thread met een vermoeide ops engineer die vroeg wat er als eerste terugbetaald moest worden. De dubbele afschrijving op WooCommerce bleek een dubbele hook-registratie te zijn. De trace duurde een uur; de les zat in mu-plugins. De webshop draaide al zes jaar. De dubbele afschrijving was begonnen op de zondag ervoor. Op dinsdag had het al elf klanten geraakt en stonden er drie chargebacks open. Het agency had iedereen al twee keer terugbetaald (eenmaal via Stripe, eenmaal als store credit in de winkel), maar ze wisten nog steeds niet waarom de tweede afschrijving plaatsvond. Ze vroegen ons om mee te kijken omdat de verouderde site die ze hadden overgenomen van een vorige developer een kluwen aan plugins bevatte die nooit volledig in kaart was gebracht. Dit artikel loopt door de trace die de oorzaak vond. De bug was een dubbele woocommerce_payment_complete hook die door twee aparte plugins werd geregistreerd, en het pad van 'twee afschrijvingen op een kaart' naar 'de regel in de plugin die het veroorzaakte' is leerzamer dan de fix zelf. Twee intents, drie seconden uit elkaar Beide payment intents hadden dezelfde metadata.order_id . Beide stonden op succeeded . De eerste werd om 21:14:08 UTC aangemaakt. De tweede om 21:14:11 UTC. Drie seconden ertussen. Zelfde kaart, zelfde bedrag, zelfde statement descriptor. Verschillende idempotency_key waarden. Dat laatste detail was de cruciale: als de twee requests dezelfde idempotency key hadden meegestuurd, had Stripe het cached antwoord teruggegeven en maar één keer afgeschreven. Twee keys betekenen twee aparte API-calls. Stripes idempotency-contract kijkt naar de header, niet naar het ordernummer, dus de WooCommerce-kant moet uniciteit zelf afdwingen. De eerste intent werd aangemaakt door de officiële woocommerce-gateway-stripe plugin. Dat zagen we aan het description veld: het volgde het template van de gateway ('Order 48211 for store.example.com'). De tweede intent had een andere description ('Capture for order 48211 (renewal-ready)'). Die string kwam nergens voor in de broncode van de officiële gateway. Iemand anders had die geschreven, en die iemand draaide op dezelfde site. De hook traceren De WooCommerce payment-flow staat beschreven in de gateway API reference . De relevante action is woocommerce_payment_complete , die door WC_Order::payment_complete() wordt afgevuurd zodra een order naar processing of completed gaat. Plugins luisteren erop om downloads vrij te geven, subscriptions te verwerken, naar ERP's te pushen, Klaviyo-events te sturen, enzovoort. Alles met een side effect woont daar meestal. We begonnen waar we altijd beginnen op een multi-plugin site: een hook dump. Op een staging-mirror van de productiedatabase voegden we het volgende toe aan wp-content/mu-plugins/000-pier-debug-hooks.php : <?php add_action('woocommerce_payment_complete', function ($order_id) { global $wp_filter; $callbacks = $wp_filter['woocommerce_payment_complete']->callbacks ?? []; error_log(\"[pier-trace] order=$order_id hook fired, registered callbacks:\"); foreach ($callbacks as $priority => $entries) { foreach ($entries as $key => $cb) { error_log(\" priority=$priority callback=$key\"); } } }, 1); Priority 1 zodat het logt voordat iets anders afvuurt. Daarna speelden we de checkout opnieuw af met een Stripe test card (4242 4242 4242 4242) en tailden we wp-content/debug.log . De output was: [pier-trace] order=48312 hook fired, registered callbacks: priority=10 callback=WC_Subscriptions_Manager::process_subscription_payments_on_order priority=10 callback=wc_paying_customer priority=20 callback=ace_stripe_capture_renewal_fee priority=20 callback=woocommerce_gateway_stripe_capture_postpay Twee onbekende callbacks op priority 20. De eerste, ace_stripe_capture_renewal_fee , kwam uit een plugin genaamd ace-subscription-tools die het agency vier jaar geleden van een vorige developer had overgenomen. De tweede, woocommerce_gateway_stripe_capture_postpay , stond in wp-content/mu-plugins/stripe-postpay-helper.php . Een bestand waarvan niemand in het huidige team zich herinnerde dat het was geschreven of in deploy-diffs had gezien. Beide riepen onafhankelijk van elkaar \\Stripe\\PaymentIntent::create() aan zodra de hook afvuurde. Beide slaagden. Vandaar de twee afschrijvingen. De volgorde bevestigden we door een microseconde-precieze timestamp aan de trace toe te voegen en opnieuw te draaien. De ace_stripe_capture_renewal_fee callback vuurde ongeveer zes microseconden voor die van de mu-plugin. WordPress draait callbacks met dezelfde priority in volgorde van registratie, en dat kwam netjes overeen met de plugin load order: ace-subscri",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"WooCommerce schrijft twee keer af: dubbele Stripe-hook","item":"https://pier.abn.company/nl/blog/woocommerce-stripe-double-charge-hook/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Waarom heeft Stripe de tweede afschrijving niet automatisch geblokkeerd?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Stripe blokkeert duplicates alleen als dezelfde idempotency key wordt hergebruikt in de request header. Twee aparte plugins genereerden twee verschillende keys, dus Stripe behandelde ze als losse intents en verwerkte beide."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kan ik gewoon de tweede plugin uitschakelen en doorgaan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Niet veilig. Als orders dagenlang dubbel zijn gecaptured, kan downstream state (subscriptions, fulfilment-flags) al afhankelijk zijn van beide runs. Stop eerst nieuwe afschrijvingen, betaal de duplicates terug, verwijder dan pas de code."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe controleer ik of mijn eigen WooCommerce-site een dubbele hook heeft?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voeg een kleine mu-plugin toe die $wp_filter['woocommerce_payment_complete']->callbacks logt op het moment dat de action afvuurt. Elke onbekende callback die de Stripe API aanroept, is degene die je moet onderzoeken."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/woocommerce-stripe-double-charge-hook/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 115</span>
+      </div>
+      <p class="eyebrow"><span class="n">115 —</span>WordPress</p>
+      <h1 class="display-l post-title">WooCommerce schrijft twee keer af: dubbele Stripe-hook</h1>
+      <p class="lede post-lede">Twee payment intents, drie seconden uit elkaar, dezelfde order, dezelfde kaart. Een incident-walkthrough van een dubbele hook verstopt in mu-plugins.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T10:04:47.498Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>10 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/woocommerce-stripe-double-charge-hook/hero.webp" type="image/webp">
+      <img src="/blog/woocommerce-stripe-double-charge-hook/hero.jpg" alt="Foto van boven op linnen: papieren Stripe webhook tijdlijn, manilla map, indexkaart, ruitjespapier, messing label, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 115</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Om 23:41 op een dinsdag kwam er een Loom binnen van een lead bij een agency in Utrecht. Onderwerp: 'Stripe heeft de klant twee keer afgeschreven en de klant ligt nog wakker.' De opname duurde twee minuten. Te zien waren een WooCommerce thank-you page (Order #48211, €148,50), een Stripe dashboard met twee succesvolle payment intents voor dezelfde order, en een Slack-thread met een vermoeide ops engineer die vroeg wat er als eerste terugbetaald moest worden. De dubbele afschrijving op WooCommerce bleek een dubbele hook-registratie te zijn. De trace duurde een uur; de les zat in mu-plugins.</p>
+
+<p>De webshop draaide al zes jaar. De dubbele afschrijving was begonnen op de zondag ervoor. Op dinsdag had het al elf klanten geraakt en stonden er drie chargebacks open. Het agency had iedereen al twee keer terugbetaald (eenmaal via Stripe, eenmaal als store credit in de winkel), maar ze wisten nog steeds niet waarom de tweede afschrijving plaatsvond. Ze vroegen ons om mee te kijken omdat de <a href="/">verouderde site</a> die ze hadden overgenomen van een vorige developer een kluwen aan plugins bevatte die nooit volledig in kaart was gebracht.</p>
+
+<p>Dit artikel loopt door de trace die de oorzaak vond. De bug was een dubbele <code>woocommerce_payment_complete</code> hook die door twee aparte plugins werd geregistreerd, en het pad van 'twee afschrijvingen op een kaart' naar 'de regel in de plugin die het veroorzaakte' is leerzamer dan de fix zelf.</p>
+
+<h2>Twee intents, drie seconden uit elkaar</h2>
+
+<p>Beide payment intents hadden dezelfde <code>metadata.order_id</code>. Beide stonden op <code>succeeded</code>. De eerste werd om 21:14:08 UTC aangemaakt. De tweede om 21:14:11 UTC. Drie seconden ertussen. Zelfde kaart, zelfde bedrag, zelfde statement descriptor. Verschillende <code>idempotency_key</code> waarden. Dat laatste detail was de cruciale: als de twee requests dezelfde idempotency key hadden meegestuurd, had Stripe het cached antwoord teruggegeven en maar één keer afgeschreven. Twee keys betekenen twee aparte API-calls. <a href="https://docs.stripe.com/api/idempotent_requests">Stripes idempotency-contract</a> kijkt naar de header, niet naar het ordernummer, dus de WooCommerce-kant moet uniciteit zelf afdwingen.</p>
+
+<p>De eerste intent werd aangemaakt door de officiële <code>woocommerce-gateway-stripe</code> plugin. Dat zagen we aan het <code>description</code> veld: het volgde het template van de gateway ('Order 48211 for store.example.com'). De tweede intent had een andere description ('Capture for order 48211 (renewal-ready)'). Die string kwam nergens voor in de broncode van de officiële gateway. Iemand anders had die geschreven, en die iemand draaide op dezelfde site.</p>
+
+<h2>De hook traceren</h2>
+
+<p>De WooCommerce payment-flow staat beschreven in <a href="https://woocommerce.com/document/payment-gateway-api/">de gateway API reference</a>. De relevante action is <code>woocommerce_payment_complete</code>, die door <code>WC_Order::payment_complete()</code> wordt afgevuurd zodra een order naar <code>processing</code> of <code>completed</code> gaat. Plugins luisteren erop om downloads vrij te geven, subscriptions te verwerken, naar ERP's te pushen, Klaviyo-events te sturen, enzovoort. Alles met een side effect woont daar meestal.</p>
+
+<p>We begonnen waar we altijd beginnen op een multi-plugin site: een hook dump. Op een staging-mirror van de productiedatabase voegden we het volgende toe aan <code>wp-content/mu-plugins/000-pier-debug-hooks.php</code>:</p>
+
+<pre><code class="lang-php">&lt;?php
+add_action('woocommerce_payment_complete', function ($order_id) {
+    global $wp_filter;
+    $callbacks = $wp_filter['woocommerce_payment_complete']->callbacks ?? [];
+    error_log("[pier-trace] order=$order_id hook fired, registered callbacks:");
+    foreach ($callbacks as $priority =&gt; $entries) {
+        foreach ($entries as $key =&gt; $cb) {
+            error_log("  priority=$priority callback=$key");
+        }
+    }
+}, 1);</code></pre>
+
+<p>Priority 1 zodat het logt voordat iets anders afvuurt. Daarna speelden we de checkout opnieuw af met een Stripe test card (4242 4242 4242 4242) en tailden we <code>wp-content/debug.log</code>. De output was:</p>
+
+<pre><code class="lang-text">[pier-trace] order=48312 hook fired, registered callbacks:
+  priority=10 callback=WC_Subscriptions_Manager::process_subscription_payments_on_order
+  priority=10 callback=wc_paying_customer
+  priority=20 callback=ace_stripe_capture_renewal_fee
+  priority=20 callback=woocommerce_gateway_stripe_capture_postpay</code></pre>
+
+<p>Twee onbekende callbacks op priority 20. De eerste, <code>ace_stripe_capture_renewal_fee</code>, kwam uit een plugin genaamd <code>ace-subscription-tools</code> die het agency vier jaar geleden van een vorige developer had overgenomen. De tweede, <code>woocommerce_gateway_stripe_capture_postpay</code>, stond in <code>wp-content/mu-plugins/stripe-postpay-helper.php</code>. Een bestand waarvan niemand in het huidige team zich herinnerde dat het was geschreven of in deploy-diffs had gezien.</p>
+
+<p>Beide riepen onafhankelijk van elkaar <code>\Stripe\PaymentIntent::create()</code> aan zodra de hook afvuurde. Beide slaagden. Vandaar de twee afschrijvingen.</p>
+
+<p>De volgorde bevestigden we door een microseconde-precieze timestamp aan de trace toe te voegen en opnieuw te draaien. De <code>ace_stripe_capture_renewal_fee</code> callback vuurde ongeveer zes microseconden voor die van de mu-plugin. WordPress draait callbacks met dezelfde priority in volgorde van registratie, en dat kwam netjes overeen met de plugin load order: <code>ace-subscription-tools</code> registreerde zijn hook op <code>plugins_loaded</code>, de mu-plugin registreerde bij het includen van het bestand. Die volgorde vertelde ons welke intent we per order moesten terugbetalen en welke we in de backfill moesten behouden.</p>
+
+<h2>Herkomst van de mu-plugin</h2>
+
+<p>De mu-plugin was in 2022 toegevoegd om een eenmalige bug op te lossen waarbij een bepaald subscription-product zijn eerste factuur niet netjes captureerde. De fix was destijds om te luisteren op <code>woocommerce_payment_complete</code> en een capture te forceren als de order-metadata een specifieke flag bevatte. Zes maanden later haalde het agency die flag uit elk product, en de functie zou moeten short-circuiten. De originele guard clause was:</p>
+
+<pre><code class="lang-php">if (get_post_meta($order_id, '_needs_postpay_capture', true) === 'yes') {
+    capture_now($order);
+}</code></pre>
+
+<p>Zonder de flag had de functie vroegtijdig moeten terugkeren. Behalve dat afgelopen april iemand <code>capture_now</code> had gerefactord om de order zelf mee te krijgen, de meta-check tijdens het debuggen had verwijderd, en gecommit had zonder hem terug te zetten. De functie draaide vanaf dat moment op elke payment-complete event voor elke order. Het werd pas zichtbaar toen de <code>ace-subscription-tools</code> plugin afgelopen zondag een 4.1 update uitbracht die dezelfde live Stripe secret key ging gebruiken. Daarvoor faalde de mu-plugin stilletjes op een verouderde test key, dus de tweede afschrijving wierp een 401 en kwam nooit op de kaart terecht. De 4.1 update synchroniseerde de key over plugins heen. Die synchronisatie maakte van een sluimerende bug een actieve dubbele afschrijving.</p>
+
+<aside class="callout">Als je een WordPress-site overneemt, grep dan <code>wp-content/mu-plugins/</code> voordat je <code>wp-content/plugins/</code> grept. Must-use plugins laden onvoorwaardelijk, verschijnen niet in de admin plugin-lijst, en zijn de meest voorkomende plek voor jaren oude 'tijdelijke' code die nog steeds draait. <code>ls -la wp-content/mu-plugins/</code> is de goedkoopste audit die je ooit op een overname zult doen.</aside>
+
+<h2>De patch, in de volgorde die ertoe doet</h2>
+
+<p>De reflex bij een billing-incident is om het foute bestand te verwijderen en te reloaden. Dat hebben we niet gedaan. Er werden al negen dagen lang twee afschrijvingen per order verstuurd, wat betekende dat de mu-plugin de tweede schrijver was op enkele tientallen orders waarvan de <code>processing</code>-status impliciet aannam dat hij gedraaid had. Hem er zonder plan uittrekken zou die orders in een staat achterlaten die niemand had gemodelleerd.</p>
+
+<p>De patch was drie stappen, in deze volgorde uitgevoerd:</p>
+
+<ol>
+  <li><strong>Stop de bloeding.</strong> Voeg een harde guard toe bovenaan de handler van de mu-plugin: <code>if (defined('WC_PIER_DISABLE_POSTPAY') &amp;&amp; WC_PIER_DISABLE_POSTPAY) return;</code>. Zet de constante in <code>wp-config.php</code>. Nieuwe dubbele afschrijvingen stoppen binnen één deploy, en je kunt de constante terugflippen zonder code te hoeven herdeployen mocht de rollback iets anders blijken te breken.</li>
+  <li><strong>Maak de klanten heel.</strong> Vraag de Stripe API op voor elke <code>payment_intent</code> die de mu-plugin in de laatste veertien dagen heeft aangemaakt, groepeer op <code>metadata.order_id</code>, en betaal de tweede van elk paar terug. We pinden dit vast op de description-string die de mu-plugin had geschreven, want dat was het enige wat de twee intents onderscheidde:</li>
+</ol>
+
+<pre><code class="lang-php">$stripe = new \Stripe\StripeClient(STRIPE_SECRET_KEY);
+$cursor = null;
+do {
+    $page = $stripe-&gt;paymentIntents-&gt;all([
+        'limit'         =&gt; 100,
+        'created'       =&gt; ['gte' =&gt; strtotime('-14 days')],
+        'starting_after'=&gt; $cursor,
+    ]);
+    foreach ($page-&gt;data as $pi) {
+        if (strpos($pi-&gt;description ?? '', 'renewal-ready') === false) continue;
+        $stripe-&gt;refunds-&gt;create([
+            'payment_intent' =&gt; $pi-&gt;id,
+            'reason'         =&gt; 'duplicate',
+            'metadata'       =&gt; ['refunded_by' =&gt; 'pier-incident-2026-06'],
+        ]);
+        // log to wp_pier_refund_audit for finance reconciliation
+    }
+    $cursor = end($page-&gt;data)-&gt;id ?? null;
+} while ($page-&gt;has_more);</code></pre>
+
+<ol start="3">
+  <li><strong>Maak de wond schoon.</strong> Pas daarna, met een refund-ledger in de hand, verwijder je de mu-plugin, update je de runbook, en schrijf je een regression check die de build laat falen als er een nieuwe callback op <code>woocommerce_payment_complete</code> wordt geregistreerd zonder expliciete allow-list entry.</li>
+</ol>
+
+<p>Volgorde is belangrijk. Stap 1 stopt de bloeding. Stap 2 maakt de klant heel en levert een audit trail die finance kan afstemmen. Stap 3 is het opruimen. 1 en 3 omdraaien betekent dat je tijdens reconciliatie blijft afschrijven. Stap 2 overslaan betekent dat je geld schuldig bent dat je niet aan facturen kunt koppelen.</p>
+
+<h2>Hook-hygiëne die dit had voorkomen</h2>
+
+<p>Een paar gewoontes hadden de dubbele afschrijving eerder gevangen. Geen ervan is exotisch.</p>
+
+<h3>Behandel payment-complete als een write boundary</h3>
+
+<p>Alles wat op <code>woocommerce_payment_complete</code> wordt geregistreerd en met een payment processor praat, moet je behandelen als een schrijfactie naar de bankrekening van de klant. Twee schrijfacties vragen om één van drie guards: een idempotency key die is afgeleid van het order-ID, een database-level 'already-captured' flag die binnen een transactie wordt gecontroleerd, of een keiharde weigering om twee keer af te schrijven binnen dezelfde request-lifecycle. De officiële Stripe-gateway gebruikt de eerste. De meeste custom code gebruikt geen enkele.</p>
+
+<h3>Audit elke mu-plugin op overgenomen sites</h3>
+
+<p>Must-use plugins zijn onzichtbaar vanuit de WordPress-admin en laden bij elke request voor de gewone plugins. Elk agency dat een site overneemt, zou op dag één <code>wp-content/mu-plugins/</code> moeten greppen en in gewone taal moeten opschrijven wat elk bestand doet. Als niemand het weet, is het antwoord 'kopieer het naar staging, comment de hook-registraties uit, kijk een week of er iets breekt, verwijder het dan in productie.' De kosten van een onverwachte mu-plugin die jaren blijft draaien, worden afgerekend in incidenten zoals deze.</p>
+
+<h3>Log hook-registraties bij elke deploy</h3>
+
+<p>Een script van twee regels dat bij elke deploy de callback-lijst van elke WooCommerce-action in een bestand onder versiebeheer dumpt, had deze botsing opgemerkt op het moment dat de tweede key-sync landde. De diff was één nieuwe regel onder <code>woocommerce_payment_complete</code> geweest, en iedereen die de deploy log las, had het opgemerkt. <a href="https://developer.wordpress.org/reference/classes/wp_hook/">WP_Hook</a> stelt de lijst beschikbaar als <code>$wp_filter['woocommerce_payment_complete']-&gt;callbacks</code>, en dat is alles wat je nodig hebt om doorheen te lopen.</p>
+
+<h3>Scope API-keys per integratie</h3>
+
+<p>De dubbele afschrijving hier sluimerde negen maanden omdat één plugin een verouderde test key had. Op het moment dat de <code>ace-subscription-tools</code> 4.1 release hem op de live key bracht, werd de bug zichtbaar. Als je elke plugin <code>STRIPE_SECRET_KEY</code> uit een gedeelde constante laat lezen, erf je elke aanname die de laatste release meeleverde. Werk liever met plugin-specifieke instellingen die een integrator expliciet moet invullen, en documenteer welke een gegeven codepath leest. De blast radius van een verkeerd geregistreerde hook wordt begrensd door welke keys hij kan bereiken.</p>
+
+<h2>De audit, geautomatiseerd</h2>
+
+<p>Toen we Pier bouwden, liepen we bij genoeg legacy WordPress-audits tegen precies deze categorie problemen aan dat we het niet meer ad-hoc behandelden. De manier waarop we het uiteindelijk aanpakten: Pier dockt met de FTP en MySQL van een WordPress-installatie, laat je in gewone taal vragen 'wat luistert er op <code>woocommerce_payment_complete</code> over alle plugins en mu-plugins heen', en houdt een <a href="/#features">versiegeschiedenis</a> bij van elk bestand dat je aanraakt, zodat je een patch kunt terugdraaien op het moment dat iets er vreemd uitziet. De <a href="/#database">MySQL editor</a> op dezelfde dock laat je de orders-tabel scannen op dubbele captures terwijl je toch bezig bent.</p>
+
+<p>Als je vandaag één ding doet, grep dan je eigen <code>wp-content/mu-plugins/</code> directory en lees elk bestand erin. De meeste zijn prima. Degene die dat niet is, vind je liever vóór de bank van een klant hem vindt.</p>
+    </div>
+
+    <aside class="pullquote">Als een WooCommerce-checkout twee keer afschrijft, ligt het antwoord bijna nooit bij de gateway. Het is iets anders dat in woocommerce_payment_complete heeft gehaakt en is vergeten een guard te zetten.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Waarom heeft Stripe de tweede afschrijving niet automatisch geblokkeerd?</p>
+      <p class="faq-a">Stripe blokkeert duplicates alleen als dezelfde idempotency key wordt hergebruikt in de request header. Twee aparte plugins genereerden twee verschillende keys, dus Stripe behandelde ze als losse intents en verwerkte beide.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kan ik gewoon de tweede plugin uitschakelen en doorgaan?</p>
+      <p class="faq-a">Niet veilig. Als orders dagenlang dubbel zijn gecaptured, kan downstream state (subscriptions, fulfilment-flags) al afhankelijk zijn van beide runs. Stop eerst nieuwe afschrijvingen, betaal de duplicates terug, verwijder dan pas de code.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe controleer ik of mijn eigen WooCommerce-site een dubbele hook heeft?</p>
+      <p class="faq-a">Voeg een kleine mu-plugin toe die $wp_filter[&#39;woocommerce_payment_complete&#39;]-&gt;callbacks logt op het moment dat de action afvuurt. Elke onbekende callback die de Stripe API aanroept, is degene die je moet onderzoeken.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/nl/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/legacy-site-monitoring-stack/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/legacy-site-monitoring-stack/hero.webp" type="image/webp">
+        <img src="/nl/blog/legacy-site-monitoring-stack/hero.jpg" alt="Bovenaanzicht van inkt-uptimegrafiek, manila tabbladen, werkblad, indexkaarten, lakzegel en vulpen op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Legacy-sites bewaken: vier signalen voor solo-shops</h3>
+      <span class="pc-lede">Dertig legacy sites, één persoon, en een zondagochtend die begon met een Slack: &#39;checkout kapot sinds vrijdag&#39;. Vier signalen hadden het donderdag al gevangen.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/statamic-migration-freeze-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp">
+        <img src="/nl/blog/statamic-migration-freeze-playbook/hero.jpg" alt="Foto van boven op linnen: freeze-kalender, drie diff-vellen, .htaccess-blad, schets op ruitjespapier, koperen label, lakzegel, vulpen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Statamic-migratie: het vijfdaagse content-freeze draaiboek</h3>
+      <span class="pc-lede">Gefaseerd content-freeze draaiboek voor een vijfdaagse Statamic-cutover: redactionele lock, drie diff-checkpoints en de .htaccess die meegaat.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/woocommerce-stripe-double-charge-hook/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
