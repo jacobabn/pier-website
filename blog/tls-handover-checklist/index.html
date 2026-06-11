@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>TLS handover checklist: cert, chain, cron, four hidden traps · Pier — Blog</title>
+<meta name="description" content="A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, htaccess, operations, wordpress, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/tls-handover-checklist/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="TLS handover checklist: cert, chain, cron, four hidden traps">
+<meta property="og:description" content="A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.">
+<meta property="og:url" content="https://pier.abn.company/blog/tls-handover-checklist/">
+<meta property="og:image" content="https://pier.abn.company/blog/tls-handover-checklist/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/tls-handover-checklist/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead still life on bone linen: TLS handover checklist on graph paper, paper certificates, brass key, fountain pen, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T00:28:09.763Z">
+<meta property="article:modified_time" content="2026-06-11T00:28:09.763Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="TLS handover checklist: cert, chain, cron, four hidden traps">
+<meta name="twitter:description" content="A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/tls-handover-checklist/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead still life on bone linen: TLS handover checklist on graph paper, paper certificates, brass key, fountain pen, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/tls-handover-checklist/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/tls-handover-checklist/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/tls-handover-checklist/"},
+  "url":"https://pier.abn.company/blog/tls-handover-checklist/",
+  "headline":"TLS handover checklist: cert, chain, cron, four hidden traps",
+  "description":"A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/tls-handover-checklist/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead still life on bone linen: TLS handover checklist on graph paper, paper certificates, brass key, fountain pen, red wax seal."
+  },
+  "datePublished":"2026-06-11T00:28:09.763Z",
+  "dateModified":"2026-06-11T00:28:09.763Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"security, htaccess, operations, wordpress, tooling",
+  "wordCount":1479,
+  "articleSection":"Security",
+  "articleBody":"The handover doc said \"SSL is handled by the host, auto-renew is on.\" Three weeks later, at 06:12 on a Sunday, the iOS app stopped talking to the WordPress API and the agency's phone started ringing. The leaf TLS certificate had renewed cleanly. The intermediate had not. Safari on iOS was the only client strict enough to notice, and only because Apple had quietly stopped trusting the old cross-sign that morning. This is the third time this year we have walked into the same incident on an inherited legacy site . So we wrote it down. What follows is the TLS handover checklist we now run on every site we take over, in the order we run it, with the commands and the four things hosts forget to mention. The one-page TLS handover checklist Before you accept the keys to a site, run this top to bottom. It takes about fifteen minutes on a single domain and surfaces ninety percent of the ticking bombs. Leaf certificate: issuer, expiry, SANs, key type. Chain: every intermediate present, in order, no self-signed root appended. OCSP stapling: enabled, and the staple is fresh. Renewal mechanism: who runs it, where it lives, when it last ran successfully. Reload hook: does the web server actually pick up the new cert without a human. HSTS: header present, max-age sane, preload status known. Redirect chain: one hop from http:// to https:// , canonical host only. Mixed content: no http:// assets in the rendered HTML or in the database. Subdomains and mail: www , api , mail , cdn all covered or explicitly excluded. Private key: where it lives, who can read it, is it in a backup tarball somewhere. The rest of this post walks the first five in detail, then the four traps. Items 6 through 10 each deserve their own post and will get one. Leaf, chain and OCSP, from the outside in Start from the public internet, not from the server. What the world sees is what matters. One command tells you almost everything: openssl s_client -connect example.com:443 -servername example.com -showcerts </dev/null \\ | openssl x509 -noout -issuer -subject -dates -ext subjectAltName You are looking for four things in the output. The issuer line should name a real CA, not the host itself. The notAfter date should be more than thirty days out. The subjectAltName list should include every hostname the site actually serves, including www if you redirect to it. And the key type, visible with -text , should be id-ecPublicKey or RSA at 2048 bits or more. RSA 1024 still shows up on sites that were last touched in 2014. The chain is the part that broke our Sunday morning. Re-run the same command without </dev/null and read the Certificate chain block at the top. You want the leaf, then one or two intermediates, then nothing. If you see a self-signed root at the bottom, the server is sending the root certificate down the wire. This is not harmful, just wasteful, but it is also a tell that whoever set it up copy-pasted a fullchain.pem they did not understand. If you see only the leaf and no intermediate, you have found a bomb. Modern desktop browsers will fetch the missing intermediate via AIA and survive. Older Android, some Java clients, and any strict pinning library will not. For OCSP, the quickest check is SSL Labs , which will also flag chain order problems and weak ciphers in one report. If you prefer the terminal: openssl s_client -connect example.com:443 -servername example.com -status </dev/null 2>&1 \\ | grep -A 5 'OCSP Response' You want to see OCSP Response Status: successful and a This Update timestamp within the last few days. If the response is missing, stapling is off. If This Update is two months old, the cron that refreshes the staple is broken and you are one revocation away from a soft outage. The renewal and reload story Auto-renewal is the line every host puts in the handover doc. It is almost never the full story. The question you actually need answered is: which process, on which machine, writes which file, and which other process reloads which daemon to pick it up. On a cPanel or Plesk box, the answer is usually \"the panel handles it,\" which is true until someone disables AutoSSL for a domain that failed a DCV check six months ago and nobody noticed. Log in, find the SSL/TLS status page, and look for any domain in a yellow or red state. Those are your bombs. On a plain VPS with certbot, the renewal lives in one of three places. Check all three: systemctl list-timers | grep -i certbot cat /etc/cron.d/certbot 2>/dev/null crontab -l -u root | grep -i certbot Then check it actually ran: journalctl -u certbot.timer --since '60 days ago' | tail -20 ls -la /var/log/letsencrypt/ | tail -5 A renewal that has not run in 80 days on a 90-day certificate is not auto-renewing. It is coasting. The same goes for the reload hook. Certbot's --deploy-hook should restart or reload the web server after a successful renewal. If you find a deploy hook that runs service nginx restart but the site is on Apache, or that targets a container that no longer exists, t",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/tls-handover-checklist/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"TLS handover checklist: cert, chain, cron, four hidden traps","item":"https://pier.abn.company/blog/tls-handover-checklist/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How often should I run a TLS handover audit on an inherited site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Once at handover, then once a year, and after any infrastructure change: CDN swap, host migration, panel upgrade or DNS provider change. Renewal cron is not a substitute."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why does the chain matter if browsers fetch missing intermediates via AIA?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Desktop browsers do. Older Android, Java HTTP clients, some IoT firmware and any strict pinning library do not. A missing intermediate breaks mobile apps before it breaks websites."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is HSTS preload safe to enable on a legacy site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Only if you control every current and future subdomain and can serve valid HTTPS on all of them forever. Removal from the preload list takes months. When in doubt, skip the preload flag."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the safest way to fix a redirect loop behind Cloudflare?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Switch the .htaccess condition from %{HTTPS} to %{HTTP:X-Forwarded-Proto}, and confirm your proxy strips that header from inbound client requests so it cannot be spoofed."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/tls-handover-checklist/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 104</span>
+      </div>
+      <p class="eyebrow"><span class="n">104 —</span>Security</p>
+      <h1 class="display-l post-title">TLS handover checklist: cert, chain, cron, four hidden traps</h1>
+      <p class="lede post-lede">A one-page TLS handover checklist for inherited sites. The leaf, the chain, the cron and the four hidden traps hosts forget to mention at handover.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T00:28:09.763Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/tls-handover-checklist/hero.webp" type="image/webp">
+      <img src="/blog/tls-handover-checklist/hero.jpg" alt="Overhead still life on bone linen: TLS handover checklist on graph paper, paper certificates, brass key, fountain pen, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 104</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>The handover doc said "SSL is handled by the host, auto-renew is on." Three weeks later, at 06:12 on a Sunday, the iOS app stopped talking to the WordPress API and the agency's phone started ringing. The leaf TLS certificate had renewed cleanly. The intermediate had not. Safari on iOS was the only client strict enough to notice, and only because Apple had quietly stopped trusting the old cross-sign that morning.</p><p>This is the third time this year we have walked into the same incident on an inherited <a href="/">legacy site</a>. So we wrote it down. What follows is the TLS handover checklist we now run on every site we take over, in the order we run it, with the commands and the four things hosts forget to mention.</p><h2>The one-page TLS handover checklist</h2><p>Before you accept the keys to a site, run this top to bottom. It takes about fifteen minutes on a single domain and surfaces ninety percent of the ticking bombs.</p><ol><li>Leaf certificate: issuer, expiry, SANs, key type.</li><li>Chain: every intermediate present, in order, no self-signed root appended.</li><li>OCSP stapling: enabled, and the staple is fresh.</li><li>Renewal mechanism: who runs it, where it lives, when it last ran successfully.</li><li>Reload hook: does the web server actually pick up the new cert without a human.</li><li>HSTS: header present, max-age sane, preload status known.</li><li>Redirect chain: one hop from <code>http://</code> to <code>https://</code>, canonical host only.</li><li>Mixed content: no <code>http://</code> assets in the rendered HTML or in the database.</li><li>Subdomains and mail: <code>www</code>, <code>api</code>, <code>mail</code>, <code>cdn</code> all covered or explicitly excluded.</li><li>Private key: where it lives, who can read it, is it in a backup tarball somewhere.</li></ol><p>The rest of this post walks the first five in detail, then the four traps. Items 6 through 10 each deserve their own post and will get one.</p><h2>Leaf, chain and OCSP, from the outside in</h2><p>Start from the public internet, not from the server. What the world sees is what matters. One command tells you almost everything:</p><pre><code class="lang-bash">openssl s_client -connect example.com:443 -servername example.com -showcerts &lt;/dev/null \
+  | openssl x509 -noout -issuer -subject -dates -ext subjectAltName</code></pre><p>You are looking for four things in the output. The <code>issuer</code> line should name a real CA, not the host itself. The <code>notAfter</code> date should be more than thirty days out. The <code>subjectAltName</code> list should include every hostname the site actually serves, including <code>www</code> if you redirect to it. And the key type, visible with <code>-text</code>, should be <code>id-ecPublicKey</code> or RSA at 2048 bits or more. RSA 1024 still shows up on sites that were last touched in 2014.</p><p>The chain is the part that broke our Sunday morning. Re-run the same command without <code>&lt;/dev/null</code> and read the <code>Certificate chain</code> block at the top. You want the leaf, then one or two intermediates, then nothing. If you see a self-signed root at the bottom, the server is sending the root certificate down the wire. This is not harmful, just wasteful, but it is also a tell that whoever set it up copy-pasted a <code>fullchain.pem</code> they did not understand. If you see only the leaf and no intermediate, you have found a bomb. Modern desktop browsers will fetch the missing intermediate via AIA and survive. Older Android, some Java clients, and any strict pinning library will not.</p><p>For OCSP, the quickest check is <a href="https://www.ssllabs.com/ssltest/">SSL Labs</a>, which will also flag chain order problems and weak ciphers in one report. If you prefer the terminal:</p><pre><code class="lang-bash">openssl s_client -connect example.com:443 -servername example.com -status &lt;/dev/null 2&gt;&amp;1 \
+  | grep -A 5 'OCSP Response'</code></pre><p>You want to see <code>OCSP Response Status: successful</code> and a <code>This Update</code> timestamp within the last few days. If the response is missing, stapling is off. If <code>This Update</code> is two months old, the cron that refreshes the staple is broken and you are one revocation away from a soft outage.</p><h2>The renewal and reload story</h2><p>Auto-renewal is the line every host puts in the handover doc. It is almost never the full story. The question you actually need answered is: which process, on which machine, writes which file, and which other process reloads which daemon to pick it up.</p><p>On a cPanel or Plesk box, the answer is usually "the panel handles it," which is true until someone disables AutoSSL for a domain that failed a DCV check six months ago and nobody noticed. Log in, find the SSL/TLS status page, and look for any domain in a yellow or red state. Those are your bombs.</p><p>On a plain VPS with certbot, the renewal lives in one of three places. Check all three:</p><pre><code class="lang-bash">systemctl list-timers | grep -i certbot
+cat /etc/cron.d/certbot 2&gt;/dev/null
+crontab -l -u root | grep -i certbot</code></pre><p>Then check it actually ran:</p><pre><code class="lang-bash">journalctl -u certbot.timer --since '60 days ago' | tail -20
+ls -la /var/log/letsencrypt/ | tail -5</code></pre><p>A renewal that has not run in 80 days on a 90-day certificate is not auto-renewing. It is coasting. The same goes for the reload hook. Certbot's <code>--deploy-hook</code> should restart or reload the web server after a successful renewal. If you find a deploy hook that runs <code>service nginx restart</code> but the site is on Apache, or that targets a container that no longer exists, the cert will renew on disk and never reach the listening process.</p><h2>The four traps hosts forget</h2><p>These are the items that almost never make it into a handover document, in rough order of how often we hit them.</p><h3>1. The www variant nobody renewed</h3><p>The leaf covers <code>example.com</code>. The redirect sends users to <code>www.example.com</code>. The <code>www</code> SAN was on the cert when the site launched in 2019. Someone re-issued the cert in 2023 without the <code>www</code> SAN, because they tested with curl and curl followed the redirect silently. Browsers do not. Always check both apex and <code>www</code>, and any subdomain that ever appeared in a marketing email.</p><h3>2. The forgotten subdomain on a different server</h3><p>Sites accrete. <code>shop.example.com</code> on a Magento box, <code>blog.example.com</code> on the WordPress box, <code>api.example.com</code> on a small Node service somebody set up for the iOS app. Each one has its own certificate, its own renewal cron, its own way to fail. The handover doc covers the WordPress box. Run a quick DNS sweep and check every A and CNAME record that points somewhere you control.</p><pre><code class="lang-bash">dig +short example.com ANY
+dig +short example.com TXT | grep -i spf
+for sub in www shop blog api mail cdn staging; do
+  echo "--- $sub.example.com ---"
+  openssl s_client -connect $sub.example.com:443 -servername $sub.example.com &lt;/dev/null 2&gt;/dev/null \
+    | openssl x509 -noout -subject -dates 2&gt;/dev/null
+done</code></pre><h3>3. The HSTS preload commitment</h3><p>If a previous developer set <code>Strict-Transport-Security: max-age=63072000; includeSubDomains; preload</code> and submitted the domain to the <a href="https://hstspreload.org/">HSTS preload list</a>, you have inherited a promise that every subdomain, forever, will serve valid HTTPS. The day you spin up <code>internal.example.com</code> on plain HTTP for a quick test, it will be unreachable from preloaded browsers. Check the current header and check the preload list before you accept the keys.</p><h3>4. The <code>.htaccess</code> redirect that loops behind a proxy</h3><p>The classic block looks innocent:</p><pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]</code></pre><p>Behind a load balancer or a Cloudflare-style proxy that terminates TLS and forwards plain HTTP to origin, <code>%{HTTPS}</code> is always <code>off</code>. The browser sees a redirect loop. The fix is to trust the forwarded header instead:</p><pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]</code></pre><p>Do this only if you have verified the proxy strips inbound <code>X-Forwarded-Proto</code> from clients. Otherwise an attacker can forge the header and bypass the redirect. Apache's <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite docs</a> have the full story.</p><aside class="callout"><strong>Watch the database, not just the config.</strong> WordPress, Drupal and Magento all store the canonical site URL inside the database. A perfect TLS config in front of <code>siteurl</code> set to <code>http://example.com</code> still mixes content on every page. After any TLS handover, run a search across the database for <code>http://yourdomain</code> and decide, per row, whether to rewrite it.</aside><h2>What we ended up building for ourselves</h2><p>The Sunday morning incident was the third time we ran this checklist from a notepad and the second time we wished the database step was one click instead of a <code>wp search-replace</code> dry run followed by a real run followed by a cache flush. When we built Pier we ran into this exact thing. The way we ended up handling it was to put the FTP file tree and the <a href="/#database">MySQL editor</a> behind the same chat surface, so a TLS handover audit and the <code>siteurl</code> rewrite that always follows it both live in the same <a href="/#features">version history</a>.</p><p>The smallest thing you can do today: pick one site you inherited in the last twelve months and run the <code>openssl s_client</code> command from the top of this post. Read the chain. If it looks wrong, you have found your next hour of work.</p>
+    </div>
+
+    <aside class="pullquote">Auto-renewal is not the same as a working chain, a fresh OCSP staple, a reload hook that fires and a database that agrees the site is HTTPS.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How often should I run a TLS handover audit on an inherited site?</p>
+      <p class="faq-a">Once at handover, then once a year, and after any infrastructure change: CDN swap, host migration, panel upgrade or DNS provider change. Renewal cron is not a substitute.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why does the chain matter if browsers fetch missing intermediates via AIA?</p>
+      <p class="faq-a">Desktop browsers do. Older Android, Java HTTP clients, some IoT firmware and any strict pinning library do not. A missing intermediate breaks mobile apps before it breaks websites.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is HSTS preload safe to enable on a legacy site?</p>
+      <p class="faq-a">Only if you control every current and future subdomain and can serve valid HTTPS on all of them forever. Removal from the preload list takes months. When in doubt, skip the preload flag.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the safest way to fix a redirect loop behind Cloudflare?</p>
+      <p class="faq-a">Switch the .htaccess condition from %{HTTPS} to %{HTTP:X-Forwarded-Proto}, and confirm your proxy strips that header from inbound client requests so it cannot be spoofed.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=security">#security</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/apache-nginx-headers-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/apache-nginx-headers-field-guide/hero.webp" type="image/webp">
+        <img src="/blog/apache-nginx-headers-field-guide/hero.jpg" alt="Overhead photo of HTTP header printouts, paper booklet labelled HEADERS, manila tag, brass VIA plate, red wax seal on 200 OK telegram." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 June 2026</span></span>
+      <h3>Apache vs Nginx headers: a field guide for legacy hosting</h3>
+      <span class="pc-lede">The response headers on a legacy site tell you whether Apache or Nginx is running, who is caching the page, and what is silently rewriting your responses. Here is how to read them.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/chmod-777-permissions-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+        <img src="/blog/chmod-777-permissions-recovery/hero.jpg" alt="Overhead still life on bone linen: Unix permissions cheat-sheet, PHP-FPM error log, manila wp-content folder, brass CHMOD plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 June 2026</span></span>
+      <h3>chmod -R 777 recovery: restoring a legacy site&#39;s permissions</h3>
+      <span class="pc-lede">A panicked chmod -R 777 felt like the fastest fix at 23:41. Twelve minutes later PHP-FPM was rejecting every script and the login screen returned 500s.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/tls-handover-checklist/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

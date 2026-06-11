@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>TLS-overdracht: cert, chain, cron en vier verborgen valkuilen · Pier — Blog</title>
+<meta name="description" content="Een eenpaginige TLS-overdrachtchecklist voor overgenomen sites: de leaf, de chain, de cron en de vier verborgen valkuilen die hosts vergeten te noemen.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="security, htaccess, operations, wordpress, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/tls-handover-checklist/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/tls-handover-checklist/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="TLS-overdracht: cert, chain, cron en vier verborgen valkuilen">
+<meta property="og:description" content="Een eenpaginige TLS-overdrachtchecklist voor overgenomen sites: de leaf, de chain, de cron en de vier verborgen valkuilen die hosts vergeten te noemen.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/tls-handover-checklist/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/tls-handover-checklist/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/tls-handover-checklist/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Stilleven van bovenaf op linnen: TLS-overdrachtchecklist op ruitjespapier, papieren certificaten, messing sleutel, vulpen, rode lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T00:28:09.763Z">
+<meta property="article:modified_time" content="2026-06-11T00:28:09.763Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Security">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="TLS-overdracht: cert, chain, cron en vier verborgen valkuilen">
+<meta name="twitter:description" content="Een eenpaginige TLS-overdrachtchecklist voor overgenomen sites: de leaf, de chain, de cron en de vier verborgen valkuilen die hosts vergeten te noemen.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/tls-handover-checklist/hero.jpg">
+<meta name="twitter:image:alt" content="Stilleven van bovenaf op linnen: TLS-overdrachtchecklist op ruitjespapier, papieren certificaten, messing sleutel, vulpen, rode lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Security">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/tls-handover-checklist/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/tls-handover-checklist/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/tls-handover-checklist/"},
+  "url":"https://pier.abn.company/nl/blog/tls-handover-checklist/",
+  "headline":"TLS-overdracht: cert, chain, cron en vier verborgen valkuilen",
+  "description":"Een eenpaginige TLS-overdrachtchecklist voor overgenomen sites: de leaf, de chain, de cron en de vier verborgen valkuilen die hosts vergeten te noemen.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/tls-handover-checklist/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Stilleven van bovenaf op linnen: TLS-overdrachtchecklist op ruitjespapier, papieren certificaten, messing sleutel, vulpen, rode lakzegel."
+  },
+  "datePublished":"2026-06-11T00:28:09.763Z",
+  "dateModified":"2026-06-11T00:28:09.763Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"security, htaccess, operations, wordpress, tooling",
+  "wordCount":1484,
+  "articleSection":"Security",
+  "articleBody":"In het overdrachtsdocument stond \"SSL wordt door de hostingmaatschappij geregeld, auto-renew staat aan.\" Drie weken later, om 06:12 op een zondag, stopte de iOS-app met praten tegen de WordPress-API en begon de telefoon van het bureau te rinkelen. Het leaf TLS-certificaat was netjes vernieuwd. De intermediate niet. Safari op iOS was de enige client die streng genoeg was om het op te merken, en alleen omdat Apple die ochtend stilletjes was gestopt met het vertrouwen van de oude cross-sign. Dit is het derde incident dit jaar dat we op exact dezelfde manier zien terugkomen bij een overgenomen verouderde site . Dus hebben we het opgeschreven. Wat volgt is de TLS-overdrachtchecklist die we nu draaien op elke site die we overnemen, in de volgorde waarin we hem afwerken, met de commando's en de vier dingen die hosts vergeten te noemen. De eenpaginige TLS-overdrachtchecklist Voordat je de sleutels van een site aanneemt, loop je deze van boven naar beneden door. Op één domein kost dit ongeveer vijftien minuten en het brengt negentig procent van de tikkende bommen aan het licht. Leaf-certificaat: issuer, vervaldatum, SANs, type sleutel. Chain: elke intermediate aanwezig, in volgorde, geen self-signed root onderaan. OCSP stapling: ingeschakeld, en de staple is vers. Vernieuwingsmechanisme: wie voert het uit, waar staat het, wanneer liep het voor het laatst succesvol. Reload-hook: pikt de webserver het nieuwe cert daadwerkelijk op zonder dat er iemand bij komt. HSTS: header aanwezig, max-age redelijk, preload-status bekend. Redirect-keten: één hop van http:// naar https:// , alleen de canonieke host. Mixed content: geen http:// -assets in de gerenderde HTML of in de database. Subdomeinen en mail: www , api , mail , cdn allemaal afgedekt of expliciet uitgesloten. Private key: waar staat hij, wie kan hem lezen, zit hij ergens in een back-up-tarball. De rest van deze post werkt de eerste vijf in detail uit, daarna de vier valkuilen. Items 6 tot en met 10 verdienen elk hun eigen post en krijgen die ook nog. Leaf, chain en OCSP, van buiten naar binnen Begin vanaf het publieke internet, niet vanaf de server. Wat de wereld ziet is wat telt. Eén commando vertelt je bijna alles: openssl s_client -connect example.com:443 -servername example.com -showcerts </dev/null \\ | openssl x509 -noout -issuer -subject -dates -ext subjectAltName Je let in de output op vier dingen. De issuer -regel moet een echte CA noemen, niet de host zelf. De notAfter -datum moet meer dan dertig dagen in de toekomst liggen. De subjectAltName -lijst moet elke hostname bevatten die de site daadwerkelijk serveert, inclusief www als je daarheen redirect. En het type sleutel, zichtbaar met -text , moet id-ecPublicKey zijn of RSA op 2048 bits of meer. RSA 1024 duikt nog altijd op bij sites die voor het laatst in 2014 zijn aangeraakt. De chain is het stuk dat onze zondagochtend brak. Draai hetzelfde commando opnieuw zonder </dev/null en lees het Certificate chain -blok bovenaan. Je wilt de leaf, dan één of twee intermediates, en daarna niets meer. Zie je onderaan een self-signed root, dan stuurt de server het rootcertificaat over de lijn mee. Niet schadelijk, wel verspilling, maar ook een aanwijzing dat degene die het opzette een fullchain.pem heeft gekopieerd zonder die te begrijpen. Zie je alleen de leaf en geen intermediate, dan heb je een bom gevonden. Moderne desktopbrowsers halen de ontbrekende intermediate op via AIA en overleven het. Oudere Android-versies, sommige Java-clients en elke strikte pinning-library niet. Voor OCSP is de snelste check SSL Labs , die in één rapport ook problemen met de chain-volgorde en zwakke ciphers vlagt. Liever in de terminal: openssl s_client -connect example.com:443 -servername example.com -status </dev/null 2>&1 \\ | grep -A 5 'OCSP Response' Je wilt OCSP Response Status: successful zien en een This Update -timestamp van de afgelopen paar dagen. Ontbreekt de response, dan staat stapling uit. Is This Update twee maanden oud, dan is de cron die de staple ververst stuk en zit je één revocation van een zachte storing af. Het verhaal van vernieuwing en reload Auto-renewal is de regel die elke host in het overdrachtsdocument zet. Het is bijna nooit het hele verhaal. De vraag waar je écht antwoord op nodig hebt: welk proces, op welke machine, schrijft welk bestand, en welk ander proces herlaadt welke daemon om het op te pikken. Op een cPanel- of Plesk-bak is het antwoord meestal \"het paneel regelt het,\" wat klopt tot iemand AutoSSL uitschakelt voor een domein dat zes maanden geleden een DCV-check niet haalde en niemand het merkte. Log in, zoek de SSL/TLS-statuspagina en kijk naar elk domein in een gele of rode staat. Dat zijn je bommen. Op een kale VPS met certbot staat de renewal op een van drie plekken. Check ze alle drie: systemctl list-timers | grep -i certbot cat /etc/cron.d/certbot 2>/dev/null crontab -l -u root | grep -i certbot Controleer daarna of hij daadwerkelijk heeft gelopen: journalctl -u certbot.timer --since '60 da",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/tls-handover-checklist/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"TLS-overdracht: cert, chain, cron en vier verborgen valkuilen","item":"https://pier.abn.company/nl/blog/tls-handover-checklist/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Hoe vaak moet ik een TLS-overdrachtsaudit draaien op een overgenomen site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Eén keer bij de overdracht, daarna één keer per jaar, en na elke infrastructuurwijziging: CDN-wissel, hostingmigratie, paneelupgrade of wisseling van DNS-provider. De renewal-cron is geen vervanging."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Waarom doet de chain ertoe als browsers ontbrekende intermediates via AIA ophalen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Desktopbrowsers doen dat. Oudere Android-versies, Java HTTP-clients, sommige IoT-firmware en elke strikte pinning-library niet. Een ontbrekende intermediate breekt mobiele apps eerder dan websites."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is HSTS preload veilig om in te schakelen op een legacy site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Alleen als je elk huidig en toekomstig subdomein beheert en daar voor altijd geldige HTTPS op kunt serveren. Verwijderen uit de preload-lijst duurt maanden. Bij twijfel: laat de preload-vlag weg."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/tls-handover-checklist/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 104</span>
+      </div>
+      <p class="eyebrow"><span class="n">104 —</span>Security</p>
+      <h1 class="display-l post-title">TLS-overdracht: cert, chain, cron en vier verborgen valkuilen</h1>
+      <p class="lede post-lede">Een eenpaginige TLS-overdrachtchecklist voor overgenomen sites: de leaf, de chain, de cron en de vier verborgen valkuilen die hosts vergeten te noemen.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T00:28:09.763Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/tls-handover-checklist/hero.webp" type="image/webp">
+      <img src="/blog/tls-handover-checklist/hero.jpg" alt="Stilleven van bovenaf op linnen: TLS-overdrachtchecklist op ruitjespapier, papieren certificaten, messing sleutel, vulpen, rode lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 104</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>In het overdrachtsdocument stond "SSL wordt door de hostingmaatschappij geregeld, auto-renew staat aan." Drie weken later, om 06:12 op een zondag, stopte de iOS-app met praten tegen de WordPress-API en begon de telefoon van het bureau te rinkelen. Het leaf TLS-certificaat was netjes vernieuwd. De intermediate niet. Safari op iOS was de enige client die streng genoeg was om het op te merken, en alleen omdat Apple die ochtend stilletjes was gestopt met het vertrouwen van de oude cross-sign.</p><p>Dit is het derde incident dit jaar dat we op exact dezelfde manier zien terugkomen bij een overgenomen <a href="/">verouderde site</a>. Dus hebben we het opgeschreven. Wat volgt is de TLS-overdrachtchecklist die we nu draaien op elke site die we overnemen, in de volgorde waarin we hem afwerken, met de commando's en de vier dingen die hosts vergeten te noemen.</p><h2>De eenpaginige TLS-overdrachtchecklist</h2><p>Voordat je de sleutels van een site aanneemt, loop je deze van boven naar beneden door. Op één domein kost dit ongeveer vijftien minuten en het brengt negentig procent van de tikkende bommen aan het licht.</p><ol><li>Leaf-certificaat: issuer, vervaldatum, SANs, type sleutel.</li><li>Chain: elke intermediate aanwezig, in volgorde, geen self-signed root onderaan.</li><li>OCSP stapling: ingeschakeld, en de staple is vers.</li><li>Vernieuwingsmechanisme: wie voert het uit, waar staat het, wanneer liep het voor het laatst succesvol.</li><li>Reload-hook: pikt de webserver het nieuwe cert daadwerkelijk op zonder dat er iemand bij komt.</li><li>HSTS: header aanwezig, max-age redelijk, preload-status bekend.</li><li>Redirect-keten: één hop van <code>http://</code> naar <code>https://</code>, alleen de canonieke host.</li><li>Mixed content: geen <code>http://</code>-assets in de gerenderde HTML of in de database.</li><li>Subdomeinen en mail: <code>www</code>, <code>api</code>, <code>mail</code>, <code>cdn</code> allemaal afgedekt of expliciet uitgesloten.</li><li>Private key: waar staat hij, wie kan hem lezen, zit hij ergens in een back-up-tarball.</li></ol><p>De rest van deze post werkt de eerste vijf in detail uit, daarna de vier valkuilen. Items 6 tot en met 10 verdienen elk hun eigen post en krijgen die ook nog.</p><h2>Leaf, chain en OCSP, van buiten naar binnen</h2><p>Begin vanaf het publieke internet, niet vanaf de server. Wat de wereld ziet is wat telt. Eén commando vertelt je bijna alles:</p><pre><code class="lang-bash">openssl s_client -connect example.com:443 -servername example.com -showcerts &lt;/dev/null \
+  | openssl x509 -noout -issuer -subject -dates -ext subjectAltName</code></pre><p>Je let in de output op vier dingen. De <code>issuer</code>-regel moet een echte CA noemen, niet de host zelf. De <code>notAfter</code>-datum moet meer dan dertig dagen in de toekomst liggen. De <code>subjectAltName</code>-lijst moet elke hostname bevatten die de site daadwerkelijk serveert, inclusief <code>www</code> als je daarheen redirect. En het type sleutel, zichtbaar met <code>-text</code>, moet <code>id-ecPublicKey</code> zijn of RSA op 2048 bits of meer. RSA 1024 duikt nog altijd op bij sites die voor het laatst in 2014 zijn aangeraakt.</p><p>De chain is het stuk dat onze zondagochtend brak. Draai hetzelfde commando opnieuw zonder <code>&lt;/dev/null</code> en lees het <code>Certificate chain</code>-blok bovenaan. Je wilt de leaf, dan één of twee intermediates, en daarna niets meer. Zie je onderaan een self-signed root, dan stuurt de server het rootcertificaat over de lijn mee. Niet schadelijk, wel verspilling, maar ook een aanwijzing dat degene die het opzette een <code>fullchain.pem</code> heeft gekopieerd zonder die te begrijpen. Zie je alleen de leaf en geen intermediate, dan heb je een bom gevonden. Moderne desktopbrowsers halen de ontbrekende intermediate op via AIA en overleven het. Oudere Android-versies, sommige Java-clients en elke strikte pinning-library niet.</p><p>Voor OCSP is de snelste check <a href="https://www.ssllabs.com/ssltest/">SSL Labs</a>, die in één rapport ook problemen met de chain-volgorde en zwakke ciphers vlagt. Liever in de terminal:</p><pre><code class="lang-bash">openssl s_client -connect example.com:443 -servername example.com -status &lt;/dev/null 2&gt;&amp;1 \
+  | grep -A 5 'OCSP Response'</code></pre><p>Je wilt <code>OCSP Response Status: successful</code> zien en een <code>This Update</code>-timestamp van de afgelopen paar dagen. Ontbreekt de response, dan staat stapling uit. Is <code>This Update</code> twee maanden oud, dan is de cron die de staple ververst stuk en zit je één revocation van een zachte storing af.</p><h2>Het verhaal van vernieuwing en reload</h2><p>Auto-renewal is de regel die elke host in het overdrachtsdocument zet. Het is bijna nooit het hele verhaal. De vraag waar je écht antwoord op nodig hebt: welk proces, op welke machine, schrijft welk bestand, en welk ander proces herlaadt welke daemon om het op te pikken.</p><p>Op een cPanel- of Plesk-bak is het antwoord meestal "het paneel regelt het," wat klopt tot iemand AutoSSL uitschakelt voor een domein dat zes maanden geleden een DCV-check niet haalde en niemand het merkte. Log in, zoek de SSL/TLS-statuspagina en kijk naar elk domein in een gele of rode staat. Dat zijn je bommen.</p><p>Op een kale VPS met certbot staat de renewal op een van drie plekken. Check ze alle drie:</p><pre><code class="lang-bash">systemctl list-timers | grep -i certbot
+cat /etc/cron.d/certbot 2&gt;/dev/null
+crontab -l -u root | grep -i certbot</code></pre><p>Controleer daarna of hij daadwerkelijk heeft gelopen:</p><pre><code class="lang-bash">journalctl -u certbot.timer --since '60 days ago' | tail -20
+ls -la /var/log/letsencrypt/ | tail -5</code></pre><p>Een renewal die op een 90-daags certificaat al 80 dagen niet meer is gelopen, vernieuwt niet automatisch. Hij rolt uit. Hetzelfde geldt voor de reload-hook. De <code>--deploy-hook</code> van certbot hoort de webserver te herstarten of te herladen na een geslaagde vernieuwing. Vind je een deploy-hook die <code>service nginx restart</code> draait terwijl de site op Apache draait, of die wijst naar een container die niet meer bestaat, dan vernieuwt het cert op disk en bereikt het nooit het luisterende proces.</p><h2>De vier valkuilen die hosts vergeten</h2><p>Dit zijn de items die bijna nooit in een overdrachtsdocument terechtkomen, in ongeveer de volgorde waarin we ze tegenkomen.</p><h3>1. De www-variant die niemand vernieuwde</h3><p>De leaf dekt <code>example.com</code>. De redirect stuurt gebruikers naar <code>www.example.com</code>. De <code>www</code>-SAN stond op het cert toen de site in 2019 live ging. Iemand heeft het cert in 2023 opnieuw uitgegeven zonder de <code>www</code>-SAN, omdat hij testte met curl en curl de redirect stilletjes volgde. Browsers doen dat niet. Check altijd zowel de apex als <code>www</code>, en elk subdomein dat ooit in een marketingmail is voorgekomen.</p><h3>2. Het vergeten subdomein op een andere server</h3><p>Sites groeien aan. <code>shop.example.com</code> op een Magento-bak, <code>blog.example.com</code> op de WordPress-bak, <code>api.example.com</code> op een kleine Node-service die iemand voor de iOS-app heeft opgezet. Elk heeft een eigen certificaat, een eigen renewal-cron, een eigen manier om kapot te gaan. Het overdrachtsdocument behandelt de WordPress-bak. Doe een snelle DNS-sweep en check elk A- en CNAME-record dat naar iets wijst dat je beheert.</p><pre><code class="lang-bash">dig +short example.com ANY
+dig +short example.com TXT | grep -i spf
+for sub in www shop blog api mail cdn staging; do
+  echo "--- $sub.example.com ---"
+  openssl s_client -connect $sub.example.com:443 -servername $sub.example.com &lt;/dev/null 2&gt;/dev/null \
+    | openssl x509 -noout -subject -dates 2&gt;/dev/null
+done</code></pre><h3>3. De HSTS-preload-belofte</h3><p>Heeft een eerdere ontwikkelaar <code>Strict-Transport-Security: max-age=63072000; includeSubDomains; preload</code> ingesteld en het domein ingediend bij de <a href="https://hstspreload.org/">HSTS preload list</a>, dan heb je een belofte geërfd dat elk subdomein, voor altijd, geldige HTTPS gaat serveren. De dag dat je <code>internal.example.com</code> voor een snelle test op gewone HTTP optrekt, is hij onbereikbaar vanuit gepreloade browsers. Controleer de huidige header en de preload-lijst voordat je de sleutels aanneemt.</p><h3>4. De <code>.htaccess</code>-redirect die loopt achter een proxy</h3><p>Het klassieke blok ziet er onschuldig uit:</p><pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]</code></pre><p>Achter een loadbalancer of een Cloudflare-achtige proxy die TLS termineert en platte HTTP doorstuurt naar de origin, staat <code>%{HTTPS}</code> altijd op <code>off</code>. De browser ziet een redirect-loop. De fix is de forwarded header vertrouwen:</p><pre><code class="lang-apache">RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]</code></pre><p>Doe dit alleen als je hebt geverifieerd dat de proxy inkomende <code>X-Forwarded-Proto</code> van clients strikt verwijdert. Anders kan een aanvaller de header vervalsen en de redirect omzeilen. De <a href="https://httpd.apache.org/docs/2.4/mod/mod_rewrite.html">mod_rewrite-documentatie</a> van Apache heeft het volledige verhaal.</p><aside class="callout"><strong>Let op de database, niet alleen op de config.</strong> WordPress, Drupal en Magento bewaren allemaal de canonieke site-URL in de database. Een perfecte TLS-configuratie vóór een <code>siteurl</code> die op <code>http://example.com</code> staat, mixt nog steeds content op elke pagina. Doe na elke TLS-overdracht een zoekopdracht door de database naar <code>http://yourdomain</code> en beslis per rij of je hem herschrijft.</aside><h2>Wat we uiteindelijk voor onszelf hebben gebouwd</h2><p>Het incident op zondagochtend was de derde keer dat we deze checklist vanuit een kladblok draaiden en de tweede keer dat we wensten dat de databasestap één klik was, in plaats van een <code>wp search-replace</code> dry run gevolgd door een echte run gevolgd door een cache flush. Toen we Pier bouwden liepen we precies hiertegenaan. Wat we uiteindelijk hebben gedaan, is de FTP-boomstructuur en de <a href="/#database">MySQL-editor</a> achter hetzelfde chat-oppervlak zetten, zodat een TLS-overdrachts-audit en de <code>siteurl</code>-herschrijving die er altijd op volgt allebei in dezelfde <a href="/#features">versiegeschiedenis</a> belanden.</p><p>Het kleinste wat je vandaag kunt doen: pak één site die je in de afgelopen twaalf maanden hebt overgenomen en draai het <code>openssl s_client</code>-commando vanaf het begin van deze post. Lees de chain. Ziet hij er verkeerd uit, dan heb je je volgende werkuur te pakken.</p>
+    </div>
+
+    <aside class="pullquote">Auto-renewal is niet hetzelfde als een werkende chain, een verse OCSP-staple, een reload-hook die ook echt afgaat en een database die het ermee eens is dat de site op HTTPS draait.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Hoe vaak moet ik een TLS-overdrachtsaudit draaien op een overgenomen site?</p>
+      <p class="faq-a">Eén keer bij de overdracht, daarna één keer per jaar, en na elke infrastructuurwijziging: CDN-wissel, hostingmigratie, paneelupgrade of wisseling van DNS-provider. De renewal-cron is geen vervanging.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Waarom doet de chain ertoe als browsers ontbrekende intermediates via AIA ophalen?</p>
+      <p class="faq-a">Desktopbrowsers doen dat. Oudere Android-versies, Java HTTP-clients, sommige IoT-firmware en elke strikte pinning-library niet. Een ontbrekende intermediate breekt mobiele apps eerder dan websites.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is HSTS preload veilig om in te schakelen op een legacy site?</p>
+      <p class="faq-a">Alleen als je elk huidig en toekomstig subdomein beheert en daar voor altijd geldige HTTPS op kunt serveren. Verwijderen uit de preload-lijst duurt maanden. Bij twijfel: laat de preload-vlag weg.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/apache-nginx-headers-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/apache-nginx-headers-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/apache-nginx-headers-field-guide/hero.jpg" alt="Bovenaanzicht van HTTP-headeruitdraai, papieren boekje HEADERS, manilla label, messing VIA-plaat, rode lakzegel op 200 OK telegram." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>Apache vs Nginx headers: veldgids voor legacy hosting</h3>
+      <span class="pc-lede">De response headers van een verouderde site verraden welke webserver draait, wie de pagina cachet en wat er stilletjes tussen jou en de origin zit. Zo lees je ze.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/chmod-777-permissions-recovery/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/chmod-777-permissions-recovery/hero.webp" type="image/webp">
+        <img src="/nl/blog/chmod-777-permissions-recovery/hero.jpg" alt="Stilleven van boven op linnen: Unix-rechten spiekbriefje, PHP-FPM foutenlog, manila map wp-content, koperen CHMOD-plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Operations</span><span>·</span><span>10 juni 2026</span></span>
+      <h3>chmod -R 777 herstel: rechten terugzetten op een legacy site</h3>
+      <span class="pc-lede">Een chmod -R 777 in paniek voelde om 23:41 als de snelste oplossing. Twaalf minuten later weigerde PHP-FPM elk script en gaf de loginpagina 500s.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/tls-handover-checklist/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
