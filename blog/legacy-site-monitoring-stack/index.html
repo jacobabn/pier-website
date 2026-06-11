@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Legacy site monitoring: the four-signal stack for solo shops · Pier — Blog</title>
+<meta name="description" content="Thirty legacy sites, one person, and a Sunday morning that started with a &#39;checkout broken since Friday&#39; Slack. Four signals would have caught it on Thursday.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="operations, mysql, wordpress, tooling, workflow, php">
+
+<link rel="canonical" href="https://pier.abn.company/blog/legacy-site-monitoring-stack/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/legacy-site-monitoring-stack/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/legacy-site-monitoring-stack/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/legacy-site-monitoring-stack/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Legacy site monitoring: the four-signal stack for solo shops">
+<meta property="og:description" content="Thirty legacy sites, one person, and a Sunday morning that started with a &#39;checkout broken since Friday&#39; Slack. Four signals would have caught it on Thursday.">
+<meta property="og:url" content="https://pier.abn.company/blog/legacy-site-monitoring-stack/">
+<meta property="og:image" content="https://pier.abn.company/blog/legacy-site-monitoring-stack/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/legacy-site-monitoring-stack/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo of inked uptime chart, manila site tabs, run-sheet, index cards, wax seal, fountain pen on linen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T09:10:05.719Z">
+<meta property="article:modified_time" content="2026-06-11T09:10:05.719Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Operations">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="php">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Legacy site monitoring: the four-signal stack for solo shops">
+<meta name="twitter:description" content="Thirty legacy sites, one person, and a Sunday morning that started with a &#39;checkout broken since Friday&#39; Slack. Four signals would have caught it on Thursday.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/legacy-site-monitoring-stack/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo of inked uptime chart, manila site tabs, run-sheet, index cards, wax seal, fountain pen on linen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="7 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Operations">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/legacy-site-monitoring-stack/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/legacy-site-monitoring-stack/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/legacy-site-monitoring-stack/"},
+  "url":"https://pier.abn.company/blog/legacy-site-monitoring-stack/",
+  "headline":"Legacy site monitoring: the four-signal stack for solo shops",
+  "description":"Thirty legacy sites, one person, and a Sunday morning that started with a 'checkout broken since Friday' Slack. Four signals would have caught it on Thursday.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/legacy-site-monitoring-stack/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo of inked uptime chart, manila site tabs, run-sheet, index cards, wax seal, fountain pen on linen."
+  },
+  "datePublished":"2026-06-11T09:10:05.719Z",
+  "dateModified":"2026-06-11T09:10:05.719Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"operations, mysql, wordpress, tooling, workflow, php",
+  "wordCount":1146,
+  "articleSection":"Operations",
+  "articleBody":"A Sunday in November, 09:14. A Slack ping from a Dutch agency we work with: their client's WooCommerce checkout has been silently failing since Friday afternoon. Two days of orders, gone. The cause, once we got into the box: MySQL binlogs had filled /var/lib/mysql to 99%. The PHP error log had stopped writing on Friday at 16:22. No monitor had caught any of it. Thirty legacy sites and one person to keep them up. You cannot read every log every morning. What you can do is pick four signals that fail loudly enough to catch the classes of incident that actually happen, then wire them in an afternoon and stop thinking about them. The four signals that actually matter In ten years of running other people's WordPress, Drupal, Joomla and Magento installs, almost every emergency we got pulled into came from one of four places: The site is down, or returning HTTP 200 with a white page. Uptime, but content-aware. Disk filled up. wp-content/uploads, the MySQL data directory, /var/log, or a runaway cache. A query started taking 8 seconds. The slowlog catches it long before the customer does. Outbound mail started bouncing. Order confirmations, password resets, contact-form replies. Silent until a customer notices. None of these need Datadog. None of them need a dashboard. They need four loud alarms. Uptime, content-aware A plain HTTP 200 check tells you the web server is up. It does not tell you whether wp-config.php has just started throwing a fatal because someone's plugin called a deprecated each() on PHP 8.2. The site returns 200, the page is blank, the checkout is dead. Two ways to do this without spending money. Self-host Uptime Kuma on a five-euro VPS, or use UptimeRobot's free tier (50 monitors, more than enough for thirty sites with two checks each). For every site, set up two probes: curl -s https://example.com/ | grep -q \"Add to cart\" || alert curl -sI https://example.com/wp-login.php | grep -q \"200 OK\" || alert The first probe catches white-screen-of-death (200 with empty body). The second catches the case where the front page is served from cache but PHP has actually died at parse time, which wp-login.php will reveal because it cannot be cached. Five minutes each, alert on three consecutive failures so you do not get woken at 03:00 by a 30-second CDN blip. Disk before it kills you Disk fillup is the single most common cause of \"the site just stopped working\" tickets on legacy WordPress and Magento boxes. The killers, in order of how often we have seen them: /var/lib/mysql binary logs that nobody set to expire wp-content/uploads when a backup plugin writes archives there /var/log/apache2/ or /var/log/nginx/ when logrotate is broken Magento var/cache and var/session on pre-2.4 installs Joomla tmp/ if a failed extension upload left a 4GB tarball A cron job, once a day, is enough: #!/bin/bash # /etc/cron.daily/disk-watch THRESHOLD=85 USAGE=$(df / | awk 'NR==2 {print $5}' | tr -d '%') if [ \"$USAGE\" -gt \"$THRESHOLD\" ]; then { echo \"Disk at ${USAGE}% on $(hostname)\" echo df -h echo du -sh /var/lib/mysql /var/log /home/*/public_html/wp-content/uploads 2>/dev/null } | mail -s \"DISK ${USAGE}% $(hostname)\" you@yourdomain.tld fi Set the threshold at 85, not 95. You want a yawn at lunch, not a fire at midnight. While you are in there, add expire_logs_days = 7 to my.cnf and run logrotate -d /etc/logrotate.conf to confirm rotation is actually working. MySQL's docs on binlog expiry are worth a five-minute read. MySQL slowlog as a leading indicator The slowlog is the cheapest production-quality signal you will ever turn on. A query that used to run in 80ms now takes 3.2 seconds because somebody added a plugin that wrote to wp_options with autoload = yes for a 6MB serialized blob. The site is still up. The checkout still works. But every page load is dragging, and in two weeks the host is going to throttle the database. In my.cnf : [mysqld] slow_query_log = 1 slow_query_log_file = /var/log/mysql/slow.log long_query_time = 2 log_queries_not_using_indexes = 0 Leave log_queries_not_using_indexes off unless you want a wall of WordPress noise. Two seconds is the right threshold for legacy sites. Below that you are reading core WP queries; above that you are reading actual problems. Once a week, run pt-query-digest : pt-query-digest /var/log/mysql/slow.log | head -120 The first three queries in the digest are almost always the entire story. On a Magento 1 site we still maintain for a small client, the top slow query for six months was an EAV_ENTITY_ATTRIBUTE join that ran 11 seconds at peak. One covering index, problem gone. A frequent gotcha: enabling the slowlog on a host without proper rotation produces a 40GB log file in a month. Drop a one-line entry into /etc/logrotate.d/mysql-slow with rotate 7 and daily , and mysqld will keep writing through the rename via copytruncate . Mail bounces nobody watches Order confirmations are the silent killer. The site looks fine. The customer pays. No email arrives. They wait two days, then",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/legacy-site-monitoring-stack/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Legacy site monitoring: the four-signal stack for solo shops","item":"https://pier.abn.company/blog/legacy-site-monitoring-stack/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How many uptime monitors do I actually need per site?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two. One content-match probe on the homepage to catch white screens, and one HTTP 200 check on the login URL to catch PHP parse failures that the page cache hides."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What slow_query_time threshold should I start with?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Two seconds. Below that you read normal WordPress noise; above that you read actual problems. Tighten to one second once the first round of indexing is done."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I need a paid monitoring service for 30 legacy sites?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. UptimeRobot's free tier covers 50 monitors, Uptime Kuma is free to self-host, and the other three signals are cron jobs writing to mail. Total cost is one small VPS."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often should I read pt-query-digest?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Weekly is enough for stable sites. After any plugin update or theme change, run it the next day. The top three queries are almost always the entire story."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What disk-usage threshold should trigger the alert?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "85%, not 95%. The whole point is a quiet warning at lunch instead of a hard outage at midnight. Tune lower if a single backup run uses more than 10% of free space."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/legacy-site-monitoring-stack/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 114</span>
+      </div>
+      <p class="eyebrow"><span class="n">114 —</span>Operations</p>
+      <h1 class="display-l post-title">Legacy site monitoring: the four-signal stack for solo shops</h1>
+      <p class="lede post-lede">Thirty legacy sites, one person, and a Sunday morning that started with a &#39;checkout broken since Friday&#39; Slack. Four signals would have caught it on Thursday.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T09:10:05.719Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>7 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/legacy-site-monitoring-stack/hero.webp" type="image/webp">
+      <img src="/blog/legacy-site-monitoring-stack/hero.jpg" alt="Overhead photo of inked uptime chart, manila site tabs, run-sheet, index cards, wax seal, fountain pen on linen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 114</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>A Sunday in November, 09:14. A Slack ping from a Dutch agency we work with: their client's WooCommerce checkout has been silently failing since Friday afternoon. Two days of orders, gone. The cause, once we got into the box: MySQL binlogs had filled <code>/var/lib/mysql</code> to 99%. The PHP error log had stopped writing on Friday at 16:22. No monitor had caught any of it.</p><p>Thirty <a href="/">legacy sites</a> and one person to keep them up. You cannot read every log every morning. What you can do is pick four signals that fail loudly enough to catch the classes of incident that actually happen, then wire them in an afternoon and stop thinking about them.</p><h2>The four signals that actually matter</h2><p>In ten years of running other people's WordPress, Drupal, Joomla and Magento installs, almost every emergency we got pulled into came from one of four places:</p><ul><li><strong>The site is down, or returning HTTP 200 with a white page.</strong> Uptime, but content-aware.</li><li><strong>Disk filled up.</strong> wp-content/uploads, the MySQL data directory, /var/log, or a runaway cache.</li><li><strong>A query started taking 8 seconds.</strong> The slowlog catches it long before the customer does.</li><li><strong>Outbound mail started bouncing.</strong> Order confirmations, password resets, contact-form replies. Silent until a customer notices.</li></ul><p>None of these need Datadog. None of them need a dashboard. They need four loud alarms.</p><h2>Uptime, content-aware</h2><p>A plain HTTP 200 check tells you the web server is up. It does not tell you whether <code>wp-config.php</code> has just started throwing a fatal because someone's plugin called a deprecated <code>each()</code> on PHP 8.2. The site returns 200, the page is blank, the checkout is dead.</p><p>Two ways to do this without spending money. Self-host <a href="https://github.com/louislam/uptime-kuma">Uptime Kuma</a> on a five-euro VPS, or use UptimeRobot's free tier (50 monitors, more than enough for thirty sites with two checks each).</p><p>For every site, set up two probes:</p><pre><code class="lang-bash">curl -s https://example.com/ | grep -q "Add to cart" || alert
+curl -sI https://example.com/wp-login.php | grep -q "200 OK" || alert
+</code></pre><p>The first probe catches white-screen-of-death (200 with empty body). The second catches the case where the front page is served from cache but PHP has actually died at parse time, which <code>wp-login.php</code> will reveal because it cannot be cached. Five minutes each, alert on three consecutive failures so you do not get woken at 03:00 by a 30-second CDN blip.</p><h2>Disk before it kills you</h2><p>Disk fillup is the single most common cause of "the site just stopped working" tickets on legacy WordPress and Magento boxes. The killers, in order of how often we have seen them:</p><ul><li><code>/var/lib/mysql</code> binary logs that nobody set to expire</li><li><code>wp-content/uploads</code> when a backup plugin writes archives there</li><li><code>/var/log/apache2/</code> or <code>/var/log/nginx/</code> when logrotate is broken</li><li>Magento <code>var/cache</code> and <code>var/session</code> on pre-2.4 installs</li><li>Joomla <code>tmp/</code> if a failed extension upload left a 4GB tarball</li></ul><p>A cron job, once a day, is enough:</p><pre><code class="lang-bash">#!/bin/bash
+# /etc/cron.daily/disk-watch
+THRESHOLD=85
+USAGE=$(df / | awk 'NR==2 {print $5}' | tr -d '%')
+if [ "$USAGE" -gt "$THRESHOLD" ]; then
+  {
+    echo "Disk at ${USAGE}% on $(hostname)"
+    echo
+    df -h
+    echo
+    du -sh /var/lib/mysql /var/log /home/*/public_html/wp-content/uploads 2>/dev/null
+  } | mail -s "DISK ${USAGE}% $(hostname)" you@yourdomain.tld
+fi
+</code></pre><p>Set the threshold at 85, not 95. You want a yawn at lunch, not a fire at midnight. While you are in there, add <code>expire_logs_days = 7</code> to <code>my.cnf</code> and run <code>logrotate -d /etc/logrotate.conf</code> to confirm rotation is actually working. <a href="https://dev.mysql.com/doc/refman/8.0/en/binary-log.html">MySQL's docs</a> on binlog expiry are worth a five-minute read.</p><h2>MySQL slowlog as a leading indicator</h2><p>The slowlog is the cheapest production-quality signal you will ever turn on. A query that used to run in 80ms now takes 3.2 seconds because somebody added a plugin that wrote to <code>wp_options</code> with <code>autoload = yes</code> for a 6MB serialized blob. The site is still up. The checkout still works. But every page load is dragging, and in two weeks the host is going to throttle the database.</p><p>In <code>my.cnf</code>:</p><pre><code class="lang-ini">[mysqld]
+slow_query_log = 1
+slow_query_log_file = /var/log/mysql/slow.log
+long_query_time = 2
+log_queries_not_using_indexes = 0
+</code></pre><p>Leave <code>log_queries_not_using_indexes</code> off unless you want a wall of WordPress noise. Two seconds is the right threshold for legacy sites. Below that you are reading core WP queries; above that you are reading actual problems.</p><p>Once a week, run <code>pt-query-digest</code>:</p><pre><code class="lang-bash">pt-query-digest /var/log/mysql/slow.log | head -120
+</code></pre><p>The first three queries in the digest are almost always the entire story. On a Magento 1 site we still maintain for a small client, the top slow query for six months was an <code>EAV_ENTITY_ATTRIBUTE</code> join that ran 11 seconds at peak. One covering index, problem gone.</p><aside class="callout">A frequent gotcha: enabling the slowlog on a host without proper rotation produces a 40GB log file in a month. Drop a one-line entry into <code>/etc/logrotate.d/mysql-slow</code> with <code>rotate 7</code> and <code>daily</code>, and mysqld will keep writing through the rename via <code>copytruncate</code>.</aside><h2>Mail bounces nobody watches</h2><p>Order confirmations are the silent killer. The site looks fine. The customer pays. No email arrives. They wait two days, then they chargeback. Meanwhile the server has been bouncing because <code>noreply@theirdomain.com</code> lost SPF after a DNS change three weeks ago, and you never knew.</p><p>On any Postfix box:</p><pre><code class="lang-bash">grep "status=bounced" /var/log/mail.log | tail -50
+pflogsumm -d today /var/log/mail.log | head -40
+</code></pre><p><code>pflogsumm</code> gives you a daily summary by sender, recipient, and reason. A weekly cron that mails this digest to yourself catches the slow-build problems before they become a reputation issue. Industry rule of thumb: a bounce rate over 2% damages sender reputation; over 5% and you are heading for a blocklist. <a href="https://datatracker.ietf.org/doc/html/rfc7208">SPF</a> and <a href="https://datatracker.ietf.org/doc/html/rfc6376">DKIM</a> misconfigurations are the most common cause, and the easiest to fix once you actually see them.</p><p>For sites that hand off to a transactional provider, point their bounce webhook at the same alert mailbox and forward anything above your threshold.</p><h2>Wire it up, then forget it</h2><p>The whole stack is one VPS running Uptime Kuma, four cron jobs (disk, slowlog digest, mail summary, weekly recap), and a single alert mailbox you actually read. No dashboard. No on-call rotation. Four loud alarms that ring before the customer notices, and silence the rest of the time.</p><p>When we built Pier we kept running into the same gap on customer sites: the people who needed monitoring most could not justify the time to set it up, because their tooling for actually fixing the problem (SSH in, find the slow query, patch the bad plugin) was already a ninety-minute round-trip. The way we ended up handling it was to put the fix-it tools, the <a href="/#database">MySQL editor</a> and a tracked <a href="/#features">version history</a> on every file, right next to the FTP connection, so a slowlog alert at 14:00 becomes a five-minute fix instead of an evening of work.</p><p>Pick one site this afternoon. Enable the slowlog on it, with <code>long_query_time = 2</code>. Tomorrow morning, read the first ten lines of <code>pt-query-digest</code>. You will know more about that site than you did yesterday.</p>
+    </div>
+
+    <aside class="pullquote">Four signals catch most legacy-site incidents: content-aware uptime, daily disk checks, the MySQL slowlog, and a weekly mail-bounce summary.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">How many uptime monitors do I actually need per site?</p>
+      <p class="faq-a">Two. One content-match probe on the homepage to catch white screens, and one HTTP 200 check on the login URL to catch PHP parse failures that the page cache hides.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What slow_query_time threshold should I start with?</p>
+      <p class="faq-a">Two seconds. Below that you read normal WordPress noise; above that you read actual problems. Tighten to one second once the first round of indexing is done.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I need a paid monitoring service for 30 legacy sites?</p>
+      <p class="faq-a">No. UptimeRobot&#39;s free tier covers 50 monitors, Uptime Kuma is free to self-host, and the other three signals are cron jobs writing to mail. Total cost is one small VPS.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How often should I read pt-query-digest?</p>
+      <p class="faq-a">Weekly is enough for stable sites. After any plugin update or theme change, run it the next day. The top three queries are almost always the entire story.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What disk-usage threshold should trigger the alert?</p>
+      <p class="faq-a">85%, not 95%. The whole point is a quiet warning at lunch instead of a hard outage at midnight. Tune lower if a single backup run uses more than 10% of free space.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=php">#php</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/woocommerce-checkout-audit-plugin/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/woocommerce-checkout-audit-plugin/hero.webp" type="image/webp">
+        <img src="/blog/woocommerce-checkout-audit-plugin/hero.jpg" alt="Overhead flat-lay: paper waterfall chart with bars, brass stopwatch at 2.3s, manila CHECKOUT tab, red wax seal on linen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>26 May 2026</span></span>
+      <h3>WooCommerce checkout audit: hunting the 2.3s plugin</h3>
+      <span class="pc-lede">A Loom from a Dutch agency: WooCommerce checkout hanging three seconds on every postcode change. Here is the twenty-minute audit that finds the plugin.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/statamic-migration-freeze-playbook/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/statamic-migration-freeze-playbook/hero.webp" type="image/webp">
+        <img src="/blog/statamic-migration-freeze-playbook/hero.jpg" alt="Overhead photo on bone linen: freeze calendar, three stamped diff papers, .htaccess sheet, graph-paper tree, brass tag, wax seal, pen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Statamic migration freeze: a five-day editorial playbook</h3>
+      <span class="pc-lede">The staged content-freeze playbook for a five-day legacy-to-Statamic cutover: editorial lock, three diff checkpoints, the .htaccess that ships.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/legacy-site-monitoring-stack/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
