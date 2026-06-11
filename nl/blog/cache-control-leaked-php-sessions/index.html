@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Cache-Control-lek: het woord dat PHP-sessies liet lekken · Pier — Blog</title>
+<meta name="description" content="Om 16:47 zag een klant andermans bestelhistorie in zijn eigen dashboard. De bug: een Cache-Control-header op de PHP-accountpagina, één woord te kort.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, security, htaccess, operations, architecture">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/cache-control-leaked-php-sessions/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/cache-control-leaked-php-sessions/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Cache-Control-lek: het woord dat PHP-sessies liet lekken">
+<meta property="og:description" content="Om 16:47 zag een klant andermans bestelhistorie in zijn eigen dashboard. De bug: een Cache-Control-header op de PHP-accountpagina, één woord te kort.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Bovenaanzicht: papieren HTTP-print met &#39;private&#39; over &#39;public&#39;, sessiemappen, headers-vel, lakzegel.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-11T14:18:55.587Z">
+<meta property="article:modified_time" content="2026-06-11T14:18:55.587Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="security">
+<meta property="article:tag" content="htaccess">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="architecture">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Cache-Control-lek: het woord dat PHP-sessies liet lekken">
+<meta name="twitter:description" content="Om 16:47 zag een klant andermans bestelhistorie in zijn eigen dashboard. De bug: een Cache-Control-header op de PHP-accountpagina, één woord te kort.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/hero.jpg">
+<meta name="twitter:image:alt" content="Bovenaanzicht: papieren HTTP-print met &#39;private&#39; over &#39;public&#39;, sessiemappen, headers-vel, lakzegel.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="6 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/cache-control-leaked-php-sessions/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/"},
+  "url":"https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/",
+  "headline":"Cache-Control-lek: het woord dat PHP-sessies liet lekken",
+  "description":"Om 16:47 zag een klant andermans bestelhistorie in zijn eigen dashboard. De bug: een Cache-Control-header op de PHP-accountpagina, één woord te kort.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Bovenaanzicht: papieren HTTP-print met 'private' over 'public', sessiemappen, headers-vel, lakzegel."
+  },
+  "datePublished":"2026-06-11T14:18:55.587Z",
+  "dateModified":"2026-06-11T14:18:55.587Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, security, htaccess, operations, architecture",
+  "wordCount":1153,
+  "articleSection":"PHP",
+  "articleBody":"Op een donderdag om 16:47 stuurde de oprichter van een Nederlands bureau waar we mee samenwerken een screenshot door, afkomstig van een woedende klant: in het accountdashboard van die klant stond de naam van iemand anders, de bestelhistorie van iemand anders, het opgeslagen adres van iemand anders. Hij had de pagina ververst. Nog steeds het verkeerde account. Hij had een privé-venster geopend en opnieuw ingelogd. Weer het verkeerde account. De helpdesk van het bureau had in de twintig minuten ervoor nog vier vergelijkbare tickets binnengekregen. Toen we erbij kwamen op de call had de support-engineer de voor de hand liggende hendel al overgehaald: de Cloudflare-cache leeggegooid. Binnen negentig seconden stopten de tickets. Het lek had ongeveer anderhalf uur gelopen op een custom-PHP-shop die zo'n 2.000 ingelogde sessies per dag verwerkt. De oorzaak bleek om 18:10 één ontbrekend woord in een Cache-Control-header op de accountpagina. Wat de edge eigenlijk zag Het accountdashboard werd geserveerd door een handler die er ongeveer zo uitzag: // /account/index.php session_start(); if (empty($_SESSION['user_id'])) { header('Location: /login'); exit; } header('Content-Type: text/html; charset=utf-8'); header('Cache-Control: max-age=300'); render_account($_SESSION['user_id']); Twee jaar geleden had een junior dev de regel met max-age=300 toegevoegd om druk van de database te halen na een Black Friday-piek. Het werkte, in die zin dat opeenvolgende loads van het dashboard voor dezelfde gebruiker binnen vijf minuten PHP volledig oversloegen. De pagina was snel. Niemand klaagde. De regel bleef staan. Wat die regel niet zei, was private . Volgens de Cache-Control-referentie van MDN is een response zonder private of no-store vrij spel voor elke shared cache tussen origin en browser. Cloudflare, dat tussen PHP en de gebruiker zit, is zo'n shared cache. Het las max-age=300 , zag geen tegengestelde directive en behandelde de gerenderde HTML als een statisch bestand dat aan de volgende bezoeker van dezelfde URL geserveerd mocht worden. De volgende bezoeker kreeg de naam van de vorige bezoeker. En in sommige response-paden, waar de session-rotation-middleware van het framework cookies reset, kreeg de volgende bezoeker ook de PHPSESSID van de vorige bezoeker mee in een gecachte Set-Cookie -header. Dat is het deel waar de oprichter die nacht niet rustig van sliep. De daadwerkelijke fix, in drie regels De patch was bewust klein. We veranderden één header, voegden een tweede toe en gingen live: header('Cache-Control: private, no-store, max-age=0'); header('Pragma: no-cache'); header_remove('Expires'); Voor de eigen shared edge had alleen private het lek al gestopt. We legden no-store erbovenop als dubbele zekerheid, omdat de shop ook een Varnish-laag draait voor statische pagina's en we onder tijdsdruk niet wilden gaan discussiëren over hoe Varnish elke directive interpreteert. De Pragma -regel is voor oudere tussenliggende proxy's waar sommige zakelijke klanten van de shop nog achter zitten. Nutteloos voor Cloudflare, ongevaarlijk overal elders. Daarna liepen we de rest van de codebase langs op zoek naar dezelfde fout. We vonden nog vier handlers met max-age -regels die private hadden moeten zijn: de pagina met besteldetails, het endpoint voor opgeslagen adressen, de wishlist-API en een van de tussenstappen in de checkout. Geen ervan had volgens de access logs al gelekt, maar ze waren één Cloudflare-page-rule-wijziging verwijderd van het wél doen. Het audit-patroon dat dit vangt Zodra je er één hebt gezien, zie je ze overal. Het patroon om op te grep'en in elk PHP-project ouder dan drie jaar: grep -rEn \"Cache-Control:.*max-age\" --include=\"*.php\" . grep -rEn \"header\\(.*Cache-Control\" --include=\"*.php\" . Voor elke hit is de vraag: levert deze URL ooit content op die afhankelijk is van de sessie? Zo ja, dan moet de directive private of no-store bevatten. De OWASP-richtlijn over session management is daar onverbloemd over: elke response die session-afhankelijke content bevat, moet zichzelf als private voor shared caches declareren. Dezelfde audit moet ook .htaccess dekken, waar deze headers soms globaal worden gezet: # Fout: geldt ook voor /account, tenzij expliciet uitgesloten <FilesMatch \"\\.(php|html)$\"> Header set Cache-Control \"max-age=600\" </FilesMatch> # Beter: alleen de dingen die je echt gecachet wilt hebben <FilesMatch \"\\.(css|js|woff2|png|jpg|svg)$\"> Header set Cache-Control \"public, max-age=2592000, immutable\" </FilesMatch> Een algemene Header set in .htaccess is de grotere versie van dezelfde bug. Hij raakt elke dynamische PHP-response onder dat prefix, inclusief de responses die een Set-Cookie -header meesturen. We hebben dit de afgelopen zes maanden alleen al gezien in twee Magento 1-codebases en één bejaarde Drupal 7-site. Als je origin een Set-Cookie meestuurt op een response, is het veiligste mentale model dit: die response moet private of no-store zijn, punt. Cloudflare strijkt Set-Cookie uit gecachte responses in ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Cache-Control-lek: het woord dat PHP-sessies liet lekken","item":"https://pier.abn.company/nl/blog/cache-control-leaked-php-sessions/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is Cache-Control: private genoeg om een CDN te beletten session-afhankelijke pagina's te cachen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Voor compliant shared caches wel, maar leg er no-store overheen. Sommige tussenliggende proxy's interpreteren directives soepel, en Cloudflare-page-rules kunnen origin-headers in bepaalde plantiers volledig overschrijven."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat is het verschil tussen no-cache en no-store op een PHP-response?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "no-cache staat opslag toe maar vereist revalidatie bij elke request. no-store verbiedt opslag in elke cache, waar dan ook. Voor pagina's die afhangen van session state is no-store de veiligere keuze."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kun je ingelogde pagina's überhaupt cachen zonder sessies te lekken?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, met per-user cache keys via Vary op een session-identificerende header, of met edge-side includes voor de dynamische fragmenten. De meeste teams vinden dat de operationele kosten zwaarder wegen dan de databasewinst."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/cache-control-leaked-php-sessions/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 120</span>
+      </div>
+      <p class="eyebrow"><span class="n">120 —</span>PHP</p>
+      <h1 class="display-l post-title">Cache-Control-lek: het woord dat PHP-sessies liet lekken</h1>
+      <p class="lede post-lede">Om 16:47 zag een klant andermans bestelhistorie in zijn eigen dashboard. De bug: een Cache-Control-header op de PHP-accountpagina, één woord te kort.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T14:18:55.587Z">11 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>6 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/cache-control-leaked-php-sessions/hero.webp" type="image/webp">
+      <img src="/blog/cache-control-leaked-php-sessions/hero.jpg" alt="Bovenaanzicht: papieren HTTP-print met &#39;private&#39; over &#39;public&#39;, sessiemappen, headers-vel, lakzegel." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 120</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Op een donderdag om 16:47 stuurde de oprichter van een Nederlands bureau waar we mee samenwerken een screenshot door, afkomstig van een woedende klant: in het accountdashboard van die klant stond de naam van iemand anders, de bestelhistorie van iemand anders, het opgeslagen adres van iemand anders. Hij had de pagina ververst. Nog steeds het verkeerde account. Hij had een privé-venster geopend en opnieuw ingelogd. Weer het verkeerde account. De helpdesk van het bureau had in de twintig minuten ervoor nog vier vergelijkbare tickets binnengekregen.</p>
+
+<p>Toen we erbij kwamen op de call had de support-engineer de voor de hand liggende hendel al overgehaald: de Cloudflare-cache leeggegooid. Binnen negentig seconden stopten de tickets. Het lek had ongeveer anderhalf uur gelopen op een custom-PHP-shop die zo'n 2.000 ingelogde sessies per dag verwerkt. De oorzaak bleek om 18:10 één ontbrekend woord in een Cache-Control-header op de accountpagina.</p>
+
+<h2>Wat de edge eigenlijk zag</h2>
+
+<p>Het accountdashboard werd geserveerd door een handler die er ongeveer zo uitzag:</p>
+
+<pre><code class="lang-php">// /account/index.php
+session_start();
+if (empty($_SESSION['user_id'])) {
+    header('Location: /login');
+    exit;
+}
+
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: max-age=300');
+render_account($_SESSION['user_id']);
+</code></pre>
+
+<p>Twee jaar geleden had een junior dev de regel met <code>max-age=300</code> toegevoegd om druk van de database te halen na een Black Friday-piek. Het werkte, in die zin dat opeenvolgende loads van het dashboard voor dezelfde gebruiker binnen vijf minuten PHP volledig oversloegen. De pagina was snel. Niemand klaagde. De regel bleef staan.</p>
+
+<p>Wat die regel <em>niet</em> zei, was <code>private</code>. Volgens de <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control">Cache-Control-referentie van MDN</a> is een response zonder <code>private</code> of <code>no-store</code> vrij spel voor elke shared cache tussen origin en browser. Cloudflare, dat tussen PHP en de gebruiker zit, is zo'n shared cache. Het las <code>max-age=300</code>, zag geen tegengestelde directive en behandelde de gerenderde HTML als een statisch bestand dat aan de volgende bezoeker van dezelfde URL geserveerd mocht worden.</p>
+
+<p>De volgende bezoeker kreeg de naam van de vorige bezoeker. En in sommige response-paden, waar de session-rotation-middleware van het framework cookies reset, kreeg de volgende bezoeker ook de <code>PHPSESSID</code> van de vorige bezoeker mee in een gecachte <code>Set-Cookie</code>-header. Dat is het deel waar de oprichter die nacht niet rustig van sliep.</p>
+
+<h2>De daadwerkelijke fix, in drie regels</h2>
+
+<p>De patch was bewust klein. We veranderden één header, voegden een tweede toe en gingen live:</p>
+
+<pre><code class="lang-php">header('Cache-Control: private, no-store, max-age=0');
+header('Pragma: no-cache');
+header_remove('Expires');
+</code></pre>
+
+<p>Voor de eigen shared edge had alleen <code>private</code> het lek al gestopt. We legden <code>no-store</code> erbovenop als dubbele zekerheid, omdat de shop ook een Varnish-laag draait voor statische pagina's en we onder tijdsdruk niet wilden gaan discussiëren over hoe Varnish elke directive interpreteert. De <code>Pragma</code>-regel is voor oudere tussenliggende proxy's waar sommige zakelijke klanten van de shop nog achter zitten. Nutteloos voor Cloudflare, ongevaarlijk overal elders.</p>
+
+<p>Daarna liepen we de rest van de codebase langs op zoek naar dezelfde fout. We vonden nog vier handlers met <code>max-age</code>-regels die <code>private</code> hadden moeten zijn: de pagina met besteldetails, het endpoint voor opgeslagen adressen, de wishlist-API en een van de tussenstappen in de checkout. Geen ervan had volgens de access logs al gelekt, maar ze waren één Cloudflare-page-rule-wijziging verwijderd van het wél doen.</p>
+
+<h2>Het audit-patroon dat dit vangt</h2>
+
+<p>Zodra je er één hebt gezien, zie je ze overal. Het patroon om op te grep'en in elk PHP-project ouder dan drie jaar:</p>
+
+<pre><code class="lang-bash">grep -rEn "Cache-Control:.*max-age" --include="*.php" .
+grep -rEn "header\(.*Cache-Control" --include="*.php" .
+</code></pre>
+
+<p>Voor elke hit is de vraag: levert deze URL ooit content op die afhankelijk is van de sessie? Zo ja, dan moet de directive <code>private</code> of <code>no-store</code> bevatten. De <a href="https://owasp.org/www-community/HttpOnly">OWASP-richtlijn over session management</a> is daar onverbloemd over: elke response die session-afhankelijke content bevat, moet zichzelf als private voor shared caches declareren.</p>
+
+<p>Dezelfde audit moet ook <code>.htaccess</code> dekken, waar deze headers soms globaal worden gezet:</p>
+
+<pre><code class="lang-apache"># Fout: geldt ook voor /account, tenzij expliciet uitgesloten
+&lt;FilesMatch "\.(php|html)$"&gt;
+    Header set Cache-Control "max-age=600"
+&lt;/FilesMatch&gt;
+
+# Beter: alleen de dingen die je echt gecachet wilt hebben
+&lt;FilesMatch "\.(css|js|woff2|png|jpg|svg)$"&gt;
+    Header set Cache-Control "public, max-age=2592000, immutable"
+&lt;/FilesMatch&gt;
+</code></pre>
+
+<p>Een algemene <code>Header set</code> in <code>.htaccess</code> is de grotere versie van dezelfde bug. Hij raakt elke dynamische PHP-response onder dat prefix, inclusief de responses die een <code>Set-Cookie</code>-header meesturen. We hebben dit de afgelopen zes maanden alleen al gezien in twee Magento 1-codebases en één bejaarde Drupal 7-site.</p>
+
+<aside class="callout">Als je origin een <code>Set-Cookie</code> meestuurt op een response, is het veiligste mentale model dit: die response moet <code>private</code> of <code>no-store</code> zijn, punt. Cloudflare strijkt <code>Set-Cookie</code> uit gecachte responses in sommige plantiers, maar het gedrag verschilt per configuratie en is niet iets waar je als enige verdediging op moet bouwen. Verifieer, ga er niet vanuit.</aside>
+
+<h2>Waarom de bug zo lang verborgen blijft</h2>
+
+<p>De reden dat deze klasse bugs maandenlang loopt voordat ze zich manifesteert, is dat de voorwaarden voor de trigger smal zijn. De shared cache serveert pas een verouderde response wanneer:</p>
+
+<ol>
+  <li>Twee gebruikers dezelfde URL opvragen binnen het <code>max-age</code>-venster.</li>
+  <li>De eerste response daadwerkelijk in de edge cache is beland (wat afhangt van de response-status, de grootte en de eigen eligibility-regels van de CDN).</li>
+  <li>De request key van de tweede gebruiker matcht: zelfde path, zelfde vary headers, zelfde edge node.</li>
+</ol>
+
+<p>Voor de meeste account-pagina-URL's (<code>/account</code>, <code>/dashboard</code>) is de URL identiek voor elke ingelogde gebruiker. Zodra aan de eligibility is voldaan, ligt het lek dus één cache hit verderop. De trigger bij het Nederlandse bureau was een Cloudflare-configuratiewijziging eerder die middag: een developer had 'Cache Everything' aangezet op een page rule die door een typo in het path-patroon ook <code>/account/*</code> raakte. De foute header lag daar al twee jaar te wachten op die page rule.</p>
+
+<p>De les is niet 'audit je Cache-Control-headers wanneer je CDN-configuratie verandert'. De les is dat de Cache-Control-header op een response met sessie defensief fout-proof moet zijn, want de CDN-configuratie erboven verandert in de levensduur van de site, en jij staat niet in de kamer als dat gebeurt.</p>
+
+<h2>Het kleine ding dat je vandaag kunt doen</h2>
+
+<p>Pak de oudste account-pagina-handler in je codebase. Draai de grep hierboven. Lees de headers die je vindt met de vraag: 'wat gebeurt er als Cloudflare of Varnish of een corporate proxy besluit dit als cacheable te behandelen?' Als het antwoord is 'de volgende gebruiker ziet de vorige gebruiker', verander dan die regel.</p>
+
+<p>Toen we Pier bouwden, liepen we tegen precies dit soort probleem aan op de <a href="/">legacy site</a> van een klant: we hebben het uiteindelijk zo opgelost dat elke header-wijziging in de <a href="/#features">versiegeschiedenis</a> terechtkomt, zodat je op het moment dat een lek begint de response-headers van vandaag kunt diffen tegen die van vorige woensdag, en het ene woord ziet dat is verschoven. Diezelfde versionering loopt over de <a href="/#database">MySQL-editor</a>, wat de volgende ochtend uitmaakte toen we moesten bevestigen dat er geen sessies daadwerkelijk gekaapt waren.</p>
+
+<p>Wil je één concrete vervolgstap voordat je dit tabblad sluit: open je account-pagina-handler, zoek de Cache-Control-regel op en bevestig dat het woord <code>private</code> erin staat. Dat is de kleinste versie van de audit, en hij vangt de versie van deze bug die het meeste pijn doet.</p>
+    </div>
+
+    <aside class="pullquote">Als een PHP-response ooit afhangt van session state, moet de Cache-Control-header private of no-store bevatten. De CDN erboven verandert, en jij staat er niet bij als dat gebeurt.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Is Cache-Control: private genoeg om een CDN te beletten session-afhankelijke pagina&#39;s te cachen?</p>
+      <p class="faq-a">Voor compliant shared caches wel, maar leg er no-store overheen. Sommige tussenliggende proxy&#39;s interpreteren directives soepel, en Cloudflare-page-rules kunnen origin-headers in bepaalde plantiers volledig overschrijven.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat is het verschil tussen no-cache en no-store op een PHP-response?</p>
+      <p class="faq-a">no-cache staat opslag toe maar vereist revalidatie bij elke request. no-store verbiedt opslag in elke cache, waar dan ook. Voor pagina&#39;s die afhangen van session state is no-store de veiligere keuze.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Kun je ingelogde pagina&#39;s überhaupt cachen zonder sessies te lekken?</p>
+      <p class="faq-a">Ja, met per-user cache keys via Vary op een session-identificerende header, of met edge-side includes voor de dynamische fragmenten. De meeste teams vinden dat de operationele kosten zwaarder wegen dan de databasewinst.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=security">#security</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=architecture">#architecture</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/reading-inherited-htaccess-files/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/reading-inherited-htaccess-files/hero.webp" type="image/webp">
+        <img src="/nl/blog/reading-inherited-htaccess-files/hero.jpg" alt="Bovenaanzicht van vergeeld .htaccess-vel met doorgestreepte RewriteRule-regels, messing plaatje, manilla tab, rode lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Architecture</span><span>·</span><span>26 mei 2026</span></span>
+      <h3>Een geërfde .htaccess lezen: blok voor blok zonder paniek</h3>
+      <span class="pc-lede">Een site geërfd waarvan de .htaccess begint met drie blokken dode RewriteRules in het Nederlands? Lees hem blok voor blok. Zo pakken wij dat aan.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/php-session-race-invoice-pdf/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/php-session-race-invoice-pdf/hero.webp" type="image/webp">
+        <img src="/nl/blog/php-session-race-invoice-pdf/hero.jpg" alt="Bovenaanzicht op linnen: timingdiagram, manilamap INVOICE.PDF, PHP-vel, carbonfacturen, messing RACE-plaatje, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">PHP</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>PHP session race: de verkeerde factuur-PDF in de mail</h3>
+      <span class="pc-lede">Een Nederlands bureau belde om 23:41. Hun custom-PHP factuurportaal had de verkeerde factuur-PDF gemaild. We gaven session_start zes uur de schuld.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/cache-control-leaked-php-sessions/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
