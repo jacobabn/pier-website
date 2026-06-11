@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Xdebug 3 over an SSH tunnel: the SFTP-only setup · Pier — Blog</title>
+<meta name="description" content="A working Xdebug 3 setup against a remote SFTP-only host, with the tunnel direction, path map and idekey gotchas spelled out so you don&#39;t lose an afternoon.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, sftp, workflow, tooling, operations">
+
+<link rel="canonical" href="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/xdebug-3-ssh-tunnel-sftp/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Xdebug 3 over an SSH tunnel: the SFTP-only setup">
+<meta property="og:description" content="A working Xdebug 3 setup against a remote SFTP-only host, with the tunnel direction, path map and idekey gotchas spelled out so you don&#39;t lose an afternoon.">
+<meta property="og:url" content="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/">
+<meta property="og:image" content="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo on bone linen: inked network diagram, manila folder, index card, php.ini sheet, brass plate, red wax seal.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-11T05:41:34.366Z">
+<meta property="article:modified_time" content="2026-06-11T05:41:34.366Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="sftp">
+<meta property="article:tag" content="workflow">
+<meta property="article:tag" content="tooling">
+<meta property="article:tag" content="operations">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Xdebug 3 over an SSH tunnel: the SFTP-only setup">
+<meta name="twitter:description" content="A working Xdebug 3 setup against a remote SFTP-only host, with the tunnel direction, path map and idekey gotchas spelled out so you don&#39;t lose an afternoon.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo on bone linen: inked network diagram, manila folder, index card, php.ini sheet, brass plate, red wax seal.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/xdebug-3-ssh-tunnel-sftp/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/"},
+  "url":"https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/",
+  "headline":"Xdebug 3 over an SSH tunnel: the SFTP-only setup",
+  "description":"A working Xdebug 3 setup against a remote SFTP-only host, with the tunnel direction, path map and idekey gotchas spelled out so you don't lose an afternoon.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo on bone linen: inked network diagram, manila folder, index card, php.ini sheet, brass plate, red wax seal."
+  },
+  "datePublished":"2026-06-11T05:41:34.366Z",
+  "dateModified":"2026-06-11T05:41:34.366Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, sftp, workflow, tooling, operations",
+  "wordCount":1409,
+  "articleSection":"PHP",
+  "articleBody":"You inherit a PHP 8.1 site on a host that gives you SFTP and nothing else. No shell. No php.ini button in the control panel. A staging URL that loads in 4.2 seconds for reasons nobody on the previous team wrote down. The client wants the slow page traced by Friday. You want Xdebug 3 talking to your laptop without poking a hole in the firewall, without installing anything you can't roll back, and without spending the afternoon guessing why breakpoints never fire. This is the walkthrough. Xdebug 3 against a remote SFTP-only host, tunneled over SSH, with the path map and idekey wired correctly. The gotchas are at the end because that's where you'll actually need them. What \"SFTP-only\" really means here Most managed PHP hosts that advertise \"SFTP access\" still run an SSH daemon underneath. The shell is disabled or the account is jailed, but the transport is there. That matters because Xdebug 3 doesn't need a shell on the remote box to debug. It needs two things: the Xdebug extension loaded into the remote PHP process, and a TCP path back to your IDE on port 9003 . The SSH transport handles the second one for free. Before you touch anything, confirm three things with the host or the control panel: Xdebug is installed (most shared hosts on cPanel, Plesk, RunCloud and SpinupWP can toggle it per PHP version). You can drop a .user.ini file in the docroot, or there is a per-site PHP config UI. SSH on port 22 accepts your key, even if the shell is /usr/sbin/nologin . If Xdebug isn't installed and the host won't enable it, stop. You can't sideload a PHP extension over SFTP on a managed box. Everything below assumes the extension is present and your job is to configure it. The tunnel: remote forward, not local This is where people lose the first hour. Xdebug 3 is the client in this conversation. It initiates a connection from the PHP process on the host to your IDE. Which means the tunnel has to forward from the remote machine back to your laptop, not the other way around. That's -R , not -L . ssh -N -R 9003:localhost:9003 you@host.example.com Read that as: \"open port 9003 on the remote machine; anything that connects to it ends up on my laptop's 9003.\" The -N tells SSH not to ask for a remote shell, which is important on accounts where the shell is disabled. If your host refuses -N with This service allows sftp connections only , you have a more restricted setup and need the SFTP-subsystem fallback described later. On the remote box, the default sshd_config binds forwarded ports to 127.0.0.1 . Good. That means PHP on the host can reach localhost:9003 and nobody else on the network can. If you ever see GatewayPorts yes in a host's config, that's a different and worse posture; you don't need it for this. Configuring Xdebug 3 through .user.ini Xdebug 3 dropped the old xdebug.remote_* names. Everything is xdebug.client_* and xdebug.mode now. The upgrade guide on xdebug.org is the authoritative reference; the short version is below. Drop this in the docroot as .user.ini (or paste it into the host's per-site PHP settings if there's a UI): xdebug.mode = debug xdebug.start_with_request = trigger xdebug.client_host = 127.0.0.1 xdebug.client_port = 9003 xdebug.idekey = pier xdebug.discover_client_host = false xdebug.log = /tmp/xdebug-pier.log xdebug.log_level = 7 A few of those are load-bearing. client_host must be 127.0.0.1 , not your laptop's public IP, because the SSH tunnel surfaces on the remote loopback. discover_client_host = false is the one people miss; if it's true , Xdebug tries to read HTTP_X_FORWARDED_FOR and dial back to whatever IP it finds, which is rarely what you want and definitely not what you want through a tunnel. start_with_request = trigger means Xdebug only attaches when the request carries an XDEBUG_TRIGGER cookie, GET param or POST field. That's the sane default. You don't want every request on a shared staging server stalling on a breakpoint because someone left an IDE listener open. Note the .user.ini cache. PHP-FPM reads .user.ini every user_ini.cache_ttl seconds (default 300). After you upload, either wait five minutes or have the host reload FPM. There is no way around this from SFTP alone. Path mapping Your IDE has the code at something like /Users/you/work/legacy-site . The host runs it from /home/sites/legacy/public_html . Xdebug sends absolute remote paths in the DBGp protocol; your IDE has to translate. In PhpStorm: Settings &rarr; PHP &rarr; Servers , add a server with the host name, port 443, debugger Xdebug, and tick Use path mappings . Map your local project root to the remote docroot. In VS Code with the PHP Debug extension, it goes in launch.json : { \"name\": \"Listen for Xdebug (Pier tunnel)\", \"type\": \"php\", \"request\": \"launch\", \"port\": 9003, \"pathMappings\": { \"/home/sites/legacy/public_html\": \"${workspaceFolder}\" } } Get this wrong by one symlink level and your breakpoints will show as hollow circles forever. The fastest way to verify is to hit a page with ?XDEBUG_TRIGGER=pier , watch t",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"Xdebug 3 over an SSH tunnel: the SFTP-only setup","item":"https://pier.abn.company/blog/xdebug-3-ssh-tunnel-sftp/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Why is the SSH tunnel a reverse forward (-R) instead of a local forward (-L)?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Xdebug 3 is the client in the DBGp protocol. The remote PHP process dials your IDE, so the tunnel has to expose your laptop's port 9003 on the remote loopback. That's what -R does."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do I still need xdebug.remote_host with Xdebug 3?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Xdebug 3 renamed those settings. Use xdebug.client_host and xdebug.client_port. The old xdebug.remote_* names are silently ignored, which is part of why upgrades feel like nothing is working."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Why aren't my .user.ini changes taking effect?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PHP caches .user.ini for user_ini.cache_ttl seconds, default 300. Wait five minutes, or ask the host to reload PHP-FPM. There's no SFTP-side workaround."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What if the host blocks the SSH transport entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Then ssh -R won't work and you can't tunnel. Ask the host to enable Xdebug's cloud mode, which uses an outbound HTTPS relay, or move the site to staging you control for the trace session."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I share the tunnel across a team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not on the same remote port. Each developer should pick a unique remote port (e.g. 9103, 9203) and set xdebug.client_port to match, otherwise the second -R bind fails silently."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/xdebug-3-ssh-tunnel-sftp/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 110</span>
+      </div>
+      <p class="eyebrow"><span class="n">110 —</span>PHP</p>
+      <h1 class="display-l post-title">Xdebug 3 over an SSH tunnel: the SFTP-only setup</h1>
+      <p class="lede post-lede">A working Xdebug 3 setup against a remote SFTP-only host, with the tunnel direction, path map and idekey gotchas spelled out so you don&#39;t lose an afternoon.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-11T05:41:34.366Z">11 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/xdebug-3-ssh-tunnel-sftp/hero.webp" type="image/webp">
+      <img src="/blog/xdebug-3-ssh-tunnel-sftp/hero.jpg" alt="Overhead photo on bone linen: inked network diagram, manila folder, index card, php.ini sheet, brass plate, red wax seal." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 110</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>You inherit a PHP 8.1 site on a host that gives you SFTP and nothing else. No shell. No <code>php.ini</code> button in the control panel. A staging URL that loads in 4.2 seconds for reasons nobody on the previous team wrote down. The client wants the slow page traced by Friday. You want Xdebug 3 talking to your laptop without poking a hole in the firewall, without installing anything you can't roll back, and without spending the afternoon guessing why breakpoints never fire.</p>
+
+<p>This is the walkthrough. Xdebug 3 against a remote SFTP-only host, tunneled over SSH, with the path map and idekey wired correctly. The gotchas are at the end because that's where you'll actually need them.</p>
+
+<h2>What "SFTP-only" really means here</h2>
+
+<p>Most managed PHP hosts that advertise "SFTP access" still run an SSH daemon underneath. The shell is disabled or the account is jailed, but the transport is there. That matters because Xdebug 3 doesn't need a shell on the remote box to debug. It needs two things: the Xdebug extension loaded into the remote PHP process, and a TCP path back to your IDE on port <code>9003</code>. The SSH transport handles the second one for free.</p>
+
+<p>Before you touch anything, confirm three things with the host or the control panel:</p>
+
+<ul>
+  <li>Xdebug is installed (most shared hosts on cPanel, Plesk, RunCloud and SpinupWP can toggle it per PHP version).</li>
+  <li>You can drop a <code>.user.ini</code> file in the docroot, or there is a per-site PHP config UI.</li>
+  <li>SSH on port 22 accepts your key, even if the shell is <code>/usr/sbin/nologin</code>.</li>
+</ul>
+
+<p>If Xdebug isn't installed and the host won't enable it, stop. You can't sideload a PHP extension over SFTP on a managed box. Everything below assumes the extension is present and your job is to configure it.</p>
+
+<h2>The tunnel: remote forward, not local</h2>
+
+<p>This is where people lose the first hour. Xdebug 3 is the client in this conversation. It initiates a connection from the PHP process on the host to your IDE. Which means the tunnel has to forward from the remote machine back to your laptop, not the other way around. That's <code>-R</code>, not <code>-L</code>.</p>
+
+<pre><code class="lang-bash">ssh -N -R 9003:localhost:9003 you@host.example.com</code></pre>
+
+<p>Read that as: "open port 9003 on the remote machine; anything that connects to it ends up on my laptop's 9003." The <code>-N</code> tells SSH not to ask for a remote shell, which is important on accounts where the shell is disabled. If your host refuses <code>-N</code> with <code>This service allows sftp connections only</code>, you have a more restricted setup and need the SFTP-subsystem fallback described later.</p>
+
+<p>On the remote box, the default <code>sshd_config</code> binds forwarded ports to <code>127.0.0.1</code>. Good. That means PHP on the host can reach <code>localhost:9003</code> and nobody else on the network can. If you ever see <code>GatewayPorts yes</code> in a host's config, that's a different and worse posture; you don't need it for this.</p>
+
+<h2>Configuring Xdebug 3 through .user.ini</h2>
+
+<p>Xdebug 3 dropped the old <code>xdebug.remote_*</code> names. Everything is <code>xdebug.client_*</code> and <code>xdebug.mode</code> now. The <a href="https://xdebug.org/docs/upgrade_guide">upgrade guide on xdebug.org</a> is the authoritative reference; the short version is below.</p>
+
+<p>Drop this in the docroot as <code>.user.ini</code> (or paste it into the host's per-site PHP settings if there's a UI):</p>
+
+<pre><code class="lang-ini">xdebug.mode = debug
+xdebug.start_with_request = trigger
+xdebug.client_host = 127.0.0.1
+xdebug.client_port = 9003
+xdebug.idekey = pier
+xdebug.discover_client_host = false
+xdebug.log = /tmp/xdebug-pier.log
+xdebug.log_level = 7</code></pre>
+
+<p>A few of those are load-bearing. <code>client_host</code> must be <code>127.0.0.1</code>, not your laptop's public IP, because the SSH tunnel surfaces on the remote loopback. <code>discover_client_host = false</code> is the one people miss; if it's <code>true</code>, Xdebug tries to read <code>HTTP_X_FORWARDED_FOR</code> and dial back to whatever IP it finds, which is rarely what you want and definitely not what you want through a tunnel.</p>
+
+<p><code>start_with_request = trigger</code> means Xdebug only attaches when the request carries an <code>XDEBUG_TRIGGER</code> cookie, GET param or POST field. That's the sane default. You don't want every request on a shared staging server stalling on a breakpoint because someone left an IDE listener open.</p>
+
+<p>Note the <code>.user.ini</code> cache. PHP-FPM reads <code>.user.ini</code> every <code>user_ini.cache_ttl</code> seconds (default 300). After you upload, either wait five minutes or have the host reload FPM. There is no way around this from SFTP alone.</p>
+
+<h3>Path mapping</h3>
+
+<p>Your IDE has the code at something like <code>/Users/you/work/legacy-site</code>. The host runs it from <code>/home/sites/legacy/public_html</code>. Xdebug sends absolute remote paths in the DBGp protocol; your IDE has to translate.</p>
+
+<p>In PhpStorm: <em>Settings &rarr; PHP &rarr; Servers</em>, add a server with the host name, port 443, debugger Xdebug, and tick <em>Use path mappings</em>. Map your local project root to the remote docroot. In VS Code with the <a href="https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug">PHP Debug</a> extension, it goes in <code>launch.json</code>:</p>
+
+<pre><code class="lang-json">{
+  "name": "Listen for Xdebug (Pier tunnel)",
+  "type": "php",
+  "request": "launch",
+  "port": 9003,
+  "pathMappings": {
+    "/home/sites/legacy/public_html": "${workspaceFolder}"
+  }
+}</code></pre>
+
+<p>Get this wrong by one symlink level and your breakpoints will show as hollow circles forever. The fastest way to verify is to hit a page with <code>?XDEBUG_TRIGGER=pier</code>, watch the IDE accept the connection, and check that the file it opens is the one you have locally. If it opens nothing or opens a remote stub, the map is off.</p>
+
+<h2>Triggering the session</h2>
+
+<p>With <code>start_with_request = trigger</code>, you set the cookie once and forget it. The cleanest way is the <a href="https://chromewebstore.google.com/detail/xdebug-helper/eadndfjplgieldjbigjakmdgkmoaaaoc">Xdebug Helper</a> browser extension with the IDE key set to <code>pier</code>. For CLI scripts on the remote host (if the host runs scheduled tasks you can read but not invoke), prefix with:</p>
+
+<pre><code class="lang-bash">XDEBUG_TRIGGER=pier XDEBUG_CONFIG="idekey=pier" php script.php</code></pre>
+
+<p>For ad-hoc curl against an endpoint:</p>
+
+<pre><code class="lang-bash">curl -b 'XDEBUG_TRIGGER=pier' https://staging.example.com/slow-page</code></pre>
+
+<h2>The gotchas you'll actually hit</h2>
+
+<p>These are in order of how often they bite.</p>
+
+<p><strong>Port 9003 is already bound on the remote box.</strong> If another developer is also tunneling, your <code>-R 9003:localhost:9003</code> will silently fail to bind and SSH will keep the session open with no forward. Pick a unique remote port per developer and match it in <code>xdebug.client_port</code>. We use <code>9${USER_DIGIT}03</code> as a convention.</p>
+
+<p><strong>OPcache is caching your old <code>.user.ini</code> behavior.</strong> OPcache doesn't cache <code>.user.ini</code> directly, but it does cache the compiled scripts, and on some hosts the <code>opcache.validate_timestamps</code> is off in production-like staging. If you change config and nothing moves, ask the host to flush OPcache or bump <code>opcache.revalidate_freq</code>.</p>
+
+<p><strong>The Xdebug log is empty.</strong> Either Xdebug isn't loading (check <code>phpinfo()</code>) or the log path isn't writable by the FPM user. <code>/tmp</code> almost always is. If you don't see <code>[Step Debug] INFO: Connecting to configured address/port: 127.0.0.1:9003</code> in the log when you trigger, the extension never saw your request and your config isn't being read.</p>
+
+<p><strong>The connection logs say <code>Could not connect to debugging client</code>.</strong> The tunnel isn't up, or your IDE isn't listening. Confirm with <code>ss -tlnp</code> on the host (if you can) or just re-establish the tunnel and toggle the IDE listener off and on.</p>
+
+<aside class="callout"><strong>Truly SFTP-only hosts.</strong> A small number of managed hosts disable the SSH transport entirely and expose only the SFTP subsystem. <code>ssh -N -R</code> will be rejected. There is no Xdebug-over-SFTP. Your options are: ask the host to enable Xdebug's <em>cloud</em> mode (which uses an outbound HTTPS connection to a relay), or move the site to a staging box you control for the duration of the trace. Don't burn an afternoon fighting the SSH daemon.</aside>
+
+<h2>A working sanity check</h2>
+
+<p>Once the tunnel is up and the IDE is listening, drop this one-line file at <code>/debug-check.php</code> in the docroot:</p>
+
+<pre><code class="lang-php">&lt;?php xdebug_info();</code></pre>
+
+<p>Hit it with the trigger cookie. <a href="https://xdebug.org/docs/all_functions#xdebug_info">xdebug_info()</a> prints the loaded mode, the resolved <code>client_host</code> and <code>client_port</code>, and the path to the log. If <code>client_host</code> reads anything other than <code>127.0.0.1</code>, your <code>.user.ini</code> hasn't been picked up yet. Delete the file when you're done; it leaks more than you want public.</p>
+
+<h2>Where Pier fits</h2>
+
+<p>When we built <a href="/">Pier</a> for the day-to-day of editing a <a href="/">legacy site</a> over SFTP, we deliberately left the debugger workflow alone: Xdebug plus PhpStorm is already the right tool for the trace itself. What Pier handles is the surrounding work, with <a href="/#features">version history</a> on every file you touch while chasing the bug and a <a href="/#database">MySQL editor</a> for the queries the trace points you at.</p>
+
+<p>The smallest thing you can do today: open the docroot of one site you maintain, drop the <code>.user.ini</code> block above, and run the <code>ssh -N -R 9003:localhost:9003</code> tunnel once. If the Xdebug log shows the connect attempt, you're 90% there and the rest is path mapping.</p>
+    </div>
+
+    <aside class="pullquote">Xdebug 3 over SFTP-only hosts works fine as long as the SSH transport is open: reverse-forward 9003, set client_host to 127.0.0.1, and map paths exactly.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Why is the SSH tunnel a reverse forward (-R) instead of a local forward (-L)?</p>
+      <p class="faq-a">Xdebug 3 is the client in the DBGp protocol. The remote PHP process dials your IDE, so the tunnel has to expose your laptop&#39;s port 9003 on the remote loopback. That&#39;s what -R does.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Do I still need xdebug.remote_host with Xdebug 3?</p>
+      <p class="faq-a">No. Xdebug 3 renamed those settings. Use xdebug.client_host and xdebug.client_port. The old xdebug.remote_* names are silently ignored, which is part of why upgrades feel like nothing is working.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Why aren&#39;t my .user.ini changes taking effect?</p>
+      <p class="faq-a">PHP caches .user.ini for user_ini.cache_ttl seconds, default 300. Wait five minutes, or ask the host to reload PHP-FPM. There&#39;s no SFTP-side workaround.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What if the host blocks the SSH transport entirely?</p>
+      <p class="faq-a">Then ssh -R won&#39;t work and you can&#39;t tunnel. Ask the host to enable Xdebug&#39;s cloud mode, which uses an outbound HTTPS relay, or move the site to staging you control for the trace session.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Can I share the tunnel across a team?</p>
+      <p class="faq-a">Not on the same remote port. Each developer should pick a unique remote port (e.g. 9103, 9203) and set xdebug.client_port to match, otherwise the second -R bind fails silently.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=sftp">#sftp</a></li>
+<li><a href="/blog/?tag=workflow">#workflow</a></li>
+<li><a href="/blog/?tag=tooling">#tooling</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/freelancer-handover-sweep/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/freelancer-handover-sweep/hero.webp" type="image/webp">
+        <img src="/blog/freelancer-handover-sweep/hero.jpg" alt="Overhead desk: handover checklist, manila KEYS folder, crontab strip, brass 12:00 plate, iron key, stopwatch, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>11 June 2026</span></span>
+      <h3>Freelancer handover: twelve minutes before they disappear</h3>
+      <span class="pc-lede">Twelve minutes is enough to find the SSH key, the orphan cron job, the file-ownership knot, and the mail alias the freelancer forgot to mention on her way out.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/sftp-only-deployment-recipe-no-handover/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/sftp-only-deployment-recipe-no-handover/hero.webp" type="image/webp">
+        <img src="/blog/sftp-only-deployment-recipe-no-handover/hero.jpg" alt="Overhead still life on bone linen: aged SFTP deploy recipe, run-sheet, manila tab, brass key and plate, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Workflow</span><span>·</span><span>9 June 2026</span></span>
+      <h3>SFTP-only deployment: a recipe that outlives the developer</h3>
+      <span class="pc-lede">A reversible SFTP deploy method designed so the next person inheriting the credentials can rebuild the entire release flow from the server itself.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/xdebug-3-ssh-tunnel-sftp/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
