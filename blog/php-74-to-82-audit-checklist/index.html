@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist · Pier — Blog</title>
+<meta name="description" content="You said yes to the PHP 8.2 jump on a ten-year-old WordPress install. Before the maintenance window opens, here is the audit that keeps it boring.">
+<meta name="author" content="Pier editorial">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, mysql, migration, operations, htaccess">
+
+<link rel="canonical" href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist">
+<meta property="og:description" content="You said yes to the PHP 8.2 jump on a ten-year-old WordPress install. Before the maintenance window opens, here is the audit that keeps it boring.">
+<meta property="og:url" content="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<meta property="og:image" content="https://pier.abn.company/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Overhead photo: graph-paper PHP upgrade checklist, printed function sheets, manila AUDIT folder, brass PRE-FLIGHT plate, fountain pen.">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="nl_NL">
+<meta property="article:published_time" content="2026-06-12T00:27:57.989Z">
+<meta property="article:modified_time" content="2026-06-12T00:27:57.989Z">
+<meta property="article:author" content="Pier editorial">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="htaccess">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist">
+<meta name="twitter:description" content="You said yes to the PHP 8.2 jump on a ten-year-old WordPress install. Before the maintenance window opens, here is the audit that keeps it boring.">
+<meta name="twitter:image" content="https://pier.abn.company/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta name="twitter:image:alt" content="Overhead photo: graph-paper PHP upgrade checklist, printed function sheets, manila AUDIT folder, brass PRE-FLIGHT plate, fountain pen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min read">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-74-to-82-audit-checklist/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/blog/php-74-to-82-audit-checklist/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/blog/php-74-to-82-audit-checklist/"},
+  "url":"https://pier.abn.company/blog/php-74-to-82-audit-checklist/",
+  "headline":"PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist",
+  "description":"You said yes to the PHP 8.2 jump on a ten-year-old WordPress install. Before the maintenance window opens, here is the audit that keeps it boring.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/blog/php-74-to-82-audit-checklist/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Overhead photo: graph-paper PHP upgrade checklist, printed function sheets, manila AUDIT folder, brass PRE-FLIGHT plate, fountain pen."
+  },
+  "datePublished":"2026-06-12T00:27:57.989Z",
+  "dateModified":"2026-06-12T00:27:57.989Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"en",
+  "keywords":"php, wordpress, mysql, migration, operations, htaccess",
+  "wordCount":1399,
+  "articleSection":"PHP",
+  "articleBody":"At 17:40 on a Friday a partner at a Dutch agency we work with pinged us with one line: \"Hosting says they're forcing PHP 8.2 on Monday, what do we check first?\" The site was a WordPress 6.4 install with twelve years of accreted theme code, two custom plugins last touched in 2019, and a Magento 1 sidecar nobody likes to discuss. The maintenance window was 90 minutes on Sunday night. This post is the audit we ran. It is the same checklist we now hand to anyone about to take a legacy site from PHP 7.4 to 8.2 in one step, because most hosts will not let you stage 7.4 to 8.0 to 8.1 to 8.2 separately any more. You jump or you stay. The four hours you actually need The full PHP 7.4 to 8.2 audit takes roughly four hours on a single-site WordPress or Drupal install, plus another two hours if there is a custom plugin or module that writes to the database. Anyone telling you it can be done in fifteen minutes with a compatibility scanner has not read the output of that scanner. Most of the cost is not the PHP code. It is the surrounding stack: the MySQL collation, the opcache config, the .htaccess directives that quietly assumed mod_php, the cron jobs that shell out to php without a version pin. Below is the order we run them in. Deprecations that actually break Forget the full list on php.net . On real legacy WordPress and Drupal codebases, four deprecation classes between 7.4 and 8.2 account for nearly every fatal we have ever seen on a PHP 7.4 to 8.2 cutover. Implicit nullable parameters This one is a deprecation now and a fatal soon. Any function like this: function fetch_user(string $email, array $opts = null) { // ... } Emits a Deprecated notice in 8.1 and 8.2 because $opts is implicitly nullable. The fix is one character: function fetch_user(string $email, ?array $opts = null) { // ... } Older WordPress plugins are riddled with this. Run a grep across the plugin directory before the cutover: grep -rnE 'function[^(]+\\([^)]*=\\s*null' wp-content/plugins/ Dynamic properties PHP 8.2 deprecates setting a property on a class that did not declare it. Code that worked for fifteen years now warns: class Cart {} $c = new Cart(); $c->total = 99.50; // Deprecated in 8.2 Magento 1, half of WooCommerce's older payment integrations, and almost every \"MVC framework written by one person in 2014\" trip this. The pragmatic temporary fix is the #[AllowDynamicProperties] attribute. The proper fix is to declare the properties. Null coalescing on offsets of non-arrays If your legacy code did this: $name = $maybe_user['name'] ?? 'guest'; And $maybe_user was sometimes false instead of null or an array, 7.4 silently returned 'guest' and 8.0 and later throw Cannot access offset of type bool . Drupal modules that returned FALSE on cache miss are the worst offenders. String-to-number juggling The classic. 0 == \"abc\" used to be true. In 8.0 it is false. Any custom auth check that compared a hashed token loosely against a stringified input is now silently letting different things through, or rejecting valid ones. Grep for loose == against any code path that touches authentication or signed URLs and convert to === . Extension and SAPI inventory The second-biggest cause of a botched 8.2 jump is not the code. It is an extension that did not come along. Before the maintenance window, run this on the live server with the 7.4 PHP binary: php -m > /tmp/ext-74.txt php --ri opcache > /tmp/opcache-74.txt php -i | grep -E '^(PHP Version|Loaded Configuration|Scan this dir|Server API)' Then on the 8.2 build (most hosts let you SSH and call php8.2 explicitly), run the same. Diff them. Look specifically for: mysqli with mysqlnd. WordPress will run on either driver, but if the 7.4 build had only the libmysqlclient variant, the 8.2 build will probably not. Plugins that call extension_loaded('mysqlnd') at runtime will hard-disable themselves. imagick versus gd . WooCommerce thumbnail regeneration assumes the same one is present on both sides of the move. opcache . If 7.4 was tuned with opcache.jit=1255 , that exact flag changed semantics in 8.0. Leaving the directive in php.ini produces a startup warning, not a fatal, but it logs at every request. intl , bcmath , gmp . Magento 2 and any Drupal Commerce install need all three. Some hosts ship them as optional on 8.2 but defaulted-on on 7.4. While you are in the SAPI section, check whether the host moved from mod_php to PHP-FPM in the same change. Many do, quietly. Your .htaccess might have a block like: <IfModule mod_php7.c> php_value upload_max_filesize 64M php_value memory_limit 256M </IfModule> Under PHP-FPM, php_value directives in .htaccess do nothing. You need a .user.ini file in the docroot instead. This is the single most common cause of \"the upload form silently stopped accepting big files after the upgrade\". The database side of the jump PHP 8.0 changed how mysqli reports errors by default: exceptions on, warnings off. Any code path doing this: $result = mysqli_query($link, $sql); if (!$result) { log_e",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/blog/php-74-to-82-audit-checklist/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist","item":"https://pier.abn.company/blog/php-74-to-82-audit-checklist/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "en",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Can I skip 8.0 and 8.1 and go straight from 7.4 to 8.2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, most hosts force this. The audit is the same; you just hit all three releases' deprecations in one window instead of three. The risk is volume, not novelty."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How long does a proper PHP 7.4 to 8.2 audit actually take?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Four hours on a single-site WordPress or Drupal install, plus roughly two hours per custom plugin or module that writes to the database. Promised fifteen-minute audits are scanner output, not audits."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the single most overlooked thing in the upgrade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PHP-FPM ignoring .htaccess php_value directives. Hosts often move from mod_php to PHP-FPM in the same window, and upload limits silently revert to defaults until you add a .user.ini file."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does WordPress core itself break on 8.2?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Core is fine on current versions. The breakage is almost always in themes and plugins last touched before 2021, plus any custom code that relied on loose comparisons or implicit nullable parameters."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Skip to content</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/#playbook">Playbook</a>
+      <a href="/blog/">Blog</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/" class="lang-switch" hreflang="nl" title="Nederlands">NL</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Buy — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Article —</span>
+        <span class="spacer"></span>
+        <span>№ 131</span>
+      </div>
+      <p class="eyebrow"><span class="n">131 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP 7.4 to 8.2 upgrade: a pre-flight audit checklist</h1>
+      <p class="lede post-lede">You said yes to the PHP 8.2 jump on a ten-year-old WordPress install. Before the maintenance window opens, here is the audit that keeps it boring.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-12T00:27:57.989Z">12 June 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min read</span>
+        <span class="dotsep">·</span>
+        <span>Pier editorial</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-74-to-82-audit-checklist/hero.webp" type="image/webp">
+      <img src="/blog/php-74-to-82-audit-checklist/hero.jpg" alt="Overhead photo: graph-paper PHP upgrade checklist, printed function sheets, manila AUDIT folder, brass PRE-FLIGHT plate, fountain pen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · staged still</span><span>№ 131</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>At 17:40 on a Friday a partner at a Dutch agency we work with pinged us with one line: "Hosting says they're forcing PHP 8.2 on Monday, what do we check first?" The site was a WordPress 6.4 install with twelve years of accreted theme code, two custom plugins last touched in 2019, and a Magento 1 sidecar nobody likes to discuss. The maintenance window was 90 minutes on Sunday night.</p>
+<p>This post is the audit we ran. It is the same checklist we now hand to anyone about to take a <a href="/">legacy site</a> from PHP 7.4 to 8.2 in one step, because most hosts will not let you stage 7.4 to 8.0 to 8.1 to 8.2 separately any more. You jump or you stay.</p>
+<h2>The four hours you actually need</h2>
+<p>The full PHP 7.4 to 8.2 audit takes roughly four hours on a single-site WordPress or Drupal install, plus another two hours if there is a custom plugin or module that writes to the database. Anyone telling you it can be done in fifteen minutes with a compatibility scanner has not read the output of that scanner.</p>
+<p>Most of the cost is not the PHP code. It is the surrounding stack: the MySQL collation, the opcache config, the .htaccess directives that quietly assumed mod_php, the cron jobs that shell out to <code>php</code> without a version pin. Below is the order we run them in.</p>
+<h2>Deprecations that actually break</h2>
+<p>Forget the full list on <a href="https://www.php.net/manual/en/migration80.php">php.net</a>. On real legacy WordPress and Drupal codebases, four deprecation classes between 7.4 and 8.2 account for nearly every fatal we have ever seen on a PHP 7.4 to 8.2 cutover.</p>
+<h3>Implicit nullable parameters</h3>
+<p>This one is a deprecation now and a fatal soon. Any function like this:</p>
+<pre><code class="lang-php">function fetch_user(string $email, array $opts = null) {
+    // ...
+}</code></pre>
+<p>Emits a <code>Deprecated</code> notice in 8.1 and 8.2 because <code>$opts</code> is implicitly nullable. The fix is one character:</p>
+<pre><code class="lang-php">function fetch_user(string $email, ?array $opts = null) {
+    // ...
+}</code></pre>
+<p>Older WordPress plugins are riddled with this. Run a grep across the plugin directory before the cutover:</p>
+<pre><code class="lang-bash">grep -rnE 'function[^(]+\([^)]*=\s*null' wp-content/plugins/</code></pre>
+<h3>Dynamic properties</h3>
+<p>PHP 8.2 <a href="https://www.php.net/manual/en/migration82.deprecated.php">deprecates</a> setting a property on a class that did not declare it. Code that worked for fifteen years now warns:</p>
+<pre><code class="lang-php">class Cart {}
+$c = new Cart();
+$c-&gt;total = 99.50; // Deprecated in 8.2</code></pre>
+<p>Magento 1, half of WooCommerce's older payment integrations, and almost every "MVC framework written by one person in 2014" trip this. The pragmatic temporary fix is the <code>#[AllowDynamicProperties]</code> attribute. The proper fix is to declare the properties.</p>
+<h3>Null coalescing on offsets of non-arrays</h3>
+<p>If your legacy code did this:</p>
+<pre><code class="lang-php">$name = $maybe_user['name'] ?? 'guest';</code></pre>
+<p>And <code>$maybe_user</code> was sometimes <code>false</code> instead of <code>null</code> or an array, 7.4 silently returned 'guest' and 8.0 and later throw <code>Cannot access offset of type bool</code>. Drupal modules that returned <code>FALSE</code> on cache miss are the worst offenders.</p>
+<h3>String-to-number juggling</h3>
+<p>The classic. <code>0 == "abc"</code> used to be true. In 8.0 it is false. Any custom auth check that compared a hashed token loosely against a stringified input is now silently letting different things through, or rejecting valid ones. Grep for loose <code>==</code> against any code path that touches authentication or signed URLs and convert to <code>===</code>.</p>
+<h2>Extension and SAPI inventory</h2>
+<p>The second-biggest cause of a botched 8.2 jump is not the code. It is an extension that did not come along. Before the maintenance window, run this on the live server with the 7.4 PHP binary:</p>
+<pre><code class="lang-bash">php -m &gt; /tmp/ext-74.txt
+php --ri opcache &gt; /tmp/opcache-74.txt
+php -i | grep -E '^(PHP Version|Loaded Configuration|Scan this dir|Server API)'</code></pre>
+<p>Then on the 8.2 build (most hosts let you SSH and call <code>php8.2</code> explicitly), run the same. Diff them. Look specifically for:</p>
+<ul>
+<li><code>mysqli</code> with mysqlnd. WordPress will run on either driver, but if the 7.4 build had only the libmysqlclient variant, the 8.2 build will probably not. Plugins that call <code>extension_loaded('mysqlnd')</code> at runtime will hard-disable themselves.</li>
+<li><code>imagick</code> versus <code>gd</code>. WooCommerce thumbnail regeneration assumes the same one is present on both sides of the move.</li>
+<li><code>opcache</code>. If 7.4 was tuned with <code>opcache.jit=1255</code>, that exact flag changed semantics in 8.0. Leaving the directive in <code>php.ini</code> produces a startup warning, not a fatal, but it logs at every request.</li>
+<li><code>intl</code>, <code>bcmath</code>, <code>gmp</code>. Magento 2 and any Drupal Commerce install need all three. Some hosts ship them as optional on 8.2 but defaulted-on on 7.4.</li>
+</ul>
+<p>While you are in the SAPI section, check whether the host moved from mod_php to PHP-FPM in the same change. Many do, quietly. Your .htaccess might have a block like:</p>
+<pre><code class="lang-apache">&lt;IfModule mod_php7.c&gt;
+    php_value upload_max_filesize 64M
+    php_value memory_limit 256M
+&lt;/IfModule&gt;</code></pre>
+<p>Under PHP-FPM, <code>php_value</code> directives in .htaccess do nothing. You need a <code>.user.ini</code> file in the docroot instead. This is the single most common cause of "the upload form silently stopped accepting big files after the upgrade".</p>
+<h2>The database side of the jump</h2>
+<p>PHP 8.0 changed how <code>mysqli</code> reports errors by default: exceptions on, warnings off. Any code path doing this:</p>
+<pre><code class="lang-php">$result = mysqli_query($link, $sql);
+if (!$result) {
+    log_error(mysqli_error($link));
+    return [];
+}</code></pre>
+<p>Now never reaches the <code>if</code> block. It throws. Wrap in try/catch or set <code>mysqli_report(MYSQLI_REPORT_OFF)</code> explicitly during the transition, then plan a proper exception path afterwards.</p>
+<p>While you are auditing the database, check the collation. WordPress 4.2 and later use <code>utf8mb4_unicode_520_ci</code> by default. A site that ran on MySQL 5.5 in 2015 is probably still on <code>utf8_general_ci</code> with three-byte UTF-8. The 8.2 upgrade rarely forces a MySQL bump, but if your host also moves you from MySQL 5.7 to 8.0 in the same window, four-byte emoji in product descriptions go from working-by-accident to throwing. Run this against every text column you care about:</p>
+<pre><code class="lang-sql">SELECT TABLE_NAME, COLUMN_NAME, CHARACTER_SET_NAME, COLLATION_NAME
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND DATA_TYPE IN ('varchar','text','longtext','char')
+ORDER BY TABLE_NAME;</code></pre>
+<p>You want one collation across the whole schema. Mixed collations cause silent <code>WHERE</code> mismatches that look like missing data.</p>
+<h2>A rollback you can run in 90 seconds</h2>
+<p>Every audit document we have ever seen ends with "make a backup". That is not a rollback plan. A rollback plan is a single command, tested before the cutover, that takes the site back to working in under two minutes. Here is the one we use:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+SITE=/var/www/example.com
+STAMP=$(date +%Y%m%d-%H%M)
+
+# 1. snapshot the current state to a sibling dir
+cp -al "$SITE" "${SITE}.pre82-${STAMP}"
+
+# 2. dump the database in a single file, no locks on InnoDB
+mysqldump --single-transaction --quick --routines \
+  --databases example_db &gt; "/var/backups/example-${STAMP}.sql"
+
+# 3. write a one-liner that reverses both
+cat &gt; "/var/backups/rollback-${STAMP}.sh" &lt;&lt;EOF
+#!/usr/bin/env bash
+set -euo pipefail
+rm -rf "$SITE"
+mv "${SITE}.pre82-${STAMP}" "$SITE"
+mysql example_db &lt; "/var/backups/example-${STAMP}.sql"
+echo "rolled back to ${STAMP}"
+EOF
+chmod +x "/var/backups/rollback-${STAMP}.sh"
+echo "rollback ready: /var/backups/rollback-${STAMP}.sh"</code></pre>
+<p>The <code>cp -al</code> uses hardlinks, so the snapshot costs almost no disk space and takes seconds even on a 40GB site. Test the rollback script on a staging copy before the maintenance window, not during it.</p>
+<aside class="callout">A rollback that has never been executed is a rollback that does not exist. Run the script against a staging mirror on Friday afternoon. If it fails, you have the weekend to fix it.</aside>
+<h2>The first hour after cutover</h2>
+<p>Once 8.2 is live, the first hour is not "browse the homepage". It is tailing the PHP error log and the slow query log together. Most deprecations and silent failures show up in the first 200 page-views, not in your smoke test.</p>
+<pre><code class="lang-bash">tail -F /var/log/php-fpm/error.log /var/log/mysql/slow.log \
+  | grep --line-buffered -E 'Deprecated|Fatal|Notice: Trying|Slow_query'</code></pre>
+<p>If a single <code>Deprecated</code> notice fires more than ten times in five minutes, it is almost certainly in a code path that runs on every request. Find it before the deprecation list grows into a log-flood that hides a real fatal.</p>
+<p>When we built Pier we ran into this exact hour repeatedly with the agencies we work with. The way we ended up handling it was a chat-first editor that ties every save to a <a href="/#features">version history</a> entry, plus a built-in <a href="/#database">MySQL editor</a> for the collation and error-mode checks above, so the rollback target for a single file is one click rather than a re-run of the whole script.</p>
+<p>If you do nothing else today, write the <code>rollback-${STAMP}.sh</code> script for the next site on your queue and run it once against staging. The audit can wait until tomorrow. The tested rollback cannot.</p>
+    </div>
+
+    <aside class="pullquote">A rollback that has never been executed is a rollback that does not exist. Test the one-line revert script against staging before the cutover, not during it.</aside>
+
+    
+<section class="post-faq" aria-label="Questions">
+  <p class="rule"><span>— Questions —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Can I skip 8.0 and 8.1 and go straight from 7.4 to 8.2?</p>
+      <p class="faq-a">Yes, most hosts force this. The audit is the same; you just hit all three releases&#39; deprecations in one window instead of three. The risk is volume, not novelty.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">How long does a proper PHP 7.4 to 8.2 audit actually take?</p>
+      <p class="faq-a">Four hours on a single-site WordPress or Drupal install, plus roughly two hours per custom plugin or module that writes to the database. Promised fifteen-minute audits are scanner output, not audits.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">What is the single most overlooked thing in the upgrade?</p>
+      <p class="faq-a">PHP-FPM ignoring .htaccess php_value directives. Hosts often move from mod_php to PHP-FPM in the same window, and upload limits silently revert to defaults until you add a .user.ini file.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Does WordPress core itself break on 8.2?</p>
+      <p class="faq-a">Core is fine on current versions. The breakage is almost always in themes and plugins last touched before 2021, plus any custom code that relied on loose comparisons or implicit nullable parameters.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Try Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Built for the kind of work in this post.</h3>
+        <p class="lede">Pier docks with any FTP/SFTP server and its MySQL database, then lets you edit by chat. Every change is versioned. Every undo is one click. €199 once, two Macs, 30-day refund.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Buy Pier — €199 ↗</a>
+          <a href="/#download" class="btn ghost">Download free trial</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Filed under">
+      <span class="rule" style="margin:0">
+        <span>— Filed under —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/blog/?tag=php">#php</a></li>
+<li><a href="/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/blog/?tag=migration">#migration</a></li>
+<li><a href="/blog/?tag=operations">#operations</a></li>
+<li><a href="/blog/?tag=htaccess">#htaccess</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Related reading">
+      
+    <p class="rule"><span>— Related reading —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/blog/wordpress-multisite-plesk-vps-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/wordpress-multisite-plesk-vps-migration/hero.webp" type="image/webp">
+        <img src="/blog/wordpress-multisite-plesk-vps-migration/hero.jpg" alt="Overhead photo of inked WordPress multisite migration plan on graph paper with index cards, manila tab, brass plate, wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 June 2026</span></span>
+      <h3>WordPress multisite migration: the one-Sunday playbook</h3>
+      <span class="pc-lede">A Plesk box on PHP 7.4 with a 12-site multisite, a fresh VPS waiting at Hetzner, and a Sunday from 09:00 to 17:00 to get the cutover done before Monday traffic.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/blog/oscommerce-to-woocommerce-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/blog/oscommerce-to-woocommerce-migration/hero.webp" type="image/webp">
+        <img src="/blog/oscommerce-to-woocommerce-migration/hero.jpg" alt="Overhead photo of paper URL redirect map, manila folder, schedule, brass REDIRECTS plate, SEO sheets, red wax seal." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>12 June 2026</span></span>
+      <h3>osCommerce to WooCommerce: six weekends, no SEO loss</h3>
+      <span class="pc-lede">A 14-year-old osCommerce store moved onto WooCommerce in six weekends. The URL map, the specials-to-sale-price bridge, and the SEO that kept its rankings.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI for legacy websites. Native Mac app. Built by ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/#features">Features</a>
+        <a href="/#playbook">Playbook</a>
+        <a href="/blog/">Blog</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/">🇳🇱 Nederlands</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Terms</a>
+        <a href="/#">Security</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Made on a rainy day in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>

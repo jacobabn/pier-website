@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist · Pier — Blog</title>
+<meta name="description" content="Je hebt ja gezegd tegen de PHP 8.2-sprong op een tien jaar oude WordPress. Voordat het onderhoudsvenster opengaat, dit is de audit die het saai houdt.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="php, wordpress, mysql, migration, operations, htaccess">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist">
+<meta property="og:description" content="Je hebt ja gezegd tegen de PHP 8.2-sprong op een tien jaar oude WordPress. Voordat het onderhoudsvenster opengaat, dit is de audit die het saai houdt.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Foto van boven: ruitjespapier PHP-upgrade checklist, functievellen, manilla AUDIT-map, messing PRE-FLIGHT plaat, vulpen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-12T00:27:57.989Z">
+<meta property="article:modified_time" content="2026-06-12T00:27:57.989Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="PHP">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="wordpress">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="migration">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="htaccess">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist">
+<meta name="twitter:description" content="Je hebt ja gezegd tegen de PHP 8.2-sprong op een tien jaar oude WordPress. Voordat het onderhoudsvenster opengaat, dit is de audit die het saai houdt.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/hero.jpg">
+<meta name="twitter:image:alt" content="Foto van boven: ruitjespapier PHP-upgrade checklist, functievellen, manilla AUDIT-map, messing PRE-FLIGHT plaat, vulpen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="8 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="PHP">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/php-74-to-82-audit-checklist/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/"},
+  "url":"https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/",
+  "headline":"PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist",
+  "description":"Je hebt ja gezegd tegen de PHP 8.2-sprong op een tien jaar oude WordPress. Voordat het onderhoudsvenster opengaat, dit is de audit die het saai houdt.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Foto van boven: ruitjespapier PHP-upgrade checklist, functievellen, manilla AUDIT-map, messing PRE-FLIGHT plaat, vulpen."
+  },
+  "datePublished":"2026-06-12T00:27:57.989Z",
+  "dateModified":"2026-06-12T00:27:57.989Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"php, wordpress, mysql, migration, operations, htaccess",
+  "wordCount":1384,
+  "articleSection":"PHP",
+  "articleBody":"Op vrijdag om 17:40 stuurde een partner van een Nederlands bureau waar we mee werken ons één regel: \"Hosting zegt dat ze maandag PHP 8.2 doordrukken, wat checken we eerst?\" De site was een WordPress 6.4-installatie met twaalf jaar aangekoekte themacode, twee custom plugins die voor het laatst in 2019 zijn aangeraakt, en een Magento 1-sidecar waar niemand het graag over heeft. Het onderhoudsvenster was 90 minuten op zondagavond. Deze post is de audit die we toen draaiden. Het is dezelfde checklist die we nu meegeven aan iedereen die een verouderde site in één stap van PHP 7.4 naar 8.2 wil tillen, want de meeste hosters laten je niet meer apart stagen van 7.4 naar 8.0 naar 8.1 naar 8.2. Je springt of je blijft. De vier uur die je echt nodig hebt De volledige PHP 7.4 naar 8.2 audit kost ongeveer vier uur op een single-site WordPress- of Drupal-installatie, plus nog eens twee uur als er een custom plugin of module is die naar de database schrijft. Wie zegt dat het in vijftien minuten kan met een compatibility scanner, heeft de output van die scanner niet gelezen. Het meeste werk zit niet in de PHP-code. Het zit in de omringende stack: de MySQL-collation, de opcache-config, de .htaccess-directives die stilzwijgend uitgingen van mod_php, de cron jobs die php aanroepen zonder versie-pin. Hieronder de volgorde waarin we ze afwerken. Deprecations die echt breken Vergeet de volledige lijst op php.net . Op echte legacy WordPress- en Drupal-codebases zijn er vier deprecation-klassen tussen 7.4 en 8.2 die zo goed als elke fatal verklaren die we ooit hebben gezien bij een PHP 7.4 naar 8.2 cutover. Impliciet nullable parameters Deze is nu een deprecation en binnenkort een fatal. Elke functie zoals deze: function fetch_user(string $email, array $opts = null) { // ... } Geeft een Deprecated -notice in 8.1 en 8.2 omdat $opts impliciet nullable is. De fix is één karakter: function fetch_user(string $email, ?array $opts = null) { // ... } Oudere WordPress-plugins zitten er vol mee. Draai een grep over de plugin-directory vóór de cutover: grep -rnE 'function[^(]+\\([^)]*=\\s*null' wp-content/plugins/ Dynamic properties PHP 8.2 deprecate het zetten van een property op een class die hem niet heeft gedeclareerd. Code die vijftien jaar werkte, waarschuwt nu: class Cart {} $c = new Cart(); $c->total = 99.50; // Deprecated in 8.2 Magento 1, de helft van de oudere payment integrations van WooCommerce, en zo goed als elk \"MVC-framework dat één persoon in 2014 heeft geschreven\" loopt hier tegenaan. De pragmatische tijdelijke fix is de #[AllowDynamicProperties] -attribute. De juiste fix is de properties declareren. Null coalescing op offsets van non-arrays Als je legacy code dit deed: $name = $maybe_user['name'] ?? 'guest'; En $maybe_user was soms false in plaats van null of een array, dan gaf 7.4 stilletjes 'guest' terug en gooien 8.0 en later Cannot access offset of type bool . Drupal-modules die FALSE teruggaven bij een cache miss zijn de grootste boosdoeners. String-naar-nummer juggling De klassieker. 0 == \"abc\" was vroeger true. In 8.0 is het false. Elke custom auth-check die een gehasht token los vergeleek met een gestringificeerde input laat nu stilletjes verkeerde dingen door, of weigert geldige. Grep op losse == in elk codepad dat authenticatie of signed URLs aanraakt en zet om naar === . Inventaris van extensions en SAPI De op één na grootste oorzaak van een mislukte 8.2-sprong is niet de code. Het is een extensie die niet is meegekomen. Draai dit vóór het onderhoudsvenster op de live server met de 7.4 PHP-binary: php -m > /tmp/ext-74.txt php --ri opcache > /tmp/opcache-74.txt php -i | grep -E '^(PHP Version|Loaded Configuration|Scan this dir|Server API)' Draai dan hetzelfde op de 8.2-build (de meeste hosters laten je via SSH expliciet php8.2 aanroepen). Diff ze. Let specifiek op: mysqli met mysqlnd. WordPress draait op beide drivers, maar als de 7.4-build alleen de libmysqlclient-variant had, doet de 8.2-build dat waarschijnlijk niet. Plugins die op runtime extension_loaded('mysqlnd') aanroepen, schakelen zichzelf hard uit. imagick versus gd . WooCommerce thumbnail-regeneration gaat ervan uit dat aan beide kanten van de verhuizing dezelfde aanwezig is. opcache . Als 7.4 was getuned met opcache.jit=1255 , dan veranderde precies die flag van semantiek in 8.0. De directive in php.ini laten staan geeft een startup warning, geen fatal, maar het logt bij elke request. intl , bcmath , gmp . Magento 2 en elke Drupal Commerce-installatie hebben alle drie nodig. Sommige hosters leveren ze op 8.2 als optioneel, terwijl ze op 7.4 standaard aan stonden. Nu je toch in de SAPI-sectie zit, check of de hoster in dezelfde wijziging van mod_php naar PHP-FPM is overgestapt. Veel doen dat, in stilte. Je .htaccess heeft misschien een blok als dit: <IfModule mod_php7.c> php_value upload_max_filesize 64M php_value memory_limit 256M </IfModule> Onder PHP-FPM doen php_value -directives in .htaccess helemaal niets. Je hebt in plaats daarvan een .user.ini ",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist","item":"https://pier.abn.company/nl/blog/php-74-to-82-audit-checklist/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Kan ik 8.0 en 8.1 overslaan en direct van 7.4 naar 8.2 gaan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, de meeste hosters forceren dit. De audit blijft hetzelfde; je krijgt alleen de deprecations van alle drie de releases in één venster in plaats van drie. Het risico zit in het volume, niet in iets nieuws."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Hoe lang duurt een fatsoenlijke PHP 7.4 naar 8.2 audit echt?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vier uur op een single-site WordPress- of Drupal-installatie, plus ongeveer twee uur per custom plugin of module die naar de database schrijft. Beloofde audits van vijftien minuten zijn scanner-output, geen audit."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat wordt het vaakst over het hoofd gezien bij de upgrade?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "PHP-FPM die de php_value-directives in .htaccess negeert. Hosters stappen in hetzelfde venster vaak ook over van mod_php naar PHP-FPM, en upload-limieten vallen stilletjes terug naar de defaults tot je een .user.ini-bestand toevoegt."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 131</span>
+      </div>
+      <p class="eyebrow"><span class="n">131 —</span>PHP</p>
+      <h1 class="display-l post-title">PHP 7.4 naar 8.2 upgrade: pre-flight audit-checklist</h1>
+      <p class="lede post-lede">Je hebt ja gezegd tegen de PHP 8.2-sprong op een tien jaar oude WordPress. Voordat het onderhoudsvenster opengaat, dit is de audit die het saai houdt.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-12T00:27:57.989Z">12 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>8 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/php-74-to-82-audit-checklist/hero.webp" type="image/webp">
+      <img src="/blog/php-74-to-82-audit-checklist/hero.jpg" alt="Foto van boven: ruitjespapier PHP-upgrade checklist, functievellen, manilla AUDIT-map, messing PRE-FLIGHT plaat, vulpen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 131</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>Op vrijdag om 17:40 stuurde een partner van een Nederlands bureau waar we mee werken ons één regel: "Hosting zegt dat ze maandag PHP 8.2 doordrukken, wat checken we eerst?" De site was een WordPress 6.4-installatie met twaalf jaar aangekoekte themacode, twee custom plugins die voor het laatst in 2019 zijn aangeraakt, en een Magento 1-sidecar waar niemand het graag over heeft. Het onderhoudsvenster was 90 minuten op zondagavond.</p>
+<p>Deze post is de audit die we toen draaiden. Het is dezelfde checklist die we nu meegeven aan iedereen die een <a href="/">verouderde site</a> in één stap van PHP 7.4 naar 8.2 wil tillen, want de meeste hosters laten je niet meer apart stagen van 7.4 naar 8.0 naar 8.1 naar 8.2. Je springt of je blijft.</p>
+<h2>De vier uur die je echt nodig hebt</h2>
+<p>De volledige PHP 7.4 naar 8.2 audit kost ongeveer vier uur op een single-site WordPress- of Drupal-installatie, plus nog eens twee uur als er een custom plugin of module is die naar de database schrijft. Wie zegt dat het in vijftien minuten kan met een compatibility scanner, heeft de output van die scanner niet gelezen.</p>
+<p>Het meeste werk zit niet in de PHP-code. Het zit in de omringende stack: de MySQL-collation, de opcache-config, de .htaccess-directives die stilzwijgend uitgingen van mod_php, de cron jobs die <code>php</code> aanroepen zonder versie-pin. Hieronder de volgorde waarin we ze afwerken.</p>
+<h2>Deprecations die echt breken</h2>
+<p>Vergeet de volledige lijst op <a href="https://www.php.net/manual/en/migration80.php">php.net</a>. Op echte legacy WordPress- en Drupal-codebases zijn er vier deprecation-klassen tussen 7.4 en 8.2 die zo goed als elke fatal verklaren die we ooit hebben gezien bij een PHP 7.4 naar 8.2 cutover.</p>
+<h3>Impliciet nullable parameters</h3>
+<p>Deze is nu een deprecation en binnenkort een fatal. Elke functie zoals deze:</p>
+<pre><code class="lang-php">function fetch_user(string $email, array $opts = null) {
+    // ...
+}</code></pre>
+<p>Geeft een <code>Deprecated</code>-notice in 8.1 en 8.2 omdat <code>$opts</code> impliciet nullable is. De fix is één karakter:</p>
+<pre><code class="lang-php">function fetch_user(string $email, ?array $opts = null) {
+    // ...
+}</code></pre>
+<p>Oudere WordPress-plugins zitten er vol mee. Draai een grep over de plugin-directory vóór de cutover:</p>
+<pre><code class="lang-bash">grep -rnE 'function[^(]+\([^)]*=\s*null' wp-content/plugins/</code></pre>
+<h3>Dynamic properties</h3>
+<p>PHP 8.2 <a href="https://www.php.net/manual/en/migration82.deprecated.php">deprecate</a> het zetten van een property op een class die hem niet heeft gedeclareerd. Code die vijftien jaar werkte, waarschuwt nu:</p>
+<pre><code class="lang-php">class Cart {}
+$c = new Cart();
+$c-&gt;total = 99.50; // Deprecated in 8.2</code></pre>
+<p>Magento 1, de helft van de oudere payment integrations van WooCommerce, en zo goed als elk "MVC-framework dat één persoon in 2014 heeft geschreven" loopt hier tegenaan. De pragmatische tijdelijke fix is de <code>#[AllowDynamicProperties]</code>-attribute. De juiste fix is de properties declareren.</p>
+<h3>Null coalescing op offsets van non-arrays</h3>
+<p>Als je legacy code dit deed:</p>
+<pre><code class="lang-php">$name = $maybe_user['name'] ?? 'guest';</code></pre>
+<p>En <code>$maybe_user</code> was soms <code>false</code> in plaats van <code>null</code> of een array, dan gaf 7.4 stilletjes 'guest' terug en gooien 8.0 en later <code>Cannot access offset of type bool</code>. Drupal-modules die <code>FALSE</code> teruggaven bij een cache miss zijn de grootste boosdoeners.</p>
+<h3>String-naar-nummer juggling</h3>
+<p>De klassieker. <code>0 == "abc"</code> was vroeger true. In 8.0 is het false. Elke custom auth-check die een gehasht token los vergeleek met een gestringificeerde input laat nu stilletjes verkeerde dingen door, of weigert geldige. Grep op losse <code>==</code> in elk codepad dat authenticatie of signed URLs aanraakt en zet om naar <code>===</code>.</p>
+<h2>Inventaris van extensions en SAPI</h2>
+<p>De op één na grootste oorzaak van een mislukte 8.2-sprong is niet de code. Het is een extensie die niet is meegekomen. Draai dit vóór het onderhoudsvenster op de live server met de 7.4 PHP-binary:</p>
+<pre><code class="lang-bash">php -m &gt; /tmp/ext-74.txt
+php --ri opcache &gt; /tmp/opcache-74.txt
+php -i | grep -E '^(PHP Version|Loaded Configuration|Scan this dir|Server API)'</code></pre>
+<p>Draai dan hetzelfde op de 8.2-build (de meeste hosters laten je via SSH expliciet <code>php8.2</code> aanroepen). Diff ze. Let specifiek op:</p>
+<ul>
+<li><code>mysqli</code> met mysqlnd. WordPress draait op beide drivers, maar als de 7.4-build alleen de libmysqlclient-variant had, doet de 8.2-build dat waarschijnlijk niet. Plugins die op runtime <code>extension_loaded('mysqlnd')</code> aanroepen, schakelen zichzelf hard uit.</li>
+<li><code>imagick</code> versus <code>gd</code>. WooCommerce thumbnail-regeneration gaat ervan uit dat aan beide kanten van de verhuizing dezelfde aanwezig is.</li>
+<li><code>opcache</code>. Als 7.4 was getuned met <code>opcache.jit=1255</code>, dan veranderde precies die flag van semantiek in 8.0. De directive in <code>php.ini</code> laten staan geeft een startup warning, geen fatal, maar het logt bij elke request.</li>
+<li><code>intl</code>, <code>bcmath</code>, <code>gmp</code>. Magento 2 en elke Drupal Commerce-installatie hebben alle drie nodig. Sommige hosters leveren ze op 8.2 als optioneel, terwijl ze op 7.4 standaard aan stonden.</li>
+</ul>
+<p>Nu je toch in de SAPI-sectie zit, check of de hoster in dezelfde wijziging van mod_php naar PHP-FPM is overgestapt. Veel doen dat, in stilte. Je .htaccess heeft misschien een blok als dit:</p>
+<pre><code class="lang-apache">&lt;IfModule mod_php7.c&gt;
+    php_value upload_max_filesize 64M
+    php_value memory_limit 256M
+&lt;/IfModule&gt;</code></pre>
+<p>Onder PHP-FPM doen <code>php_value</code>-directives in .htaccess helemaal niets. Je hebt in plaats daarvan een <code>.user.ini</code>-bestand in de docroot nodig. Dit is veruit de meest voorkomende oorzaak van "het uploadformulier accepteert na de upgrade stilletjes geen grote bestanden meer".</p>
+<h2>De databasekant van de sprong</h2>
+<p>PHP 8.0 veranderde hoe <code>mysqli</code> standaard fouten meldt: exceptions aan, warnings uit. Elk codepad dat dit doet:</p>
+<pre><code class="lang-php">$result = mysqli_query($link, $sql);
+if (!$result) {
+    log_error(mysqli_error($link));
+    return [];
+}</code></pre>
+<p>Komt nu nooit meer in het <code>if</code>-blok. Het throwt. Pak het in een try/catch of zet <code>mysqli_report(MYSQLI_REPORT_OFF)</code> expliciet tijdens de transitie, en plan daarna een fatsoenlijk exception-pad.</p>
+<p>Nu je toch de database doorloopt, check de collation. WordPress 4.2 en later gebruiken standaard <code>utf8mb4_unicode_520_ci</code>. Een site die in 2015 op MySQL 5.5 draaide, staat waarschijnlijk nog op <code>utf8_general_ci</code> met drie-byte UTF-8. De 8.2-upgrade dwingt zelden een MySQL-bump af, maar als je hoster je in hetzelfde venster ook van MySQL 5.7 naar 8.0 verhuist, gaan vier-byte emoji in productomschrijvingen van per-ongeluk-werken naar throwen. Draai dit tegen elke tekstkolom die je belangrijk vindt:</p>
+<pre><code class="lang-sql">SELECT TABLE_NAME, COLUMN_NAME, CHARACTER_SET_NAME, COLLATION_NAME
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND DATA_TYPE IN ('varchar','text','longtext','char')
+ORDER BY TABLE_NAME;</code></pre>
+<p>Je wilt één collation over het hele schema. Gemengde collations veroorzaken stille <code>WHERE</code>-mismatches die eruitzien als ontbrekende data.</p>
+<h2>Een rollback die je in 90 seconden draait</h2>
+<p>Elk audit-document dat we ooit hebben gezien eindigt met "maak een back-up". Dat is geen rollback-plan. Een rollback-plan is één commando, getest vóór de cutover, dat de site in minder dan twee minuten weer werkend terugbrengt. Dit is degene die wij gebruiken:</p>
+<pre><code class="lang-bash">#!/usr/bin/env bash
+set -euo pipefail
+SITE=/var/www/example.com
+STAMP=$(date +%Y%m%d-%H%M)
+
+# 1. snapshot the current state to a sibling dir
+cp -al "$SITE" "${SITE}.pre82-${STAMP}"
+
+# 2. dump the database in a single file, no locks on InnoDB
+mysqldump --single-transaction --quick --routines \
+  --databases example_db &gt; "/var/backups/example-${STAMP}.sql"
+
+# 3. write a one-liner that reverses both
+cat &gt; "/var/backups/rollback-${STAMP}.sh" &lt;&lt;EOF
+#!/usr/bin/env bash
+set -euo pipefail
+rm -rf "$SITE"
+mv "${SITE}.pre82-${STAMP}" "$SITE"
+mysql example_db &lt; "/var/backups/example-${STAMP}.sql"
+echo "rolled back to ${STAMP}"
+EOF
+chmod +x "/var/backups/rollback-${STAMP}.sh"
+echo "rollback ready: /var/backups/rollback-${STAMP}.sh"</code></pre>
+<p>De <code>cp -al</code> gebruikt hardlinks, dus de snapshot kost vrijwel geen schijfruimte en duurt seconden, zelfs op een 40GB-site. Test het rollback-script op een staging-kopie vóór het onderhoudsvenster, niet erin.</p>
+<aside class="callout">Een rollback die nooit is uitgevoerd, bestaat niet. Draai het script vrijdagmiddag tegen een staging-mirror. Als het faalt, heb je het weekend om het te fixen.</aside>
+<h2>Het eerste uur na de cutover</h2>
+<p>Zodra 8.2 live staat, is het eerste uur niet "surf naar de homepage". Het is samen tailen van de PHP error log en de slow query log. De meeste deprecations en stille fouten duiken op in de eerste 200 page-views, niet in je smoke test.</p>
+<pre><code class="lang-bash">tail -F /var/log/php-fpm/error.log /var/log/mysql/slow.log \
+  | grep --line-buffered -E 'Deprecated|Fatal|Notice: Trying|Slow_query'</code></pre>
+<p>Als één <code>Deprecated</code>-notice meer dan tien keer in vijf minuten afgaat, zit hij vrijwel zeker in een codepad dat bij elke request draait. Vind hem voordat de deprecation-lijst uitgroeit tot een log-flood die een echte fatal verbergt.</p>
+<p>Toen we Pier bouwden liepen we hier keer op keer tegenaan met de bureaus waar we mee werken. We losten het uiteindelijk op met een chat-first editor die elke save koppelt aan een <a href="/#features">versiegeschiedenis</a>-entry, plus een ingebouwde <a href="/#database">MySQL-editor</a> voor de collation- en error-mode checks hierboven, zodat de rollback-target voor één bestand één klik is in plaats van het hele script opnieuw draaien.</p>
+<p>Als je vandaag niets anders doet, schrijf dan het <code>rollback-${STAMP}.sh</code>-script voor de volgende site in je queue en draai het één keer tegen staging. De audit kan tot morgen wachten. De geteste rollback niet.</p>
+    </div>
+
+    <aside class="pullquote">Een rollback die nooit is uitgevoerd, bestaat niet. Test het one-liner revert-script tegen staging vóór de cutover, niet erin.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Kan ik 8.0 en 8.1 overslaan en direct van 7.4 naar 8.2 gaan?</p>
+      <p class="faq-a">Ja, de meeste hosters forceren dit. De audit blijft hetzelfde; je krijgt alleen de deprecations van alle drie de releases in één venster in plaats van drie. Het risico zit in het volume, niet in iets nieuws.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Hoe lang duurt een fatsoenlijke PHP 7.4 naar 8.2 audit echt?</p>
+      <p class="faq-a">Vier uur op een single-site WordPress- of Drupal-installatie, plus ongeveer twee uur per custom plugin of module die naar de database schrijft. Beloofde audits van vijftien minuten zijn scanner-output, geen audit.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat wordt het vaakst over het hoofd gezien bij de upgrade?</p>
+      <p class="faq-a">PHP-FPM die de php_value-directives in .htaccess negeert. Hosters stappen in hetzelfde venster vaak ook over van mod_php naar PHP-FPM, en upload-limieten vallen stilletjes terug naar de defaults tot je een .user.ini-bestand toevoegt.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=wordpress">#wordpress</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=migration">#migration</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=htaccess">#htaccess</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/wordpress-multisite-plesk-vps-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/wordpress-multisite-plesk-vps-migration/hero.webp" type="image/webp">
+        <img src="/nl/blog/wordpress-multisite-plesk-vps-migration/hero.jpg" alt="Bovenaanzicht van geïnkt WordPress multisite migratieplan op ruitjespapier met indexkaarten, manilatab, messingplaat, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">WordPress</span><span>·</span><span>12 juni 2026</span></span>
+      <h3>WordPress multisite migreren in één zondag: playbook</h3>
+      <span class="pc-lede">Een Plesk-bak op PHP 7.4 met een multisite van 12 sites, een verse VPS bij Hetzner, en een zondag van 09:00 tot 17:00 om alles om te zetten voor maandag.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/oscommerce-to-woocommerce-migration/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/oscommerce-to-woocommerce-migration/hero.webp" type="image/webp">
+        <img src="/nl/blog/oscommerce-to-woocommerce-migration/hero.jpg" alt="Bovenaanzicht van papieren URL-redirectkaart, mapje, schema, koperen REDIRECTS-plaat, SEO-vellen, rode lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Migration</span><span>·</span><span>12 juni 2026</span></span>
+      <h3>Van osCommerce naar WooCommerce: zes weekenden, SEO intact</h3>
+      <span class="pc-lede">Een osCommerce-shop van 14 jaar oud in zes weekenden omgezet naar WooCommerce. De URL-map, de specials-naar-sale-price brug en de SEO die bleef staan.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/php-74-to-82-audit-checklist/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
