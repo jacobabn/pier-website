@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<title>Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix · Pier — Blog</title>
+<meta name="description" content="Een gewone Akeeba-restore. Een blanco 500. Veertig minuten grep, schema-reconstructie en één stille INSERT later draaide de Joomla 4-site weer.">
+<meta name="author" content="Pier-redactie">
+<meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+<meta name="keywords" content="joomla, mysql, php, databases, operations, tooling">
+
+<link rel="canonical" href="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/">
+<link rel="alternate" hreflang="en" href="https://pier.abn.company/blog/joomla-akeeba-action-logs-fix/">
+<link rel="alternate" hreflang="nl" href="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/">
+<link rel="alternate" hreflang="x-default" href="https://pier.abn.company/blog/joomla-akeeba-action-logs-fix/">
+<link rel="alternate" type="application/rss+xml" title="Pier — Blog" href="https://pier.abn.company/nl/blog/feed.xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Pier">
+<meta property="og:title" content="Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix">
+<meta property="og:description" content="Een gewone Akeeba-restore. Een blanco 500. Veertig minuten grep, schema-reconstructie en één stille INSERT later draaide de Joomla 4-site weer.">
+<meta property="og:url" content="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/">
+<meta property="og:image" content="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/hero.jpg">
+<meta property="og:image:secure_url" content="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/hero.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="2000">
+<meta property="og:image:height" content="1333">
+<meta property="og:image:alt" content="Papieren schema met CREATE TABLE action_logs, messing plaat, gelakte RESTORE envelop, manila Akeeba label op linnen.">
+<meta property="og:locale" content="nl_NL">
+<meta property="og:locale:alternate" content="en_US">
+<meta property="article:published_time" content="2026-06-12T01:23:37.800Z">
+<meta property="article:modified_time" content="2026-06-12T01:23:37.800Z">
+<meta property="article:author" content="Pier-redactie">
+<meta property="article:publisher" content="https://abn.company/">
+<meta property="article:section" content="Joomla">
+<meta property="article:tag" content="joomla">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="php">
+<meta property="article:tag" content="databases">
+<meta property="article:tag" content="operations">
+<meta property="article:tag" content="tooling">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@JacobAbn">
+<meta name="twitter:creator" content="@JacobAbn">
+<meta name="twitter:title" content="Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix">
+<meta name="twitter:description" content="Een gewone Akeeba-restore. Een blanco 500. Veertig minuten grep, schema-reconstructie en één stille INSERT later draaide de Joomla 4-site weer.">
+<meta name="twitter:image" content="https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/hero.jpg">
+<meta name="twitter:image:alt" content="Papieren schema met CREATE TABLE action_logs, messing plaat, gelakte RESTORE envelop, manila Akeeba label op linnen.">
+<meta name="twitter:label1" content="Reading time">
+<meta name="twitter:data1" content="9 min lezen">
+<meta name="twitter:label2" content="Filed under">
+<meta name="twitter:data2" content="Joomla">
+
+<meta name="theme-color" content="#eeece6">
+<meta name="color-scheme" content="light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Pier">
+<meta name="format-detection" content="telephone=no">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="mask-icon" href="/favicon.svg" color="#0d0d0d">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="image" href="/blog/joomla-akeeba-action-logs-fix/hero.webp" type="image/webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="/styles.css">
+
+<!-- JSON-LD: Organization (stable @id used by other graphs) -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Organization",
+  "@id":"https://abn.company/#org",
+  "name":"A Brand New Company B.V.",
+  "alternateName":"ABN",
+  "url":"https://abn.company/",
+  "logo":{"@type":"ImageObject","url":"https://pier.abn.company/logo.svg","width":32,"height":32},
+  "taxID":"NL004626508B12",
+  "vatID":"NL004626508B12",
+  "identifier":[{"@type":"PropertyValue","propertyID":"KvK","value":"88565548"}],
+  "sameAs":[
+    "https://abn.company/",
+    "https://pier.abn.company/",
+    "https://twitter.com/JacobAbn",
+    "https://github.com/jacobabn"
+  ],
+  "address":{"@type":"PostalAddress","addressCountry":"NL","addressLocality":"Amsterdam"}
+}
+</script>
+
+<!-- JSON-LD: WebSite -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebSite",
+  "@id":"https://pier.abn.company/#website",
+  "url":"https://pier.abn.company/",
+  "name":"Pier",
+  "inLanguage":["en","nl"],
+  "publisher":{"@id":"https://abn.company/#org"}
+}
+</script>
+
+<!-- JSON-LD: BlogPosting -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BlogPosting",
+  "@id":"https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/#post",
+  "isPartOf":{"@id":"https://pier.abn.company/#website"},
+  "mainEntityOfPage":{"@type":"WebPage","@id":"https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/"},
+  "url":"https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/",
+  "headline":"Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix",
+  "description":"Een gewone Akeeba-restore. Een blanco 500. Veertig minuten grep, schema-reconstructie en één stille INSERT later draaide de Joomla 4-site weer.",
+  "image":{
+    "@type":"ImageObject",
+    "url":"https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/hero.jpg",
+    "width":2000,
+    "height":1333,
+    "caption":"Papieren schema met CREATE TABLE action_logs, messing plaat, gelakte RESTORE envelop, manila Akeeba label op linnen."
+  },
+  "datePublished":"2026-06-12T01:23:37.800Z",
+  "dateModified":"2026-06-12T01:23:37.800Z",
+  "author":{
+    "@type":"Person",
+    "name":"Jacob Molkenboer",
+    "url":"https://abn.company/",
+    "sameAs":["https://twitter.com/JacobAbn"]
+  },
+  "publisher":{"@id":"https://abn.company/#org"},
+  "inLanguage":"nl",
+  "keywords":"joomla, mysql, php, databases, operations, tooling",
+  "wordCount":1620,
+  "articleSection":"Joomla",
+  "articleBody":"23:41 op een vrijdag. Een Nederlands bureau waar we mee samenwerken had net een routinematige restore van een Joomla 4-site afgerond, van Akeeba Backup naar een nieuwe staging-server. De DB-import liep schoon. De bestandsextractie eindigde zonder waarschuwingen. Toen ze de frontend-URL aanriepen, kregen ze een leeg wit scherm met het ene karakter dat de meeste Joomla-adminweekenden afsluit: 0 . De site was een Joomla 4.4.3-nieuwsplatform met meerdere auteurs, ongeveer 12.000 artikelen, en migreerde van PHP 8.1 op productie naar PHP 8.2 op staging vooruitlopend op een php.net version cliff . Het Akeeba-profiel was geërfd van een eerdere ontwikkelaar die het project twee jaar eerder had verlaten. De overdrachtsdocumentatie was één PDF met het woord back-ups en een vinkje ernaast. Verder niets. Dit bericht is het volledige incidentlog: de eerste foutregel, de diagnose, de SQL die de legacy site terugbracht, en de kleine aanpassing aan het Akeeba-profiel die ervoor zorgt dat het bij de volgende restore niet opnieuw gebeurt. Draai je Joomla 4 in productie, dan is dit een van de beter te vermijden vrijdagavondtelefoontjes. De eerste foutregel De lead van het bureau opende een Loom en deelde zijn scherm met de staging-server. De error.log van Apache schreef sinds de restore klaar was om de paar seconden dezelfde regel: [Fri Jun 06 23:42:11.218443 2026] [proxy_fcgi:error] [pid 8141] [client 10.0.0.4:54231] AH01071: Got error 'PHP message: 1146 Table \\'staging_jdb.jos_action_logs\\' doesn\\'t exist' De eigen log van Joomla onder administrator/logs/error.php was uitgebreider, maar vertelde hetzelfde verhaal: PHP Fatal error: Uncaught Joomla\\Database\\Exception\\ExecutionFailureException: Table 'staging_jdb.jos_action_logs' doesn't exist SQL=INSERT INTO `jos_action_logs` (`message_language_key`, `message`, `log_date`, `extension`, `user_id`, `item_id`, `ip_address`) VALUES ... Eén ontbrekende tabel. Vier kolommen stack trace. Volledige uitval op elke URL, inclusief /administrator . De reden is niet subtiel zodra je het ziet: de actionlog system plugin staat in elke Joomla 4-installatie standaard aan, luistert naar events zoals onUserLogin , onContentAfterSave en onExtensionAfterInstall , en op Joomla 4 raakt zelfs een ongeauthenticeerde frontend-hit uiteindelijk een codepad dat een logregel wil schrijven. Mislukt die schrijfactie, dan 500't het request. Mislukt elk request, dan ligt de site eruit. Om te bevestigen dat er verder niets ontbrak, draaiden we eerst een one-liner over de error.log van die dag: grep -i \"doesn't exist\" /var/log/apache2/error.log \\ | grep -oE \"'[^']+'\" \\ | sort -u De output bestond uit vier regels, allemaal uit dezelfde familie: 'staging_jdb.jos_action_logs' 'staging_jdb.jos_action_logs_config' 'staging_jdb.jos_action_logs_extensions' 'staging_jdb.jos_action_logs_users' Verder niets. De rest van het schema, alle 184 andere tabellen, was schoon geïmporteerd. De blast radius was precies de component User Actions Log, en die component trok de site onderuit. Wat Akeeba stilletjes had uitgesloten De Akeeba Backup-engine heeft in elk profiel een tabblad Database table filters . Het accepteert twee soorten regels: sla de data van de tabel over (exporteer het schema, laat de rijen weg) en sla de tabel volledig over (geen schema, geen rijen). Beide zijn krachtig op een live, groeiende site. Vooral #__action_logs groeit hard op drukke installaties. Elke login, elke artikel-save, elke plugin-toggle is één INSERT. Op een nieuwssite met 12.000 artikelen en acht redacteuren had die op productie 412MB bereikt. De nachtelijke archieven duurden 14 minuten langer dan ze hadden moeten duren, en iemand had ergens onderweg de action-logs-familie aan de skip-entirely-lijst toegevoegd om de backuptijd terug te dringen. Die keuze was redelijk voor incrementele rolling backups. De ontwikkelaar die hem maakte, wist vrijwel zeker dat een verse Joomla-installatie deze tabellen aanmaakt vanuit installation/sql/mysql/base.sql tijdens de install, en dat de tabellen op elke nieuwe omgeving aanwezig zouden zijn. Wat hij of zij niet meewoog: een Akeeba-restore draait de Joomla-installer niet. Hij zet precies terug wat in het archief zit. Bevat het archief geen schema voor die tabellen, dan heeft de teruggezette database geen schema voor die tabellen, en elk request dat een actie probeert te loggen, loopt tegen een missing-table-exception aan. De Joomla-documentatie behandelt de component, maar zwijgt over de schema-afhankelijkheid van de core plugin op die tabellen. De docs van Akeeba zelf over database-filters waarschuwen om voorzichtig te zijn, maar een waarschuwing in een configuratietabblad is 18 maanden later onzichtbaar wanneer iemand anders op Restore klikt. De fix van 40 minuten De volledige reparatie kostte 40 minuten. Het meeste daarvan ging op aan het vinden van de canonieke CREATE TABLE-statements voor een verse Joomla 4.4.3-installatie. De snelste route is de bijbehorende Joomla-release-ZIP downloaden, lokaal uitpakke",
+  "potentialAction":[
+    {"@type":"ReadAction","target":["https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/"]}
+  ]
+}
+</script>
+
+<!-- JSON-LD: BreadcrumbList -->
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"BreadcrumbList",
+  "itemListElement":[
+    {"@type":"ListItem","position":1,"name":"Pier","item":"https://pier.abn.company/nl/"},
+    {"@type":"ListItem","position":2,"name":"Blog","item":"https://pier.abn.company/nl/blog/"},
+    {"@type":"ListItem","position":3,"name":"Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix","item":"https://pier.abn.company/nl/blog/joomla-akeeba-action-logs-fix/"}
+  ]
+}
+</script>
+
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "inLanguage": "nl",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Maakt Joomla de ontbrekende action_logs-tabellen vanzelf opnieuw aan?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nee. Joomla schrijft core-schema alleen weg tijdens een verse installatie of een update-run. Een restore speelt het archief letterlijk terug, dus elke tabel die door het backup-filter is uitgesloten, blijft ontbreken totdat je hem zelf aanmaakt."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is het veilig om action_logs uit te sluiten van nachtelijke backups?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ja, zolang minstens één wekelijks profiel de volledige action_logs-familie wel meeneemt. Behandel het snelle profiel als routinematige ops en het volledige profiel als je disaster-recovery-baseline."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Wat als mijn tabelprefix niet jos_ is?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Vervang jos_ door je werkelijke prefix in elk CREATE TABLE-statement. De prefix vind je in configuration.php als de public $dbprefix-waarde, of onder #__ in de oorspronkelijke base.sql van Joomla."
+      }
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a href="#main" class="skip-link">Naar inhoud</a>
+
+<nav class="nav" aria-label="Primary">
+  <div class="nav-inner">
+    <a href="/nl/" class="brand" aria-label="Pier — home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" fill="none">
+        <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+        <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+        <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+      </svg>
+      <span>Pier</span>
+    </a>
+    <div class="nav-links">
+      <a href="/nl/#features">Functies</a>
+      <a href="/nl/#playbook">Playbook</a>
+      <a href="/nl/blog/">Blog</a>
+      <a href="/nl/#pricing">Prijzen</a>
+      <a href="/nl/#faq">Veelgesteld</a>
+    </div>
+    <div class="nav-ctas">
+      <a href="https://pier.abn.company/blog/joomla-akeeba-action-logs-fix/" class="lang-switch" hreflang="en" title="English">EN</a>
+      <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn sm">Koop — €199</a>
+    </div>
+  </div>
+</nav>
+
+<main id="main">
+
+<article class="post">
+  <header class="post-head">
+    <div class="shell">
+      <div class="rule">
+        <span>— Artikel —</span>
+        <span class="spacer"></span>
+        <span>№ 132</span>
+      </div>
+      <p class="eyebrow"><span class="n">132 —</span>Joomla</p>
+      <h1 class="display-l post-title">Joomla 4 geeft 500 na Akeeba-restore: action_logs-fix</h1>
+      <p class="lede post-lede">Een gewone Akeeba-restore. Een blanco 500. Veertig minuten grep, schema-reconstructie en één stille INSERT later draaide de Joomla 4-site weer.</p>
+      <div class="post-meta">
+        <time datetime="2026-06-12T01:23:37.800Z">12 juni 2026</time>
+        <span class="dotsep">·</span>
+        <span>9 min lezen</span>
+        <span class="dotsep">·</span>
+        <span>Pier-redactie</span>
+      </div>
+    </div>
+  </header>
+
+  <figure class="post-hero">
+    <picture>
+      <source srcset="/blog/joomla-akeeba-action-logs-fix/hero.webp" type="image/webp">
+      <img src="/blog/joomla-akeeba-action-logs-fix/hero.jpg" alt="Papieren schema met CREATE TABLE action_logs, messing plaat, gelakte RESTORE envelop, manila Akeeba label op linnen." width="2000" height="1333" loading="eager" fetchpriority="high" decoding="async">
+    </picture>
+    <figcaption class="hero-cap"><span>Hero · gestileerd stilleven</span><span>№ 132</span></figcaption>
+  </figure>
+
+  <div class="shell post-body-wrap">
+    <div class="post-body">
+      <p>23:41 op een vrijdag. Een Nederlands bureau waar we mee samenwerken had net een routinematige restore van een Joomla 4-site afgerond, van Akeeba Backup naar een nieuwe staging-server. De DB-import liep schoon. De bestandsextractie eindigde zonder waarschuwingen. Toen ze de frontend-URL aanriepen, kregen ze een leeg wit scherm met het ene karakter dat de meeste Joomla-adminweekenden afsluit: <code>0</code>.</p><p>De site was een Joomla 4.4.3-nieuwsplatform met meerdere auteurs, ongeveer 12.000 artikelen, en migreerde van PHP 8.1 op productie naar PHP 8.2 op staging vooruitlopend op een php.net <a href="https://www.php.net/supported-versions.php">version cliff</a>. Het Akeeba-profiel was geërfd van een eerdere ontwikkelaar die het project twee jaar eerder had verlaten. De overdrachtsdocumentatie was één PDF met het woord <em>back-ups</em> en een vinkje ernaast. Verder niets.</p><p>Dit bericht is het volledige incidentlog: de eerste foutregel, de diagnose, de SQL die de <a href="/">legacy site</a> terugbracht, en de kleine aanpassing aan het Akeeba-profiel die ervoor zorgt dat het bij de volgende restore niet opnieuw gebeurt. Draai je Joomla 4 in productie, dan is dit een van de beter te vermijden vrijdagavondtelefoontjes.</p><h2>De eerste foutregel</h2><p>De lead van het bureau opende een Loom en deelde zijn scherm met de staging-server. De error.log van Apache schreef sinds de restore klaar was om de paar seconden dezelfde regel:</p><pre><code class="lang-text">[Fri Jun 06 23:42:11.218443 2026] [proxy_fcgi:error] [pid 8141]
+[client 10.0.0.4:54231] AH01071: Got error 'PHP message:
+1146 Table \'staging_jdb.jos_action_logs\' doesn\'t exist'</code></pre><p>De eigen log van Joomla onder <code>administrator/logs/error.php</code> was uitgebreider, maar vertelde hetzelfde verhaal:</p><pre><code class="lang-text">PHP Fatal error: Uncaught Joomla\Database\Exception\ExecutionFailureException:
+Table 'staging_jdb.jos_action_logs' doesn't exist
+SQL=INSERT INTO `jos_action_logs` (`message_language_key`, `message`,
+`log_date`, `extension`, `user_id`, `item_id`, `ip_address`) VALUES ...</code></pre><p>Eén ontbrekende tabel. Vier kolommen stack trace. Volledige uitval op elke URL, inclusief <code>/administrator</code>. De reden is niet subtiel zodra je het ziet: de <code>actionlog</code> system plugin staat in elke Joomla 4-installatie standaard aan, luistert naar events zoals <code>onUserLogin</code>, <code>onContentAfterSave</code> en <code>onExtensionAfterInstall</code>, en op Joomla 4 raakt zelfs een ongeauthenticeerde frontend-hit uiteindelijk een codepad dat een logregel wil schrijven. Mislukt die schrijfactie, dan 500't het request. Mislukt elk request, dan ligt de site eruit.</p><p>Om te bevestigen dat er verder niets ontbrak, draaiden we eerst een one-liner over de error.log van die dag:</p><pre><code class="lang-bash">grep -i "doesn't exist" /var/log/apache2/error.log \
+  | grep -oE "'[^']+'" \
+  | sort -u</code></pre><p>De output bestond uit vier regels, allemaal uit dezelfde familie:</p><pre><code class="lang-text">'staging_jdb.jos_action_logs'
+'staging_jdb.jos_action_logs_config'
+'staging_jdb.jos_action_logs_extensions'
+'staging_jdb.jos_action_logs_users'</code></pre><p>Verder niets. De rest van het schema, alle 184 andere tabellen, was schoon geïmporteerd. De blast radius was precies de component User Actions Log, en die component trok de site onderuit.</p><h2>Wat Akeeba stilletjes had uitgesloten</h2><p>De Akeeba Backup-engine heeft in elk profiel een tabblad <strong>Database table filters</strong>. Het accepteert twee soorten regels: sla de data van de tabel over (exporteer het schema, laat de rijen weg) en sla de tabel volledig over (geen schema, geen rijen). Beide zijn krachtig op een live, groeiende site. Vooral <code>#__action_logs</code> groeit hard op drukke installaties. Elke login, elke artikel-save, elke plugin-toggle is één INSERT. Op een nieuwssite met 12.000 artikelen en acht redacteuren had die op productie 412MB bereikt. De nachtelijke archieven duurden 14 minuten langer dan ze hadden moeten duren, en iemand had ergens onderweg de action-logs-familie aan de skip-entirely-lijst toegevoegd om de backuptijd terug te dringen.</p><p>Die keuze was redelijk voor incrementele rolling backups. De ontwikkelaar die hem maakte, wist vrijwel zeker dat een verse Joomla-installatie deze tabellen aanmaakt vanuit <code>installation/sql/mysql/base.sql</code> tijdens de install, en dat de tabellen op elke nieuwe omgeving aanwezig zouden zijn. Wat hij of zij niet meewoog: een Akeeba-restore draait de Joomla-installer niet. Hij zet precies terug wat in het archief zit. Bevat het archief geen schema voor die tabellen, dan heeft de teruggezette database geen schema voor die tabellen, en elk request dat een actie probeert te loggen, loopt tegen een missing-table-exception aan.</p><p>De <a href="https://docs.joomla.org/J4.x:Action_Logs">Joomla-documentatie</a> behandelt de component, maar zwijgt over de schema-afhankelijkheid van de core plugin op die tabellen. De docs van Akeeba zelf over database-filters waarschuwen om voorzichtig te zijn, maar een waarschuwing in een configuratietabblad is 18 maanden later onzichtbaar wanneer iemand anders op Restore klikt.</p><h2>De fix van 40 minuten</h2><p>De volledige reparatie kostte 40 minuten. Het meeste daarvan ging op aan het vinden van de canonieke CREATE TABLE-statements voor een verse Joomla 4.4.3-installatie. De snelste route is de bijbehorende Joomla-release-ZIP downloaden, lokaal uitpakken en <code>installation/sql/mysql/base.sql</code> openen. Zoek op <code>action_logs</code> en kopieer de vier CREATE TABLE-blokken letterlijk. Ze zijn stabiel over de hele Joomla 4.x-lijn, maar match voor de zekerheid altijd met de versie van de draaiende site.</p><p>Vervang de placeholder <code>#__</code> met je werkelijke prefix (hier <code>jos_</code>) en draai het geheel door de staging-database. Het volledige reparatie-script van het bureau zag er zo uit, met de luide stukken weggesnoeid:</p><pre><code class="lang-sql">CREATE TABLE IF NOT EXISTS `jos_action_logs` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `message_language_key` varchar(255) NOT NULL DEFAULT '',
+  `message` text NOT NULL,
+  `log_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `extension` varchar(50) NOT NULL DEFAULT '',
+  `user_id` int NOT NULL DEFAULT 0,
+  `item_id` int unsigned NOT NULL DEFAULT 0,
+  `ip_address` varchar(40) NOT NULL DEFAULT '0.0.0.0',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id_logdate` (`user_id`,`log_date`),
+  KEY `idx_user_id_extension` (`user_id`,`extension`),
+  KEY `idx_extension` (`extension`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `jos_action_logs_extensions` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `extension` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `jos_action_logs_users` (
+  `user_id` int unsigned NOT NULL,
+  `notify` tinyint unsigned NOT NULL,
+  `extensions` text NOT NULL,
+  PRIMARY KEY (`user_id`),
+  KEY `idx_notify` (`notify`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `jos_action_logs_config` (
+  `id` tinyint unsigned NOT NULL AUTO_INCREMENT,
+  `type_title` varchar(255) NOT NULL DEFAULT '',
+  `type_alias` varchar(255) NOT NULL DEFAULT '',
+  `id_holder` varchar(255) DEFAULT NULL,
+  `title_holder` varchar(255) DEFAULT NULL,
+  `table_name` varchar(255) DEFAULT NULL,
+  `text_prefix` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;</code></pre><p>Het schema alleen is genoeg om de 500's te stoppen. Om te voorkomen dat de adminview van User Actions Log zelf alsnog crasht op een lege extensions-lijst, vul <code>jos_action_logs_extensions</code> ook met de standaardrijen die Joomla verwacht:</p><pre><code class="lang-sql">INSERT INTO `jos_action_logs_extensions` (`extension`) VALUES
+('com_banners'), ('com_cache'), ('com_categories'),
+('com_config'), ('com_contact'), ('com_content'),
+('com_installer'), ('com_media'), ('com_menus'),
+('com_messages'), ('com_modules'), ('com_newsfeeds'),
+('com_plugins'), ('com_redirect'), ('com_tags'),
+('com_templates'), ('com_users'), ('com_checkin'),
+('com_scheduler'), ('com_workflow');</code></pre><p>De site kwam terug op de eerste reload. Backend-login werkte. De Action Logs-adminview laadde schoon en leeg, wat de juiste toestand is na een vers schema zonder historische events.</p><aside class="callout"><strong>Sneller maar lelijker:</strong> kun je de tijd voor schemareconstructie niet missen, schakel de Action Log system plugin dan direct in de database uit met <code>UPDATE jos_extensions SET enabled = 0 WHERE element = 'actionlog' AND type = 'plugin';</code>. De site is meteen weer beschikbaar. De prijs is je volledige audittrail en een Joomla-installatie die verder afdrijft van de canonieke staat. Gebruik het als tourniquet bij een live uitval, en kom dezelfde week terug om de echte fix uit te voeren.</aside><h2>De klok van 40 minuten, opgesplitst</h2><p>Voor wie dit soort incident voor het eerst behandelt, ongeveer zo verdeelt de tijd zich:</p><ol><li><strong>0 tot 5 minuten.</strong> Tail <code>error.log</code>. Bevestig dat één foutklasse zich herhaalt. Bevestig dat het ontbrekende object een tabel is, geen kolom, bestand of class. De goedkope one-liner hierboven geeft een complete lijst.</li><li><strong>5 tot 15 minuten.</strong> Identificeer de gebruikte Joomla-release (<code>cat administrator/manifests/files/joomla.xml | grep version</code>). Download de bijbehorende release-ZIP uit het officiële archief. Pak lokaal uit. Open <code>installation/sql/mysql/base.sql</code> in je editor.</li><li><strong>15 tot 30 minuten.</strong> Haal de relevante CREATE TABLE-statements eruit, vervang de <code>#__</code> prefix met de live prefix, en draai ze. Tools zoals <a href="https://dev.mysql.com/doc/refman/8.0/en/mysql.html">de mysql-client</a> zijn prima; een GUI ook. Draai daarna de seed-INSERTs.</li><li><strong>30 tot 40 minuten.</strong> Laad de site opnieuw, log in, loop de drukst bezochte URL's na, controleer of de error-log stil blijft. Verifieer dat de User Actions Log-component in de admin laadt. Maak een vers Akeeba-archief van de nu correcte DB als nieuwe baseline.</li></ol><p>De langste subtaak is bijna altijd het vinden van de juiste CREATE TABLE-statements voor de juiste Joomla-versie. Onderhoud je meer dan twee Joomla 4-sites, houd dan ergens een map met de uitgepakte <code>installation/sql/mysql/</code>-tree van elke minor release die je ondersteunt. Dat alleen scheelt 10 minuten bij elk volgend incident.</p><h2>Audit de restore, niet alleen de backup</h2><p>De aanpassing die het bureau de maandag erop deed, kostte 90 seconden. Ze openden het Akeeba-profiel, haalden de action-logs-filters uit het nachtelijke profiel en zetten ze in een nieuw <em>nightly-fast</em>-profiel, en maakten een <em>weekly-full</em>-profiel zonder uitsluitingen. Beide profielen werden in een README van één pagina in de repo gedocumenteerd. Ze schreven een zondag-cron die een dry-run-restore doet van het weekly-full-archief naar een scratch-database, en daarna <code>SHOW TABLES</code> draait tegen een referentielijst van verwachte Joomla 4-tabellen. Elke diff stuurt een mail.</p><p>Die laatste stap is degene die de meeste teams overslaan, en degene die zich het snelst terugverdient. Een backup die je nooit hebt teruggezet, is geen backup. Het is een bestand dat bestaat.</p><p>Toen we Pier bouwden, kwamen we precies hetzelfde tegen op de <a href="/">legacy site</a> van een klant, twee keer binnen een maand, op twee verschillende Joomla-projecten. Zo hebben we het uiteindelijk aangepakt: de ingebouwde <a href="/#database">MySQL editor</a> doet een schema-diff tussen de gekoppelde database en een referentie-Joomla 4-schema dat met de app meekomt, dus ontbrekende tabellen markeren zichzelf in de sidebar nog voordat je code pusht die ervan afhankelijk is. De volledige <a href="/#features">version history</a> van elke SQL-wijziging die je draait, blijft lokaal bewaard, dus het reparatiescript hierboven was bij de volgende site één klik om opnieuw af te spelen.</p><p>Het kleinste wat je vandaag kunt doen: open je actieve Akeeba-profiel, klik op het tabblad Database table filters, en maak er een screenshot van. Komen <code>#__action_logs</code>, <code>#__action_logs_extensions</code>, <code>#__action_logs_users</code> of <code>#__action_logs_config</code> ergens in die lijst voor, dan zit er een restore-nachtprobleem aan te komen. Verplaats ze naar een snel nachtprofiel, houd een weekprofiel zonder uitsluitingen, en slaap rustiger op vrijdagen.</p>
+    </div>
+
+    <aside class="pullquote">De table filters van Akeeba zwijgen op het moment van terugzetten. Een restore is nooit completer dan de meest agressieve uitsluiting in je backup-profiel.</aside>
+
+    
+<section class="post-faq" aria-label="Vragen">
+  <p class="rule"><span>— Vragen —</span><span class="spacer"></span></p>
+  
+    <div class="faq-item">
+      <p class="faq-q">Maakt Joomla de ontbrekende action_logs-tabellen vanzelf opnieuw aan?</p>
+      <p class="faq-a">Nee. Joomla schrijft core-schema alleen weg tijdens een verse installatie of een update-run. Een restore speelt het archief letterlijk terug, dus elke tabel die door het backup-filter is uitgesloten, blijft ontbreken totdat je hem zelf aanmaakt.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Is het veilig om action_logs uit te sluiten van nachtelijke backups?</p>
+      <p class="faq-a">Ja, zolang minstens één wekelijks profiel de volledige action_logs-familie wel meeneemt. Behandel het snelle profiel als routinematige ops en het volledige profiel als je disaster-recovery-baseline.</p>
+    </div>
+
+    <div class="faq-item">
+      <p class="faq-q">Wat als mijn tabelprefix niet jos_ is?</p>
+      <p class="faq-a">Vervang jos_ door je werkelijke prefix in elk CREATE TABLE-statement. De prefix vind je in configuration.php als de public $dbprefix-waarde, of onder #__ in de oorspronkelijke base.sql van Joomla.</p>
+    </div>
+</section>
+
+    <aside class="pier-card" aria-label="Probeer Pier">
+      <div class="pier-card-head">
+        <span class="stamp accent">Pier · v1.0</span>
+      </div>
+      <div class="pier-card-body">
+        <h3 class="display-m">Gemaakt voor precies dit soort werk.</h3>
+        <p class="lede">Pier koppelt met elke FTP/SFTP-server en bijbehorende MySQL-database, en laat je via chat bewerken. Elke wijziging staat onder versie. Elke undo is één klik. €199 eenmalig, twee Macs, 30 dagen geld terug.</p>
+        <div class="pier-card-ctas">
+          <a href="https://buy.stripe.com/cNicN67MZeXD3Gt0ui2Nq00" class="pier-buy btn">Koop Pier — €199 ↗</a>
+          <a href="/nl/#download" class="btn ghost">Download gratis proefversie</a>
+        </div>
+      </div>
+    </aside>
+
+    <nav class="post-tags" aria-label="Onder">
+      <span class="rule" style="margin:0">
+        <span>— Onder —</span>
+        <span class="spacer"></span>
+      </span>
+      <ul>
+        <li><a href="/nl/blog/?tag=joomla">#joomla</a></li>
+<li><a href="/nl/blog/?tag=mysql">#mysql</a></li>
+<li><a href="/nl/blog/?tag=php">#php</a></li>
+<li><a href="/nl/blog/?tag=databases">#databases</a></li>
+<li><a href="/nl/blog/?tag=operations">#operations</a></li>
+<li><a href="/nl/blog/?tag=tooling">#tooling</a></li>
+      </ul>
+    </nav>
+
+    <nav class="post-related" aria-label="Gerelateerd leeswerk">
+      
+    <p class="rule"><span>— Gerelateerd leeswerk —</span><span class="spacer"></span></p>
+    <div class="related-grid">
+      <a class="post-card" href="https://pier.abn.company/nl/blog/joomla-extensions-table-field-guide/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/joomla-extensions-table-field-guide/hero.webp" type="image/webp">
+        <img src="/nl/blog/joomla-extensions-table-field-guide/hero.jpg" alt="Bovenaanzicht op linnen: ingeïnkt veldboek &#39;#__extensions&#39;, manilla Joomla 3-map, ruitjespapier, messing plaatje, lakzegel." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Joomla</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>De Joomla 3 #__extensions-tabel: een veldgids in zes kolommen</h3>
+      <span class="pc-lede">Zes kolommen in #__extensions vertellen je wat Joomla daadwerkelijk laadt. Een veldgids voor het moment dat je een site overneemt waarvan de admin niet opent.</span>
+    </span>
+  </a>
+<a class="post-card" href="https://pier.abn.company/nl/blog/magento-sales-order-grid-shrink/">
+    <span class="pc-img">
+      <picture>
+        <source srcset="/nl/blog/magento-sales-order-grid-shrink/hero.webp" type="image/webp">
+        <img src="/nl/blog/magento-sales-order-grid-shrink/hero.jpg" alt="Bovenaanzicht van papieren grootboek sales_order_grid, manilla archiefmap, SQL-vel, messing plaatje, vulpen, lakzegel op linnen." loading="lazy" decoding="async" width="640" height="427">
+      </picture>
+    </span>
+    <span class="pc-body">
+      <span class="pc-meta"><span class="pc-cat">Magento</span><span>·</span><span>11 juni 2026</span></span>
+      <h3>Magento sales_order_grid: zo krimpten we &#39;m met 4GB</h3>
+      <span class="pc-lede">Een NL-bureau zat na Black Friday met een sales_order_grid van 4GB. Hier is de gefaseerde krimp die &#39;m terugbracht, met elke order intact.</span>
+    </span>
+  </a>
+    </div>
+    </nav>
+  </div>
+</article>
+
+</main>
+
+<footer class="footer">
+  <div class="shell">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="margin-bottom:18px">
+          <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true" fill="none">
+            <rect x="1" y="1" width="30" height="30" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="6" y1="22" x2="26" y2="22" stroke="currentColor" stroke-width="1.5"/>
+            <line x1="16" y1="22" x2="16" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="13" y="9" width="6" height="6" fill="#c23d1f"/>
+          </svg>
+          <span>Pier</span>
+        </div>
+        <p style="max-width:320px; color:var(--muted); font-size:14px">AI voor verouderde websites. Native Mac-app. Gebouwd door ABN in Amsterdam.</p>
+      </div>
+      <div>
+        <h4>Product</h4>
+        <a href="/nl/#features">Functies</a>
+        <a href="/nl/#playbook">Playbook</a>
+        <a href="/nl/blog/">Blog</a>
+        <a href="/nl/#pricing">Prijzen</a>
+        <a href="/nl/#faq">Veelgesteld</a>
+      </div>
+      <div>
+        <h4>Bedrijf</h4>
+        <a href="https://abn.company">ABN</a>
+        <a href="mailto:hello@pier.abn.company">Contact</a>
+        <a href="https://pier.abn.company/blog/joomla-akeeba-action-logs-fix/">🇬🇧 English</a>
+      </div>
+      <div>
+        <h4>Juridisch</h4>
+        <a href="/#">Privacy</a>
+        <a href="/#">Voorwaarden</a>
+        <a href="/#">Beveiliging</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 ABN Company · Gemaakt op een regenachtige dag in Amsterdam</span>
+      <span class="sp"></span>
+      <span>N 52°22′ · E 04°54′</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/site.js" defer></script>
+</body>
+</html>
